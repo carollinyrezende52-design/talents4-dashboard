@@ -3,152 +3,145 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Talents4 | CRM Enterprise</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-
+<title>Talents4 | Candidate Intelligence</title>
 <style>
 :root {
-  --bg: #060e1a;
-  --bg2: #0a1628;
-  --bg3: #0f1f38;
-  --panel: rgba(10,22,40,0.9);
-  --line: rgba(255,255,255,0.07);
-  --line2: rgba(255,255,255,0.12);
-  --text: #e8f2ff;
-  --muted: #7a96bc;
-  --accent: #4fa3f7;
-  --accent2: #7c5cff;
-  --teal: #00d4aa;
-  --good: #22c97a;
-  --warn: #f59e0b;
-  --bad: #f04747;
-  --shadow: 0 24px 64px rgba(0,0,0,0.5);
-  --radius: 16px;
-  --font: 'DM Sans', sans-serif;
-  --mono: 'DM Mono', monospace;
+  --bg:#07111f;
+  --bg-2:#0b172a;
+  --bg-3:#10213a;
+  --panel:rgba(11,23,42,.82);
+  --panel-2:rgba(15,30,53,.78);
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.14);
+  --text:#eef5ff;
+  --muted:#8ea5c7;
+  --accent:#59a8ff;
+  --accent-2:#7c5cff;
+  --good:#26c281;
+  --warn:#ffb54a;
+  --bad:#ff6b6b;
+  --shadow:0 26px 80px rgba(0,0,0,.32);
+  --radius:24px;
+  
+  /* Cores Oficiais da Alemanha para Detalhes */
+  --ger-black: #1a1a1a;
+  --ger-red: #e60000;
+  --ger-gold: #ffcc00;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  overflow-x: hidden;
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; color:var(--text); font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:
+radial-gradient(circle at 10% 0%, rgba(89,168,255,.16), transparent 28%),
+radial-gradient(circle at 100% 0%, rgba(124,92,255,.14), transparent 24%),
+linear-gradient(180deg, #07111f 0%, #081426 48%, #09131f 100%); min-height: 100vh;}
+
+.container { width:min(1580px, 94vw); margin:0 auto; padding:28px 0 42px; display: none; }
+.section { margin-top:18px; }
+.card { border:1px solid var(--line); background:var(--panel); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter: blur(10px); }
+
+/* ── CHARME ALEMÃO 1: Borda Topo no Hero ── */
+.hero { position:relative; overflow:hidden; padding:26px; border-top: 3px solid transparent; background-clip: padding-box; }
+.hero::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--ger-black) 0%, var(--ger-red) 50%, var(--ger-gold) 100%);
+  z-index: 10;
 }
+.hero::before { content:""; position:absolute; inset:auto -120px -120px auto; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle, rgba(124,92,255,.18), transparent 60%); filter:blur(8px); }
 
-/* BG Ambient */
-body::before {
-  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(ellipse 60% 40% at 10% 5%, rgba(79,163,247,0.10) 0%, transparent 60%),
-              radial-gradient(ellipse 50% 35% at 90% 10%, rgba(124,92,255,0.09) 0%, transparent 55%),
-              radial-gradient(ellipse 40% 30% at 50% 90%, rgba(0,212,170,0.05) 0%, transparent 60%);
-}
+.hero-grid { position:relative; z-index:1; display:grid; grid-template-columns: 1.2fr .86fr; gap:18px; align-items:stretch; }
 
-.container { position: relative; z-index: 1; width: min(1640px, 96vw); margin: 0 auto; padding: 28px 0 60px; display: none; }
+/* ── CHARME ALEMÃO 2: Marca D'água "DEUTSCHLAND" ── */
+.hero-brand { position:relative; overflow:hidden; padding:28px; border-radius:28px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); min-height:208px; display:flex; flex-direction:column; justify-content:center; }
+.watermark { position: absolute; right: -10px; bottom: -35px; font-size: 110px; font-weight: 900; color: rgba(255,255,255,0.015); pointer-events: none; text-transform: uppercase; letter-spacing: -0.05em; line-height: 1; z-index: 0; user-select: none; }
 
-/* Hero */
-.hero { border: 1px solid var(--line2); border-radius: 22px; background: linear-gradient(135deg, rgba(10,22,40,0.97), rgba(8,16,30,0.93)); box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05); padding: 32px 36px 28px; margin-bottom: 20px; position: relative; overflow: hidden; }
-.hero::after { content: ''; position: absolute; top: -60px; right: -60px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(79,163,247,0.06) 0%, transparent 70%); pointer-events: none; }
-.hero-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-.hero-kicker::before { content: ''; width: 20px; height: 2px; background: var(--accent); border-radius: 2px; }
-.hero h1 { font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
-.hero p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.eyebrow { position:relative; z-index:1; font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:800; color:#b9d4f7; display:flex; align-items:center; gap:10px; }
 
-/* Filter Panel */
-.filter-panel { background: rgba(0,0,0,0.25); border-radius: 14px; padding: 18px 20px; margin-top: 22px; border: 1px solid var(--line); }
-.filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.filter-header strong { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
-.filter-actions { display: flex; gap: 8px; }
-.top-controls { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; }
-.field { display: grid; gap: 5px; }
-.field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding-left: 2px; }
-.control, .search { width: 100%; border-radius: 10px; border: 1px solid var(--line2); background: rgba(255,255,255,0.03); color: var(--text); padding: 10px 13px; font-size: 13px; font-family: var(--font); transition: border-color 0.2s, background 0.2s; }
-.control:focus, .search:focus { outline: none; border-color: var(--accent); background: rgba(79,163,247,0.06); }
-.search::placeholder { color: #4a6585; }
-select.control option { background: var(--bg2); color: var(--text);}
-.btn { cursor: pointer; border-radius: 9px; border: 1px solid; font-family: var(--font); font-size: 12px; font-weight: 600; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; }
-.btn-ghost { background: transparent; border-color: var(--line2); color: var(--muted); }
-.btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); border-color: var(--line2); }
-.btn-export { background: rgba(34,201,122,0.08); color: var(--good); border-color: rgba(34,201,122,0.25); }
-.btn-export:hover { background: rgba(34,201,122,0.16); color: #fff; }
+/* ── CHARME ALEMÃO 3: Mini Dots Flag ── */
+.ger-dots { display:flex; gap:3px; align-items: center; }
+.ger-dot { width:7px; height:7px; border-radius:50%; }
+.ger-dot.black { background: var(--ger-black); box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
+.ger-dot.red { background: var(--ger-red); }
+.ger-dot.gold { background: var(--ger-gold); box-shadow: 0 0 5px rgba(255,204,0,0.5); }
+.ger-tag { color: var(--ger-gold); font-weight: 800; letter-spacing: 0.1em; }
 
-/* Tabs */
-.tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
-.tab-btn { background: transparent; border: 1px solid transparent; color: var(--muted); font-family: var(--font); font-size: 14px; padding: 9px 16px; border-radius: 999px; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-.tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
-.tab-btn.active { background: rgba(79,163,247,0.08); color: var(--text); font-weight: 600; border-color: rgba(79,163,247,0.2); }
-.tab-badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.18); color: #fbbf24; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 600; margin-left: 6px; min-width: 22px; }
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeUp 0.35s ease; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.hero-title { position:relative; z-index:1; margin:14px 0 8px; font-size:clamp(34px,4.6vw,64px); line-height:.96; letter-spacing:-.04em; max-width:760px; }
+.hero-subtitle { position:relative; z-index:1; max-width:700px; color:#c1d4ef; font-size:18px; line-height:1.5; }
 
-/* Cards & KPIs */
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: border-color 0.2s; }
-.card:hover { border-color: var(--line2); }
-.kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.kpi-value { margin-top: 8px; font-size: clamp(26px, 2.8vw, 38px); font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -0.02em; }
-.kpi-sub { margin-top: 4px; font-size: 12px; color: var(--muted); }
-.grid-2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
-.panel-title { margin-bottom: 16px; }
-.panel-title h2 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
-.panel-title p { margin-top: 3px; font-size: 12px; color: var(--muted); }
-.chart-wrap { position: relative; width: 100%; min-height: 240px; }
-.chart-wrap canvas { max-width: 100%; cursor: pointer;}
-.chart-empty { color: var(--muted); padding: 20px; font-size: 13px; text-align: center; padding-top: 40px; }
-.section { margin-top: 18px; }
+/* Filter Bar */
+.filter-bar { margin-top:18px; padding:18px; border-radius:24px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); position: relative; z-index: 2;}
+.filter-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+.filter-top strong { font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:#a9c0df; }
+.filter-actions { display:flex; gap:10px; }
+.top-controls { display:grid; grid-template-columns: 1.45fr repeat(4, minmax(145px, 1fr)); gap:12px; }
+.field { display:grid; gap:6px; }
+.field label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; padding-left:2px; }
+.control, .search, button { width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:var(--text); padding:14px 16px; font-size:14px; }
+.search::placeholder { color:#87a2c8; }
+select.control option { background:#10213a; color:#eef5ff; }
+button { cursor:pointer; font-weight:700; transition:.18s ease; }
+button:hover { transform:translateY(-1px); border-color:rgba(89,168,255,.30); }
+.btn-ghost { color:#c3d5ef; }
+.btn-accent { background:rgba(38,194,129,.10); color:#b2f5d4; border-color:rgba(38,194,129,.22); }
+
+/* KPIs */
+.kpis { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
+.kpi { padding:18px; }
+.kpi-label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+.kpi-value { margin-top:8px; font-size:clamp(26px,2.8vw,38px); font-weight:800; letter-spacing:-.03em; }
+.kpi-sub { margin-top:6px; color:#c2d6f0; font-size:13px; line-height:1.45; }
+.grid-2 { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; }
+.grid-3 { display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
+.panel-title { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; }
+.panel-title h2 { margin:0; font-size:20px; letter-spacing:-.02em; }
+.panel-title p { margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.45; }
+.badge { padding:8px 10px; border-radius:999px; background:rgba(89,168,255,.12); color:#c4ddff; font-size:12px; border:1px solid rgba(89,168,255,.18); }
+.svg-wrap { width:100%; min-height:280px; }
 
 /* Strategy Blocks */
-.exec-stack { display: grid; gap: 16px; }
-.radar-list, .priority-list, .shortlist-list { display: grid; gap: 10px; }
-.priority-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); transition: 0.2s; }
-.priority-item:hover { background: rgba(255,255,255,0.06); border-color: var(--line2); }
-.priority-info h4 { margin: 0 0 4px 0; font-size: 13px; color: #e8f2ff; }
-.priority-info p { margin: 0; font-size: 11px; color: var(--muted); }
-.priority-count { background: rgba(79,163,247,0.15); color: var(--accent); padding: 4px 12px; border-radius: 99px; font-weight: 700; font-size: 14px; }
-.radar-item { padding: 10px 0; border-bottom: 1px solid var(--line); }
-.radar-item:last-child { border-bottom: none; }
-.radar-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
-.radar-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
-.radar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-.radar-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
-.short-item { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); cursor: pointer; transition: 0.2s; }
-.short-item:hover { background: rgba(34,201,122,0.05); border-color: rgba(34,201,122,0.3); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-.short-top { display: flex; justify-content: space-between; align-items: center; }
-.short-top h4 { margin: 0; font-size: 15px; color: #fff; }
-.score-pill { background: rgba(34,201,122,0.15); color: var(--good); border: 1px solid rgba(34,201,122,0.3); padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; font-family: var(--mono); }
-.short-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
-.short-meta span { color: #a8c4e0; }
+.exec-grid { display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
+.radar-list, .priority-list, .shortlist-list { display:grid; gap:12px; }
+.radar-item, .priority-item, .short-item { padding:16px; border:1px solid rgba(255,255,255,.08); border-radius:18px; background:rgba(255,255,255,.03); }
+.radar-head, .priority-head, .short-head { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+.radar-name, .priority-name, .short-name { font-size:14px; font-weight:700; color:#eaf3ff; }
+.radar-value, .priority-count, .short-score { font-size:14px; font-weight:800; color:#fff; white-space:nowrap; }
+.radar-track { margin-top:10px; height:8px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; }
+.radar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#59a8ff,#7c5cff); }
+.radar-note, .priority-note, .short-sub { margin-top:8px; font-size:13px; color:#b8ccea; line-height:1.55; }
+.exec-stack { display:grid; gap:18px; }
+.short-item { cursor: pointer; transition: 0.2s; }
+.short-item:hover { border-color: rgba(38,194,129,.3); background: rgba(38,194,129,.05); transform: translateY(-2px); }
+.short-topline { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; }
+.score-pill { padding:7px 10px; border-radius:999px; background:rgba(38,194,129,.12); color:#aef0cb; font-size:11px; font-weight:800; border:1px solid rgba(38,194,129,.22); }
 
 /* Table */
-.table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,0.25); max-height: 520px; }
-table { width: 100%; border-collapse: collapse; min-width: 900px; }
-thead th { position: sticky; top: 0; z-index: 2; background: rgba(8,16,28,0.98); text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 14px 16px; border-bottom: 1px solid var(--line2); white-space: nowrap; }
-tbody tr { cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
-tbody tr:hover { background: rgba(79,163,247,0.06); }
-tbody tr:hover td { color: var(--text); }
-tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; transition: color 0.15s; }
-.table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.table-header-row h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
-.table-header-row p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.table-wrap { overflow:auto; border-radius:18px; border:1px solid rgba(255,255,255,.08); }
+table { width:100%; border-collapse:collapse; min-width:1200px; }
+thead th { position:sticky; top:0; z-index:2; background:#0d1a2f; text-align:left; font-size:12px; color:#bdd0ee; text-transform:uppercase; letter-spacing:.05em; padding:16px 12px; border-bottom:1px solid rgba(255,255,255,.08); }
 
-/* Chips */
-.chip { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
-.chip.good { background: rgba(34,201,122,0.12); color: #6debb0; border-color: rgba(34,201,122,0.25); }
-.chip.warn { background: rgba(245,158,11,0.12); color: #fcd34d; border-color: rgba(245,158,11,0.25); }
-.chip.bad  { background: rgba(240,71,71,0.12);  color: #fca5a5; border-color: rgba(240,71,71,0.25); }
-.chip.neutral { background: rgba(79,163,247,0.10); color: #93c5fd; border-color: rgba(79,163,247,0.2); }
-.chip.teal { background: rgba(0,212,170,0.10); color: #5eead4; border-color: rgba(0,212,170,0.2); }
-.chip.count { background: rgba(255,255,255,0.06); color: var(--muted); border-color: transparent; font-size: 11px; padding: 4px 10px; }
+/* ── CHARME ALEMÃO 4: Efeito Hover Iluminado na Tabela ── */
+tbody tr { position: relative; transition: background 0.15s; }
+tbody tr::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--ger-black) 0%, var(--ger-red) 50%, var(--ger-gold) 100%);
+  opacity: 0; transition: opacity 0.2s ease;
+}
+tbody tr:hover::before { opacity: 1; }
+tbody tr:hover td { background:rgba(89,168,255,.05); }
 
-/* Modal 360º */
+tbody td { padding:14px 12px; border-bottom:1px solid rgba(255,255,255,.04); color:#e6efff; font-size:14px; vertical-align:middle; cursor: pointer; transition: background 0.15s;}
+
+.chip { display:inline-flex; align-items:center; padding:7px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.08); font-size:12px; font-weight:700; text-transform: uppercase; }
+.chip.good { background:rgba(38,194,129,.12); color:#99f0c7; }
+.chip.warn { background:rgba(255,181,74,.12); color:#ffd694; }
+.chip.bad { background:rgba(255,107,107,.12); color:#ffb1b1; }
+.chip.neutral { background:rgba(89,168,255,.10); color:#bdd8ff; }
+.toolbar-bottom { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-top:14px; color:var(--muted); font-size:13px; }
+.pagination { display:flex; gap:10px; width:220px; }
+
+/* Modal 360º Otimizado */
 .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(3,8,18,0.88); backdrop-filter: blur(14px); display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.active { display: flex; animation: overlayIn 0.25s ease; }
 @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-card { background: var(--bg2); width: 100%; max-width: 1160px; max-height: 92vh; border-radius: 22px; border: 1px solid rgba(79,163,247,0.15); box-shadow: 0 50px 120px rgba(0,0,0,0.7); display: flex; flex-direction: column; overflow: hidden; animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1); }
+.modal-card { background: var(--bg-2); width: 100%; max-width: 1160px; max-height: 92vh; border-radius: 22px; border: 1px solid rgba(89,168,255,0.2); box-shadow: 0 50px 120px rgba(0,0,0,0.7); display: flex; flex-direction: column; overflow: hidden; animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1); }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 .modal-header { padding: 26px 32px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(8,18,34,0.98) 0%, rgba(10,22,40,0.95) 100%); flex-shrink: 0; position: relative; overflow: hidden; }
 .modal-id-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -198,7 +191,17 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     <div class="hero-grid">
       <div>
         <div class="hero-brand">
-          <div class="eyebrow">Talents4</div>
+          <div class="watermark">DEUTSCHLAND</div>
+          <div class="eyebrow">
+              Talents4 
+              <span style="color: var(--line-2);">|</span> 
+              <div class="ger-dots">
+                  <div class="ger-dot black"></div>
+                  <div class="ger-dot red"></div>
+                  <div class="ger-dot gold"></div>
+              </div>
+              <span class="ger-tag">DEUTSCHLAND PROJEKT</span>
+          </div>
           <div class="hero-title">Candidate Intelligence</div>
           <div class="hero-subtitle">Gestão 100% focada no Status de Pipeline, prontidão para embarque e gargalos da operação de recrutamento internacional.</div>
         </div>
@@ -216,7 +219,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
       <div class="top-controls">
         <div class="field">
           <label for="searchInput">Busca Global</label>
-          <input id="searchInput" class="search" type="search" placeholder="Nome, ID, profissão, empresa..." />
+          <input id="searchInput" class="search" type="search" placeholder="Nome, ID, profissão, cidade..." />
         </div>
         <div class="field">
           <label for="pipelineFilter">STATUS PIPELINE</label>
@@ -245,11 +248,11 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
       <div class="panel-title">
         <div>
           <h2 style="color: var(--accent);">📊 Status do Pipeline (Etapa 1)</h2>
-          <p>Clique em qualquer barra abaixo para filtrar os candidatos desta fase.</p>
+          <p>Visão absoluta de onde os candidatos estão travados ou avançando agora.</p>
         </div>
         <div class="badge" id="pipelineBadge">0 registros</div>
       </div>
-      <div class="chart-wrap" id="pipelineChart"></div>
+      <div class="svg-wrap" id="pipelineChart"></div>
     </div>
     <div class="card" style="padding:22px;">
       <div class="panel-title">
@@ -259,28 +262,28 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
         </div>
         <div class="badge" id="statusBadge">Base inicial</div>
       </div>
-      <div class="chart-wrap" id="statusDonut" style="display:flex; justify-content:center;"></div>
+      <div class="svg-wrap" id="statusDonut"></div>
     </div>
   </section>
 
   <section class="section grid-3">
     <div class="card" style="padding:22px;">
       <div class="panel-title">
-        <div><h2>Prontidão de Idioma</h2><p>Filtre clicando nas barras (ex: B1+).</p></div>
+        <div><h2>Prontidão de Idioma 🇩🇪</h2><p>Distribuição por CEFR (Alemão).</p></div>
       </div>
-      <div class="chart-wrap" id="germanChart"></div>
+      <div class="svg-wrap" id="germanChart"></div>
     </div>
     <div class="card" style="padding:22px;">
       <div class="panel-title">
         <div><h2>Força do Perfil</h2><p>Triagem técnica do recrutador.</p></div>
       </div>
-      <div class="chart-wrap" id="profileChart" style="display:flex; justify-content:center;"></div>
+      <div class="svg-wrap" id="profileChart"></div>
     </div>
     <div class="card" style="padding:22px;">
       <div class="panel-title">
         <div><h2>Concentração Técnica</h2><p>Áreas de formação em destaque.</p></div>
       </div>
-      <div class="chart-wrap" id="professionChart"></div>
+      <div class="svg-wrap" id="professionChart"></div>
     </div>
   </section>
 
@@ -362,36 +365,9 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 </div>
 
 <script>
-Chart.register(ChartDataLabels);
-
-// Plugin Doughnut Total
-const centerTextPlugin = {
-  id: 'centerText',
-  beforeDraw: function(chart) {
-    if (chart.config.type !== 'doughnut') return;
-    const ctx = chart.ctx;
-    ctx.restore();
-    const total = chart.config.data.datasets[0].data.reduce((a, b) => a + b, 0);
-    if(total === 0) return;
-    const fontSize = (chart.height / 100).toFixed(2);
-    ctx.font = "bold " + fontSize + "em 'DM Sans'";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#e8f2ff";
-    const text = total;
-    const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
-    const textY = chart.height / 2;
-    ctx.fillText(text, textX, textY);
-    ctx.font = "600 " + (fontSize * 0.3) + "em 'DM Sans'";
-    ctx.fillStyle = "#7a96bc";
-    const subText = "TOTAL";
-    const subX = Math.round((chart.width - ctx.measureText(subText).width) / 2);
-    ctx.fillText(subText, subX, textY + 22);
-    ctx.save();
-  }
-};
-Chart.register(centerTextPlugin);
-
-// 10 LINKS
+// ══════════════════════════════════════════════
+//  CONFIGURAÇÃO: 10 FONTES DE DADOS
+// ══════════════════════════════════════════════
 const SHEET_URLS = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1160770167&single=true&output=csv",
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1669292883&single=true&output=csv",
@@ -405,35 +381,26 @@ const SHEET_URLS = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1768870782&single=true&output=csv"
 ];
 
-// MAPA DO MODAL
-const SECAO_MAP = {
-  'perfil': ['Nome completo','Nome completo do candidato','Nome','Data da Candidatura','Data da Entrevista','País de origem','Cidade atual','Idade','E-mail','Telefone','Estado civil','Com quem você mora?','Profissão do cônjuge','Filho','Idade Filho','Quem é você?','Foto de rosto','Referência'],
-  'formacao': ['Profissão principal','Profissão','Área profissional','Universidade','Curso de Graduação','Anabin','Pós-graduação','Curso','Experiência Profissional (tempo)','Resumo profissional','Língua alemã','Língua Estrangeira','Nível Língua Estrangeira','Nível de alemão','Nível na língua alemã?'],
-  'entrevista': ['Nota para apresentação','Relato sobre a experiência profissional','Trace um breve histórico','Acredita que pode contribuir','Porque deseja ir para Alemanha','Qual sua área de interesse','Quais desafios você imagina','Como é seu preparo para acompanhar','Como é sua organização financeira','Na sua opinião, quais as principais características','Conte-me sobre uma situação imprevista','Conte-me uma situação em que você rejeitou','Quando você começou a estabelecer metas','Como você organiza seu dia a dia','Qual a coisa mais importante','Você já precisou liderar','Link da Gravação da Entrevista','Resultado da entrevista'],
-  'avaliacao': ['Análise do recrutador','Diferenciais do perfil','Pontos fortes','Pontos de atenção','Perfil profissional para apresentação','Perfil','Observações internas','Tipo de candidato','Avaliador','Status Final','Observação'],
-  'documentos': ['CPF','Número do Passaporte','Validade do passaporte','Cidadania Europeia','Carteira de vacinação','Comprovante de residência','Documento Profissional (COREN, CRM, CREA, outro)','Diploma','Histórico','Em caso de mudança de nome no diploma','Certificação estrangeira','Arquivo','CV/ ARQUIVO DOC'],
-  'juridico': ['Deliberação do RH','Data do envio do contrato','Data do envio do termo de uso de imagens','Termo de consentimento de uso de dados','Contrato','Retorno','STATUS PIPELINE'],
-  'matching': ['Empresa','Feedback','Data prevista para ir à Alemanha','Data prevista mudança','Data início curso alemão','Motivo da desistência','Etapa da desistência','Motivo do Não qualificado','Etapa da Não qualificado','Data da desistência','Data']
-};
-
 let masterData = [];
 let filteredData = [];
 let page = 1;
 const pageSize = 10;
 const PALETTE = ['#59a8ff','#7c5cff','#26c281','#ffb54a','#ff6b6b','#7dd3fc','#c084fc','#94a3b8','#f472b6','#34d399'];
 
-// Utilitários de Limpeza de Dados
+// Utilitários de Limpeza de Dados (Resistente a falhas do Sheets)
 const normalize = v => (v ?? '').toString().trim();
 const cleanKey  = v => normalize(v).replace(/\s+/g, ' ').trim();
 const isEmpty   = v => { const s = normalize(v).toLowerCase(); return !s || s === '-' || s === 'pendente' || s === '#n/a' || s === 'nan' || s === 'não informado'; };
 const superClean = s => normalize(s).toLowerCase().replace(/[?!.\n\r]/g,' ').replace(/\s+/g,' ').trim();
 
 function getVal(obj, keys) {
+  // 1. Busca exata
   for(const k of keys) {
     const sk = cleanKey(k).toLowerCase();
     const found = Object.keys(obj).find(ok => cleanKey(ok).toLowerCase() === sk);
     if(found && !isEmpty(obj[found])) return normalize(obj[found]);
   }
+  // 2. Busca parcial 
   for(const k of keys) {
     const sk = superClean(k);
     const found = Object.keys(obj).find(ok => superClean(ok).includes(sk));
@@ -486,7 +453,9 @@ async function initCRM() {
         
         Object.keys(row).forEach(k => {
           const ck = cleanKey(k);
-          if(!isEmpty(row[k])) c[ck] = row[k];
+          if(!isEmpty(row[k])) {
+              c[ck] = row[k]; // A aba mais recente ganha, mas a aba 1 é de onde vem o STATUS
+          }
         });
       });
     });
@@ -508,6 +477,9 @@ async function initCRM() {
   }
 }
 
+// ══════════════════════════════════════════════
+//  LÓGICA DE NEGÓCIOS & CORES
+// ══════════════════════════════════════════════
 function friendlyPct(num) { return `${(num * 100).toFixed(0)}%`; }
 
 function germanRank(value) { 
@@ -533,6 +505,7 @@ function groupCount(data, keyChoices) {
   return [...map.entries()].sort((a,b) => b[1]-a[1]);
 }
 
+// Calculo Inteligente de Saúde da Base (Radar & Fila)
 function executiveMetrics(data) {
   const total = data.length || 1;
   const missingContact = data.filter(c => !getVal(c, ['E-mail']) || !getVal(c, ['Telefone'])).length;
@@ -576,130 +549,76 @@ function candidateScore(c) {
 }
 
 // ══════════════════════════════════════════════
-//  GRÁFICOS CHART.JS (Com Cross-Filtering Corrigido)
+//  DESENHO DE GRÁFICOS SVG NATIVOS E INTERATIVOS
 // ══════════════════════════════════════════════
-const tooltipPlugin = {
-  backgroundColor: 'rgba(8,16,30,0.96)', borderColor: 'rgba(79,163,247,0.25)', borderWidth: 1,
-  titleColor: '#e8f2ff', bodyColor: '#a8c4e0', padding: 12, cornerRadius: 10,
-  titleFont: { size: 13, weight: '600' }, bodyFont: { size: 12 }, displayColors: true, boxWidth: 10, boxHeight: 10, boxPadding: 4
-};
-
-function makeGradient(ctx, color, alpha1=0.85, alpha2=0.5) {
-  const hex = color.replace('#','');
-  const r = parseInt(hex.substring(0,2),16);
-  const g = parseInt(hex.substring(2,4),16);
-  const b = parseInt(hex.substring(4,6),16);
-  const grad = ctx.createLinearGradient(0,0,400,0);
-  grad.addColorStop(0, `rgba(${r},${g},${b},${alpha1})`);
-  grad.addColorStop(1, `rgba(${r},${g},${b},${alpha2})`);
-  return grad;
-}
-
-const chartInstances = {};
-function destroyChart(id) { if(chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
-
-// BARRA HORIZONTAL
-function drawBarH(id, arr, opts={}) {
-  destroyChart(id);
-  const canvas = document.getElementById(id);
-  if(!canvas) return;
-  if(!arr.length) { canvas.parentElement.innerHTML = '<div style="color:var(--muted); padding:20px;">Sem dados.</div>'; return; }
-
-  const labels = arr.map(d => d[0].length > 28 ? d[0].substring(0,26)+'…' : d[0]);
-  const values = arr.map(d => d[1]);
-  const ctx = canvas.getContext('2d');
-  const colors = arr.map((_,i) => makeGradient(ctx, PALETTE[i % PALETTE.length]));
-  const borderColors = arr.map((_,i) => PALETTE[i % PALETTE.length]);
-
-  chartInstances[id] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: colors, borderColor: borderColors,
-        borderWidth: 1, borderRadius: 6,
-        hoverBackgroundColor: borderColors.map(c => c + 'dd'),
-      }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      animation: { duration: 700, easing: 'easeOutQuart' },
-      onClick: (e, activeEls) => {
-        if(activeEls.length > 0) {
-            const labelStr = arr[activeEls[0].index][0]; 
-            if(opts.filterId) {
-                const sel = document.getElementById(opts.filterId);
-                if(sel) {
-                    let exists = Array.from(sel.options).some(opt => opt.value === labelStr);
-                    if(exists) sel.value = labelStr;
-                }
-            } else {
-                document.getElementById('searchInput').value = labelStr;
-            }
+// Ao clicar no grafico, o sistema localiza e preenche o `<select>` correspondente.
+function applyGraphicFilter(filterId, labelValue) {
+    const sel = document.getElementById(filterId);
+    if(sel) {
+        let exists = Array.from(sel.options).some(opt => opt.value === labelValue);
+        if(exists) {
+            sel.value = labelValue;
             applyFilters();
         }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: { ...tooltipPlugin, callbacks: { label: ctx => ` ${ctx.parsed.x} candidato(s)` } },
-        datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 4, formatter: Math.round }
-      },
-      scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }, ticks: { color: '#7a96bc', font: { size: 11 } }, border: { display: false }, grace: '15%' },
-        y: { grid: { display: false, drawBorder: false }, ticks: { color: '#a8c4e0', font: { size: 12 }, padding: 8 }, border: { display: false } }
-      }
     }
-  });
 }
 
-// ROSCA (DOUGHNUT)
-function drawDoughnut(id, arr, opts={}) {
-  destroyChart(id);
-  const canvas = document.getElementById(id);
-  if(!canvas) return;
-  if(!arr.length) { canvas.parentElement.innerHTML = '<div style="color:var(--muted); padding:20px;">Sem dados.</div>'; return; }
+// Adicionamos a lógica do onclick no próprio HTML gerado
+function drawBarSVG(targetId, entries, options = {}) {
+  const target = document.getElementById(targetId);
+  const filtered = entries.filter(d => d[0] !== 'Não informado' && d[1] > 0);
+  const max = Math.max(1, ...filtered.map(d => d[1]));
+  const h = options.height || Math.max(240, filtered.length * 48);
+  const w = options.width || 760;
+  const left = options.left || 200;
+  const top = 20;
+  const rowH = 38;
+  const barMaxW = w - left - 90;
+  const clickId = options.filterId ? `onclick="applyGraphicFilter('${options.filterId}', this.getAttribute('data-val'))"` : '';
 
-  const labels = arr.map(d => d[0]);
-  const values = arr.map(d => d[1]);
-  const colors = arr.map((_,i) => PALETTE[i % PALETTE.length]);
-  const ctx = canvas.getContext('2d');
+  if (!filtered.length) { target.innerHTML = '<div style="color:var(--muted); padding:20px;">Sem dados para este filtro.</div>'; return; }
+  
+  target.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%">${filtered.map((d,i) => { 
+      const y = top + i * rowH; const bw = (d[1] / max) * barMaxW; 
+      return `
+      <g style="cursor: pointer;" data-val="${d[0]}" ${clickId}>
+          <text x="0" y="${y + 18}" fill="#b9cde9" font-size="13" style="pointer-events: none;">${String(d[0]).slice(0, 30)}</text>
+          <rect x="${left}" y="${y}" rx="8" ry="8" width="${barMaxW}" height="16" fill="rgba(255,255,255,0.04)"></rect>
+          <rect x="${left}" y="${y}" rx="8" ry="8" width="${bw||2}" height="16" fill="${PALETTE[i%PALETTE.length]}"><title>Filtrar por ${d[0]}</title></rect>
+          <text x="${left + bw + 10}" y="${y + 13}" fill="#edf4ff" font-size="12" font-weight="700" style="pointer-events: none;">${d[1]}</text>
+      </g>`; 
+  }).join('')}</svg>`; 
+}
 
-  chartInstances[id] = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: colors.map(c => c + '99'), borderColor: colors,
-        borderWidth: 2, hoverBackgroundColor: colors, hoverBorderWidth: 0, hoverOffset: 8,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true, cutout: '72%',
-      animation: { animateRotate: true, duration: 800, easing: 'easeOutQuart' },
-      onClick: (e, activeEls) => {
-        if(activeEls.length > 0) {
-            const labelStr = arr[activeEls[0].index][0]; 
-            if(opts.filterId) {
-                const sel = document.getElementById(opts.filterId);
-                if(sel) {
-                    let exists = Array.from(sel.options).some(opt => opt.value === labelStr);
-                    if(exists) sel.value = labelStr;
-                }
-            } else {
-                document.getElementById('searchInput').value = labelStr;
-            }
-            applyFilters();
-        }
-      },
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { color: '#a8c4e0', font: { size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 } },
-        tooltip: { ...tooltipPlugin },
-        datalabels: { display: false } 
-      }
-    }
-  });
+function polarToCartesian(cx, cy, r, angle) { const rad = (angle - 90) * Math.PI / 180.0; return { x: cx + (r * Math.cos(rad)), y: cy + (r * Math.sin(rad)) }; }
+function describeArc(cx, cy, r, startAngle, endAngle) { const start = polarToCartesian(cx, cy, r, endAngle); const end = polarToCartesian(cx, cy, r, startAngle); const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'; return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`; }
+
+function drawDonutSVG(targetId, entries, centerText, options = {}) { 
+  const target = document.getElementById(targetId); 
+  const filtered = entries.filter(d => d[0] !== 'Não informado' && d[1] > 0); 
+  const total = filtered.reduce((s, x) => s + x[1], 0) || 1; 
+  let current = 0; const cx = 160, cy = 140, r = 85; 
+  const clickId = options.filterId ? `onclick="applyGraphicFilter('${options.filterId}', this.getAttribute('data-val'))"` : '';
+  
+  if (!filtered.length) { target.innerHTML = '<div style="color:var(--muted); padding:20px;">Sem dados.</div>'; return; } 
+  
+  target.innerHTML = `<svg viewBox="0 0 560 280" width="100%" height="100%">
+  ${filtered.map((d, i) => { 
+      const angle = (d[1] / total) * 360; const start = current; const end = current + angle; current = end; 
+      return `
+      <g style="cursor: pointer;" data-val="${d[0]}" ${clickId}>
+          <path d="${describeArc(cx, cy, r, start, end)}" stroke="${PALETTE[i % PALETTE.length]}" stroke-width="24" fill="none" stroke-linecap="round"><title>Filtrar por ${d[0]}</title></path>
+      </g>`; 
+  }).join('')}
+  <circle cx="${cx}" cy="${cy}" r="50" fill="rgba(255,255,255,0.02)"></circle>
+  <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="#edf4ff" font-size="28" font-weight="800" style="pointer-events: none;">${centerText}</text>
+  <text x="${cx}" y="${cy + 18}" text-anchor="middle" fill="#93a8c7" font-size="12" style="pointer-events: none;">registros</text>
+  ${filtered.map((d, i) => `
+    <g style="cursor: pointer;" data-val="${d[0]}" ${clickId}>
+      <rect x="330" y="${30 + i*30}" width="10" height="10" rx="3" fill="${PALETTE[i % PALETTE.length]}"></rect>
+      <text x="350" y="${40 + i*30}" fill="#dce8fb" font-size="12">${d[0]}: ${d[1]}</text>
+    </g>`).join('')}
+  </svg>`; 
 }
 
 // ══════════════════════════════════════════════
@@ -716,14 +635,17 @@ function renderAll() {
     <div class="card kpi"><div class="kpi-label">Alemão B1+</div><div class="kpi-value" style="color:#c084fc">${Math.round(e.readyRate*total)}</div><div class="kpi-sub">Prontidão comercial</div></div>
   `;
 
-  // Desenhando Gráficos e Linkando os Filtros
-  drawBarH('pipelineChart', groupCount(filteredData, ['STATUS PIPELINE']), { filterId: 'pipelineFilter' });
+  // Gráficos agora possuem a propriedade "filterId", ligando eles as caixas no topo!
+  const pipelineData = groupCount(filteredData, ['STATUS PIPELINE']);
+  drawBarSVG('pipelineChart', pipelineData, { left: 190, filterId: 'pipelineFilter' });
   document.getElementById('pipelineBadge').textContent = `${total} registros`;
 
-  drawDoughnut('statusDonut', groupCount(filteredData, ['Status Final']), { filterId: 'statusFilter' });
-  drawBarH('germanChart', groupCount(filteredData, ['Nível de alemão', 'Língua alemã']), { filterId: 'germanFilter' });
-  drawDoughnut('profileChart', groupCount(filteredData, ['Perfil']));
-  drawBarH('professionChart', groupCount(filteredData, ['Profissão principal', 'Profissão']).slice(0, 6), { filterId: 'professionFilter' });
+  const statusData = groupCount(filteredData, ['Status Final']);
+  drawDonutSVG('statusDonut', statusData, total, { filterId: 'statusFilter' });
+
+  drawBarSVG('germanChart', groupCount(filteredData, ['Nível de alemão', 'Língua alemã']), { left: 120, filterId: 'germanFilter' });
+  drawDonutSVG('profileChart', groupCount(filteredData, ['Perfil']), total);
+  drawBarSVG('professionChart', groupCount(filteredData, ['Profissão principal', 'Profissão']).slice(0, 6), { left: 220, filterId: 'professionFilter' });
 
   // Radar & Fila
   const radarItems = [ 
@@ -742,7 +664,7 @@ function renderAll() {
   ]; 
   document.getElementById('priorityList').innerHTML = priorityItems.map(item => `<div class="priority-item"><div class="priority-head"><div class="priority-name">${item.name}</div><div class="priority-count">${item.count}</div></div><div class="priority-note">${item.note}</div></div>`).join(''); 
 
-  // Shortlist
+  // Shortlist (Score)
   const shortlist = filteredData.filter(r => !(getVal(r,['Status Final'])||'').toLowerCase().includes('reprovado') && !(getVal(r,['STATUS PIPELINE'])||'').toLowerCase().includes('desist')).map(r => ({ ...r, _score: candidateScore(r) })).sort((a,b) => b._score - a._score).slice(0,5); 
   document.getElementById('shortlistList').innerHTML = shortlist.length ? shortlist.map(r => `
     <div class="short-item" onclick="openModal('${r._id}')">
