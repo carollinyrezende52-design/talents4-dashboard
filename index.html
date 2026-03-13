@@ -31,166 +31,113 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; overflow-x: hidden; }
 
-/* ── BG Ambient ─────────────────────────── */
+/* BG Ambient */
 body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(ellipse 60% 40% at 10% 5%, rgba(79,163,247,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 35% at 90% 10%, rgba(124,92,255,0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 50% 90%, rgba(0,212,170,0.05) 0%, transparent 60%);
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 40% at 10% 5%, rgba(79,163,247,0.10) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 35% at 90% 10%, rgba(124,92,255,0.09) 0%, transparent 55%),
+              radial-gradient(ellipse 40% 30% at 50% 90%, rgba(0,212,170,0.05) 0%, transparent 60%);
 }
 
 .container { position: relative; z-index: 1; width: min(1640px, 96vw); margin: 0 auto; padding: 28px 0 60px; }
 
-/* ── Hero ───────────────────────────────── */
-.hero {
-  border: 1px solid var(--line2);
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(10,22,40,0.97), rgba(8,16,30,0.93));
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
-  padding: 32px 36px 28px;
-  margin-bottom: 20px;
-  position: relative; overflow: hidden;
-}
-.hero::after {
-  content: '';
-  position: absolute; top: -60px; right: -60px;
-  width: 320px; height: 320px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(79,163,247,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
+/* Hero */
+.hero { border: 1px solid var(--line2); border-radius: 22px; background: linear-gradient(135deg, rgba(10,22,40,0.97), rgba(8,16,30,0.93)); box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05); padding: 32px 36px 28px; margin-bottom: 20px; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; top: -60px; right: -60px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(79,163,247,0.06) 0%, transparent 70%); pointer-events: none; }
 .hero-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 .hero-kicker::before { content: ''; width: 20px; height: 2px; background: var(--accent); border-radius: 2px; }
 .hero h1 { font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
 .hero p { color: var(--muted); font-size: 14px; line-height: 1.5; }
 
-/* ── Filter Panel ───────────────────────── */
-.filter-panel {
-  background: rgba(0,0,0,0.25);
-  border-radius: 14px; padding: 18px 20px;
-  margin-top: 22px; border: 1px solid var(--line);
-}
+/* Filter Panel */
+.filter-panel { background: rgba(0,0,0,0.25); border-radius: 14px; padding: 18px 20px; margin-top: 22px; border: 1px solid var(--line); }
 .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .filter-header strong { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
 .filter-actions { display: flex; gap: 8px; }
 .top-controls { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; }
 .field { display: grid; gap: 5px; }
 .field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding-left: 2px; }
-.control, .search {
-  width: 100%; border-radius: 10px;
-  border: 1px solid var(--line2);
-  background: rgba(255,255,255,0.03);
-  color: var(--text);
-  padding: 10px 13px; font-size: 13px;
-  font-family: var(--font);
-  transition: border-color 0.2s, background 0.2s;
-}
+.control, .search { width: 100%; border-radius: 10px; border: 1px solid var(--line2); background: rgba(255,255,255,0.03); color: var(--text); padding: 10px 13px; font-size: 13px; font-family: var(--font); transition: border-color 0.2s, background 0.2s; }
 .control:focus, .search:focus { outline: none; border-color: var(--accent); background: rgba(79,163,247,0.06); }
 .search::placeholder { color: #4a6585; }
-select.control option { background: var(--bg2); }
-.btn {
-  cursor: pointer; border-radius: 9px; border: 1px solid;
-  font-family: var(--font); font-size: 12px; font-weight: 600;
-  padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;
-  transition: all 0.2s; white-space: nowrap;
-}
+select.control option { background: var(--bg2); color: var(--text);}
+.btn { cursor: pointer; border-radius: 9px; border: 1px solid; font-family: var(--font); font-size: 12px; font-weight: 600; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; }
 .btn-ghost { background: transparent; border-color: var(--line2); color: var(--muted); }
 .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); border-color: var(--line2); }
 .btn-export { background: rgba(34,201,122,0.08); color: var(--good); border-color: rgba(34,201,122,0.25); }
 .btn-export:hover { background: rgba(34,201,122,0.16); color: #fff; }
 
-/* ── Tabs ────────────────────────────────── */
+/* Tabs */
 .tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
-.tab-btn {
-  background: transparent; border: 1px solid transparent;
-  color: var(--muted); font-family: var(--font); font-size: 14px;
-  padding: 9px 16px; border-radius: 999px; white-space: nowrap;
-  cursor: pointer; transition: all 0.2s;
-}
+.tab-btn { background: transparent; border: 1px solid transparent; color: var(--muted); font-family: var(--font); font-size: 14px; padding: 9px 16px; border-radius: 999px; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
 .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
 .tab-btn.active { background: rgba(79,163,247,0.08); color: var(--text); font-weight: 600; border-color: rgba(79,163,247,0.2); }
-.tab-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(245,158,11,0.18); color: #fbbf24;
-  padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 600;
-  margin-left: 6px; min-width: 22px;
-}
+.tab-badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.18); color: #fbbf24; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 600; margin-left: 6px; min-width: 22px; }
 .tab-content { display: none; }
 .tab-content.active { display: block; animation: fadeUp 0.35s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── Cards & KPIs ───────────────────────── */
+/* Cards & KPIs */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.card {
-  border: 1px solid var(--line); background: var(--panel);
-  border-radius: var(--radius); padding: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  transition: border-color 0.2s;
-}
+.card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: border-color 0.2s; }
 .card:hover { border-color: var(--line2); }
 .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .kpi-value { margin-top: 8px; font-size: clamp(26px, 2.8vw, 38px); font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -0.02em; }
 .kpi-sub { margin-top: 4px; font-size: 12px; color: var(--muted); }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
 .panel-title { margin-bottom: 16px; }
 .panel-title h2 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
 .panel-title p { margin-top: 3px; font-size: 12px; color: var(--muted); }
-.chart-wrap { position: relative; width: 100%; min-height: 240px; }
-.chart-wrap canvas { max-width: 100%; cursor: pointer; }
+.chart-wrap { position: relative; width: 100%; min-height: 220px; }
+.chart-wrap canvas { max-width: 100%; cursor: pointer;}
 .chart-empty { color: var(--muted); padding: 20px; font-size: 13px; text-align: center; padding-top: 40px; }
 .section { margin-top: 18px; }
 
-/* ── Table ──────────────────────────────── */
-.table-wrap {
-  overflow: auto; border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(0,0,0,0.25);
-  max-height: 520px;
-}
+/* ── NOVOS COMPONENTES ESTRATÉGICOS ── */
+.exec-stack { display: grid; gap: 16px; }
+.radar-list, .priority-list, .shortlist-list { display: grid; gap: 10px; }
+
+/* Action Items (Priority) */
+.priority-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); transition: 0.2s; }
+.priority-item:hover { background: rgba(255,255,255,0.06); border-color: var(--line2); }
+.priority-info h4 { margin: 0 0 4px 0; font-size: 13px; color: #e8f2ff; }
+.priority-info p { margin: 0; font-size: 11px; color: var(--muted); }
+.priority-count { background: rgba(79,163,247,0.15); color: var(--accent); padding: 4px 12px; border-radius: 99px; font-weight: 700; font-size: 14px; }
+
+/* Radar Items */
+.radar-item { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.radar-item:last-child { border-bottom: none; }
+.radar-head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.radar-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.radar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.radar-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+/* Shortlist Items */
+.short-item { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); cursor: pointer; transition: 0.2s; }
+.short-item:hover { background: rgba(34,201,122,0.05); border-color: rgba(34,201,122,0.3); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.short-top { display: flex; justify-content: space-between; align-items: center; }
+.short-top h4 { margin: 0; font-size: 15px; color: #fff; }
+.score-pill { background: rgba(34,201,122,0.15); color: var(--good); border: 1px solid rgba(34,201,122,0.3); padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; font-family: var(--mono); }
+.short-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.short-meta span { color: #a8c4e0; }
+
+
+/* Table */
+.table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,0.25); max-height: 520px; }
 table { width: 100%; border-collapse: collapse; min-width: 900px; }
-thead th {
-  position: sticky; top: 0; z-index: 2;
-  background: rgba(8,16,28,0.98);
-  text-align: left; font-size: 11px; font-weight: 700;
-  color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 14px 16px; border-bottom: 1px solid var(--line2);
-  white-space: nowrap;
-}
-tbody tr {
-  cursor: pointer;
-  transition: background 0.15s;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-}
+thead th { position: sticky; top: 0; z-index: 2; background: rgba(8,16,28,0.98); text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 14px 16px; border-bottom: 1px solid var(--line2); white-space: nowrap; }
+tbody tr { cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
 tbody tr:hover { background: rgba(79,163,247,0.06); }
 tbody tr:hover td { color: var(--text); }
-tbody td {
-  padding: 13px 16px; font-size: 13px; color: #b8cde8;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 220px;
-  transition: color 0.15s;
-}
+tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; transition: color 0.15s; }
 .table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .table-header-row h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
 .table-header-row p { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-/* ── Chips ──────────────────────────────── */
-.chip {
-  display: inline-flex; align-items: center;
-  padding: 4px 9px; border-radius: 5px;
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  border: 1px solid rgba(255,255,255,0.06);
-  white-space: nowrap;
-}
+/* Chips */
+.chip { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
 .chip.good { background: rgba(34,201,122,0.12); color: #6debb0; border-color: rgba(34,201,122,0.25); }
 .chip.warn { background: rgba(245,158,11,0.12); color: #fcd34d; border-color: rgba(245,158,11,0.25); }
 .chip.bad  { background: rgba(240,71,71,0.12);  color: #fca5a5; border-color: rgba(240,71,71,0.25); }
@@ -198,127 +145,49 @@ tbody td {
 .chip.teal { background: rgba(0,212,170,0.10); color: #5eead4; border-color: rgba(0,212,170,0.2); }
 .chip.count { background: rgba(255,255,255,0.06); color: var(--muted); border-color: transparent; font-size: 11px; padding: 4px 10px; }
 
-/* ── MODAL ──────────────────────────────── */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(3,8,18,0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  display: none; align-items: center; justify-content: center;
-  padding: 20px;
-}
+/* Modal 360º */
+.modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(3,8,18,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.active { display: flex; animation: overlayIn 0.25s ease; }
 @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
-
-.modal-card {
-  background: var(--bg2);
-  width: 100%; max-width: 1160px; max-height: 92vh;
-  border-radius: 22px;
-  border: 1px solid rgba(79,163,247,0.15);
-  box-shadow: 0 50px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
-  display: flex; flex-direction: column; overflow: hidden;
-  animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.95) translateY(12px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-/* Modal Header */
-.modal-header {
-  padding: 26px 32px 20px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(8,18,34,0.98) 0%, rgba(10,22,40,0.95) 100%);
-  flex-shrink: 0;
-  position: relative; overflow: hidden;
-}
-.modal-header::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--teal));
-}
+.modal-card { background: var(--bg2); width: 100%; max-width: 1160px; max-height: 92vh; border-radius: 22px; border: 1px solid rgba(79,163,247,0.15); box-shadow: 0 50px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03); display: flex; flex-direction: column; overflow: hidden; animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { padding: 26px 32px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(8,18,34,0.98) 0%, rgba(10,22,40,0.95) 100%); flex-shrink: 0; position: relative; overflow: hidden; }
+.modal-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--teal)); }
 .modal-id-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .modal-id-tag { font-family: var(--mono); font-size: 11px; color: var(--muted); background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 5px; }
 .modal-name { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
 .modal-meta { margin-top: 6px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .modal-meta span { font-size: 13px; color: var(--muted); }
 .modal-meta .sep { color: var(--line2); }
-.close-btn {
-  position: absolute; top: 22px; right: 26px;
-  background: rgba(255,255,255,0.06); border: 1px solid var(--line2);
-  color: var(--muted); width: 36px; height: 36px; border-radius: 50%;
-  font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; font-family: var(--font);
-}
+.close-btn { position: absolute; top: 22px; right: 26px; background: rgba(255,255,255,0.06); border: 1px solid var(--line2); color: var(--muted); width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: var(--font); }
 .close-btn:hover { background: rgba(240,71,71,0.15); color: #fca5a5; border-color: rgba(240,71,71,0.3); }
-
-/* Modal Tabs */
-.modal-tabs {
-  display: flex; gap: 0; border-bottom: 1px solid var(--line);
-  background: rgba(8,16,28,0.6); flex-shrink: 0;
-  overflow-x: auto; scrollbar-width: none;
-}
-.mtab {
-  padding: 13px 20px; font-size: 13px; font-weight: 500;
-  color: var(--muted); cursor: pointer; border: none;
-  background: transparent; font-family: var(--font);
-  border-bottom: 2px solid transparent; transition: all 0.2s;
-  white-space: nowrap;
-}
+.modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); background: rgba(8,16,28,0.6); flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+.mtab { padding: 13px 20px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border: none; background: transparent; font-family: var(--font); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
 .mtab:hover { color: var(--text); }
 .mtab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-
-/* Modal Body */
 .modal-body { overflow-y: auto; flex: 1; padding: 28px 32px; }
 .mtab-content { display: none; animation: fadeUp 0.25s ease; }
 .mtab-content.active { display: block; }
 
 /* Alert bar */
-.alert-bar {
-  display: none; align-items: flex-start; gap: 12px;
-  padding: 14px 18px; border-radius: 10px; margin-bottom: 22px;
-  background: rgba(240,71,71,0.08); border: 1px solid rgba(240,71,71,0.25);
-  color: #fca5a5; font-size: 13px; font-weight: 500;
-}
+.alert-bar { display: none; align-items: flex-start; gap: 12px; padding: 14px 18px; border-radius: 10px; margin-bottom: 22px; background: rgba(240,71,71,0.08); border: 1px solid rgba(240,71,71,0.25); color: #fca5a5; font-size: 13px; font-weight: 500; }
 .alert-bar.active { display: flex; }
 
 /* Field grid */
 .field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-.field-card {
-  background: rgba(255,255,255,0.02); border: 1px solid var(--line);
-  border-radius: 12px; padding: 16px 18px;
-  transition: all 0.2s; cursor: default;
-}
+.field-card { background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; transition: all 0.2s; cursor: default; }
 .field-card:hover { background: rgba(79,163,247,0.04); border-color: rgba(79,163,247,0.2); }
-.fc-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--muted); margin-bottom: 7px;
-}
-.fc-val {
-  font-size: 14px; color: var(--text); line-height: 1.55;
-  word-break: break-word; white-space: pre-wrap;
-}
+.fc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 7px; }
+.fc-val { font-size: 14px; color: var(--text); line-height: 1.55; word-break: break-word; white-space: pre-wrap; }
 .fc-val a { color: var(--accent); text-decoration: none; }
 .fc-val a:hover { text-decoration: underline; }
 
-/* Section header inside modal */
-.modal-section-title {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 12px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--muted);
-  margin: 22px 0 12px;
-}
-.modal-section-title::before {
-  content: ''; flex: none; width: 3px; height: 14px; border-radius: 2px;
-}
-.modal-section-title.blue::before { background: var(--accent); }
-.modal-section-title.purple::before { background: var(--accent2); }
-.modal-section-title.teal::before { background: var(--teal); }
-.modal-section-title.green::before { background: var(--good); }
+/* Section headers */
+.modal-section-title { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 22px 0 12px; }
+.modal-section-title::before { content: ''; flex: none; width: 3px; height: 14px; border-radius: 2px; }
 .modal-section-title.yellow::before { background: var(--warn); }
-.modal-section-title.red::before { background: var(--bad); }
 
-/* Highlight cards (wide) */
+/* Highlight & Notes */
 .highlight-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
 .highlight-card { border-radius: 12px; padding: 18px 20px; border: 1px solid; }
 .highlight-card.green { background: rgba(34,201,122,0.05); border-color: rgba(34,201,122,0.2); }
@@ -327,66 +196,26 @@ tbody td {
 .highlight-card.green .hc-label { color: var(--good); }
 .highlight-card.yellow .hc-label { color: var(--warn); }
 .highlight-card .hc-val { font-size: 13px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
-
-/* Notes block */
-.notes-block {
-  background: rgba(255,255,255,0.02); border: 1px solid var(--line);
-  border-radius: 12px; padding: 18px 20px;
-  font-size: 13px; color: #c8dff5; line-height: 1.7;
-  font-style: italic; white-space: pre-wrap; word-break: break-word;
-}
+.notes-block { background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 13px; color: #c8dff5; line-height: 1.7; font-style: italic; white-space: pre-wrap; word-break: break-word; }
 .notes-block.analysis { border-left: 3px solid var(--accent2); border-radius: 0 12px 12px 0; margin-bottom: 14px;}
-
-/* Timeline pills */
 .timeline { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.tpill {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 12px; border-radius: 999px;
-  font-size: 12px; font-weight: 600;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--line2);
-  color: var(--muted);
-}
+.tpill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.04); border: 1px solid var(--line2); color: var(--muted); }
 .tpill.done { background: rgba(34,201,122,0.1); border-color: rgba(34,201,122,0.25); color: #6debb0; }
 .tpill.pending { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #fcd34d; }
 .tpill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* Loading */
-#loadingOverlay {
-  position: fixed; inset: 0; background: var(--bg); z-index: 9999;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 20px;
-}
-.spinner {
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.08);
-  border-left-color: var(--accent);
-  animation: spin 0.9s linear infinite; margin-bottom: 20px;
-}
+/* Loaders */
+#loadingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+.spinner { width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.08); border-left-color: var(--accent); animation: spin 0.9s linear infinite; margin-bottom: 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-steps { margin-top: 16px; }
 .loading-step { font-size: 12px; color: var(--muted); margin-top: 4px; opacity: 0; transition: opacity 0.4s; }
 .loading-step.visible { opacity: 1; }
-
-/* Toast */
-#errorToast {
-  position: fixed; bottom: 20px; right: 20px; z-index: 9999;
-  background: rgba(240,71,71,0.92); color: #fff;
-  padding: 14px 20px; border-radius: 11px; font-size: 13px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; max-width: 380px;
-  backdrop-filter: blur(10px);
-}
+#errorToast { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: rgba(240,71,71,0.92); color: #fff; padding: 14px 20px; border-radius: 11px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; max-width: 380px; backdrop-filter: blur(10px); }
 
 /* Responsive */
-@media (max-width: 1000px) { .top-controls { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 700px) {
-  .top-controls { grid-template-columns: 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .highlight-pair { grid-template-columns: 1fr; }
-  .modal-card { max-height: 98vh; }
-  .modal-body { padding: 18px; }
-  .modal-header { padding: 20px 18px 16px; }
-  .modal-name { font-size: 20px; }
-}
+@media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .top-controls { grid-template-columns: 1fr; } .highlight-pair { grid-template-columns: 1fr; } .modal-card { max-height: 98vh; } .modal-body { padding: 18px; } .modal-header { padding: 20px 18px 16px; } }
 </style>
 </head>
 <body>
@@ -395,12 +224,12 @@ tbody td {
 
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <div style="font-size: 18px; font-weight: 600; color: var(--text);">Carregando CRM Talents4</div>
+  <div style="font-size: 18px; font-weight: 600; color: var(--text);">Iniciando CRM Enterprise...</div>
   <div class="loading-steps">
     <div class="loading-step" id="ls1">⟳ Conectando às 10 fontes de dados...</div>
-    <div class="loading-step" id="ls2">⟳ Consolidando registros de candidatos...</div>
-    <div class="loading-step" id="ls3">⟳ Calculando etapas e compliance...</div>
-    <div class="loading-step" id="ls4">✓ Pronto</div>
+    <div class="loading-step" id="ls2">⟳ Consolidando registros e limpando anomalias...</div>
+    <div class="loading-step" id="ls3">⟳ Processando regras de negócio e scoring...</div>
+    <div class="loading-step" id="ls4">✓ Tudo pronto</div>
   </div>
 </div>
 
@@ -408,24 +237,23 @@ tbody td {
 
   <section class="hero">
     <div class="hero-kicker">Talents4</div>
-    <h1>Central de Inteligência de Expatriação</h1>
-    <p>Base consolidada em tempo real · 10 fontes · Motor de compliance ativo · Interatividade Analítica</p>
+    <h1>Plataforma de Inteligência e Decisão</h1>
+    <p>Dashboard executivo focado em gargalos operacionais, prontidão de base e aprovação comercial.</p>
 
     <div class="filter-panel">
       <div class="filter-header">
-        <strong>Filtros Avançados</strong>
+        <strong>Motor de Busca Avançado</strong>
         <div class="filter-actions">
           <button class="btn btn-ghost" id="resetFilters">↺ Limpar</button>
           <button class="btn btn-export" id="btnExport">
-            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            Exportar CSV
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Exportar Base
           </button>
         </div>
       </div>
       <div class="top-controls">
         <div class="field">
           <label class="field-label">Busca Global</label>
-          <input id="searchInput" class="search" type="search" placeholder="Nome, ID, e-mail, cidade, empresa..." />
+          <input id="searchInput" class="search" type="search" placeholder="Nome, ID, profissão, empresa..." />
         </div>
         <div class="field">
           <label class="field-label">Etapa (Auto)</label>
@@ -440,7 +268,7 @@ tbody td {
           <select id="professionFilter" class="control"></select>
         </div>
         <div class="field">
-          <label class="field-label">Decisão Final</label>
+          <label class="field-label">Status Final</label>
           <select id="statusFilter" class="control"></select>
         </div>
       </div>
@@ -448,40 +276,56 @@ tbody td {
   </section>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="tab-exec">📊 Visão Executiva</button>
-    <button class="tab-btn" data-tab="tab-ops">📄 Documentação &amp; Compliance <span class="tab-badge" id="countDocs">0</span></button>
-    <button class="tab-btn" data-tab="tab-match">✈️ Hospitais &amp; Matching</button>
+    <button class="tab-btn active" data-tab="tab-exec">📊 Painel de Diretoria</button>
+    <button class="tab-btn" data-tab="tab-ops">📄 Documentação & Compliance <span class="tab-badge" id="countDocs">0</span></button>
+    <button class="tab-btn" data-tab="tab-match">✈️ Hospitais & Matching</button>
   </div>
 
   <div id="tab-exec" class="tab-content active">
     <div class="kpis" id="kpiGrid"></div>
+    
     <div class="grid-2">
-      <div class="card"><div class="panel-title"><h2>Funil de Etapas (Calculado)</h2><p>Clique em uma barra para filtrar a tabela.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartPipeline"></canvas></div></div>
-      <div class="card"><div class="panel-title"><h2>Status Final &amp; Decisões</h2><p>Aprovações, reprovações e base de dados.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartStatus"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Funil de Etapas (Real)</h2><p>Clique em uma barra para isolar o funil.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartPipeline"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Status e Desfecho</h2><p>Desempenho histórico de conversão.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartStatus"></canvas></div></div>
     </div>
-    <div class="grid-2 section">
-      <div class="card"><div class="panel-title"><h2>Faixa Etária</h2><p>Perfil demográfico dos candidatos.</p></div><div class="chart-wrap" style="min-height:240px"><canvas id="chartAge"></canvas></div></div>
-      <div class="card"><div class="panel-title"><h2>Top Cidades de Origem</h2><p>Principais polos de captação de talentos.</p></div><div class="chart-wrap" style="min-height:240px"><canvas id="chartCity"></canvas></div></div>
+
+    <div class="section grid-2" style="align-items: start;">
+      <div class="exec-stack">
+        <div class="card">
+            <div class="panel-title"><h2>Radar Executivo de Saúde</h2><p>As métricas que ditam a força da sua operação hoje.</p></div>
+            <div class="radar-list" id="radarList"></div>
+        </div>
+        <div class="card">
+            <div class="panel-title"><h2>Fila de Ação Prioritária</h2><p>Gargalos identificados que precisam de atuação humana.</p></div>
+            <div class="priority-list" id="priorityList"></div>
+        </div>
+      </div>
+      <div class="card" style="height: 100%;">
+          <div class="panel-title" style="margin-bottom: 24px;">
+              <div><h2>Shortlist Ouro (Top 5)</h2><p>Candidatos com maior probabilidade de alocação rápida baseado no nosso Score de Negócios.</p></div>
+          </div>
+          <div class="shortlist-list" id="shortlistList"></div>
+      </div>
     </div>
   </div>
 
   <div id="tab-ops" class="tab-content">
     <div class="kpis" id="kpiDocs"></div>
     <div class="grid-2">
-      <div class="card"><div class="panel-title"><h2>Auditoria de Passaportes</h2><p>Candidatos com documento de viagem registrado.</p></div><div class="chart-wrap" style="min-height:260px;display:flex;align-items:center;justify-content:center"><canvas id="chartPassport" style="max-height:240px;max-width:340px"></canvas></div></div>
-      <div class="card"><div class="panel-title"><h2>Prontidão Linguística</h2><p>Distribuição por nível CEFR (alemão).</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartGerman"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Auditoria de Passaportes</h2><p>Candidatos legalmente aptos para embarque (Com Documento Físico).</p></div><div class="chart-wrap" style="min-height:260px;display:flex;align-items:center;justify-content:center"><canvas id="chartPassport" style="max-height:240px;max-width:340px"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Prontidão Linguística</h2><p>Distribuição da base atual por nível CEFR de Alemão.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartGerman"></canvas></div></div>
     </div>
   </div>
 
   <div id="tab-match" class="tab-content">
-    <div class="card section"><div class="panel-title"><h2>Pipeline de Empregadores (Alemanha)</h2><p>Volume de candidatos por instituição alocada ou em processo.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartEmployer"></canvas></div></div>
+    <div class="card section"><div class="panel-title"><h2>Demanda por Empregadores (Alemanha)</h2><p>Alojamento de currículos, entrevistas e status de contrato por hospital.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartEmployer"></canvas></div></div>
   </div>
 
   <section class="section card">
     <div class="table-header-row">
       <div>
-        <h2>Base de Talentos</h2>
-        <p>Clique em uma linha para abrir o Dossiê 360º do candidato.</p>
+        <h2>Data Grid Consolidado</h2>
+        <p>Clique em uma linha para abrir o Dossiê 360º dinâmico gerado pelas 10 abas.</p>
       </div>
       <span class="chip count" id="tableCount">0 registros</span>
     </div>
@@ -489,13 +333,13 @@ tbody td {
       <table>
         <thead>
           <tr>
-            <th style="width:90px">Nº</th>
-            <th style="width:200px">Nome</th>
-            <th style="width:180px">Profissão</th>
-            <th style="width:200px">Etapa Atual</th>
-            <th style="width:90px">Alemão</th>
-            <th style="width:110px">Docs</th>
-            <th>Empregador</th>
+            <th style="width:90px">ID</th>
+            <th style="width:200px">Nome do Profissional</th>
+            <th style="width:180px">Área Técnica</th>
+            <th style="width:200px">Status Auto</th>
+            <th style="width:90px">Idioma</th>
+            <th style="width:110px">Legal</th>
+            <th>Target Alemanha</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -529,7 +373,7 @@ tbody td {
       <div class="alert-bar" id="m-alert-bar">
         <span style="font-size:18px">⚠️</span>
         <div>
-          <strong style="display:block;margin-bottom:4px;font-size:14px;color:#ffd4d4">Pendências de Compliance</strong>
+          <strong style="display:block;margin-bottom:4px;font-size:14px;color:#ffd4d4">Faltam Documentos de Viagem/Registro</strong>
           <div id="m-alert-text" style="font-size:13px"></div>
         </div>
       </div>
@@ -540,47 +384,36 @@ tbody td {
 </div>
 
 <script>
-// Registrando DataLabels Globalmente
 Chart.register(ChartDataLabels);
 
-// Plugin Customizado para desenhar o Total no centro da Rosca (Doughnut)
+// Plugin Doughnut Total
 const centerTextPlugin = {
   id: 'centerText',
   beforeDraw: function(chart) {
     if (chart.config.type !== 'doughnut') return;
     const ctx = chart.ctx;
     ctx.restore();
-    
-    // Pegando a soma total dos dados
     const total = chart.config.data.datasets[0].data.reduce((a, b) => a + b, 0);
     if(total === 0) return;
-
     const fontSize = (chart.height / 100).toFixed(2);
     ctx.font = "bold " + fontSize + "em 'DM Sans'";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#e8f2ff";
-    
     const text = total;
     const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
     const textY = chart.height / 2;
-    
     ctx.fillText(text, textX, textY);
-    
-    // Subtítulo "Total"
     ctx.font = "600 " + (fontSize * 0.3) + "em 'DM Sans'";
     ctx.fillStyle = "#7a96bc";
     const subText = "TOTAL";
     const subX = Math.round((chart.width - ctx.measureText(subText).width) / 2);
     ctx.fillText(subText, subX, textY + 22);
-
     ctx.save();
   }
 };
 Chart.register(centerTextPlugin);
 
-// ══════════════════════════════════════════════
-//  CONFIGURAÇÃO: 10 FONTES
-// ══════════════════════════════════════════════
+// 10 LINKS
 const SHEET_URLS = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1160770167&single=true&output=csv",
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1669292883&single=true&output=csv",
@@ -594,9 +427,7 @@ const SHEET_URLS = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1768870782&single=true&output=csv"
 ];
 
-// ══════════════════════════════════════════════
-//  MAPEAMENTO DE SEÇÕES DO DOSSIÊ
-// ══════════════════════════════════════════════
+// MAPA DO MODAL
 const SECAO_MAP = {
   'perfil': ['Nome completo','Nome completo do candidato','Nome','Data da Candidatura','Data da Entrevista','País de origem','Cidade atual','Idade','E-mail','Telefone','Estado civil','Com quem você mora?','Profissão do cônjuge','Filho','Idade Filho','Quem é você?','Foto de rosto','Referência'],
   'formacao': ['Profissão principal','Profissão','Área profissional','Universidade','Curso de Graduação','Anabin','Pós-graduação','Curso','Experiência Profissional (tempo)','Resumo profissional','Língua alemã','Língua Estrangeira','Nível Língua Estrangeira','Nível de alemão','Nível na língua alemã?'],
@@ -608,14 +439,14 @@ const SECAO_MAP = {
 };
 
 const SECAO_META = {
-  perfil:     { label: '🧑 Perfil Pessoal',     color: 'blue'   },
-  formacao:   { label: '🎓 Formação & Idioma',   color: 'teal'   },
-  entrevista: { label: '💬 Entrevista',          color: 'purple' },
-  avaliacao:  { label: '🎯 Avaliação Interna',    color: 'green'  },
-  documentos: { label: '📄 Documentação',         color: 'yellow' },
-  juridico:   { label: '⚖️ Jurídico & Contrato', color: 'red'    },
-  matching:   { label: '✈️ Matching & Embarque', color: 'teal'   },
-  outros:     { label: '📋 Outros Dados',         color: 'blue'   }
+  perfil:     { label: '🧑 Perfil',     color: 'blue'   },
+  formacao:   { label: '🎓 Formação',   color: 'teal'   },
+  entrevista: { label: '💬 Entrevista', color: 'purple' },
+  avaliacao:  { label: '🎯 Avaliação',  color: 'green'  },
+  documentos: { label: '📄 Docs',       color: 'yellow' },
+  juridico:   { label: '⚖️ Jurídico',   color: 'red'    },
+  matching:   { label: '✈️ Matching',   color: 'teal'   },
+  outros:     { label: '📋 Outros',     color: 'blue'   }
 };
 
 function classifyKey(key) {
@@ -626,12 +457,10 @@ function classifyKey(key) {
   return 'outros';
 }
 
-// ══════════════════════════════════════════════
-//  ESTADO GLOBAL
-// ══════════════════════════════════════════════
+// ESTADO GLOBAL
 let masterData = [];
 let filteredData = [];
-const PALETTE = ['#4fa3f7','#7c5cff','#22c97a','#f59e0b','#f04747','#7dd3fc','#c084fc','#94a3b8','#f472b6','#34d399'];
+const PALETTE = ['#4fa3f7','#7c5cff','#22c97a','#f59e0b','#f04747','#7dd3fc','#c084fc','#34d399','#f472b6','#a78bfa'];
 
 const normalize = v => (v ?? '').toString().trim();
 const cleanKey  = v => normalize(v).replace(/\s+/g, ' ').trim();
@@ -659,9 +488,7 @@ function showToast(msg) {
   setTimeout(() => t.style.display = 'none', 7000);
 }
 
-// ══════════════════════════════════════════════
-//  CSV PARSER
-// ══════════════════════════════════════════════
+// ENGINE DE MERGE
 function parseCSV(text) {
   text = text.replace(/^\uFEFF/, '');
   const rows = []; let row = [], cell = '', inQ = false;
@@ -690,9 +517,6 @@ function parseCSV(text) {
   return objs;
 }
 
-// ══════════════════════════════════════════════
-//  ENGINE DE INICIALIZAÇÃO & MERGE
-// ══════════════════════════════════════════════
 async function initCRM() {
   const steps = [ls1,ls2,ls3,ls4];
   const showStep = (i) => { if(steps[i]) { steps[i].classList.add('visible'); } };
@@ -733,13 +557,10 @@ async function initCRM() {
       else if(c._abas.includes(1)) etapa = '2ª Etapa — Entrevista';
 
       const ms = (getVal(c, ['STATUS PIPELINE','Status Final']) || '').toLowerCase();
-      if(c._abas.includes(8) || ms.includes('não qualificado') || ms.includes('reprovado'))
-        etapa = 'Base de Dados';
-      if(c._abas.includes(7) || ms.includes('desist'))
-        etapa = 'Desistência';
+      if(c._abas.includes(8) || ms.includes('não qualificado') || ms.includes('reprovado')) etapa = 'Base de Dados';
+      if(c._abas.includes(7) || ms.includes('desist')) etapa = 'Desistência';
       if(c._abas.includes(6) || ms === 'ativo' || ms.includes('curso de alemão')) {
-        if(['Desistência','Base de Dados','1ª Etapa — Triagem'].includes(etapa))
-          etapa = 'Ativos / Em Preparação';
+        if(['Desistência','Base de Dados','1ª Etapa — Triagem'].includes(etapa)) etapa = 'Ativos / Em Preparação';
       }
       c._etapa = etapa;
       return c;
@@ -755,8 +576,7 @@ async function initCRM() {
     document.getElementById('mainContent').style.display = 'block';
 
   } catch(e) {
-    document.getElementById('loadingOverlay').innerHTML =
-      `<div style="color:#f04747;font-size:18px;font-weight:600">❌ Erro ao inicializar o CRM</div><div style="color:var(--muted);margin-top:8px;font-size:14px">${e.message}</div>`;
+    document.getElementById('loadingOverlay').innerHTML = `<div style="color:#f04747;font-size:18px;font-weight:600">❌ Erro Crítico</div><div style="color:var(--muted);margin-top:8px;font-size:14px">${e.message}</div>`;
   }
 }
 
@@ -770,7 +590,99 @@ function chipClass(val) {
 }
 
 // ══════════════════════════════════════════════
-//  GRÁFICOS — Chart.js INTERATIVO
+//  BUSINESS LOGIC & SCORE
+// ══════════════════════════════════════════════
+function friendlyPct(num) { return `${Math.round(num * 100)}%`; }
+
+function germanRank(val) {
+    const v = (val || '').toUpperCase();
+    if(v.includes('C2')) return 6;
+    if(v.includes('C1')) return 5;
+    if(v.includes('B2')) return 4;
+    if(v.includes('B1')) return 3;
+    if(v.includes('A2')) return 2;
+    if(v.includes('A1')) return 1;
+    if(v.includes('A0')) return 0;
+    return -1;
+}
+
+function executiveMetrics(data) {
+    const total = data.length || 1;
+    const missingContact = data.filter(c => !getVal(c, ['E-mail']) || !getVal(c, ['Telefone'])).length;
+    const noGerman = data.filter(c => germanRank(getVal(c, ['Nível de alemão', 'Língua alemã'])) <= 1).length;
+    const readyProfiles = data.filter(c => (getVal(c, ['Status Final'])||'').toLowerCase().includes('aprovado') && germanRank(getVal(c, ['Nível de alemão', 'Língua alemã'])) >= 3).length;
+    const strongNoB1 = data.filter(c => (getVal(c, ['Perfil'])||'').toLowerCase().includes('forte') && germanRank(getVal(c, ['Nível de alemão', 'Língua alemã'])) < 3).length;
+    const rejected = data.filter(c => (getVal(c, ['Status Final'])||'').toLowerCase().includes('reprovado')).length;
+    const awaiting = data.filter(c => (getVal(c, ['Status Final'])||'').toLowerCase().includes('aguardando')).length;
+    const strong = data.filter(c => (getVal(c, ['Perfil'])||'').toLowerCase().includes('forte')).length;
+    const approved = data.filter(c => (getVal(c, ['Status Final'])||'').toLowerCase().includes('aprovado')).length;
+    const readyB1 = data.filter(c => germanRank(getVal(c, ['Nível de alemão', 'Língua alemã'])) >= 3).length;
+
+    return {
+        missingContact, noGerman, readyProfiles, strongNoB1, rejected, awaiting,
+        approvalRate: approved / total,
+        strongRate: strong / total,
+        readyRate: readyB1 / total,
+        completeness: 1 - (missingContact / total)
+    };
+}
+
+function candidateScore(c) {
+    let score = 0;
+    const g = germanRank(getVal(c, ['Nível de alemão', 'Língua alemã']));
+    const status = (getVal(c, ['Status Final', 'Resultado da entrevista']) || '').toLowerCase();
+    const profile = (getVal(c, ['Perfil']) || '').toLowerCase();
+    const pipe = c._etapa.toLowerCase();
+
+    if (status.includes('aprovado')) score += 35;
+    else if (status.includes('aguardando')) score += 16;
+    else if (status.includes('reprovado')) score -= 20;
+
+    if (profile.includes('forte')) score += 28;
+    else if (profile.includes('intermediário')) score += 12;
+    else if (profile.includes('fraco')) score -= 10;
+
+    if(g >= 0) score += Math.max(0, g) * 8;
+
+    if (getVal(c, ['E-mail'])) score += 4;
+    if (getVal(c, ['Telefone'])) score += 4;
+    if (getVal(c, ['CV', 'Arquivo', 'CV/ ARQUIVO DOC'])) score += 4;
+    if (pipe.includes('curso') || pipe.includes('preparação')) score += 6;
+
+    return score;
+}
+
+// RENDERS ESPECIAIS
+function renderRadar(rows) { 
+  const e = executiveMetrics(rows); 
+  const items = [ 
+      { name:'Taxa de Aprovação', value:friendlyPct(e.approvalRate), pct:e.approvalRate, note:'Potencial de conversão atual.' }, 
+      { name:'Perfis Fortes', value:friendlyPct(e.strongRate), pct:e.strongRate, note:'Volume estratégico captado.' }, 
+      { name:'Prontidão B1+', value:friendlyPct(e.readyRate), pct:e.readyRate, note:'Elegíveis para avanço internacional.' },
+      { name:'Contato Auditado', value:friendlyPct(e.completeness), pct:e.completeness, note:'Redução de risco por falha no cadastro.' }
+  ]; 
+  document.getElementById('radarList').innerHTML = items.map(item => `<div class="radar-item"><div class="radar-head"><div class="radar-name">${item.name}</div><div class="radar-value">${item.value}</div></div><div class="radar-track"><div class="radar-fill" style="width:${Math.max(4, Math.round(item.pct*100))}%"></div></div><div class="radar-note">${item.note}</div></div>`).join(''); 
+}
+
+function renderPriorityQueue(rows) { 
+  const e = executiveMetrics(rows); 
+  const list = [ 
+      { name:'Acelerar perfis fortes s/ B1', count:e.strongNoB1, note:'Ativos de alto valor travados no idioma.' }, 
+      { name:'Follow-up: Aguardando Retorno', count:e.awaiting, note:'Possíveis aprovações paradas na esteira.' }, 
+      { name:'Acionar Shortlist B1+ (Hot)', count:e.readyProfiles, note:'Prontos para fechamento de contrato.' }, 
+      { name:'Corrigir Info de Contato', count:e.missingContact, note:'Evite perder candidatos por dados rasos.' }
+  ]; 
+  document.getElementById('priorityList').innerHTML = list.map(item => `<div class="priority-item"><div class="priority-info"><h4>${item.name}</h4><p>${item.note}</p></div><div class="priority-count">${item.count}</div></div>`).join(''); 
+}
+
+function renderShortlist(rows) { 
+  const shortlist = rows.filter(r => !(getVal(r,['Status Final'])||'').toLowerCase().includes('reprovado')).map(r => ({ ...r, _score: candidateScore(r) })).sort((a,b) => b._score - a._score).slice(0,5); 
+  document.getElementById('shortlistList').innerHTML = shortlist.length ? shortlist.map(r => `<div class="short-item" onclick="openModal('${r._id}')"><div class="short-top"><h4>${getVal(r, ['Nome completo','Nome']) || 'Desconhecido'}</h4><div class="score-pill">${r._score} pts</div></div><div class="short-meta"><span>${getVal(r, ['Profissão principal','Profissão']) || 'S/ Profissão'}</span><span class="sep">·</span><span>${r._etapa}</span><span class="sep">·</span><span style="color:var(--accent)">${getVal(r, ['Nível de alemão', 'Língua alemã']) || 'A0'}</span></div></div>`).join('') : '<div class="chart-empty">Sem candidatos que atendam ao critério.</div>'; 
+}
+
+
+// ══════════════════════════════════════════════
+//  GRÁFICOS — Chart.js
 // ══════════════════════════════════════════════
 const chartInstances = {};
 Chart.defaults.font.family = "'DM Sans', sans-serif";
@@ -802,35 +714,16 @@ function groupCount(data, keyFn) {
   return [...m.entries()].sort((a,b) => b[1]-a[1]);
 }
 
-function ageGroups(data) {
-  const g = {'≤25':0,'26–30':0,'31–35':0,'36–40':0,'41+':0};
-  data.forEach(r => {
-    const s = getVal(r, ['Idade','Idade atual']);
-    if(!s) return;
-    const n = parseInt(s.replace(/\D/g,''));
-    if(isNaN(n)) return;
-    if(n<=25) g['≤25']++;
-    else if(n<=30) g['26–30']++;
-    else if(n<=35) g['31–35']++;
-    else if(n<=40) g['36–40']++;
-    else g['41+']++;
-  });
-  return Object.entries(g).filter(e=>e[1]>0);
-}
-
 function destroyChart(id) {
   if(chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
 }
 
-// Lógica de Cross-Filtering (Clique no gráfico filtra a tabela)
 function applyCrossFilter(label) {
     const searchInput = document.getElementById('searchInput');
-    // Preenche a barra de pesquisa global com o label clicado e dispara a busca
     searchInput.value = label;
     applyFilters();
 }
 
-// Barra horizontal
 function drawBarH(id, arr) {
   destroyChart(id);
   const canvas = document.getElementById(id);
@@ -860,37 +753,23 @@ function drawBarH(id, arr) {
       animation: { duration: 700, easing: 'easeOutQuart' },
       onClick: (e, activeEls) => {
         if(activeEls.length > 0) {
-            const labelStr = arr[activeEls[0].index][0]; // Pega o texto original não cortado
+            const labelStr = arr[activeEls[0].index][0]; 
             applyCrossFilter(labelStr);
         }
       },
       plugins: {
         legend: { display: false },
         tooltip: { ...tooltipPlugin, callbacks: { label: ctx => ` ${ctx.parsed.x} candidato(s)` } },
-        datalabels: {
-            color: '#fff', font: { weight: 'bold', size: 12 },
-            anchor: 'end', align: 'right', offset: 4,
-            formatter: Math.round
-        }
+        datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 4, formatter: Math.round }
       },
       scales: {
-        x: { 
-            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }, 
-            ticks: { color: '#7a96bc', font: { size: 11 }, stepSize: 1 }, 
-            border: { display: false },
-            grace: '15%' // Folga vital para o datalabel não cortar
-        },
-        y: { 
-            grid: { display: false, drawBorder: false }, 
-            ticks: { color: '#a8c4e0', font: { size: 12 }, padding: 8 }, 
-            border: { display: false } 
-        }
+        x: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }, ticks: { color: '#7a96bc', font: { size: 11 }, stepSize: 1 }, border: { display: false }, grace: '15%' },
+        y: { grid: { display: false, drawBorder: false }, ticks: { color: '#a8c4e0', font: { size: 12 }, padding: 8 }, border: { display: false } }
       }
     }
   });
 }
 
-// Doughnut (Rosca)
 function drawDoughnut(id, arr) {
   destroyChart(id);
   const canvas = document.getElementById(id);
@@ -917,97 +796,19 @@ function drawDoughnut(id, arr) {
       responsive: true, maintainAspectRatio: true, cutout: '72%',
       animation: { animateRotate: true, duration: 800, easing: 'easeOutQuart' },
       onClick: (e, activeEls) => {
-        if(activeEls.length > 0) {
-            applyCrossFilter(arr[activeEls[0].index][0]); // Filtragem cruzada
-        }
+        if(activeEls.length > 0) applyCrossFilter(arr[activeEls[0].index][0]);
       },
       plugins: {
-        legend: {
-          display: true, position: 'bottom',
-          labels: {
-            color: '#a8c4e0', font: { size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10,
-            generateLabels: chart => {
-              const ds = chart.data.datasets[0];
-              return chart.data.labels.map((label, i) => ({
-                text: `${label}`, fillStyle: ds.backgroundColor[i], strokeStyle: ds.borderColor[i], pointStyle: 'circle', index: i
-              }));
-            }
-          }
-        },
-        tooltip: {
-          ...tooltipPlugin,
-          callbacks: {
-            label: ctx => {
-              const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
-              const pct = Math.round(ctx.parsed/total*100);
-              return ` ${ctx.parsed} candidatos (${pct}%)`;
-            }
-          }
-        },
-        datalabels: { display: false } // Esconde o datalabel de fora, o centerText cuida disso
-      }
-    }
-  });
-}
-
-// Barra vertical
-function drawBarV(id, arr) {
-  destroyChart(id);
-  const canvas = document.getElementById(id);
-  if(!canvas) return;
-  if(!arr.length) { canvas.parentElement.innerHTML = '<div class="chart-empty">Sem dados de idade.</div>'; return; }
-
-  const ctx = canvas.getContext('2d');
-  chartInstances[id] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: arr.map(d => d[0]),
-      datasets: [{
-        data: arr.map(d => d[1]),
-        backgroundColor: arr.map((_,i) => {
-          const c = PALETTE[i % PALETTE.length];
-          const g = ctx.createLinearGradient(0,0,0,200);
-          const hex = c.replace('#','');
-          const r = parseInt(hex.substring(0,2),16);
-          const gb = parseInt(hex.substring(2,4),16);
-          const b2 = parseInt(hex.substring(4,6),16);
-          g.addColorStop(0, `rgba(${r},${gb},${b2},0.9)`);
-          g.addColorStop(1, `rgba(${r},${gb},${b2},0.3)`);
-          return g;
-        }),
-        borderColor: arr.map((_,i) => PALETTE[i % PALETTE.length]),
-        borderWidth: 1, borderRadius: 8, hoverBorderWidth: 2,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      animation: { duration: 700, easing: 'easeOutBack' },
-      onClick: (e, activeEls) => {
-        // Interatividade: Não filtra exatamente, mas é possível se quiser. Deixamos sem filtro pesado na idade para não confundir.
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: { ...tooltipPlugin, callbacks: { label: ctx => ` ${ctx.parsed.y} candidatos` } },
-        datalabels: {
-            color: '#fff', font: { weight: 'bold', size: 12 },
-            anchor: 'end', align: 'top', offset: 4, formatter: Math.round
-        }
-      },
-      scales: {
-        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#a8c4e0', font: { size: 12 } }, border: { display: false } },
-        y: { 
-            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }, 
-            ticks: { color: '#7a96bc', font: { size: 11 }, stepSize: 1 }, 
-            border: { display: false },
-            grace: '15%'
-        }
+        legend: { display: true, position: 'bottom', labels: { color: '#a8c4e0', font: { size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10, generateLabels: chart => { const ds = chart.data.datasets[0]; return chart.data.labels.map((label, i) => ({ text: `${label}`, fillStyle: ds.backgroundColor[i], strokeStyle: ds.borderColor[i], pointStyle: 'circle', index: i })); } } },
+        tooltip: { ...tooltipPlugin, callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = Math.round(ctx.parsed/total*100); return ` ${ctx.parsed} candidatos (${pct}%)`; } } },
+        datalabels: { display: false } 
       }
     }
   });
 }
 
 // ══════════════════════════════════════════════
-//  RENDER PRINCIPAL
+//  RENDERIZAÇÃO
 // ══════════════════════════════════════════════
 function renderAll() {
   const total = filteredData.length;
@@ -1016,29 +817,34 @@ function renderAll() {
   const ativos = filteredData.filter(c => c._etapa === 'Ativos / Em Preparação').length;
 
   document.getElementById('kpiGrid').innerHTML = `
-    <div class="card"><div class="kpi-label">Total na Base</div><div class="kpi-value">${total}</div><div class="kpi-sub">candidatos consolidados</div></div>
-    <div class="card"><div class="kpi-label">Aprovados</div><div class="kpi-value" style="color:var(--good)">${aprov}</div><div class="kpi-sub">taxa: ${total?Math.round(aprov/total*100):0}%</div></div>
-    <div class="card"><div class="kpi-label">Ativos / Prep.</div><div class="kpi-value" style="color:var(--accent)">${ativos}</div><div class="kpi-sub">em curso ou preparação</div></div>
-    <div class="card"><div class="kpi-label">Com Passaporte</div><div class="kpi-value" style="color:var(--teal)">${comPass}</div><div class="kpi-sub">de ${total} candidatos</div></div>
+    <div class="card"><div class="kpi-label">Volume Filtrado</div><div class="kpi-value">${total}</div><div class="kpi-sub">cadastros válidos</div></div>
+    <div class="card"><div class="kpi-label">Aprovações (Histórico)</div><div class="kpi-value" style="color:var(--good)">${aprov}</div><div class="kpi-sub">conversão: ${total?Math.round(aprov/total*100):0}%</div></div>
+    <div class="card"><div class="kpi-label">Ativos / Prep.</div><div class="kpi-value" style="color:var(--accent)">${ativos}</div><div class="kpi-sub">esquentando na esteira</div></div>
+    <div class="card"><div class="kpi-label">Aptos (Passaporte)</div><div class="kpi-value" style="color:var(--teal)">${comPass}</div><div class="kpi-sub">de ${total} profissionais</div></div>
   `;
 
   const docsPro = filteredData.filter(c => getVal(c,['Documento Profissional (COREN, CRM, CREA, outro)'])).length;
   const cidEu = filteredData.filter(c => { const v = (getVal(c,['Cidadania Europeia'])||'').toLowerCase(); return v && v !== 'não' && v !== 'nao'; }).length;
   document.getElementById('kpiDocs').innerHTML = `
-    <div class="card"><div class="kpi-label">Passaportes Reg.</div><div class="kpi-value">${comPass}</div></div>
-    <div class="card"><div class="kpi-label">Licenças Profissionais</div><div class="kpi-value">${docsPro}</div></div>
-    <div class="card"><div class="kpi-label">Cidadania Europeia</div><div class="kpi-value" style="color:var(--teal)">${cidEu}</div></div>
+    <div class="card"><div class="kpi-label">Passaportes Físicos</div><div class="kpi-value">${comPass}</div></div>
+    <div class="card"><div class="kpi-label">Licenças Físicas (CREA/COREN)</div><div class="kpi-value">${docsPro}</div></div>
+    <div class="card"><div class="kpi-label">Acesso UE (Cidadania)</div><div class="kpi-value" style="color:var(--teal)">${cidEu}</div></div>
   `;
 
+  // Draw Graphs
   drawBarH('chartPipeline', groupCount(filteredData, c => c._etapa));
-  drawBarH('chartStatus', groupCount(filteredData, c => getVal(c,['Status Final','Resultado da entrevista'])));
-  drawBarV('chartAge', ageGroups(filteredData));
-  drawBarH('chartCity', groupCount(filteredData, c => getVal(c,['Cidade atual'])).filter(d=>d[0]!=='Não informado').slice(0,7));
+  drawBarH('chartStatus', groupCount(filteredData, c => getVal(c,['Status Final','Resultado da entrevista'])).filter(d=>d[0]!=='Não informado'));
+  
+  // STRATEGY SECTIONS
+  renderRadar(filteredData);
+  renderPriorityQueue(filteredData);
+  renderShortlist(filteredData);
+
   drawDoughnut('chartPassport', [['Com Passaporte',comPass],['Pendente',Math.max(0,total-comPass)]].filter(d=>d[1]>0));
   drawBarH('chartGerman', groupCount(filteredData, c => getVal(c,['Nível de alemão','Língua alemã','Nível na língua alemã?'])).filter(d=>d[0]!=='Não informado'));
   drawBarH('chartEmployer', groupCount(filteredData, c => getVal(c,['Empresa'])).filter(d=>d[0]!=='Não informado'));
 
-  document.getElementById('tableCount').textContent = `${total} registros`;
+  document.getElementById('tableCount').textContent = `${total} registros na base`;
   let warnings = 0;
   document.getElementById('tableBody').innerHTML = filteredData.map(c => {
     const nome    = getVal(c,['Nome completo','Nome completo do candidato','Nome']) || '—';
@@ -1047,7 +853,7 @@ function renderAll() {
     const empresa = getVal(c,['Empresa']) || '—';
     const hasPass = getVal(c,['Número do Passaporte']);
     if(!hasPass) warnings++;
-    const docTxt  = hasPass ? '✅ OK' : '⚠️ Pendente';
+    const docTxt  = hasPass ? '✅ Validado' : '⚠️ Crítico';
     const docColor = hasPass ? 'var(--good)' : '#f87171';
     return `<tr onclick="openModal('${c._id}')">
       <td style="font-family:var(--mono);color:var(--muted)">${c._id}</td>
@@ -1063,13 +869,12 @@ function renderAll() {
 }
 
 // ══════════════════════════════════════════════
-//  MODAL 360° (Mantido Exatamente o Mesmo)
+//  MODAL 360° 
 // ══════════════════════════════════════════════
 function openModal(id) {
   const c = masterData.find(x => x._id === id);
   if(!c) return;
 
-  // Header
   document.getElementById('m-id').textContent = id;
   document.getElementById('m-nome').textContent = getVal(c,['Nome completo','Nome completo do candidato','Nome']) || '—';
   document.getElementById('m-profissao').textContent = getVal(c,['Profissão principal','Profissão']) || '—';
@@ -1085,17 +890,13 @@ function openModal(id) {
   if(status) { sb.textContent = status; sb.className = `chip ${chipClass(status)}`; sb.style.display=''; }
   else sb.style.display = 'none';
 
-  // Alertas de compliance
   const alertas = [];
-  if(!getVal(c,['Número do Passaporte'])) alertas.push('Número de passaporte não cadastrado');
-  if(!getVal(c,['Documento Profissional (COREN, CRM, CREA, outro)'])) alertas.push('Licença profissional (COREN/CRM) pendente');
+  if(!getVal(c,['Número do Passaporte'])) alertas.push('Passaporte Físico não localizado na base.');
+  if(!getVal(c,['Documento Profissional (COREN, CRM, CREA, outro)'])) alertas.push('Atenção: Licença profissional do conselho pendente.');
   const ab = document.getElementById('m-alert-bar');
-  if(alertas.length) {
-    document.getElementById('m-alert-text').innerHTML = alertas.map(a => `• ${a}`).join('<br>');
-    ab.classList.add('active');
-  } else ab.classList.remove('active');
+  if(alertas.length) { document.getElementById('m-alert-text').innerHTML = alertas.map(a => `• ${a}`).join('<br>'); ab.classList.add('active'); } 
+  else ab.classList.remove('active');
 
-  // ─── Montar seções dinamicamente ───────────────
   const INTERNAL = new Set(['_id','_abas','_etapa','Nome completo','Nº de Inscrição','Nº da Inscrição','Nome completo do candidato']);
   const buckets = {};
   Object.keys(SECAO_META).forEach(s => buckets[s] = []);
@@ -1139,7 +940,7 @@ function openModal(id) {
       if(fortes || atencao) {
         div.innerHTML += `<div class="highlight-pair">
           ${fortes ? `<div class="highlight-card green"><div class="hc-label">💪 Pontos Fortes</div><div class="hc-val">${fortes.val}</div></div>` : ''}
-          ${atencao ? `<div class="highlight-card yellow"><div class="hc-label">⚠️ Pontos de Atenção</div><div class="hc-val">${atencao.val}</div></div>` : ''}
+          ${atencao ? `<div class="highlight-card yellow"><div class="hc-label">⚠️ Atenção / Riscos</div><div class="hc-val">${atencao.val}</div></div>` : ''}
         </div>`;
       }
       if(remaining.length) div.innerHTML += `<div class="field-grid">${remaining.map(f => fieldCard(f)).join('')}</div>`;
@@ -1151,7 +952,7 @@ function openModal(id) {
         const done = !!found;
         return `<div class="tpill ${done?'done':'pending'}"><div class="tpill-dot"></div>${df.substring(0,30)}: <strong>${done ? found.val.substring(0,30) : 'Pendente'}</strong></div>`;
       });
-      div.innerHTML += `<div style="margin-bottom:18px"><div class="modal-section-title yellow">Status de Documentos</div><div class="timeline">${pills.join('')}</div></div>`;
+      div.innerHTML += `<div style="margin-bottom:18px"><div class="modal-section-title yellow">Status de Conformidade</div><div class="timeline">${pills.join('')}</div></div>`;
       const others = buckets[sec].filter(f => !docFields.some(df => superClean(f.key).includes(superClean(df).substring(0,10))));
       if(others.length) div.innerHTML += `<div class="field-grid">${others.map(f=>fieldCard(f)).join('')}</div>`;
     }
@@ -1167,7 +968,7 @@ function openModal(id) {
 
 function fieldCard({key, val}) {
   let display = val;
-  if(val.startsWith('http')) display = `<a href="${val}" target="_blank">🔗 Acessar Arquivo</a>`;
+  if(val.startsWith('http')) display = `<a href="${val}" target="_blank">🔗 Visualizar / Abrir</a>`;
   const valClass = val.length > 120 ? 'fc-val' : 'fc-val';
   return `<div class="field-card"><div class="fc-label">${key}</div><div class="${valClass}">${display}</div></div>`;
 }
@@ -1186,13 +987,13 @@ document.getElementById('crmModal').onclick = e => { if(e.target === document.ge
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 
 // ══════════════════════════════════════════════
-//  FILTROS
+//  FILTROS & EXPORT
 // ══════════════════════════════════════════════
 function buildFilters() {
   const pop = (id, fn) => {
     const sel = document.getElementById(id);
     const groups = groupCount(masterData, fn).map(([k]) => k).filter(k => k !== 'Não informado');
-    sel.innerHTML = '<option value="">Todas as opções</option>' + groups.map(k => `<option>${k}</option>`).join('');
+    sel.innerHTML = '<option value="">Todos os status</option>' + groups.map(k => `<option>${k}</option>`).join('');
   };
   pop('pipelineFilter', c => c._etapa);
   pop('germanFilter',   c => getVal(c,['Nível de alemão','Língua alemã']));
@@ -1218,60 +1019,26 @@ function applyFilters() {
 }
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
-['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id =>
-  document.getElementById(id).addEventListener('change', applyFilters)
-);
-document.getElementById('resetFilters').onclick = () => {
-  document.getElementById('searchInput').value = '';
-  ['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id =>
-    document.getElementById(id).value = ''
-  );
-  applyFilters();
-};
+['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+document.getElementById('resetFilters').onclick = () => { document.getElementById('searchInput').value = ''; ['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id => document.getElementById(id).value = ''); applyFilters(); };
 
-// ══════════════════════════════════════════════
-//  EXPORTAÇÃO CSV
-// ══════════════════════════════════════════════
 document.getElementById('btnExport').onclick = () => {
   if(!filteredData.length) { showToast('Nenhum dado para exportar.'); return; }
-  const cols = ['_id','Nome completo','Profissão principal','_etapa','Nível de alemão','Status Final','Empresa','Número do Passaporte','E-mail','Telefone','Cidade atual'];
+  const cols = ['_id','Nome completo','Profissão principal','_etapa','Nível de alemão','Status Final','Empresa','Número do Passaporte','E-mail','Telefone'];
   let csv = cols.map(c => c.replace(/^_/,'')).join(',') + '\n';
   filteredData.forEach(c => {
-    csv += cols.map(k => {
-      let v = k.startsWith('_') ? (c[k]||'') : (getVal(c,[k])||'');
-      return `"${v.replace(/"/g,'""')}"`;
-    }).join(',') + '\n';
+    csv += cols.map(k => { let v = k.startsWith('_') ? (c[k]||'') : (getVal(c,[k])||''); return `"${v.replace(/"/g,'""')}"`; }).join(',') + '\n';
   });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'}));
-  a.download = `Talents4_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `Talents4_CRM_Export_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 };
 
-// ══════════════════════════════════════════════
-//  TABS PRINCIPAIS
-// ══════════════════════════════════════════════
 document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
-  };
+  btn.onclick = () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); };
 });
 
-// ══════════════════════════════════════════════
-//  LOADING STEPS ANIMATION
-// ══════════════════════════════════════════════
-const ls1 = document.getElementById('ls1');
-const ls2 = document.getElementById('ls2');
-const ls3 = document.getElementById('ls3');
-const ls4 = document.getElementById('ls4');
-ls1.classList.add('visible');
-
-// ══════════════════════════════════════════════
-//  START
-// ══════════════════════════════════════════════
 initCRM();
 </script>
 </body>
