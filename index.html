@@ -492,6 +492,12 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     </div>
   </section>
 
+  <div id="syncBar" style="display:none;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:14px;font-size:12px;color:#fcd34d;">
+    <span style="font-size:14px">⚠️</span>
+    <span id="syncMsg">Verificando conexão com Google Sheets...</span>
+    <a id="syncHelp" href="#" style="color:#fbbf24;margin-left:auto;text-decoration:underline;font-size:11px" onclick="return false"></a>
+  </div>
+
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-exec">📊 Painel de Diretoria</button>
     <button class="tab-btn" data-tab="tab-ops">📄 Documentação &amp; Compliance <span class="tab-badge" id="countDocs">0</span></button>
@@ -659,7 +665,7 @@ const SHEET_URLS = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=493421803&single=true&output=csv",
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1921426427&single=true&output=csv",
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-v0J8KCdol7G8LxElRjpGjV6p5mdQ_s5S3ABCO380JwzYJBujICjHoqB8aq7Am9uRLQRqL7zyInP9/pub?gid=1768870782&single=true&output=csv"
-].map(u => u + '&t=' + Date.now());
+];
 
 const SECAO_MAP = {
   perfil:     ['Nome completo','Nome completo do candidato','Nome','Data da Candidatura','Data da Entrevista','País de origem','Cidade atual','Idade','E-mail','Telefone','Estado civil','Com quem você mora?','Profissão do cônjuge','Filho','Idade Filho','Quem é você?','Foto de rosto','Referência'],
@@ -910,15 +916,15 @@ async function initCRM() {
     seedFallback();
 
     // Busca ao vivo nas 10 abas — enriquece e sobrepõe os dados do fallback
-    const texts = await Promise.all(
-      SHEET_URLS.map((url, idx) =>
-        fetch(url, {cache:'no-store'}).then(r => { if(!r.ok) throw new Error(); return r.text(); })
-          .catch(() => {
-            console.warn(`Fonte #${idx+1} indisponível — mantendo dados do fallback.`);
-            return '';
-          })
-      )
-    );
+    const fetchCSV = url => fetch(url, {cache:'no-store', headers:{'Cache-Control':'no-cache'}})
+      .then(r => r.ok ? r.text() : '')
+      .then(text => {
+        const t = (text||'').trimStart();
+        return (t.startsWith('<') || t.toLowerCase().includes('<!doctype')) ? '' : text;
+      })
+      .catch(() => '');
+
+    const texts = await Promise.all(SHEET_URLS.map(fetchCSV));
     show(1);
     // map já foi populado com fallback — agora enriquece com dados ao vivo
     texts.forEach((text, sheetIdx) => {
@@ -1355,37 +1361,55 @@ document.getElementById('resetFilters').onclick=()=>{
 // ══════════════════════════════════════════
 // ── REFRESH BUTTON ──────────────────────────────
 let refreshCooldown = false;
-document.getElementById('btnRefresh').onclick = async () => {
+
+async function doRefresh(silent = false) {
   if(refreshCooldown) return;
+  refreshCooldown = true;
   const btn = document.getElementById('btnRefresh');
   const lbl = document.getElementById('refreshLabel');
-  btn.classList.add('spinning');
-  lbl.textContent = 'Buscando...';
-  refreshCooldown = true;
+  if(!silent && btn) { btn.classList.add('spinning'); lbl.textContent = 'Buscando...'; }
 
-  try {
-    const texts = await Promise.all(
-      SHEET_URLS.map((url, idx) =>
-        fetch(url, {cache:'no-store'}).then(r => { if(!r.ok) throw new Error(); return r.text(); })
-          .catch(() => '')
-      )
-    );
+  // Rebuild from fallback — sempre garante todos os candidatos
+  const map = new Map();
+  parseCSV(FALLBACK_CSV).forEach(row => {
+    const id = getVal(row, ['Nº de Inscrição','Nº da Inscrição']);
+    if(!id||!id.trim()||id.toLowerCase()==='não info.') return;
+    if(!map.has(id)) map.set(id, { _id:id, _abas:[] });
+    const c = map.get(id);
+    Object.keys(row).forEach(k => { const ck=cleanKey(k); if(!isEmpty(row[k])) c[ck]=row[k]; });
+  });
 
-    // Re-seed fallback first
-    masterData = [];
-    filteredData = [];
-    const map = new Map();
-    parseCSV(FALLBACK_CSV).forEach(row => {
-      const id = getVal(row, ['Nº de Inscrição','Nº da Inscrição']);
-      if(!id||!id.trim()||id.toLowerCase()==='não info.') return;
-      if(!map.has(id)) map.set(id, { _id:id, _abas:[] });
-      const c = map.get(id);
-      Object.keys(row).forEach(k => { const ck=cleanKey(k); if(!isEmpty(row[k])) c[ck]=row[k]; });
-    });
+  // Fetch ao vivo com validação — verifica se é CSV real, não página de login
+  let liveOk = false;
+  const fetchCSV = url => {
+    // Adiciona timestamp nos headers, não na URL
+    return fetch(url, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    })
+    .then(r => {
+      if(!r.ok) return '';
+      return r.text();
+    })
+    .then(text => {
+      // Valida que é CSV real (começa com data, número, vírgula ou texto — não com <html>)
+      const t = (text||'').trimStart();
+      if(t.startsWith('<') || t.toLowerCase().includes('<!doctype')) return '';
+      return text;
+    })
+    .catch(() => '');
+  };
 
-    // Overlay with live data
+  const texts = await Promise.all(SHEET_URLS.map(fetchCSV)).catch(() => []);
+  const syncBar = document.getElementById('syncBar');
+  const syncMsg = document.getElementById('syncMsg');
+
+  if(Array.isArray(texts)) {
+    let liveCount = 0;
     texts.forEach((text, sheetIdx) => {
       if(!text||!text.trim()) return;
+      liveOk = true;
+      liveCount++;
       parseCSV(text).forEach(row => {
         const id = getVal(row, ['Nº de Inscrição','Nº da Inscrição']);
         if(!id||id.toLowerCase()==='não info.') return;
@@ -1395,53 +1419,86 @@ document.getElementById('btnRefresh').onclick = async () => {
         Object.keys(row).forEach(k => { const ck=cleanKey(k); if(!isEmpty(row[k])) c[ck]=row[k]; });
       });
     });
-
-    masterData = [...map.values()].map(c => {
-      c._etapa = getVal(c, ['STATUS PIPELINE']) || 'Não Lançado';
-      c._score = candidateScore(c);
-      return c;
-    });
-    filteredData = [...masterData];
-    buildFilters();
-    renderAll();
-    lbl.textContent = '✓ Atualizado';
-    btn.classList.remove('spinning');
-
-    // Cooldown 30s (Google cache)
-    let secs = 30;
-    const timer = setInterval(() => {
-      secs--;
-      lbl.textContent = secs > 0 ? `Aguarde ${secs}s` : 'Atualizar';
-      if(secs <= 0) { clearInterval(timer); refreshCooldown = false; btn.classList.remove('cooldown'); }
-    }, 1000);
-    btn.classList.add('cooldown');
-
-  } catch(e) {
-    lbl.textContent = 'Erro — tente novamente';
-    btn.classList.remove('spinning');
-    setTimeout(() => { lbl.textContent = 'Atualizar'; refreshCooldown = false; }, 3000);
   }
-};
+
+  masterData = [...map.values()].map(c => {
+    c._etapa = getVal(c, ['STATUS PIPELINE']) || 'Não Lançado';
+    c._score = candidateScore(c);
+    return c;
+  });
+  filteredData = [...masterData];
+  buildFilters();
+  renderAll();
+
+  // Atualiza indicador de status de conexão
+  const connDot = document.getElementById('connDot');
+  const connLabel = document.getElementById('connLabel');
+  if(connDot && connLabel) {
+    if(liveOk) {
+      connDot.style.background = '#22c97a';
+      connLabel.textContent = 'ao vivo';
+    } else {
+      connDot.style.background = '#f59e0b';
+      connLabel.textContent = 'offline (local)';
+    }
+  }
+
+  // SyncBar
+  if(syncBar && syncMsg) {
+    if(liveOk) {
+      syncBar.style.display = 'none';
+    } else {
+      syncBar.style.display = 'flex';
+      syncMsg.textContent = 'Google Sheets inacessível — exibindo dados locais. Verifique se a planilha está publicada em: Arquivo → Publicar na web → CSV.';
+    }
+  }
+
+  if(!silent && btn) {
+    lbl.textContent = '✓ ' + (liveOk ? 'Atualizado' : 'Local');
+    btn.classList.remove('spinning');
+    setTimeout(() => { if(lbl) lbl.textContent = 'Atualizar'; }, 2500);
+  }
+
+  setTimeout(() => {
+    refreshCooldown = false;
+    if(btn) btn.classList.remove('cooldown');
+  }, 30000);
+  if(!silent && btn) btn.classList.add('cooldown');
+}
+
+document.getElementById('btnRefresh').onclick = () => doRefresh(false);
 
 // ── AUTO-REFRESH a cada 90s ──────────────────────
 const AUTO_INTERVAL = 90; // segundos
 let autoSecsLeft = AUTO_INTERVAL;
 const autoIndicator = document.createElement('div');
 autoIndicator.id = 'autoRefreshIndicator';
-autoIndicator.style.cssText = 'font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;padding-left:4px;user-select:none;';
-autoIndicator.innerHTML = `<div id="autoRing" style="width:14px;height:14px;flex-shrink:0;position:relative">
-  <svg viewBox="0 0 14 14" width="14" height="14" style="transform:rotate(-90deg)">
-    <circle cx="7" cy="7" r="5.5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
-    <circle id="autoArc" cx="7" cy="7" r="5.5" fill="none" stroke="#4fa3f7" stroke-width="2"
-      stroke-dasharray="34.6" stroke-dashoffset="0" stroke-linecap="round"
-      style="transition:stroke-dashoffset 1s linear"/>
-  </svg>
-</div><span id="autoLabel">auto em ${AUTO_INTERVAL}s</span>`;
+autoIndicator.style.cssText = 'font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px;padding-left:2px;user-select:none;flex-shrink:0;';
+autoIndicator.innerHTML =
+  `<div style="width:14px;height:14px;flex-shrink:0">
+    <svg viewBox="0 0 14 14" width="14" height="14" style="transform:rotate(-90deg)">
+      <circle cx="7" cy="7" r="5.5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+      <circle id="autoArc" cx="7" cy="7" r="5.5" fill="none" stroke="#4fa3f7" stroke-width="2"
+        stroke-dasharray="34.6" stroke-dashoffset="0" stroke-linecap="round"
+        style="transition:stroke-dashoffset 1s linear"/>
+    </svg>
+  </div>
+  <span id="autoLabel">auto em ${AUTO_INTERVAL}s</span>
+  <span style="color:var(--line2)">|</span>
+  <span style="display:flex;align-items:center;gap:4px">
+    <span id="connDot" style="width:6px;height:6px;border-radius:50%;background:#888;display:inline-block;"></span>
+    <span id="connLabel" style="font-size:11px;color:var(--muted)">verificando...</span>
+  </span>`;
 
-// Insert after refresh button
-document.addEventListener('DOMContentLoaded', () => {});
-const filterActions = document.querySelector('.filter-actions');
-if(filterActions) filterActions.prepend(autoIndicator);
+// Inject after main content is shown — avoids null querySelector
+const _origShow = window.__showMain;
+function injectAutoIndicator() {
+  const filterActions = document.querySelector('.filter-actions');
+  if(filterActions) filterActions.prepend(autoIndicator);
+}
+// Try now and also after a tick in case mainContent not yet visible
+injectAutoIndicator();
+setTimeout(injectAutoIndicator, 500);
 
 const arc = document.getElementById('autoArc');
 const autoLabel = document.getElementById('autoLabel');
@@ -1458,7 +1515,7 @@ setInterval(() => {
   updateAutoRing();
   if(autoSecsLeft <= 0) {
     autoSecsLeft = AUTO_INTERVAL;
-    if(!refreshCooldown) document.getElementById('btnRefresh').click();
+    if(!refreshCooldown) doRefresh(true);
   }
 }, 1000);
 updateAutoRing();
