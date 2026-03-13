@@ -28,60 +28,134 @@
   --radius: 16px;
   --font: 'DM Sans', sans-serif;
   --mono: 'DM Mono', monospace;
+  
+  /* Cores Oficiais da Alemanha para Detalhes */
+  --ger-black: #111111;
+  --ger-red: #dd0000;
+  --ger-gold: #ffcc00;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; overflow-x: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-/* BG Ambient */
+/* ── BG Ambient ─────────────────────────── */
 body::before {
-  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(ellipse 60% 40% at 10% 5%, rgba(79,163,247,0.10) 0%, transparent 60%),
-              radial-gradient(ellipse 50% 35% at 90% 10%, rgba(124,92,255,0.09) 0%, transparent 55%),
-              radial-gradient(ellipse 40% 30% at 50% 90%, rgba(0,212,170,0.05) 0%, transparent 60%);
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 5%, rgba(79,163,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 90% 10%, rgba(124,92,255,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 90%, rgba(0,212,170,0.05) 0%, transparent 60%);
 }
 
 .container { position: relative; z-index: 1; width: min(1640px, 96vw); margin: 0 auto; padding: 28px 0 60px; }
 
-/* Hero */
-.hero { border: 1px solid var(--line2); border-radius: 22px; background: linear-gradient(135deg, rgba(10,22,40,0.97), rgba(8,16,30,0.93)); box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05); padding: 32px 36px 28px; margin-bottom: 20px; position: relative; overflow: hidden; }
-.hero::after { content: ''; position: absolute; top: -60px; right: -60px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(79,163,247,0.06) 0%, transparent 70%); pointer-events: none; }
-.hero-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-.hero-kicker::before { content: ''; width: 20px; height: 2px; background: var(--accent); border-radius: 2px; }
-.hero h1 { font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
-.hero p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+/* ── Hero & Detalhes Alemães ───────────────────────────────── */
+.hero {
+  border: 1px solid var(--line2);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(10,22,40,0.97), rgba(8,16,30,0.93));
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+  padding: 32px 36px 28px;
+  margin-bottom: 20px;
+  position: relative; overflow: hidden;
+  border-top: 3px solid transparent; background-clip: padding-box;
+}
+.hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--ger-black) 0%, var(--ger-red) 50%, var(--ger-gold) 100%);
+  z-index: 10;
+}
+.hero::after {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,163,247,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.watermark { position: absolute; right: 20px; top: 20px; font-size: 80px; font-weight: 900; color: rgba(255,255,255,0.015); pointer-events: none; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1; z-index: 0; user-select: none; }
 
-/* Filter Panel */
-.filter-panel { background: rgba(0,0,0,0.25); border-radius: 14px; padding: 18px 20px; margin-top: 22px; border: 1px solid var(--line); }
+.hero-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; position: relative; z-index: 1;}
+.ger-dots { display:flex; gap:3px; align-items: center; margin-left: 4px;}
+.ger-dot { width:7px; height:7px; border-radius:50%; }
+.ger-dot.black { background: var(--ger-black); box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
+.ger-dot.red { background: var(--ger-red); }
+.ger-dot.gold { background: var(--ger-gold); box-shadow: 0 0 5px rgba(255,204,0,0.5); }
+.ger-tag { color: var(--ger-gold); font-weight: 800; letter-spacing: 0.1em; margin-left: 6px;}
+
+.hero h1 { position: relative; z-index: 1; font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
+.hero p { position: relative; z-index: 1; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+/* ── Filter Panel ───────────────────────── */
+.filter-panel {
+  background: rgba(0,0,0,0.25);
+  border-radius: 14px; padding: 18px 20px;
+  margin-top: 22px; border: 1px solid var(--line);
+  position: relative; z-index: 2;
+}
 .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .filter-header strong { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
 .filter-actions { display: flex; gap: 8px; }
 .top-controls { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; }
 .field { display: grid; gap: 5px; }
 .field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding-left: 2px; }
-.control, .search { width: 100%; border-radius: 10px; border: 1px solid var(--line2); background: rgba(255,255,255,0.03); color: var(--text); padding: 10px 13px; font-size: 13px; font-family: var(--font); transition: border-color 0.2s, background 0.2s; }
+.control, .search {
+  width: 100%; border-radius: 10px;
+  border: 1px solid var(--line2);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  padding: 10px 13px; font-size: 13px;
+  font-family: var(--font);
+  transition: border-color 0.2s, background 0.2s;
+}
 .control:focus, .search:focus { outline: none; border-color: var(--accent); background: rgba(79,163,247,0.06); }
 .search::placeholder { color: #4a6585; }
 select.control option { background: var(--bg2); color: var(--text);}
-.btn { cursor: pointer; border-radius: 9px; border: 1px solid; font-family: var(--font); font-size: 12px; font-weight: 600; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; }
+.btn {
+  cursor: pointer; border-radius: 9px; border: 1px solid;
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.2s; white-space: nowrap;
+}
 .btn-ghost { background: transparent; border-color: var(--line2); color: var(--muted); }
 .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); border-color: var(--line2); }
 .btn-export { background: rgba(34,201,122,0.08); color: var(--good); border-color: rgba(34,201,122,0.25); }
 .btn-export:hover { background: rgba(34,201,122,0.16); color: #fff; }
 
-/* Tabs */
+/* ── Tabs ────────────────────────────────── */
 .tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
-.tab-btn { background: transparent; border: 1px solid transparent; color: var(--muted); font-family: var(--font); font-size: 14px; padding: 9px 16px; border-radius: 999px; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+.tab-btn {
+  background: transparent; border: 1px solid transparent;
+  color: var(--muted); font-family: var(--font); font-size: 14px;
+  padding: 9px 16px; border-radius: 999px; white-space: nowrap;
+  cursor: pointer; transition: all 0.2s;
+}
 .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
 .tab-btn.active { background: rgba(79,163,247,0.08); color: var(--text); font-weight: 600; border-color: rgba(79,163,247,0.2); }
-.tab-badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.18); color: #fbbf24; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 600; margin-left: 6px; min-width: 22px; }
+.tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(245,158,11,0.18); color: #fbbf24;
+  padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  margin-left: 6px; min-width: 22px;
+}
 .tab-content { display: none; }
 .tab-content.active { display: block; animation: fadeUp 0.35s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Cards & KPIs */
+/* ── Cards & KPIs ───────────────────────── */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: border-color 0.2s; }
+.card {
+  border: 1px solid var(--line); background: var(--panel);
+  border-radius: var(--radius); padding: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transition: border-color 0.2s;
+}
 .card:hover { border-color: var(--line2); }
 .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .kpi-value { margin-top: 8px; font-size: clamp(26px, 2.8vw, 38px); font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -0.02em; }
@@ -123,12 +197,25 @@ select.control option { background: var(--bg2); color: var(--text);}
 .short-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
 .short-meta span { color: #a8c4e0; }
 
-
-/* Table */
-.table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,0.25); max-height: 520px; }
+/* ── Table (Com Hover Alemão) ── */
+.table-wrap {
+  overflow: auto; border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,0.25);
+  max-height: 520px;
+}
 table { width: 100%; border-collapse: collapse; min-width: 900px; }
-thead th { position: sticky; top: 0; z-index: 2; background: rgba(8,16,28,0.98); text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 14px 16px; border-bottom: 1px solid var(--line2); white-space: nowrap; }
-tbody tr { cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); }
+thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: rgba(8,16,28,0.98);
+  text-align: left; font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 14px 16px; border-bottom: 1px solid var(--line2);
+  white-space: nowrap;
+}
+tbody tr { cursor: pointer; transition: background 0.15s; border-bottom: 1px solid rgba(255,255,255,0.03); position: relative; }
+tbody tr::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--ger-black) 0%, var(--ger-red) 50%, var(--ger-gold) 100%); opacity: 0; transition: opacity 0.2s ease; }
+tbody tr:hover::before { opacity: 1; }
 tbody tr:hover { background: rgba(79,163,247,0.06); }
 tbody tr:hover td { color: var(--text); }
 tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; transition: color 0.15s; }
@@ -136,8 +223,15 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 .table-header-row h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
 .table-header-row p { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-/* Chips */
-.chip { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
+/* ── Chips ──────────────────────────────── */
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 4px 9px; border-radius: 5px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border: 1px solid rgba(255,255,255,0.06);
+  white-space: nowrap;
+}
 .chip.good { background: rgba(34,201,122,0.12); color: #6debb0; border-color: rgba(34,201,122,0.25); }
 .chip.warn { background: rgba(245,158,11,0.12); color: #fcd34d; border-color: rgba(245,158,11,0.25); }
 .chip.bad  { background: rgba(240,71,71,0.12);  color: #fca5a5; border-color: rgba(240,71,71,0.25); }
@@ -145,26 +239,39 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 .chip.teal { background: rgba(0,212,170,0.10); color: #5eead4; border-color: rgba(0,212,170,0.2); }
 .chip.count { background: rgba(255,255,255,0.06); color: var(--muted); border-color: transparent; font-size: 11px; padding: 4px 10px; }
 
-/* Modal 360º */
+/* ── MODAL 360 ──────────────────────────────── */
 .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(3,8,18,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.active { display: flex; animation: overlayIn 0.25s ease; }
 @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
 .modal-card { background: var(--bg2); width: 100%; max-width: 1160px; max-height: 92vh; border-radius: 22px; border: 1px solid rgba(79,163,247,0.15); box-shadow: 0 50px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03); display: flex; flex-direction: column; overflow: hidden; animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1); }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* Modal Header */
 .modal-header { padding: 26px 32px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(8,18,34,0.98) 0%, rgba(10,22,40,0.95) 100%); flex-shrink: 0; position: relative; overflow: hidden; }
 .modal-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--teal)); }
 .modal-id-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .modal-id-tag { font-family: var(--mono); font-size: 11px; color: var(--muted); background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 5px; }
-.modal-name { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
-.modal-meta { margin-top: 6px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.modal-name { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: #fff; margin-bottom: 12px;}
+
+/* BANNER PIPELINE */
+.modal-pipeline-banner { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 10px; background: rgba(79,163,247,0.12); border: 1px solid rgba(79,163,247,0.3); font-size: 14px; font-weight: 700; color: #e8f2ff; text-transform: uppercase; letter-spacing: 0.05em;}
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(79,163,247,0.7); animation: pulse 1.8s infinite; }
+@keyframes pulse {0%{box-shadow:0 0 0 0 rgba(79,163,247,.7)}70%{box-shadow:0 0 0 10px rgba(79,163,247,0)}100%{box-shadow:0 0 0 0 rgba(79,163,247,0)}}
+
+.modal-meta { margin-top: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .modal-meta span { font-size: 13px; color: var(--muted); }
 .modal-meta .sep { color: var(--line2); }
 .close-btn { position: absolute; top: 22px; right: 26px; background: rgba(255,255,255,0.06); border: 1px solid var(--line2); color: var(--muted); width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: var(--font); }
 .close-btn:hover { background: rgba(240,71,71,0.15); color: #fca5a5; border-color: rgba(240,71,71,0.3); }
+
+/* Modal Tabs */
 .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); background: rgba(8,16,28,0.6); flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
 .mtab { padding: 13px 20px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border: none; background: transparent; font-family: var(--font); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
 .mtab:hover { color: var(--text); }
 .mtab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* Modal Body */
 .modal-body { overflow-y: auto; flex: 1; padding: 28px 32px; }
 .mtab-content { display: none; animation: fadeUp 0.25s ease; }
 .mtab-content.active { display: block; }
@@ -182,12 +289,12 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 .fc-val a { color: var(--accent); text-decoration: none; }
 .fc-val a:hover { text-decoration: underline; }
 
-/* Section headers */
+/* Section header inside modal */
 .modal-section-title { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 22px 0 12px; }
 .modal-section-title::before { content: ''; flex: none; width: 3px; height: 14px; border-radius: 2px; }
 .modal-section-title.yellow::before { background: var(--warn); }
 
-/* Highlight & Notes */
+/* Highlight cards (wide) */
 .highlight-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
 .highlight-card { border-radius: 12px; padding: 18px 20px; border: 1px solid; }
 .highlight-card.green { background: rgba(34,201,122,0.05); border-color: rgba(34,201,122,0.2); }
@@ -196,26 +303,32 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 .highlight-card.green .hc-label { color: var(--good); }
 .highlight-card.yellow .hc-label { color: var(--warn); }
 .highlight-card .hc-val { font-size: 13px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+
+/* Notes block */
 .notes-block { background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 13px; color: #c8dff5; line-height: 1.7; font-style: italic; white-space: pre-wrap; word-break: break-word; }
 .notes-block.analysis { border-left: 3px solid var(--accent2); border-radius: 0 12px 12px 0; margin-bottom: 14px;}
+
+/* Timeline pills */
 .timeline { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 .tpill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.04); border: 1px solid var(--line2); color: var(--muted); }
 .tpill.done { background: rgba(34,201,122,0.1); border-color: rgba(34,201,122,0.25); color: #6debb0; }
 .tpill.pending { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #fcd34d; }
 .tpill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* Loaders */
+/* Loading */
 #loadingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
 .spinner { width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.08); border-left-color: var(--accent); animation: spin 0.9s linear infinite; margin-bottom: 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-steps { margin-top: 16px; }
 .loading-step { font-size: 12px; color: var(--muted); margin-top: 4px; opacity: 0; transition: opacity 0.4s; }
 .loading-step.visible { opacity: 1; }
+
+/* Toast */
 #errorToast { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: rgba(240,71,71,0.92); color: #fff; padding: 14px 20px; border-radius: 11px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; max-width: 380px; backdrop-filter: blur(10px); }
 
 /* Responsive */
 @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
-@media (max-width: 700px) { .top-controls { grid-template-columns: 1fr; } .highlight-pair { grid-template-columns: 1fr; } .modal-card { max-height: 98vh; } .modal-body { padding: 18px; } .modal-header { padding: 20px 18px 16px; } }
+@media (max-width: 700px) { .top-controls { grid-template-columns: 1fr; } .highlight-pair { grid-template-columns: 1fr; } .modal-card { max-height: 98vh; } .modal-body { padding: 18px; } .modal-header { padding: 20px 18px 16px; } .modal-name { font-size: 20px; } }
 </style>
 </head>
 <body>
@@ -227,8 +340,8 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
   <div style="font-size: 18px; font-weight: 600; color: var(--text);">Iniciando CRM Enterprise...</div>
   <div class="loading-steps">
     <div class="loading-step" id="ls1">⟳ Conectando às 10 fontes de dados...</div>
-    <div class="loading-step" id="ls2">⟳ Consolidando registros e limpando anomalias...</div>
-    <div class="loading-step" id="ls3">⟳ Processando regras de negócio e scoring...</div>
+    <div class="loading-step" id="ls2">⟳ Consolidando registros...</div>
+    <div class="loading-step" id="ls3">⟳ Renderizando Motor Visual...</div>
     <div class="loading-step" id="ls4">✓ Tudo pronto</div>
   </div>
 </div>
@@ -236,7 +349,17 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 <div class="container" style="display:none" id="mainContent">
 
   <section class="hero">
-    <div class="hero-kicker">Talents4</div>
+    <div class="watermark">DEUTSCHLAND</div>
+    <div class="hero-kicker">
+        Talents4 
+        <span style="color: var(--line2); font-weight: 300; margin: 0 4px;">|</span> 
+        <div class="ger-dots">
+            <div class="ger-dot black"></div>
+            <div class="ger-dot red"></div>
+            <div class="ger-dot gold"></div>
+        </div>
+        <span class="ger-tag">DEUTSCHLAND PROJEKT</span>
+    </div>
     <h1>Plataforma de Inteligência e Decisão</h1>
     <p>Dashboard executivo focado em gargalos operacionais, prontidão de base e aprovação comercial.</p>
 
@@ -256,7 +379,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
           <input id="searchInput" class="search" type="search" placeholder="Nome, ID, profissão, empresa..." />
         </div>
         <div class="field">
-          <label class="field-label">Etapa (Auto)</label>
+          <label class="field-label">STATUS PIPELINE</label>
           <select id="pipelineFilter" class="control"></select>
         </div>
         <div class="field">
@@ -268,7 +391,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
           <select id="professionFilter" class="control"></select>
         </div>
         <div class="field">
-          <label class="field-label">Status Final</label>
+          <label class="field-label">Decisão Final</label>
           <select id="statusFilter" class="control"></select>
         </div>
       </div>
@@ -285,7 +408,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     <div class="kpis" id="kpiGrid"></div>
     
     <div class="grid-2">
-      <div class="card"><div class="panel-title"><h2>Funil de Etapas (Real)</h2><p>Clique em uma barra para isolar o funil.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartPipeline"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Status Pipeline (Aba 1)</h2><p>Clique em uma barra para filtrar a tabela.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartPipeline"></canvas></div></div>
       <div class="card"><div class="panel-title"><h2>Status e Desfecho</h2><p>Desempenho histórico de conversão.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartStatus"></canvas></div></div>
     </div>
 
@@ -302,7 +425,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
       </div>
       <div class="card" style="height: 100%;">
           <div class="panel-title" style="margin-bottom: 24px;">
-              <div><h2>Shortlist Ouro (Top 5)</h2><p>Candidatos com maior probabilidade de alocação rápida baseado no nosso Score de Negócios.</p></div>
+              <div><h2>Shortlist Ouro (Top 5)</h2><p>Candidatos com maior probabilidade de alocação rápida.</p></div>
           </div>
           <div class="shortlist-list" id="shortlistList"></div>
       </div>
@@ -313,7 +436,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     <div class="kpis" id="kpiDocs"></div>
     <div class="grid-2">
       <div class="card"><div class="panel-title"><h2>Auditoria de Passaportes</h2><p>Candidatos legalmente aptos para embarque (Com Documento Físico).</p></div><div class="chart-wrap" style="min-height:260px;display:flex;align-items:center;justify-content:center"><canvas id="chartPassport" style="max-height:240px;max-width:340px"></canvas></div></div>
-      <div class="card"><div class="panel-title"><h2>Prontidão Linguística</h2><p>Distribuição da base atual por nível CEFR de Alemão.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartGerman"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Prontidão Linguística 🇩🇪</h2><p>Distribuição da base atual por nível CEFR de Alemão.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartGerman"></canvas></div></div>
     </div>
   </div>
 
@@ -336,8 +459,8 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
             <th style="width:90px">ID</th>
             <th style="width:200px">Nome do Profissional</th>
             <th style="width:180px">Área Técnica</th>
-            <th style="width:200px">Status Auto</th>
-            <th style="width:90px">Idioma</th>
+            <th style="width:200px; color: var(--accent);">Status Pipeline</th>
+            <th style="width:90px">Alemão</th>
             <th style="width:110px">Legal</th>
             <th>Target Alemanha</th>
           </tr>
@@ -353,10 +476,14 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     <div class="modal-header">
       <div class="modal-id-row">
         <span class="modal-id-tag" id="m-id">ID</span>
-        <span class="chip" id="m-pipe-badge"></span>
-        <span class="chip" id="m-status-badge"></span>
       </div>
       <div class="modal-name" id="m-nome">—</div>
+      
+      <div class="modal-pipeline-banner">
+        <div class="pulse-dot"></div>
+        STATUS PIPELINE: <span id="m-pipeline-val" style="margin-left: 6px; color: #fff;">-</span>
+      </div>
+
       <div class="modal-meta">
         <span id="m-profissao">—</span>
         <span class="sep">·</span>
@@ -373,7 +500,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
       <div class="alert-bar" id="m-alert-bar">
         <span style="font-size:18px">⚠️</span>
         <div>
-          <strong style="display:block;margin-bottom:4px;font-size:14px;color:#ffd4d4">Faltam Documentos de Viagem/Registro</strong>
+          <strong style="display:block;margin-bottom:4px;font-size:14px;color:#ffd4d4">Pendências de Compliance</strong>
           <div id="m-alert-text" style="font-size:13px"></div>
         </div>
       </div>
@@ -439,14 +566,14 @@ const SECAO_MAP = {
 };
 
 const SECAO_META = {
-  perfil:     { label: '🧑 Perfil',     color: 'blue'   },
-  formacao:   { label: '🎓 Formação',   color: 'teal'   },
-  entrevista: { label: '💬 Entrevista', color: 'purple' },
-  avaliacao:  { label: '🎯 Avaliação',  color: 'green'  },
-  documentos: { label: '📄 Docs',       color: 'yellow' },
-  juridico:   { label: '⚖️ Jurídico',   color: 'red'    },
-  matching:   { label: '✈️ Matching',   color: 'teal'   },
-  outros:     { label: '📋 Outros',     color: 'blue'   }
+  perfil:     { label: '🧑 Perfil Pessoal',     color: 'blue'   },
+  formacao:   { label: '🎓 Formação & Idioma',   color: 'teal'   },
+  entrevista: { label: '💬 Entrevista',          color: 'purple' },
+  avaliacao:  { label: '🎯 Avaliação Interna',    color: 'green'  },
+  documentos: { label: '📄 Documentação',         color: 'yellow' },
+  juridico:   { label: '⚖️ Jurídico & Contrato', color: 'red'    },
+  matching:   { label: '✈️ Matching & Embarque', color: 'teal'   },
+  outros:     { label: '📋 Outros Dados',         color: 'blue'   }
 };
 
 function classifyKey(key) {
@@ -488,8 +615,11 @@ function showToast(msg) {
   setTimeout(() => t.style.display = 'none', 7000);
 }
 
-// ENGINE DE MERGE
+// ══════════════════════════════════════════════
+//  CSV PARSER COM PROTEÇÃO ANTI-CRASH
+// ══════════════════════════════════════════════
 function parseCSV(text) {
+  if (!text || !text.trim()) return [];
   text = text.replace(/^\uFEFF/, '');
   const rows = []; let row = [], cell = '', inQ = false;
   for(let i = 0; i < text.length; i++) {
@@ -502,9 +632,14 @@ function parseCSV(text) {
     } else cell += c;
   }
   if(cell || row.length) { row.push(cell); rows.push(row); }
+  
+  if (rows.length === 0) return [];
 
   let hi = rows.findIndex(r => r.some(c => c.includes('Nº de Inscrição') || c.includes('Nº da Inscrição')));
   if(hi === -1) hi = 0;
+  
+  if (!rows[hi]) return [];
+  
   const headers = rows[hi].map(h => cleanKey(h));
   const objs = [];
   for(let i = hi+1; i < rows.length; i++) {
@@ -517,25 +652,29 @@ function parseCSV(text) {
   return objs;
 }
 
+// ══════════════════════════════════════════════
+//  ENGINE DE INICIALIZAÇÃO & MERGE
+// ══════════════════════════════════════════════
 async function initCRM() {
   const steps = [ls1,ls2,ls3,ls4];
   const showStep = (i) => { if(steps[i]) { steps[i].classList.add('visible'); } };
 
   try {
     showStep(0);
+    // Adicionado CATCH individual para não quebrar se 1 aba falhar (Rate Limit)
     const texts = await Promise.all(
       SHEET_URLS.map((url, idx) =>
         fetch(url).then(r => { if(!r.ok) throw new Error(); return r.text(); })
-          .catch(() => { showToast(`Fonte #${idx+1} indisponível. Dados parciais.`); return ''; })
+          .catch(() => { console.warn(`Fonte #${idx+1} indisponível no momento.`); return ''; })
       )
     );
     showStep(1);
     const map = new Map();
     texts.forEach((text, sheetIdx) => {
-      if(!text) return;
+      if(!text || !text.trim()) return;
       parseCSV(text).forEach(row => {
         const id = getVal(row, ['Nº de Inscrição','Nº da Inscrição']);
-        if(!id) return;
+        if(!id || id.toLowerCase() === 'não info.') return;
         if(!map.has(id)) map.set(id, { _id: id, _abas: [] });
         const c = map.get(id);
         c._abas.push(sheetIdx);
@@ -547,22 +686,9 @@ async function initCRM() {
     });
 
     showStep(2);
+    // ASSUMINDO O STATUS PIPELINE DA ABA 1 COMO A VERDADE ABSOLUTA
     masterData = [...map.values()].map(c => {
-      let etapa = '1ª Etapa — Triagem';
-      if(c._abas.includes(9)) etapa = 'Matching / Empregador';
-      else if(c._abas.includes(5)) etapa = '6ª Etapa — Jurídico';
-      else if(c._abas.includes(4)) etapa = '5ª Etapa — Documentação';
-      else if(c._abas.includes(3)) etapa = '4ª Etapa — Análise';
-      else if(c._abas.includes(2)) etapa = '3ª Etapa — Avaliação';
-      else if(c._abas.includes(1)) etapa = '2ª Etapa — Entrevista';
-
-      const ms = (getVal(c, ['STATUS PIPELINE','Status Final']) || '').toLowerCase();
-      if(c._abas.includes(8) || ms.includes('não qualificado') || ms.includes('reprovado')) etapa = 'Base de Dados';
-      if(c._abas.includes(7) || ms.includes('desist')) etapa = 'Desistência';
-      if(c._abas.includes(6) || ms === 'ativo' || ms.includes('curso de alemão')) {
-        if(['Desistência','Base de Dados','1ª Etapa — Triagem'].includes(etapa)) etapa = 'Ativos / Em Preparação';
-      }
-      c._etapa = etapa;
+      c._etapa = getVal(c, ['STATUS PIPELINE']) || 'Não Lançado';
       return c;
     });
 
@@ -576,7 +702,8 @@ async function initCRM() {
     document.getElementById('mainContent').style.display = 'block';
 
   } catch(e) {
-    document.getElementById('loadingOverlay').innerHTML = `<div style="color:#f04747;font-size:18px;font-weight:600">❌ Erro Crítico</div><div style="color:var(--muted);margin-top:8px;font-size:14px">${e.message}</div>`;
+    document.getElementById('loadingOverlay').innerHTML =
+      `<div style="color:#f04747;font-size:18px;font-weight:600">❌ Erro ao inicializar o CRM</div><div style="color:var(--muted);margin-top:8px;font-size:14px">${e.message}</div>`;
   }
 }
 
@@ -677,7 +804,7 @@ function renderPriorityQueue(rows) {
 
 function renderShortlist(rows) { 
   const shortlist = rows.filter(r => !(getVal(r,['Status Final'])||'').toLowerCase().includes('reprovado')).map(r => ({ ...r, _score: candidateScore(r) })).sort((a,b) => b._score - a._score).slice(0,5); 
-  document.getElementById('shortlistList').innerHTML = shortlist.length ? shortlist.map(r => `<div class="short-item" onclick="openModal('${r._id}')"><div class="short-top"><h4>${getVal(r, ['Nome completo','Nome']) || 'Desconhecido'}</h4><div class="score-pill">${r._score} pts</div></div><div class="short-meta"><span>${getVal(r, ['Profissão principal','Profissão']) || 'S/ Profissão'}</span><span class="sep">·</span><span>${r._etapa}</span><span class="sep">·</span><span style="color:var(--accent)">${getVal(r, ['Nível de alemão', 'Língua alemã']) || 'A0'}</span></div></div>`).join('') : '<div class="chart-empty">Sem candidatos que atendam ao critério.</div>'; 
+  document.getElementById('shortlistList').innerHTML = shortlist.length ? shortlist.map(r => `<div class="short-item" onclick="openModal('${r._id}')"><div class="short-topline"><h4 style="margin:0; font-size: 15px;">${getVal(r, ['Nome completo','Nome']) || 'Desconhecido'}</h4><div class="score-pill">${r._score} pts</div></div><div class="short-sub"><strong>Área:</strong> ${getVal(r, ['Profissão principal','Profissão']) || 'Não info'} · <strong>Alemão:</strong> <span style="color:var(--accent)">${getVal(r, ['Nível de alemão', 'Língua alemã']) || 'A0'}</span></div></div>`).join('') : '<div class="chart-empty">Sem candidatos que atendam ao critério.</div>'; 
 }
 
 
@@ -718,13 +845,23 @@ function destroyChart(id) {
   if(chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
 }
 
-function applyCrossFilter(label) {
-    const searchInput = document.getElementById('searchInput');
-    searchInput.value = label;
-    applyFilters();
+function applyCrossFilter(filterId, labelStr) {
+    if(filterId) {
+        const sel = document.getElementById(filterId);
+        if(sel) {
+            let exists = Array.from(sel.options).some(opt => opt.value === labelStr);
+            if(exists) {
+                sel.value = labelStr;
+                applyFilters();
+            }
+        }
+    } else {
+        document.getElementById('searchInput').value = labelStr;
+        applyFilters();
+    }
 }
 
-function drawBarH(id, arr) {
+function drawBarH(id, arr, opts={}) {
   destroyChart(id);
   const canvas = document.getElementById(id);
   if(!canvas) return;
@@ -754,7 +891,7 @@ function drawBarH(id, arr) {
       onClick: (e, activeEls) => {
         if(activeEls.length > 0) {
             const labelStr = arr[activeEls[0].index][0]; 
-            applyCrossFilter(labelStr);
+            applyCrossFilter(opts.filterId, labelStr);
         }
       },
       plugins: {
@@ -770,7 +907,7 @@ function drawBarH(id, arr) {
   });
 }
 
-function drawDoughnut(id, arr) {
+function drawDoughnut(id, arr, opts={}) {
   destroyChart(id);
   const canvas = document.getElementById(id);
   if(!canvas) return;
@@ -796,7 +933,10 @@ function drawDoughnut(id, arr) {
       responsive: true, maintainAspectRatio: true, cutout: '72%',
       animation: { animateRotate: true, duration: 800, easing: 'easeOutQuart' },
       onClick: (e, activeEls) => {
-        if(activeEls.length > 0) applyCrossFilter(arr[activeEls[0].index][0]);
+        if(activeEls.length > 0) {
+            const labelStr = arr[activeEls[0].index][0];
+            applyCrossFilter(opts.filterId, labelStr);
+        }
       },
       plugins: {
         legend: { display: true, position: 'bottom', labels: { color: '#a8c4e0', font: { size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10, generateLabels: chart => { const ds = chart.data.datasets[0]; return chart.data.labels.map((label, i) => ({ text: `${label}`, fillStyle: ds.backgroundColor[i], strokeStyle: ds.borderColor[i], pointStyle: 'circle', index: i })); } } },
@@ -814,7 +954,7 @@ function renderAll() {
   const total = filteredData.length;
   const aprov = filteredData.filter(c => (getVal(c,['Status Final'])||'').toLowerCase().includes('aprovado')).length;
   const comPass = filteredData.filter(c => getVal(c,['Número do Passaporte'])).length;
-  const ativos = filteredData.filter(c => c._etapa === 'Ativos / Em Preparação').length;
+  const ativos = filteredData.filter(c => c._etapa.toLowerCase().includes('ativo') || c._etapa.toLowerCase().includes('curso')).length;
 
   document.getElementById('kpiGrid').innerHTML = `
     <div class="card"><div class="kpi-label">Volume Filtrado</div><div class="kpi-value">${total}</div><div class="kpi-sub">cadastros válidos</div></div>
@@ -832,8 +972,8 @@ function renderAll() {
   `;
 
   // Draw Graphs
-  drawBarH('chartPipeline', groupCount(filteredData, c => c._etapa));
-  drawBarH('chartStatus', groupCount(filteredData, c => getVal(c,['Status Final','Resultado da entrevista'])).filter(d=>d[0]!=='Não informado'));
+  drawBarH('chartPipeline', groupCount(filteredData, c => c._etapa), { filterId: 'pipelineFilter' });
+  drawBarH('chartStatus', groupCount(filteredData, c => getVal(c,['Status Final','Resultado da entrevista'])).filter(d=>d[0]!=='Não informado'), { filterId: 'statusFilter' });
   
   // STRATEGY SECTIONS
   renderRadar(filteredData);
@@ -841,7 +981,7 @@ function renderAll() {
   renderShortlist(filteredData);
 
   drawDoughnut('chartPassport', [['Com Passaporte',comPass],['Pendente',Math.max(0,total-comPass)]].filter(d=>d[1]>0));
-  drawBarH('chartGerman', groupCount(filteredData, c => getVal(c,['Nível de alemão','Língua alemã','Nível na língua alemã?'])).filter(d=>d[0]!=='Não informado'));
+  drawBarH('chartGerman', groupCount(filteredData, c => getVal(c,['Nível de alemão','Língua alemã','Nível na língua alemã?'])).filter(d=>d[0]!=='Não informado'), { filterId: 'germanFilter' });
   drawBarH('chartEmployer', groupCount(filteredData, c => getVal(c,['Empresa'])).filter(d=>d[0]!=='Não informado'));
 
   document.getElementById('tableCount').textContent = `${total} registros na base`;
@@ -877,27 +1017,32 @@ function openModal(id) {
 
   document.getElementById('m-id').textContent = id;
   document.getElementById('m-nome').textContent = getVal(c,['Nome completo','Nome completo do candidato','Nome']) || '—';
+  
+  // Mapeamento do Pipeline no Modal
+  const etapa = c._etapa;
+  document.getElementById('m-pipeline-val').textContent = etapa;
+
   document.getElementById('m-profissao').textContent = getVal(c,['Profissão principal','Profissão']) || '—';
   document.getElementById('m-cidade').textContent = getVal(c,['Cidade atual']) || '—';
   document.getElementById('m-idade').textContent = getVal(c,['Idade']) ? getVal(c,['Idade']) + ' anos' : '—';
-
-  const etapa = c._etapa;
-  const pb = document.getElementById('m-pipe-badge');
-  pb.textContent = etapa; pb.className = `chip ${chipClass(etapa)}`;
 
   const status = getVal(c,['Status Final','Resultado da entrevista']);
   const sb = document.getElementById('m-status-badge');
   if(status) { sb.textContent = status; sb.className = `chip ${chipClass(status)}`; sb.style.display=''; }
   else sb.style.display = 'none';
 
+  // Alertas de compliance
   const alertas = [];
-  if(!getVal(c,['Número do Passaporte'])) alertas.push('Passaporte Físico não localizado na base.');
-  if(!getVal(c,['Documento Profissional (COREN, CRM, CREA, outro)'])) alertas.push('Atenção: Licença profissional do conselho pendente.');
+  if(!getVal(c,['Número do Passaporte'])) alertas.push('Número de passaporte não cadastrado');
+  if(!getVal(c,['Documento Profissional (COREN, CRM, CREA, outro)'])) alertas.push('Licença profissional (COREN/CRM) pendente');
   const ab = document.getElementById('m-alert-bar');
-  if(alertas.length) { document.getElementById('m-alert-text').innerHTML = alertas.map(a => `• ${a}`).join('<br>'); ab.classList.add('active'); } 
-  else ab.classList.remove('active');
+  if(alertas.length) {
+    document.getElementById('m-alert-text').innerHTML = alertas.map(a => `• ${a}`).join('<br>');
+    ab.classList.add('active');
+  } else ab.classList.remove('active');
 
-  const INTERNAL = new Set(['_id','_abas','_etapa','Nome completo','Nº de Inscrição','Nº da Inscrição','Nome completo do candidato']);
+  // ─── Montar seções dinamicamente ───────────────
+  const INTERNAL = new Set(['_id','_abas','_etapa','Nome completo','Nº de Inscrição','Nº da Inscrição','Nome completo do candidato', 'STATUS PIPELINE']);
   const buckets = {};
   Object.keys(SECAO_META).forEach(s => buckets[s] = []);
 
@@ -940,7 +1085,7 @@ function openModal(id) {
       if(fortes || atencao) {
         div.innerHTML += `<div class="highlight-pair">
           ${fortes ? `<div class="highlight-card green"><div class="hc-label">💪 Pontos Fortes</div><div class="hc-val">${fortes.val}</div></div>` : ''}
-          ${atencao ? `<div class="highlight-card yellow"><div class="hc-label">⚠️ Atenção / Riscos</div><div class="hc-val">${atencao.val}</div></div>` : ''}
+          ${atencao ? `<div class="highlight-card yellow"><div class="hc-label">⚠️ Pontos de Atenção</div><div class="hc-val">${atencao.val}</div></div>` : ''}
         </div>`;
       }
       if(remaining.length) div.innerHTML += `<div class="field-grid">${remaining.map(f => fieldCard(f)).join('')}</div>`;
@@ -952,7 +1097,7 @@ function openModal(id) {
         const done = !!found;
         return `<div class="tpill ${done?'done':'pending'}"><div class="tpill-dot"></div>${df.substring(0,30)}: <strong>${done ? found.val.substring(0,30) : 'Pendente'}</strong></div>`;
       });
-      div.innerHTML += `<div style="margin-bottom:18px"><div class="modal-section-title yellow">Status de Conformidade</div><div class="timeline">${pills.join('')}</div></div>`;
+      div.innerHTML += `<div style="margin-bottom:18px"><div class="modal-section-title yellow">Status de Documentos</div><div class="timeline">${pills.join('')}</div></div>`;
       const others = buckets[sec].filter(f => !docFields.some(df => superClean(f.key).includes(superClean(df).substring(0,10))));
       if(others.length) div.innerHTML += `<div class="field-grid">${others.map(f=>fieldCard(f)).join('')}</div>`;
     }
@@ -968,7 +1113,7 @@ function openModal(id) {
 
 function fieldCard({key, val}) {
   let display = val;
-  if(val.startsWith('http')) display = `<a href="${val}" target="_blank">🔗 Visualizar / Abrir</a>`;
+  if(val.startsWith('http')) display = `<a href="${val}" target="_blank">🔗 Acessar Arquivo</a>`;
   const valClass = val.length > 120 ? 'fc-val' : 'fc-val';
   return `<div class="field-card"><div class="fc-label">${key}</div><div class="${valClass}">${display}</div></div>`;
 }
@@ -987,13 +1132,13 @@ document.getElementById('crmModal').onclick = e => { if(e.target === document.ge
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 
 // ══════════════════════════════════════════════
-//  FILTROS & EXPORT
+//  FILTROS
 // ══════════════════════════════════════════════
 function buildFilters() {
   const pop = (id, fn) => {
     const sel = document.getElementById(id);
     const groups = groupCount(masterData, fn).map(([k]) => k).filter(k => k !== 'Não informado');
-    sel.innerHTML = '<option value="">Todos os status</option>' + groups.map(k => `<option>${k}</option>`).join('');
+    sel.innerHTML = '<option value="">Todas as opções</option>' + groups.map(k => `<option value="${k}">${k}</option>`).join('');
   };
   pop('pipelineFilter', c => c._etapa);
   pop('germanFilter',   c => getVal(c,['Nível de alemão','Língua alemã']));
@@ -1007,6 +1152,7 @@ function applyFilters() {
   const pg = document.getElementById('germanFilter').value;
   const pf = document.getElementById('professionFilter').value;
   const ps = document.getElementById('statusFilter').value;
+  
   filteredData = masterData.filter(c => {
     const txt = Object.values(c).join(' ').toLowerCase();
     return (!q || txt.includes(q))
@@ -1019,15 +1165,29 @@ function applyFilters() {
 }
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
-['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
-document.getElementById('resetFilters').onclick = () => { document.getElementById('searchInput').value = ''; ['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id => document.getElementById(id).value = ''); applyFilters(); };
+['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id =>
+  document.getElementById(id).addEventListener('change', applyFilters)
+);
+document.getElementById('resetFilters').onclick = () => {
+  document.getElementById('searchInput').value = '';
+  ['pipelineFilter','germanFilter','professionFilter','statusFilter'].forEach(id =>
+    document.getElementById(id).value = ''
+  );
+  applyFilters();
+};
 
+// ══════════════════════════════════════════════
+//  EXPORTAÇÃO CSV
+// ══════════════════════════════════════════════
 document.getElementById('btnExport').onclick = () => {
   if(!filteredData.length) { showToast('Nenhum dado para exportar.'); return; }
   const cols = ['_id','Nome completo','Profissão principal','_etapa','Nível de alemão','Status Final','Empresa','Número do Passaporte','E-mail','Telefone'];
   let csv = cols.map(c => c.replace(/^_/,'')).join(',') + '\n';
   filteredData.forEach(c => {
-    csv += cols.map(k => { let v = k.startsWith('_') ? (c[k]||'') : (getVal(c,[k])||''); return `"${v.replace(/"/g,'""')}"`; }).join(',') + '\n';
+    csv += cols.map(k => {
+      let v = k.startsWith('_') ? (c[k]||'') : (getVal(c,[k])||'');
+      return `"${v.replace(/"/g,'""')}"`;
+    }).join(',') + '\n';
   });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'}));
@@ -1035,9 +1195,23 @@ document.getElementById('btnExport').onclick = () => {
   a.click();
 };
 
+// ══════════════════════════════════════════════
+//  TABS PRINCIPAIS E LOADING
+// ══════════════════════════════════════════════
 document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
-  btn.onclick = () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); };
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  };
 });
+
+const ls1 = document.getElementById('ls1');
+const ls2 = document.getElementById('ls2');
+const ls3 = document.getElementById('ls3');
+const ls4 = document.getElementById('ls4');
+ls1.classList.add('visible');
 
 initCRM();
 </script>
