@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Talents4 Executive Dashboard</title>
+<style>
+  :root {
+    --bg: #07111f; --bg-2: #0b172a; --panel: rgba(13, 26, 47, 0.82); --line: rgba(255,255,255,0.10);
+    --text: #edf4ff; --muted: #93a8c7; --accent: #59a8ff; --accent-2: #7c5cff;
+    --good: #26c281; --warn: #ffb54a; --bad: #ff6b6b; --shadow: 0 20px 60px rgba(0,0,0,0.35); --radius: 22px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: radial-gradient(circle at top left, rgba(89,168,255,.16), transparent 28%), radial-gradient(circle at top right, rgba(124,92,255,.14), transparent 24%), linear-gradient(180deg, #07111f 0%, #081426 55%, #09111d 100%); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  .container { width: min(1600px, 94vw); margin: 0 auto; padding: 28px 0 40px; }
+  .hero { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 30px; background: linear-gradient(135deg, rgba(12,24,43,.96), rgba(9,18,33,.90)); box-shadow: var(--shadow); padding: 34px 34px 28px; }
+  .hero::after { content:""; position:absolute; inset:auto -80px -120px auto; width:360px; height:360px; background: radial-gradient(circle, rgba(89,168,255,.22), transparent 60%); filter: blur(10px); }
+  .hero-brand-kicker { color: #a8c2e8; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; font-weight: 700; }
+  h1 { margin: 10px 0 12px; font-size: clamp(30px, 4vw, 52px); line-height: 1.03; max-width: 950px; }
+  .hero p, .hero-brand-tagline { margin: 0; color: var(--muted); font-size: 16px; max-width: 950px; }
+  .hero-grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 24px; align-items: end; }
+  .top-controls { display:grid; grid-template-columns: 1.35fr 1fr 1fr auto auto; gap: 14px; margin-top: 22px; align-items:end; position: relative; z-index: 2;}
+  .field { display:grid; gap:8px; }
+  .field-label { color: #9eb5d6; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; padding-left: 2px; }
+  .action-btn { min-width: 170px; }
+  .control, .search, select, button { width:100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: var(--text); padding: 14px 16px; font-size: 14px; min-height: 56px; backdrop-filter: blur(6px); }
+  .search::placeholder { color: #88a0c1; }
+  button { cursor:pointer; font-weight: 600; transition: .2s ease; }
+  button:hover { transform: translateY(-1px); border-color: rgba(89,168,255,.35); }
+  .section { margin-top: 22px; }
+  .kpis { display:grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .card { border:1px solid var(--line); background: var(--panel); backdrop-filter: blur(10px); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .kpi .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .kpi .value { margin-top: 8px; font-size: clamp(26px, 3vw, 34px); font-weight: 800; }
+  .kpi .sub { margin-top: 6px; color: #bcd0ec; font-size: 13px; }
+  .grid-2 { display:grid; grid-template-columns: 1.25fr .95fr; gap: 18px; }
+  .grid-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .panel-title { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom: 16px; }
+  .panel-title h2 { margin: 0; font-size: 19px; }
+  .panel-title p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+  .badge { padding: 8px 10px; border-radius: 999px; background: rgba(89,168,255,.12); color: #b7d5ff; font-size: 12px; border:1px solid rgba(89,168,255,.18); }
+  .svg-wrap { width:100%; min-height: 280px; }
+  .table-wrap { overflow:auto; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); }
+  table { width:100%; border-collapse: collapse; min-width: 1200px; table-layout: fixed; }
+  thead th { position: sticky; top: 0; background: #0d1a2f; z-index: 2; text-align:left; font-size: 12px; letter-spacing: .04em; color: #bdd0ee; text-transform: uppercase; padding: 12px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  tbody td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #e6efff; font-size: 14px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .chip { display:inline-flex; align-items:center; padding: 7px 10px; border-radius: 999px; border:1px solid rgba(255,255,255,0.08); font-size: 12px; font-weight: 700; }
+  .chip.good { background: rgba(38,194,129,0.12); color: #99f0c7; }
+  .chip.warn { background: rgba(255,181,74,0.12); color: #ffd694; }
+  .chip.bad { background: rgba(255,107,107,0.12); color: #ffb1b1; }
+  .chip.neutral { background: rgba(89,168,255,0.10); color: #bdd8ff; }
+  .insights { display:grid; gap: 12px; }
+  .insight { border:1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px 15px; background: rgba(255,255,255,0.03); }
+  .insight strong { display:block; margin-bottom: 6px; }
+  .small { color: var(--muted); font-size: 13px; }
+  .footer-note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .quality-grid { display:grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  .quality-box { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 14px; }
+  .quality-box .q-value { font-size: 26px; font-weight: 800; margin: 6px 0; }
+  .toolbar-bottom { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-top:12px; color: var(--muted); font-size:13px; }
+  .pagination { display:flex; gap: 8px; align-items:center; }
+  .pagination button { width:auto; padding:10px 12px; }
+  
+  /* Loading Overlay */
+  #loadingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
+  .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 16px; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  @media (max-width: 1300px) { .kpis { grid-template-columns: repeat(3, 1fr); } .grid-2, .grid-3, .hero-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 820px) { .top-controls, .quality-grid, .kpis { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .top-controls, .quality-grid, .kpis { grid-template-columns: 1fr; } .container { width: min(96vw, 1600px); } .hero { padding: 24px 18px; } }
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div style="color: var(--muted); font-weight: 600;">Sincronizando com Google Sheets...</div>
+</div>
+
+<div class="container" style="display: none;" id="mainContent">
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-main">
+        <div class="hero-brand">
+          <div class="hero-brand-kicker">Talents4</div>
+          <h1 class="hero-brand-title">Talent Intelligence</h1>
+          <div class="hero-brand-tagline">Base de dados conectada em tempo real com o Google Sheets.</div>
+        </div>
+
+        <div class="top-controls">
+          <div class="field">
+            <label class="field-label" for="searchInput">Busca</label>
+            <input id="searchInput" class="search" type="search" placeholder="Buscar nome, profissão, cidade ou e-mail" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="pipelineFilter">Status pipeline</label>
+            <select id="pipelineFilter" class="control"></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="germanFilter">Nível de alemão</label>
+            <select id="germanFilter" class="control"></select>
+          </div>
+          <button id="resetFilters" class="action-btn">Limpar filtros</button>
+          <button id="exportFiltered" class="action-btn">Exportar CSV Atual</button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+            <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Status da Conexão</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 10px; height: 10px; background: var(--good); border-radius: 50%; box-shadow: 0 0 10px var(--good);"></div>
+                <strong style="font-size: 18px;">Online & Sincronizado</strong>
+            </div>
+            <div style="margin-top: 12px; color: var(--muted); font-size: 14px;">Total capturado: <strong id="heroTotal" style="color: #fff;">0</strong> registros.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section kpis" id="kpiGrid"></section>
+
+  <section class="section grid-2">
+    <div class="card">
+      <div class="panel-title">
+        <div><h2>Pipeline operacional</h2><p>Distribuição dos candidatos por etapa atual do funil.</p></div>
+        <div class="badge" id="pipelineBadge">0 registros</div>
+      </div>
+      <div class="svg-wrap" id="pipelineChart"></div>
+    </div>
+    <div class="card">
+      <div class="panel-title">
+        <div><h2>Status final</h2><p>Aprovados, reprovados e pendências de retorno.</p></div>
+        <div class="badge" id="statusBadge">Base inicial</div>
+      </div>
+      <div class="svg-wrap" id="statusDonut"></div>
+    </div>
+  </section>
+
+  <section class="section grid-3">
+    <div class="card">
+      <div class="panel-title"><div><h2>Nível de alemão</h2><p>Leitura rápida da maturidade linguística da base.</p></div></div>
+      <div class="svg-wrap" id="germanChart"></div>
+    </div>
+    <div class="card">
+      <div class="panel-title"><div><h2>Qualidade do perfil</h2><p>Classificação do recrutador por força de candidatura.</p></div></div>
+      <div class="svg-wrap" id="profileChart"></div>
+    </div>
+    <div class="card">
+      <div class="panel-title"><div><h2>Volume por profissão</h2><p>Top áreas com maior concentração na base filtrada.</p></div></div>
+      <div class="svg-wrap" id="professionChart"></div>
+    </div>
+  </section>
+
+  <section class="section grid-2">
+    <div class="card">
+      <div class="panel-title"><div><h2>Insights automáticos</h2><p>Leituras geradas diretamente a partir dos dados filtrados.</p></div></div>
+      <div class="insights" id="insights"></div>
+    </div>
+    <div class="card">
+      <div class="panel-title"><div><h2>Qualidade dos dados</h2><p>Completude dos campos essenciais para operação e apresentação.</p></div></div>
+      <div class="quality-grid" id="qualityGrid"></div>
+      <div class="footer-note" id="qualityNote"></div>
+    </div>
+  </section>
+
+  <section class="section card">
+    <div class="panel-title">
+      <div><h2>Tabela executiva de candidatos</h2><p>Linhas filtradas em tempo real com foco em decisão.</p></div>
+      <div class="badge" id="tableCount">0 linhas</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th><th>Profissão</th><th>Pipeline</th><th>Perfil</th><th>Status Final</th><th>Alemão</th><th>Cidade</th><th>Idade</th><th>E-mail</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="toolbar-bottom">
+      <div id="tableMeta">Página 1</div>
+      <div class="pagination">
+        <button id="prevPage">Anterior</button>
+        <button id="nextPage">Próxima</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// ==========================================
+// 1. LINK DO GOOGLE SHEETS
+// ==========================================
+const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4l6xsIFlb92dd3rVSXNzZf9KcB9xoF6-FjB-il7ZoPTrChPR-gAq0kDLK-66sC5xMCK422lhl8oeN/pub?output=csv";
+
+let allRows = [];
+let filteredRows = [];
+let page = 1;
+const pageSize = 10;
+const PALETTE = ['#59a8ff','#7c5cff','#26c281','#ffb54a','#ff6b6b','#7dd3fc','#c084fc','#94a3b8','#f472b6','#34d399'];
+
+// Lógica de Leitura do CSV
+function parseCSVToObjects(text) {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i], next = text[i + 1];
+    if (char === '"') {
+      if (inQuotes && next === '"') { cell += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (char === ',' && !inQuotes) {
+      row.push(cell); cell = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && next === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else { cell += char; }
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+
+  if(rows.length < 2) return [];
+  
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).filter(r => r.join('').trim() !== '').map(r => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = r[i] ? r[i].trim() : '');
+    return obj;
+  });
+}
+
+// Inicialização e Fetch de Dados
+async function initDashboard() {
+  try {
+    const response = await fetch(GOOGLE_SHEETS_CSV_URL);
+    if (!response.ok) throw new Error("Falha na rede ao tentar buscar a planilha.");
+    
+    const csvText = await response.text();
+    allRows = parseCSVToObjects(csvText);
+    filteredRows = [...allRows];
+    
+    setupFilters();
+    renderAll();
+    
+    // Esconde o loading e mostra o conteúdo
+    document.getElementById('loadingOverlay').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+    }, 500);
+
+  } catch (error) {
+    console.error("Erro ao sincronizar planilha:", error);
+    document.getElementById('loadingOverlay').innerHTML = `<div style="color:var(--bad); font-weight:bold;">Erro ao conectar com o Google Sheets. Verifique o link ou a conexão.</div>`;
+  }
+}
+
+// Funções Utilitárias e de Renderização
+function normalize(value) { return (value ?? '').toString().trim(); }
+function isEmpty(value) { const v = normalize(value).toLowerCase(); return !v || v === '-' || v === 'pendente' || v === 'nan' || v === 'null' || v === 'undefined'; }
+function parseAge(value) { const m = normalize(value).match(/\d+/); return m ? parseInt(m[0], 10) : null; }
+function friendlyPct(num) { return `${(num * 100).toFixed(0)}%`; }
+function groupCount(rows, key) {
+  const map = new Map();
+  rows.forEach(r => { const k = normalize(r[key]) || 'Não informado'; map.set(k, (map.get(k) || 0) + 1); });
+  return [...map.entries()].sort((a,b) => b[1]-a[1]);
+}
+
+function getFilters() {
+  return {
+    q: normalize(document.getElementById('searchInput').value).toLowerCase(),
+    pipeline: document.getElementById('pipelineFilter').value,
+    german: document.getElementById('germanFilter').value,
+  };
+}
+
+function applyFilters() {
+  const filters = getFilters();
+  filteredRows = allRows.filter(r => {
+    const haystack = [r['Nome completo'], r['Profissão principal'], r['Cidade atual'], r['E-mail'], r['Área profissional']].map(x => normalize(x).toLowerCase()).join(' | ');
+    const matchesSearch = !filters.q || haystack.includes(filters.q);
+    const matchesPipeline = filters.pipeline === 'Todos' || normalize(r['STATUS PIPELINE']) === filters.pipeline;
+    const matchesGerman = filters.german === 'Todos' || normalize(r['Língua alemã']) === filters.german;
+    return matchesSearch && matchesPipeline && matchesGerman;
+  });
+  page = 1;
+  renderAll();
+}
+
+function setupFilters() {
+  const pipelineSelect = document.getElementById('pipelineFilter');
+  const germanSelect = document.getElementById('germanFilter');
+  const pipelineValues = ['Todos', ...groupCount(allRows, 'STATUS PIPELINE').map(([k]) => k)];
+  const germanValues = ['Todos', ...groupCount(allRows, 'Língua alemã').map(([k]) => k)];
+  pipelineSelect.innerHTML = pipelineValues.map(v => `<option>${v}</option>`).join('');
+  germanSelect.innerHTML = germanValues.map(v => `<option>${v}</option>`).join('');
+}
+
+function stat(rows) {
+  const total = rows.length;
+  const approved = rows.filter(r => normalize(r['Status Final']) === 'Aprovado').length;
+  const awaiting = rows.filter(r => normalize(r['Status Final']) === 'Aguardando Retorno').length;
+  const strong = rows.filter(r => normalize(r['Perfil']) === 'Candidato forte').length;
+  const a0 = rows.filter(r => normalize(r['Língua alemã']) === 'A0').length;
+  const ready = rows.filter(r => { const level = normalize(r['Língua alemã']).toUpperCase(); return level === 'B1' || level === 'B2' || level === 'C1' || level === 'C2' || level === 'NATIVO'; }).length;
+  const avgAgeValues = rows.map(r => parseAge(r['Idade'])).filter(v => Number.isFinite(v));
+  const avgAge = avgAgeValues.length ? (avgAgeValues.reduce((a,b)=>a+b,0) / avgAgeValues.length) : 0;
+  
+  return {
+    total, approved, awaiting, strong, a0, avgAge, ready,
+    approvalRate: total ? approved / total : 0,
+    strongRate: total ? strong / total : 0,
+    readyRate: total ? ready / total : 0
+  };
+}
+
+function chipClass(value) {
+  const v = normalize(value).toLowerCase();
+  if (v.includes('aprovado') || v.includes('forte') || v === 'b2' || v === 'c1' || v === 'curso de alemão') return 'good';
+  if (v.includes('reprovado') || v.includes('fraco') || v === 'a0' || v.includes('desistiu')) return 'bad';
+  if (v.includes('aguardando') || v.includes('intermediário') || v === 'a1' || v === 'a2' || v === 'b1') return 'warn';
+  return 'neutral';
+}
+
+function renderKPIs(rows) {
+  const s = stat(rows);
+  document.getElementById('heroTotal').textContent = s.total;
+  const cards = [
+    { label:'Base filtrada', value:s.total, sub:'Total de registros analisados' },
+    { label:'Aprovados', value:s.approved, sub:`${friendlyPct(s.approvalRate)} da base filtrada` },
+    { label:'Aguardando retorno', value:s.awaiting, sub:'Pendência de contato ou decisão' },
+    { label:'Perfis fortes', value:s.strong, sub:`${friendlyPct(s.strongRate)} classificados como fortes` },
+    { label:'Alemão A0', value:s.a0, sub:'Risco operacional de idioma' },
+    { label:'Idade média', value:s.avgAge ? s.avgAge.toFixed(1) : '-', sub:'Calculada a partir dos campos válidos' },
+  ];
+  document.getElementById('kpiGrid').innerHTML = cards.map(c => `<div class="card kpi"><div class="label">${c.label}</div><div class="value">${c.value}</div><div class="sub">${c.sub}</div></div>`).join('');
+}
+
+function renderBarChart(targetId, entries, options = {}) {
+  const target = document.getElementById(targetId);
+  const max = Math.max(1, ...entries.map(d => d[1]));
+  const h = options.height || Math.max(240, entries.length * 46);
+  const w = options.width || 760;
+  const left = 170; const top = 22; const rowH = 36; const barMaxW = w - left - 80;
+  
+  target.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%">
+      ${entries.map((d, i) => {
+        const y = top + i * rowH; const bw = (d[1] / max) * barMaxW;
+        return `<text x="0" y="${y + 18}" fill="#b9cde9" font-size="13">${String(d[0]).slice(0, 28)}</text>
+          <rect x="${left}" y="${y}" rx="10" ry="10" width="${barMaxW}" height="18" fill="rgba(255,255,255,0.06)"></rect>
+          <rect x="${left}" y="${y}" rx="10" ry="10" width="${bw}" height="18" fill="${PALETTE[i % PALETTE.length]}"><title>${d[0]}: ${d[1]} registros</title></rect>
+          <text x="${left + bw + 10}" y="${y + 14}" fill="#edf4ff" font-size="12" font-weight="700">${d[1]}</text>`;
+      }).join('')}
+    </svg>`;
+}
+
+function polarToCartesian(cx, cy, r, angle) {
+  const rad = (angle - 90) * Math.PI / 180.0;
+  return { x: cx + (r * Math.cos(rad)), y: cy + (r * Math.sin(rad)) };
+}
+
+function describeArc(cx, cy, r, startAngle, endAngle) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+}
+
+function renderDonut(targetId, entries, centerText) {
+  const target = document.getElementById(targetId);
+  const total = entries.reduce((s, x) => s + x[1], 0) || 1;
+  let current = 0;
+  const cx = 160, cy = 160, r = 92;
+  
+  target.innerHTML = `<svg viewBox="0 0 560 320" width="100%" height="100%">
+      ${entries.map((d, i) => {
+        const angle = (d[1] / total) * 360; const start = current; const end = current + angle; current = end;
+        return `<path d="${describeArc(cx, cy, r, start, end)}" stroke="${PALETTE[i % PALETTE.length]}" stroke-width="28" fill="none" stroke-linecap="round"><title>${d[0]}: ${d[1]} registros (${friendlyPct(d[1] / total)})</title></path>`;
+      }).join('')}
+      <circle cx="${cx}" cy="${cy}" r="58" fill="rgba(255,255,255,0.03)"></circle>
+      <text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="#edf4ff" font-size="30" font-weight="800">${centerText}</text>
+      <text x="${cx}" y="${cy + 18}" text-anchor="middle" fill="#93a8c7" font-size="13">registros</text>
+      ${entries.map((d, i) => `<rect x="330" y="${50 + i*34}" width="12" height="12" rx="3" fill="${PALETTE[i % PALETTE.length]}"></rect><text x="350" y="${60 + i*34}" fill="#dce8fb" font-size="13">${d[0]}: ${d[1]}</text>`).join('')}
+    </svg>`;
+}
+
+function renderInsights(rows) {
+  const insights = []; const s = stat(rows);
+  const pipeline = groupCount(rows, 'STATUS PIPELINE'); const strongestStage = pipeline[0] ? `${pipeline[0][0]} (${pipeline[0][1]})` : 'Sem dados';
+  const german = groupCount(rows, 'Língua alemã'); const topGerman = german[0] ? `${german[0][0]} (${german[0][1]})` : 'Sem dados';
+  const professions = groupCount(rows, 'Profissão principal'); const topProfession = professions[0] ? `${professions[0][0]} (${professions[0][1]})` : 'Sem dados';
+  
+  insights.push({ title: 'Concentração operacional', text: `A maior concentração da base está em "${strongestStage}".` });
+  insights.push({ title: 'Risco linguístico', text: s.total ? `${s.a0} de ${s.total} candidatos filtrados estão em A0 de alemão (${friendlyPct(s.a0 / s.total)}).` : 'Sem dados suficientes.' });
+  insights.push({ title: 'Perfil dominante', text: `Profissão dominante: "${topProfession}". Nível de alemão mais frequente: "${topGerman}".` });
+  insights.push({ title: 'Prontidão comercial', text: s.total ? `${s.approved} candidatos aprovados e ${s.awaiting} aguardando retorno.` : 'Sem dados suficientes.' });
+  
+  document.getElementById('insights').innerHTML = insights.map(item => `<div class="insight"><strong>${item.title}</strong><div class="small">${item.text}</div></div>`).join('');
+}
+
+function renderQuality(rows) {
+  const requiredFields = [['Nome', 'Nome completo'],['Profissão', 'Profissão principal'],['Pipeline', 'STATUS PIPELINE'],['Alemão', 'Língua alemã'],['Status final', 'Status Final'],['E-mail', 'E-mail'],['Telefone', 'Telefone'],['Cidade', 'Cidade atual']];
+  const boxes = requiredFields.map(([label, key]) => {
+    const filled = rows.filter(r => !isEmpty(r[key])).length;
+    return { label, filled, pct: rows.length ? filled / rows.length : 0 };
+  });
+  
+  document.getElementById('qualityGrid').innerHTML = boxes.map(b => `<div class="quality-box"><div class="small">${b.label}</div><div class="q-value">${friendlyPct(b.pct)}</div><div class="small">${b.filled} preenchidos</div></div>`).join('');
+  const avg = boxes.length ? boxes.reduce((s,b)=>s+b.pct,0)/boxes.length : 0;
+  document.getElementById('qualityNote').textContent = rows.length ? `Índice médio de completude: ${friendlyPct(avg)}.` : '';
+}
+
+function renderTable(rows) {
+  const start = (page - 1) * pageSize;
+  const current = rows.slice(start, start + pageSize);
+  document.getElementById('tableBody').innerHTML = current.map(r => `
+    <tr>
+      <td title="${normalize(r['Nome completo'])}"><strong>${normalize(r['Nome completo']) || 'Não informado'}</strong></td>
+      <td title="${normalize(r['Profissão principal'])}">${normalize(r['Profissão principal']) || 'Não informado'}</td>
+      <td><span class="chip ${chipClass(r['STATUS PIPELINE'])}">${normalize(r['STATUS PIPELINE']) || 'Não informado'}</span></td>
+      <td><span class="chip ${chipClass(r['Perfil'])}">${normalize(r['Perfil']) || 'Não informado'}</span></td>
+      <td><span class="chip ${chipClass(r['Status Final'])}">${normalize(r['Status Final']) || 'Não informado'}</span></td>
+      <td><span class="chip ${chipClass(r['Língua alemã'])}">${normalize(r['Língua alemã']) || 'Não informado'}</span></td>
+      <td title="${normalize(r['Cidade atual'])}">${normalize(r['Cidade atual']) || 'Não informado'}</td>
+      <td>${normalize(r['Idade']) || 'Não informado'}</td>
+      <td title="${normalize(r['E-mail'])}">${normalize(r['E-mail']) || 'Não informado'}</td>
+    </tr>`).join('');
+    
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  document.getElementById('tableMeta').textContent = `Página ${page} de ${totalPages}`;
+  document.getElementById('tableCount').textContent = `${rows.length} linhas`;
+}
+
+function renderAll() {
+  renderKPIs(filteredRows);
+  const pipeline = groupCount(filteredRows, 'STATUS PIPELINE');
+  renderBarChart('pipelineChart', pipeline, { height: Math.max(260, pipeline.length * 40) });
+  document.getElementById('pipelineBadge').textContent = `${filteredRows.length} registros`;
+  
+  const statusFinal = groupCount(filteredRows, 'Status Final');
+  renderDonut('statusDonut', statusFinal, filteredRows.length);
+  document.getElementById('statusBadge').textContent = statusFinal[0] ? statusFinal[0][0] : 'Sem dados';
+  
+  const german = groupCount(filteredRows, 'Língua alemã');
+  renderBarChart('germanChart', german, { height: Math.max(240, german.length * 40) });
+  
+  const profile = groupCount(filteredRows, 'Perfil');
+  renderDonut('profileChart', profile, filteredRows.length);
+  
+  const professions = groupCount(filteredRows, 'Profissão principal').slice(0, 7);
+  renderBarChart('professionChart', professions, { height: Math.max(240, professions.length * 40) });
+  
+  renderInsights(filteredRows);
+  renderQuality(filteredRows);
+  renderTable(filteredRows);
+}
+
+function resetFilters() { document.getElementById('searchInput').value = ''; document.getElementById('pipelineFilter').value = 'Todos'; document.getElementById('germanFilter').value = 'Todos'; applyFilters(); }
+function exportCSV(rows) {
+  if(!rows.length) return;
+  const cols = Object.keys(rows[0]);
+  const lines = [cols.join(',')].concat(rows.map(r => cols.map(c => {
+    const value = normalize(r[c]).replace(/"/g, '""');
+    return /[",\n]/.test(value) ? `"${value}"` : value;
+  }).join(',')));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'dashboard_filtrado_talents4.csv';
+  a.click();
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('pipelineFilter').addEventListener('change', applyFilters);
+document.getElementById('germanFilter').addEventListener('change', applyFilters);
+document.getElementById('resetFilters').addEventListener('click', resetFilters);
+document.getElementById('exportFiltered').addEventListener('click', () => exportCSV(filteredRows));
+document.getElementById('prevPage').addEventListener('click', () => { if (page > 1) { page--; renderTable(filteredRows); } });
+document.getElementById('nextPage').addEventListener('click', () => { const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize)); if (page < totalPages) { page++; renderTable(filteredRows); } });
+
+// Inicia o processo lendo do Google Sheets
+initDashboard();
+</script>
+</body>
+</html>
