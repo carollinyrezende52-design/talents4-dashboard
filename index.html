@@ -492,7 +492,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     </div>
   </section>
 
-  <div id="syncBar" style="display:none;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:14px;font-size:12px;color:#fcd34d;">
+  <div id="syncBar" style="display:none !important" style="display:none;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:14px;font-size:12px;color:#fcd34d;">
     <span style="font-size:14px">⚠️</span>
     <span id="syncMsg">Verificando conexão com Google Sheets...</span>
     <a id="syncHelp" href="#" style="color:#fbbf24;margin-left:auto;text-decoration:underline;font-size:11px" onclick="return false"></a>
@@ -1438,12 +1438,9 @@ async function doRefresh(silent = false) {
 
   const syncBar = document.getElementById('syncBar');
   const syncMsg = document.getElementById('syncMsg');
-  if(syncBar && syncMsg && debugLines.length) {
-    syncBar.style.display = 'flex';
-    syncBar.style.flexDirection = 'column';
-    syncBar.style.alignItems = 'flex-start';
-    syncMsg.innerHTML = '<strong>Diagnóstico do fetch:</strong><br>' + debugLines.join('<br>');
-  }
+  if(debugLines.length) { console.info('Diagnóstico do fetch:
+' + debugLines.join('
+')); }
 
   if(Array.isArray(texts)) {
     const parsedSheets = texts.map(t => parseCSV(t));
@@ -1496,9 +1493,9 @@ async function doRefresh(silent = false) {
     debugLines.push(`Consolidado final: ${masterData.length} registro(s)`);
     debugLines.push(`Órfãos fora da aba 1: ${orphanCount}`);
 
-    if(syncBar && syncMsg) {
-      syncMsg.innerHTML = '<strong>Diagnóstico do fetch:</strong><br>' + debugLines.join('<br>');
-    }
+    console.info('Diagnóstico consolidado:
+' + debugLines.join('
+'));
 
     liveOk = masterData.length > 0;
   }
