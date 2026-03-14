@@ -389,73 +389,6 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 
 #errorToast { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: rgba(240,71,71,0.92); color: #fff; padding: 14px 20px; border-radius: 11px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; max-width: 380px; }
 
-/* ── Berlin Lab leve ── */
-.de-signature { position:absolute; right:28px; top:28px; z-index:8; }
-.de-toggle {
-  display:inline-flex; align-items:center; gap:10px; padding:11px 16px; border-radius:999px;
-  border:1px solid rgba(255,255,255,0.12); background:#0b1423; color:var(--text);
-  font:700 12px/1 var(--font); letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
-  box-shadow:0 12px 30px rgba(0,0,0,.24); transition:transform .18s ease,border-color .18s ease;
-}
-.de-toggle:hover { transform:translateY(-1px); border-color:rgba(255,204,0,.38); }
-.de-toggle .dotpack { display:flex; gap:5px; }
-.de-toggle .dotpack i { width:8px; height:8px; border-radius:50%; display:block; }
-.de-toggle .dotpack i:nth-child(1){ background:var(--ger-black); border:1px solid rgba(255,255,255,.16); }
-.de-toggle .dotpack i:nth-child(2){ background:var(--ger-red); }
-.de-toggle .dotpack i:nth-child(3){ background:var(--ger-gold); }
-.de-overlay { position:fixed; inset:0; background:rgba(6,14,26,.97); z-index:60; display:none; align-items:center; justify-content:center; padding:28px; }
-.de-overlay.open { display:flex; }
-.de-panel {
-  position:relative; width:min(720px,92vw); max-height:min(84vh,860px); overflow:auto; border-radius:24px;
-  border:1px solid rgba(255,255,255,.08); background:#0a1628; box-shadow:0 40px 120px rgba(0,0,0,.58); padding:22px;
-}
-.de-panel::before { content:''; position:absolute; inset:0 0 auto 0; height:3px; background:linear-gradient(90deg,var(--ger-black) 0%,var(--ger-red) 52%,var(--ger-gold) 100%); }
-.de-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; }
-.de-title { font-size:26px; font-weight:800; letter-spacing:-.02em; }
-.de-close { border:1px solid rgba(255,255,255,.08); background:#121d31; color:var(--text); width:38px; height:38px; border-radius:12px; cursor:pointer; font-size:20px; }
-.de-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
-.de-mini { border-radius:16px; border:1px solid rgba(255,255,255,.06); background:#0d1a2d; padding:14px; min-height:92px; }
-.de-mini span { display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
-.de-mini strong { display:block; font-size:30px; line-height:1; }
-.de-mini em { display:block; margin-top:8px; color:var(--muted); font-style:normal; font-size:12px; }
-.de-grid { display:grid; grid-template-columns:1.08fr .92fr; gap:16px; }
-.de-block { border-radius:18px; border:1px solid rgba(255,255,255,.06); background:#091321; padding:16px; }
-.de-block h3 { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:#ffd76a; margin-bottom:10px; }
-.de-route { position:relative; border-radius:16px; border:1px solid rgba(255,255,255,.06); background:#0b1524; padding:18px 16px 28px; }
-.de-route-line { position:relative; margin:24px 12px 8px; height:3px; border-radius:999px; background:linear-gradient(90deg, rgba(79,163,247,.42), rgba(221,0,0,.6), rgba(255,204,0,.74)); }
-.de-route-line::before,.de-route-line::after { content:''; position:absolute; top:50%; width:12px; height:12px; border-radius:50%; transform:translateY(-50%); }
-.de-route-line::before { left:-4px; background:#4fa3f7; box-shadow:0 0 0 4px rgba(79,163,247,.12); }
-.de-route-line::after { right:-4px; background:#ffcc00; box-shadow:0 0 0 4px rgba(255,204,0,.12); }
-.de-plane { position:absolute; top:50%; left:4%; transform:translate(-50%,-56%); font-size:18px; transition:left .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
-.de-route-labels { display:flex; justify-content:space-between; margin-top:16px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
-.de-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
-.de-btn { border:1px solid rgba(255,255,255,.09); background:#0f1a2d; color:var(--text); padding:11px 16px; border-radius:14px; font-weight:700; cursor:pointer; min-width:140px; }
-.de-btn.primary { background:linear-gradient(90deg, rgba(94,20,20,.85), rgba(111,88,10,.9)); border-color:rgba(255,204,0,.35); }
-.de-phrase { border-radius:16px; border:1px solid rgba(255,204,0,.18); background:linear-gradient(135deg, rgba(40,22,22,.86), rgba(31,34,22,.88)); padding:16px; min-height:110px; }
-.de-phrase strong { display:block; margin-bottom:10px; color:#ffd76a; text-transform:uppercase; letter-spacing:.08em; font-size:13px; }
-.de-phrase span { display:block; color:var(--text); font-size:15px; line-height:1.6; }
-.de-pass { border-radius:18px; padding:16px; min-height:220px; background:#0d1829; border:1px solid rgba(255,255,255,.08); }
-.de-pass-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; }
-.de-pass-label { color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-size:11px; }
-.de-pass-route { font-size:24px; font-weight:800; letter-spacing:-.03em; margin-top:6px; }
-.de-pass-flag { display:flex; gap:4px; padding:6px 10px; border-radius:14px; background:rgba(255,204,0,.12); border:1px solid rgba(255,204,0,.12); }
-.de-pass-flag i { width:14px; height:14px; border-radius:50%; display:block; }
-.de-pass-flag i:nth-child(1){ background:var(--ger-black); }
-.de-pass-flag i:nth-child(2){ background:var(--ger-red); }
-.de-pass-flag i:nth-child(3){ background:var(--ger-gold); }
-.de-pass-meta { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:18px; }
-.de-pass-meta div { padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
-.de-pass-meta span { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
-.de-pass-meta strong { font-size:14px; }
-.de-stamp { margin-top:14px; min-height:84px; border-radius:16px; border:1px dashed rgba(255,255,255,.10); display:flex; align-items:center; justify-content:center; padding:12px; background:#0b1524; }
-.de-stamp-empty { color:var(--muted); font-size:12px; text-align:center; }
-.de-stamp-mark { display:none; text-align:center; font-family:var(--mono); text-transform:uppercase; color:#ffd76a; border:2px solid rgba(255,204,0,.35); border-radius:14px; padding:12px 14px; letter-spacing:.08em; line-height:1.5; }
-.de-stamp-mark.show { display:block; }
-@media (max-width: 1100px) { .de-signature{ position:static; margin-top:16px; } }
-@media (max-width: 980px) { .de-grid{ grid-template-columns:1fr; } .de-metrics{ grid-template-columns:1fr; } .de-panel{ width:min(96vw,680px); padding:18px; } }
-@media (max-width: 700px) { .de-panel{ max-height:96vh; } }
-
-
 @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .top-controls { grid-template-columns: 1fr; } .highlight-pair { grid-template-columns: 1fr; } .modal-card { max-height: 98vh; } .modal-body { padding: 18px; } .modal-header { padding: 20px 18px 16px; } .modal-name { font-size: 20px; } .fru-scene { display: none; } }
 </style>
@@ -470,7 +403,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
   <div>
     <div class="loading-step" id="ls1">⟳ Conectando às 10 fontes de dados...</div>
     <div class="loading-step" id="ls2">⟳ Consolidando registros...</div>
-    <div class="loading-step" id="ls3">⟳ Finalizando painel...</div>
+    <div class="loading-step" id="ls3">⟳ Calculando scores v2...</div>
     <div class="loading-step" id="ls4">✓ Tudo pronto</div>
   </div>
 </div>
@@ -479,6 +412,33 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
 
   <section class="hero">
     <div class="watermark">DEUTSCHLAND</div>
+
+    <!-- ══ FRUFRUZINHO ALEMÃO ══ -->
+    <div class="fru-scene" id="fruScene">
+      <svg class="fru-gate" width="40" height="40" viewBox="0 0 80 80">
+        <rect x="30" y="18" width="20" height="8" rx="2" fill="#FFCC00" opacity="0.9"/>
+        <rect x="25" y="26" width="30" height="3" rx="1" fill="#FFCC00" opacity="0.7"/>
+        <rect x="5"  y="28" width="10" height="48" rx="2" fill="#ccc" opacity="0.5"/>
+        <rect x="65" y="28" width="10" height="48" rx="2" fill="#ccc" opacity="0.5"/>
+        <rect x="20" y="34" width="10" height="42" rx="2" fill="#bbb" opacity="0.6"/>
+        <rect x="50" y="34" width="10" height="42" rx="2" fill="#bbb" opacity="0.6"/>
+        <rect x="30" y="50" width="20" height="26" rx="2" fill="#999" opacity="0.4"/>
+      </svg>
+      <span class="fru-eagle" style="font-size:16px">🦅</span>
+      <div style="display:flex;align-items:flex-end;gap:0">
+        <div class="fru-pole-wrap">
+          <div style="width:3px;height:32px;background:linear-gradient(to bottom,#ccc,#777);border-radius:2px;position:relative">
+            <div style="width:7px;height:7px;background:#FFCC00;border-radius:50%;position:absolute;top:-4px;left:-2px;box-shadow:0 0 4px rgba(255,204,0,0.7)"></div>
+          </div>
+        </div>
+        <div class="fru-flag-wrap">
+          <div class="fru-stripe fru-s1"></div>
+          <div class="fru-stripe fru-s2"></div>
+          <div class="fru-stripe fru-s3"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fru-particles" id="fruParts"></div>
 
     <div class="hero-kicker" style="position:relative;z-index:1">
       Talents4
@@ -491,88 +451,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
       <span class="ger-tag">DEUTSCHLAND PROJEKT</span>
     </div>
     <h1 style="position:relative;z-index:1;font-size:clamp(22px,2.6vw,34px);font-weight:700;line-height:1.1;letter-spacing:-0.02em;margin-bottom:6px">Plataforma de Inteligência e Decisão <span style="font-size:14px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:8px">v2.0</span></h1>
-    <p style="position:relative;z-index:1;color:var(--muted);font-size:14px;line-height:1.5">Semáforo de compliance em tempo real · Alerta de validade de passaporte · Dados consolidados por etapa</p>
-    <div class="de-signature">
-      <button class="de-toggle" id="deToggle" type="button">
-        <span class="dotpack"><i></i><i></i><i></i></span>
-        Berlin Lab
-      </button>
-    </div>
-
-    <div class="de-overlay" id="deOverlay">
-      <div class="de-panel" id="dePanel">
-        <div class="de-head">
-          <div class="de-title">Berlin Lab</div>
-          <button class="de-close" id="deClose" type="button" aria-label="Fechar">×</button>
-        </div>
-
-        <div class="de-metrics">
-          <div class="de-mini">
-            <span>Horário de Berlim</span>
-            <strong id="deBerlinTime">--:--</strong>
-            <em id="deBerlinDate">--</em>
-          </div>
-          <div class="de-mini">
-            <span>Palavra do dia</span>
-            <strong id="deWord">Ordnung</strong>
-            <em id="deWordMeaning">ordem, estrutura, clareza</em>
-          </div>
-          <div class="de-mini">
-            <span>Cidade do momento</span>
-            <strong id="deCity">Berlin</strong>
-            <em>toque visual do projeto</em>
-          </div>
-        </div>
-
-        <div class="de-grid">
-          <div class="de-block">
-            <h3>Rota</h3>
-            <div class="de-route">
-              <div class="de-route-line">
-                <div class="de-plane" id="dePlane">✈️</div>
-              </div>
-              <div class="de-route-labels"><span>Brasil</span><span>Deutschland</span></div>
-            </div>
-            <div class="de-controls">
-              <button class="de-btn primary" id="deMoveBtn" type="button">Avançar rota</button>
-              <button class="de-btn" id="dePhraseBtn" type="button">Nova frase</button>
-            </div>
-            <div class="de-phrase" style="margin-top:14px">
-              <strong>Frase do momento</strong>
-              <span id="dePhrase">Willkommen. Hoje a operação pousa em território alemão.</span>
-            </div>
-          </div>
-
-          <div class="de-block">
-            <h3>Boarding Pass</h3>
-            <div class="de-pass">
-              <div class="de-pass-top">
-                <div>
-                  <div class="de-pass-label">Talents4 Project</div>
-                  <div class="de-pass-route" id="dePassRoute">GRU → BER</div>
-                </div>
-                <div class="de-pass-flag"><i></i><i></i><i></i></div>
-              </div>
-              <div class="de-pass-meta">
-                <div><span>Embarque</span><strong id="deBoardTime">--:--</strong></div>
-                <div><span>Destino</span><strong id="deDest">Berlin</strong></div>
-                <div><span>Status</span><strong id="dePassStatus">Pronto para embarque</strong></div>
-                <div><span>Fuso</span><strong>Europe/Berlin</strong></div>
-              </div>
-            </div>
-            <div class="de-controls">
-              <button class="de-btn primary" id="deStampBtn" type="button">Gerar carimbo</button>
-              <button class="de-btn" id="dePassBtn" type="button">Trocar destino</button>
-            </div>
-            <div class="de-stamp" id="deStampBox">
-              <div class="de-stamp-empty" id="deStampEmpty">Gere um carimbo com cidade e horário de Berlim.</div>
-              <div class="de-stamp-mark" id="deStampMark"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <p style="position:relative;z-index:1;color:var(--muted);font-size:14px;line-height:1.5">Semáforo de compliance em tempo real · Alerta de validade de passaporte · Score ponderado por idioma</p>
 
     <div class="filter-panel">
       <div class="filter-header">
@@ -613,6 +492,12 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
     </div>
   </section>
 
+  <div id="syncBar" style="display:none;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:14px;font-size:12px;color:#fcd34d;">
+    <span style="font-size:14px">⚠️</span>
+    <span id="syncMsg">Verificando conexão com Google Sheets...</span>
+    <a id="syncHelp" href="#" style="color:#fbbf24;margin-left:auto;text-decoration:underline;font-size:11px" onclick="return false"></a>
+  </div>
+
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-exec">📊 Painel de Diretoria</button>
     <button class="tab-btn" data-tab="tab-ops">📄 Documentação &amp; Compliance <span class="tab-badge" id="countDocs">0</span></button>
@@ -622,8 +507,24 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
   <div id="tab-exec" class="tab-content active">
     <div class="kpis" id="kpiGrid"></div>
     <div class="grid-2">
-      <div class="card"><div class="panel-title"><h2>Status Pipeline</h2><p>Clique em uma barra para filtrar a tabela.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartPipeline"></canvas></div></div>
+      <div class="card"><div class="panel-title"><h2>Status Pipeline (Aba 1)</h2><p>Clique em uma barra para filtrar a tabela.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartPipeline"></canvas></div></div>
       <div class="card"><div class="panel-title"><h2>Status e Desfecho</h2><p>Desempenho histórico de conversão.</p></div><div class="chart-wrap" style="min-height:260px"><canvas id="chartStatus"></canvas></div></div>
+    </div>
+    <div class="section grid-2" style="align-items:start">
+      <div class="exec-stack">
+        <div class="card">
+          <div class="panel-title"><h2>Radar Executivo de Saúde</h2><p>Métricas que ditam a força da operação hoje.</p></div>
+          <div class="radar-list" id="radarList"></div>
+        </div>
+        <div class="card">
+          <div class="panel-title"><h2>Fila de Ação Prioritária</h2><p>Gargalos que precisam de atuação humana agora.</p></div>
+          <div class="priority-list" id="priorityList"></div>
+        </div>
+      </div>
+      <div class="card" style="height:100%">
+        <div class="panel-title" style="margin-bottom:24px"><h2>Shortlist Ouro (Top 5)</h2><p>Maior probabilidade de alocação rápida — score v2.</p></div>
+        <div class="shortlist-list" id="shortlistList"></div>
+      </div>
     </div>
   </div>
 
@@ -642,7 +543,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: #b8cde8; white-space: now
   <section class="section card">
     <div class="table-header-row">
       <div>
-        <h2>Cadastros Consolidados</h2>
+        <h2>Data Grid Consolidado</h2>
         <p>Clique numa linha para abrir o Dossiê 360º. Semáforo = Passaporte · Licença · Contrato.</p>
       </div>
       <span class="chip count" id="tableCount">0 registros</span>
@@ -732,8 +633,27 @@ const centerTextPlugin = {
 };
 Chart.register(centerTextPlugin);
 
-// ══ DADOS GLOBAIS ══
+// ══ FRUFRUZINHO PARTÍCULAS ══
+(function() {
+  const pts = document.getElementById('fruParts');
+  if (!pts) return;
+  pts.style.cssText = 'position:absolute;top:18px;right:28px;width:160px;height:40px;pointer-events:none;z-index:4';
+  document.querySelector('.hero').style.position = 'relative';
+  const cols = ['#111111','#DD0000','#FFCC00'];
+  for(let i=0;i<14;i++){
+    const p = document.createElement('div');
+    const d = (1.4+Math.random()*2.2).toFixed(1);
+    const dl = (Math.random()*2.5).toFixed(1);
+    p.style.cssText = `position:absolute;width:3px;height:3px;border-radius:50%;left:${Math.random()*185+5}px;bottom:0;background:${cols[i%3]};animation:fPart ${d}s ease-in-out infinite ${dl}s;opacity:0`;
+    pts.appendChild(p);
+  }
+})();
 
+const style = document.createElement('style');
+style.textContent = `@keyframes fPart{0%,100%{transform:translateY(0);opacity:0}20%{opacity:.9}80%{opacity:.4}100%{transform:translateY(-32px);opacity:0}}`;
+document.head.appendChild(style);
+
+// ══ DADOS GLOBAIS ══
 const SHEET_URLS = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4l6xsIFlb92dd3rVSXNzZf9KcB9xoF6-FjB-il7ZoPTrChPR-gAq0kDLK-66sC5xMCK422lhl8oeN/pub?gid=1914660942&single=true&output=csv",
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4l6xsIFlb92dd3rVSXNzZf9KcB9xoF6-FjB-il7ZoPTrChPR-gAq0kDLK-66sC5xMCK422lhl8oeN/pub?gid=1440149219&single=true&output=csv",
@@ -973,15 +893,6 @@ function candidateScore(c) {
   return score;
 }
 
-function sortByMasterOrder(rows) {
-  return [...rows].sort((a, b) => {
-    const ao = Number.isFinite(a._order) ? a._order : 999999;
-    const bo = Number.isFinite(b._order) ? b._order : 999999;
-    if (ao !== bo) return ao - bo;
-    return String(a._id || '').localeCompare(String(b._id || ''), 'pt-BR', { numeric: true });
-  });
-}
-
 // ══════════════════════════════════════════
 //  ENGINE DE INICIALIZAÇÃO
 // ══════════════════════════════════════════
@@ -1044,7 +955,7 @@ async function initCRM() {
       const nome = normalize(getVal(row, ['Nome completo','Nome completo do candidato','Nome']));
       if (!id && !nome) return;
       const key = id || `SEM-ID-${String(idx + 1).padStart(4, '0')}`;
-      const candidate = { _id: key, _abas: [0], _order: idx };
+      const candidate = { _id: key, _abas: [0] };
       mergeRowIntoCandidate(candidate, row);
       if (!candidate['Nº de Inscrição'] && !candidate['Nº da Inscrição']) {
         candidate['Nº de Inscrição'] = key;
@@ -1079,7 +990,7 @@ async function initCRM() {
       c._score = candidateScore(c);
       return c;
     });
-    filteredData = sortByMasterOrder(masterData);
+    filteredData = [...masterData];
     buildFilters();
     renderAll();
     show(3);
@@ -1199,43 +1110,6 @@ function groupCount(data, keyFn) {
 }
 
 function destroyChart(id) { if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];} }
-function sortPipelineCounts(arr) {
-  const order = [
-    'novo candidato',
-    'triagem',
-    'curso de alemão',
-    'curso de alemao',
-    'matching instituição',
-    'matching instituicao',
-    'ativos',
-    'documentação inicial',
-    'documentacao inicial',
-    'jurídico',
-    'juridico',
-    'entrevista empregador',
-    'aguardando retorno',
-    'aprovado',
-    'reprovado',
-    'desistiu',
-    'não qualificado/ base de dados',
-    'nao qualificado/ base de dados',
-    'base de dados',
-    'não lançado',
-    'nao lancado'
-  ];
-  const rank = label => {
-    const s = String(label || '').toLowerCase().trim();
-    const idx = order.findIndex(x => s.includes(x));
-    return idx === -1 ? 999 : idx;
-  };
-  return [...arr].sort((a, b) => {
-    const ra = rank(a[0]);
-    const rb = rank(b[0]);
-    if (ra !== rb) return ra - rb;
-    return String(a[0]).localeCompare(String(b[0]), 'pt-BR');
-  });
-}
-
 
 function applyCrossFilter(filterId, labelStr) {
   if(filterId) {
@@ -1322,9 +1196,12 @@ function renderAll() {
     ${passExp>0?`<div class="card" style="border-color:rgba(240,71,71,0.3)"><div class="kpi-label" style="color:#fca5a5">Passaporte Expirando</div><div class="kpi-value" style="color:#f04747">${passExp}</div></div>`:''}
   `;
 
-  drawBarH('chartPipeline', sortPipelineCounts(groupCount(filteredData, c=>c._etapa)), { filterId:'pipelineFilter' });
+  drawBarH('chartPipeline', groupCount(filteredData, c=>c._etapa), { filterId:'pipelineFilter' });
   drawBarH('chartStatus',   groupCount(filteredData, c=>getVal(c,['Status Final','Resultado da entrevista'])).filter(d=>d[0]!=='Não informado'), { filterId:'statusFilter' });
 
+  renderRadar(filteredData);
+  renderPriorityQueue(filteredData);
+  renderShortlist(filteredData);
 
   drawDoughnut('chartPassport',[['Com Passaporte',comPass],['Pendente',Math.max(0,total-comPass)]].filter(d=>d[1]>0));
   drawBarH('chartGerman', groupCount(filteredData,c=>getVal(c,['Nível de alemão','Língua alemã','Nível na língua alemã?'])).filter(d=>d[0]!=='Não informado'),{filterId:'germanFilter'});
@@ -1333,7 +1210,8 @@ function renderAll() {
   // ── Tabela com semáforo, badge alemão e score ──
   let warnings = 0;
   document.getElementById('tableCount').textContent = `${total} registros`;
-  document.getElementById('tableBody').innerHTML = sortByMasterOrder(filteredData)
+  document.getElementById('tableBody').innerHTML = filteredData
+    .sort((a,b)=>b._score-a._score)
     .map(c => {
       const nome    = getVal(c,['Nome completo','Nome completo do candidato','Nome'])||'—';
       const prof    = getVal(c,['Profissão principal','Profissão'])||'—';
@@ -1509,10 +1387,10 @@ function applyFilters() {
   const pg = document.getElementById('germanFilter').value;
   const pf = document.getElementById('professionFilter').value;
   const ps = document.getElementById('statusFilter').value;
-  filteredData = sortByMasterOrder(masterData.filter(c => {
+  filteredData = masterData.filter(c => {
     const txt=Object.values(c).join(' ').toLowerCase();
     return(!q||txt.includes(q))&&(!pp||c._etapa===pp)&&(!pg||getVal(c,['Nível de alemão','Língua alemã'])===pg)&&(!pf||getVal(c,['Profissão principal','Profissão'])===pf)&&(!ps||getVal(c,['Status Final','Resultado da entrevista'])===ps);
-  }));
+  });
   renderAll();
 }
 
@@ -1590,7 +1468,7 @@ async function doRefresh(silent = false) {
     const nome = normalize(getVal(row, ['Nome completo','Nome completo do candidato','Nome']));
     if (!id && !nome) return;
     const key = id || `SEM-ID-${String(idx + 1).padStart(4, '0')}`;
-    const candidate = { _id: key, _abas: [0], _order: idx };
+    const candidate = { _id: key, _abas: [0] };
     mergeRowIntoCandidate(candidate, row);
     if (!candidate['Nº de Inscrição'] && !candidate['Nº da Inscrição']) {
       candidate['Nº de Inscrição'] = key;
@@ -1624,7 +1502,7 @@ async function doRefresh(silent = false) {
     c._score = candidateScore(c);
     return c;
   });
-  filteredData = sortByMasterOrder(masterData);
+  filteredData = [...masterData];
   buildFilters();
   applyFilters();
 
@@ -1733,118 +1611,6 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
   const el=document.getElementById(id);
   if(el&&i===0) el.classList.add('visible');
 });
-
-
-const deWords = [
-  'Willkommen. Hoje a operação pousa em território alemão.',
-  'Ordnung e execução. O CRM continua sério, mas agora tem presença.',
-  'Clareza operacional, acabamento forte e um toque de Berlim.',
-  'Dados sérios na base. Personalidade só na superfície.',
-  'Brasil na origem, Deutschland no destino e decisão no centro.'
-];
-const deCities = ['BERLIN', 'HAMBURG', 'MÜNCHEN', 'KÖLN', 'FRANKFURT', 'STUTTGART', 'DÜSSELDORF'];
-const deWordsPool = [
-  ['Ordnung', 'ordem, estrutura, clareza'],
-  ['Ankunft', 'chegada'],
-  ['Aufbruch', 'partida, começo'],
-  ['Präzision', 'precisão'],
-  ['Verbindung', 'conexão'],
-  ['Fortschritt', 'progresso']
-];
-let dePhraseIndex = 0;
-let dePlaneStep = 0;
-let deCityIndex = 0;
-let deWordIndex = 0;
-
-function initBerlinLab(){
-  const toggle = document.getElementById('deToggle');
-  const overlay = document.getElementById('deOverlay');
-  const closeBtn = document.getElementById('deClose');
-  const phraseEl = document.getElementById('dePhrase');
-  const phraseBtn = document.getElementById('dePhraseBtn');
-  const stampBtn = document.getElementById('deStampBtn');
-  const passBtn = document.getElementById('dePassBtn');
-  const moveBtn = document.getElementById('deMoveBtn');
-  const stampMark = document.getElementById('deStampMark');
-  const stampEmpty = document.getElementById('deStampEmpty');
-  const plane = document.getElementById('dePlane');
-  const timeEl = document.getElementById('deBerlinTime');
-  const dateEl = document.getElementById('deBerlinDate');
-  const cityEl = document.getElementById('deCity');
-  const wordEl = document.getElementById('deWord');
-  const wordMeaningEl = document.getElementById('deWordMeaning');
-  const passRouteEl = document.getElementById('dePassRoute');
-  const boardTimeEl = document.getElementById('deBoardTime');
-  const destEl = document.getElementById('deDest');
-  const passStatusEl = document.getElementById('dePassStatus');
-  if(!toggle||!overlay||!closeBtn) return;
-
-  const berlinNowParts = ()=>{
-    const now = new Date();
-    return {
-      time: now.toLocaleTimeString('de-DE', { timeZone:'Europe/Berlin', hour:'2-digit', minute:'2-digit' }),
-      date: now.toLocaleDateString('pt-BR', { timeZone:'Europe/Berlin', weekday:'long', day:'2-digit', month:'2-digit' })
-    };
-  };
-  const updateBerlinTime = ()=>{
-    try {
-      const { time, date } = berlinNowParts();
-      if(timeEl) timeEl.textContent = time;
-      if(dateEl) dateEl.textContent = date;
-      if(boardTimeEl) boardTimeEl.textContent = time;
-    } catch(_) {}
-  };
-  const setPhrase = idx => {
-    dePhraseIndex = (idx + deWords.length) % deWords.length;
-    if(phraseEl) phraseEl.textContent = deWords[dePhraseIndex];
-  };
-  const setWord = idx => {
-    deWordIndex = (idx + deWordsPool.length) % deWordsPool.length;
-    if(wordEl) wordEl.textContent = deWordsPool[deWordIndex][0];
-    if(wordMeaningEl) wordMeaningEl.textContent = deWordsPool[deWordIndex][1];
-  };
-  const setCity = idx => {
-    deCityIndex = (idx + deCities.length) % deCities.length;
-    const city = deCities[deCityIndex];
-    const label = city[0] + city.slice(1).toLowerCase();
-    if(cityEl) cityEl.textContent = label;
-    if(destEl) destEl.textContent = label;
-    if(passRouteEl) passRouteEl.textContent = `GRU → ${city.slice(0,3)}`;
-  };
-  const movePlane = ()=>{
-    dePlaneStep = (dePlaneStep + 1) % 5;
-    const positions = ['4%', '26%', '49%', '72%', '96%'];
-    if(plane) {
-      plane.style.left = positions[dePlaneStep];
-      plane.style.transform = `translate(-50%, -56%) rotate(${dePlaneStep < 2 ? -8 : dePlaneStep === 2 ? 0 : 8}deg)`;
-    }
-    if(passStatusEl) passStatusEl.textContent = dePlaneStep === 4 ? 'Destino alcançado' : dePlaneStep >= 2 ? 'Em rota' : 'Pronto para embarque';
-  };
-
-  toggle.addEventListener('click', ()=> overlay.classList.add('open'));
-  closeBtn.addEventListener('click', ()=> overlay.classList.remove('open'));
-  overlay.addEventListener('click', ev => { if(ev.target === overlay) overlay.classList.remove('open'); });
-  document.addEventListener('keydown', ev => { if(ev.key === 'Escape') overlay.classList.remove('open'); });
-  if(phraseBtn) phraseBtn.addEventListener('click', ()=>{ setPhrase(dePhraseIndex + 1); setWord(deWordIndex + 1); });
-  if(moveBtn) moveBtn.addEventListener('click', ()=>{ movePlane(); setPhrase(dePhraseIndex + 1); });
-  if(passBtn) passBtn.addEventListener('click', ()=>{ setCity(deCityIndex + 1); movePlane(); });
-  if(stampBtn) stampBtn.addEventListener('click', ()=>{
-    if(stampEmpty) stampEmpty.style.display='none';
-    const { time, date } = berlinNowParts();
-    const city = deCities[deCityIndex];
-    if(stampMark) { stampMark.innerHTML = `entrada liberada<br>${city} · ${date} · ${time}`; stampMark.classList.add('show'); }
-    setPhrase(dePhraseIndex + 1);
-    setWord(deWordIndex + 1);
-  });
-  updateBerlinTime();
-  setInterval(updateBerlinTime, 30000);
-  setPhrase(0);
-  setWord(0);
-  setCity(0);
-  if(plane) plane.style.left = '4%';
-}
-
-initBerlinLab();
 
 initCRM();
 </script>
