@@ -2985,7 +2985,8 @@ function renderTable(el, filterStatus) {
       </tr>`;
     }).join('');
 
-  } else {<th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador</th><th>Score</th><th>ID</th></tr>`;
+  } else {
+    thead = `<tr><th>Nome</th><th>Status Pipeline</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador</th><th>Score</th><th>ID</th></tr>`;
     rows = paged.map(c => {
       const st=c['STATUS PIPELINE']||'';
       const sc=STATUS_BADGE[st]||'b-inativo';
