@@ -598,15 +598,24 @@ a{color:inherit;text-decoration:none}
 .hi-val.risk { color: var(--de-red); }
 
 /* ── Aging heatmap ── */
-.bento-aging { grid-column: 2 / 4; grid-row: 3 / 4; }
-.aging-heatmap { padding: 12px 16px 16px; }
+.bento-aging { grid-column: 2 / 4; grid-row: 3 / 4; overflow: hidden; }
+.aging-heatmap {
+  padding: 12px 16px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* ensure scrollbar is visible inside the card */
+  max-width: 100%;
+}
 .ah-row {
   display: grid;
-  grid-template-columns: 130px repeat(4, 1fr);
-  gap: 4px;
+  /* Fixed column widths so cells never collapse — horizontal scroll handles overflow */
+  grid-template-columns: 140px repeat(4, 80px);
+  gap: 6px;
   margin-bottom: 4px;
   align-items: center;
   font-size: 11px;
+  min-width: 480px; /* forces scroll on narrow cards */
+  width: max-content;
 }
 .ah-header .ah-stage { color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
 .ah-header .ah-cell { font-size: 10px; color: var(--txt3); text-align: center; }
@@ -692,6 +701,247 @@ a{color:inherit;text-decoration:none}
   .bento-hero-brand, .bento-hero-spacer { grid-column: 1 / 3; }
 }
 
+
+
+/* ══════════════════════════════════════════════════════════════
+   AGENDA / ENTREVISTAS — CSS
+══════════════════════════════════════════════════════════════ */
+
+.ag-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  padding: 0 0 28px;
+  height: calc(100vh - var(--topbar) - 48px);
+  min-height: 0;
+}
+.ag-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg2);
+  border-radius: var(--r2);
+}
+.ag-sidebar {
+  background: var(--bg2);
+  border-radius: var(--r2);
+  padding: 16px;
+  overflow-y: auto;
+}
+.ag-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: .5px solid var(--border);
+  flex-shrink: 0;
+}
+.ag-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--txt);
+  min-width: 180px;
+  text-align: center;
+}
+.ag-nav-btn {
+  background: var(--bg3);
+  border: .5px solid var(--border2);
+  color: var(--txt2);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .12s;
+}
+.ag-nav-btn:hover { background: var(--bg4); color: var(--txt); }
+.ag-today-btn {
+  background: none;
+  border: .5px solid var(--border2);
+  color: var(--txt2);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.ag-today-btn:hover { background: var(--bg3); color: var(--txt); }
+.ag-view-btn {
+  background: none;
+  border: .5px solid var(--border2);
+  color: var(--txt3);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.ag-view-btn.active {
+  background: var(--bg3);
+  color: var(--txt);
+  border-color: var(--border3);
+}
+
+/* ── Month grid ── */
+.ag-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  flex: 1;
+  overflow-y: auto;
+}
+.ag-dow {
+  padding: 8px 10px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--txt3);
+  border-bottom: .5px solid var(--border);
+  text-align: center;
+}
+.ag-day {
+  min-height: 90px;
+  border-right: .5px solid var(--border);
+  border-bottom: .5px solid var(--border);
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background .1s;
+  overflow: hidden;
+}
+.ag-day:nth-child(7n) { border-right: none; }
+.ag-day:hover { background: var(--bg3); }
+.ag-empty {
+  background: rgba(6,7,11,.3);
+  cursor: default;
+}
+.ag-today { background: rgba(45,212,191,.04); }
+.ag-today:hover { background: rgba(45,212,191,.08); }
+.ag-day-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--txt3);
+  margin-bottom: 4px;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ag-day-today-num {
+  background: var(--teal);
+  color: #0b0d12;
+  font-weight: 700;
+}
+.ag-day-evs { display: flex; flex-direction: column; gap: 2px; }
+.ag-ev-block {
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity .12s;
+}
+.ag-ev-block:hover { opacity: .8; }
+.ag-ev-time { font-family: var(--mono); font-size: 9px; opacity: .7; flex-shrink: 0; }
+.ag-ev-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.ag-more { font-size: 10px; color: var(--txt3); padding: 1px 4px; }
+
+/* ── Week grid ── */
+.ag-week-grid {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.ag-time-col {
+  width: 48px;
+  flex-shrink: 0;
+  border-right: .5px solid var(--border);
+}
+.ag-time-slot {
+  height: 52px;
+  display: flex;
+  align-items: flex-start;
+  padding: 4px 6px 0;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--txt3);
+  border-bottom: .5px solid var(--border);
+}
+.ag-week-col {
+  flex: 1;
+  border-right: .5px solid var(--border);
+  min-width: 0;
+}
+.ag-week-col:last-child { border-right: none; }
+.ag-week-today { background: rgba(45,212,191,.04); }
+.ag-week-hdr {
+  padding: 8px 0 6px;
+  text-align: center;
+  border-bottom: .5px solid var(--border);
+  flex-shrink: 0;
+}
+.ag-week-dow { font-size: 10px; color: var(--txt3); text-transform: uppercase; letter-spacing: .04em; }
+.ag-week-num {
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--txt2);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px auto 0;
+}
+.ag-week-body {
+  position: relative;
+  height: 624px; /* 12 hrs × 52px */
+  cursor: pointer;
+}
+.ag-week-ev {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  min-height: 44px;
+  overflow: hidden;
+  transition: opacity .12s;
+  z-index: 1;
+}
+.ag-week-ev:hover { opacity: .8; z-index: 2; }
+
+/* ── Upcoming sidebar ── */
+.ag-upcoming {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg3);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.ag-upcoming:hover { background: var(--bg4); }
+
+@media (max-width: 1100px) {
+  .ag-layout { grid-template-columns: 1fr; }
+  .ag-sidebar { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -743,6 +993,7 @@ a{color:inherit;text-decoration:none}
     <div class="nav-item" onclick="nav('documentacao')" data-v="documentacao"><span class="ico">📋</span>Documentação</div>
     <div class="nav-item" onclick="nav('employer')" data-v="employer"><span class="ico">🏥</span>Employer / Matching</div>
     <div class="nav-item" onclick="nav('inativos')" data-v="inativos"><span class="ico">📦</span>Inativos</div>
+    <div class="nav-item" onclick="nav('agenda')" data-v="agenda"><span class="ico">📅</span>Agenda / Entrevistas</div>
     <div class="nav-sec">Sistema</div>
     <div class="nav-item" onclick="nav('settings')" data-v="settings"><span class="ico">⚙️</span>Configurações</div>
     <div class="sidebar-bottom">
@@ -861,6 +1112,7 @@ a{color:inherit;text-decoration:none}
 <div class="toast" id="toast"><span id="t-ico">✓</span><span id="t-msg"></span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIG
@@ -1449,7 +1701,7 @@ function nav(view) {
     dashboard:'Dashboard BI', kanban:'Kanban — Pipeline', candidates:'Candidatos',
     triagem:'Triagem & Novos Candidatos', entrevistas:'Entrevistas', analise:'Análise RH',
     alemao:'Curso de Alemão', documentacao:'Documentação', employer:'Employer / Matching',
-    inativos:'Inativos & Não Qualificados', settings:'Configurações'
+    inativos:'Inativos & Não Qualificados', agenda:'Agenda / Entrevistas', settings:'Configurações'
   };
   document.getElementById('tb-title').textContent = titles[view] || view;
   const showSearch = ['candidates','kanban','triagem','entrevistas','analise','alemao','documentacao','employer','inativos'].includes(view);
@@ -1469,6 +1721,7 @@ function renderView() {
     case 'entrevistas':  renderTable(el, '__entrevistas');   break;
     case 'analise':      renderTable(el, '__analise');        break;
     case 'alemao':       renderTable(el, 'Curso de alemão'); break;
+    case 'agenda':       renderAgenda(el);                   break;
     case 'documentacao': renderTable(el, 'Documentação');    break;
     case 'employer':     renderTable(el, '__employer');      break;
     case 'inativos':     renderInativo(el);                  break;
@@ -1835,33 +2088,13 @@ function renderDashboard(el) {
   // ── Chart.js rendering (after DOM) ──────────────────────────
   requestAnimationFrame(() => {
     if (!window.Chart) return;
+    if (window.ChartDataLabels) Chart.register(ChartDataLabels);
 
-    const CHART_DEFAULTS = {
-      responsive: true,
-      maintainAspectRatio: true,
-      animation: { duration: 500 },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#11131a',
-          borderColor: '#242736',
-          borderWidth: 1,
-          titleColor: '#eaecf5',
-          bodyColor: '#7a80a0',
-          padding: 10,
-          cornerRadius: 6,
-          titleFont: { family: "'Bricolage Grotesque', sans-serif", size: 12 },
-          bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
-        }
-      },
-      scales: {
-        x: { display: false },
-        y: {
-          display: true,
-          grid: { color: 'rgba(36,39,54,.6)', drawBorder: false },
-          ticks: { color: '#424660', font: { family: "'JetBrains Mono', monospace", size: 10 }, maxTicksLimit: 4 }
-        }
-      }
+    const TOOLTIP = {
+      backgroundColor: '#11131a', borderColor: '#242736', borderWidth: 1,
+      titleColor: '#eaecf5', bodyColor: '#7a80a0', padding: 10, cornerRadius: 6,
+      titleFont: { family: "'Bricolage Grotesque', sans-serif", size: 12 },
+      bodyFont:  { family: "'JetBrains Mono', monospace", size: 11 },
     };
 
     function hbar(id, data, colors) {
@@ -1869,22 +2102,42 @@ function renderDashboard(el) {
       if (!ctx || !data.length) return;
       new Chart(ctx, {
         type: 'bar',
+        plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
         data: {
           labels: data.map(d => d.label),
           datasets: [{
             data: data.map(d => d.count),
             backgroundColor: colors || data.map((_,i) => `hsl(${210+i*25},60%,55%,0.65)`),
-            borderRadius: 4,
-            borderSkipped: false,
+            borderRadius: 4, borderSkipped: false,
           }]
         },
         options: {
-          ...CHART_DEFAULTS,
+          responsive: true, maintainAspectRatio: true, animation: { duration: 500 },
           indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: TOOLTIP,
+            datalabels: {
+              // Display number AT the end of the bar, inside — always visible regardless of bar length
+              anchor: 'end',
+              align: 'start',
+              color: '#eaecf5',
+              font: { family: "'JetBrains Mono', monospace", size: 10, weight: '600' },
+              formatter: v => v,
+              padding: { right: 6 },
+              clamp: false,
+            }
+          },
           scales: {
-            x: { display: true, grid: { color: 'rgba(36,39,54,.6)' }, ticks: { color: '#424660', font: { family: "'JetBrains Mono', monospace", size: 10 }, maxTicksLimit: 4 } },
+            x: {
+              display: true,
+              grid: { color: 'rgba(36,39,54,.5)' },
+              ticks: { color: '#424660', font: { family: "'JetBrains Mono', monospace", size: 10 }, maxTicksLimit: 4 },
+              // add right padding so value labels at 100% bar still show
+            },
             y: { display: true, grid: { display: false }, ticks: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 11 } } }
-          }
+          },
+          layout: { padding: { right: 4, left: 4 } }
         }
       });
     }
@@ -1907,16 +2160,22 @@ function renderDashboard(el) {
     if (respCtx && byResp.length) {
       new Chart(respCtx, {
         type: 'doughnut',
+        plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
         data: {
           labels: byResp.map(d => d.label),
           datasets: [{ data: byResp.map(d => d.count), backgroundColor: ['#2dd4bf88','#c084fc88','#38bdf888','#f5c84a88'], borderWidth: 2, borderColor: '#0b0d12', hoverBorderColor: '#11131a' }]
         },
         options: {
-          ...CHART_DEFAULTS,
-          cutout: '62%',
+          responsive: true, maintainAspectRatio: true, cutout: '62%', animation: { duration: 500 },
           plugins: {
-            ...CHART_DEFAULTS.plugins,
-            legend: { display: true, position: 'bottom', labels: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 11 }, boxWidth: 10, padding: 10 } }
+            legend: { display: true, position: 'bottom', labels: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 11 }, boxWidth: 10, padding: 10 } },
+            tooltip: TOOLTIP,
+            datalabels: {
+              color: '#eaecf5',
+              font: { family: "'JetBrains Mono', monospace", size: 11, weight: '600' },
+              formatter: (v) => v > 0 ? v : '',
+              anchor: 'center', align: 'center',
+            }
           },
           scales: {}
         }
@@ -1932,16 +2191,24 @@ function renderDashboard(el) {
     if (statusCtx && statusData.length) {
       new Chart(statusCtx, {
         type: 'doughnut',
+        plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
         data: {
           labels: statusData.map(d => d.label),
           datasets: [{ data: statusData.map(d => d.count), backgroundColor: statusData.map((_,i)=>`hsl(${200+i*30},55%,55%,0.65)`), borderWidth: 2, borderColor: '#0b0d12' }]
         },
         options: {
-          ...CHART_DEFAULTS,
+          responsive: true, maintainAspectRatio: true,
           cutout: '55%',
+          animation: { duration: 500 },
           plugins: {
-            ...CHART_DEFAULTS.plugins,
-            legend: { display: true, position: 'right', labels: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 10 }, boxWidth: 8, padding: 8 } }
+            legend: { display: true, position: 'right', labels: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 10 }, boxWidth: 8, padding: 8 } },
+            tooltip: TOOLTIP,
+            datalabels: {
+              color: '#eaecf5',
+              font: { family: "'JetBrains Mono', monospace", size: 11, weight: '600' },
+              formatter: (v) => v > 0 ? v : '',
+              anchor: 'center', align: 'center',
+            }
           },
           scales: {}
         }
@@ -2896,6 +3163,329 @@ function toast(msg, type='ok') {
     document.getElementById('app').style.display = 'none';
   }
 })();
+
+
+// ══════════════════════════════════════════════════════════════
+// AGENDA / ENTREVISTAS — módulo completo
+// ══════════════════════════════════════════════════════════════
+
+// State da agenda
+const AG = {
+  view: 'month',       // 'month' | 'week'
+  date: new Date(),    // data de referência
+  events: JSON.parse(localStorage.getItem('t4_agenda') || '[]'),
+};
+
+function agSave() {
+  try { localStorage.setItem('t4_agenda', JSON.stringify(AG.events)); } catch(e) {}
+}
+
+function agAddEvent(ev) {
+  ev.id = 'ev_' + Date.now();
+  AG.events.push(ev);
+  agSave();
+}
+
+function agDeleteEvent(id) {
+  AG.events = AG.events.filter(e => e.id !== id);
+  agSave();
+}
+
+function agEventsForDate(dateStr) {
+  return AG.events.filter(e => e.date === dateStr);
+}
+
+// ── Cores por tipo de entrevista ────────────────────────────
+const AG_COLORS = {
+  'Entrevista Pessoal':      { bg:'rgba(56,189,248,.18)',  border:'#38bdf8', text:'#38bdf8' },
+  'Avaliação Técnica':       { bg:'rgba(192,132,252,.18)', border:'#c084fc', text:'#c084fc' },
+  'Matching Empregador':     { bg:'rgba(45,212,191,.18)',  border:'#2dd4bf', text:'#2dd4bf' },
+  'Entrevista de Avaliação': { bg:'rgba(245,192,0,.18)',   border:'#f5c000', text:'#f5c000' },
+  'Outro':                   { bg:'rgba(122,128,160,.18)', border:'#7a80a0', text:'#7a80a0' },
+};
+
+// ── Modal de nova entrevista ─────────────────────────────────
+function agOpenModal(dateStr, eventId) {
+  const ev = eventId ? AG.events.find(e => e.id === eventId) : null;
+  const cands = (S.candidates || []).filter(c => isActiveCand(c)).sort((a,b) => (fv(a,'Nome completo')||'').localeCompare(fv(b,'Nome completo')||''));
+  const responsaveis = ['Carol','Sara','admin'];
+  const tipos = Object.keys(AG_COLORS);
+
+  const modal = document.createElement('div');
+  modal.id = 'ag-modal-overlay';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border:.5px solid var(--border2);border-radius:14px;padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--txt)">${ev ? 'Editar Entrevista' : 'Nova Entrevista'}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:2px">${dateStr}</div>
+        </div>
+        <button onclick="agCloseModal()" style="font-size:20px;color:var(--txt3);background:none;border:none;cursor:pointer;line-height:1">×</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Candidato *</label>
+          <select id="ag-candidato" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+            <option value="">— Selecionar candidato —</option>
+            ${cands.map(c => {
+              const nome = fv(c,'Nome completo','nome_completo')||'—';
+              const id = fv(c,'ID','id')||'';
+              return `<option value="${id}" ${ev&&ev.candidatoId===id?'selected':''}>${nome}</option>`;
+            }).join('')}
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Tipo de Entrevista</label>
+          <select id="ag-tipo" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+            ${tipos.map(t => `<option ${ev&&ev.tipo===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Data</label>
+            <input id="ag-data" type="date" value="${ev?ev.date:dateStr}" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+          </div>
+          <div>
+            <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Horário</label>
+            <input id="ag-hora" type="time" value="${ev?ev.hora:'09:00'}" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Recrutador Responsável</label>
+          <select id="ag-resp" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+            ${responsaveis.map(r => `<option ${ev&&ev.responsavel===r?'selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Link da Reunião</label>
+          <input id="ag-link" type="url" placeholder="https://meet.google.com/..." value="${ev?ev.link||'':''}" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+        </div>
+
+        <div>
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Observações</label>
+          <textarea id="ag-obs" rows="2" placeholder="Pautas, pontos a avaliar..." style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none;resize:vertical">${ev?ev.obs||'':''}</textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+        ${ev ? `<button onclick="agDeleteAndClose('${ev.id}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
+        <button onclick="agCloseModal()" style="font-size:12px;color:var(--txt2);background:none;border:.5px solid var(--border2);border-radius:6px;padding:7px 14px;cursor:pointer">Cancelar</button>
+        <button onclick="agSaveModal('${ev?ev.id:''}')" style="font-size:12px;color:#0b0d12;background:var(--teal);border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer">
+          ${ev ? 'Salvar alterações' : '+ Agendar'}
+        </button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) agCloseModal(); });
+  document.getElementById('ag-candidato').focus();
+}
+
+function agCloseModal() {
+  const el = document.getElementById('ag-modal-overlay');
+  if (el) el.remove();
+}
+
+function agSaveModal(existingId) {
+  const candidatoId = document.getElementById('ag-candidato').value;
+  const candidatoNome = candidatoId
+    ? (fv((S.candidates||[]).find(c=>(fv(c,'ID','id')||'')=== candidatoId)||{}, 'Nome completo','nome_completo')||'—')
+    : '—';
+  const tipo       = document.getElementById('ag-tipo').value;
+  const date       = document.getElementById('ag-data').value;
+  const hora       = document.getElementById('ag-hora').value;
+  const responsavel= document.getElementById('ag-resp').value;
+  const link       = document.getElementById('ag-link').value;
+  const obs        = document.getElementById('ag-obs').value;
+
+  if (!candidatoId) { alert('Selecione um candidato'); return; }
+  if (!date)         { alert('Informe a data');          return; }
+
+  if (existingId) {
+    const ev = AG.events.find(e => e.id === existingId);
+    if (ev) Object.assign(ev, { candidatoId, candidatoNome, tipo, date, hora, responsavel, link, obs });
+  } else {
+    agAddEvent({ candidatoId, candidatoNome, tipo, date, hora, responsavel, link, obs });
+  }
+
+  agSave();
+  agCloseModal();
+  renderView();
+}
+
+function agDeleteAndClose(id) {
+  if (!confirm('Excluir este agendamento?')) return;
+  agDeleteEvent(id);
+  agCloseModal();
+  renderView();
+}
+
+// ── Helpers de data ─────────────────────────────────────────
+function agFmtDateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function agMonthDays(year, month) {
+  const first = new Date(year, month, 1);
+  const last  = new Date(year, month + 1, 0);
+  const days  = [];
+  // pad start
+  for (let i = 0; i < first.getDay(); i++) days.push(null);
+  for (let d = 1; d <= last.getDate(); d++) days.push(new Date(year, month, d));
+  return days;
+}
+
+function agWeekDays(refDate) {
+  const d = new Date(refDate);
+  d.setDate(d.getDate() - d.getDay());
+  return Array.from({length:7}, (_, i) => { const x = new Date(d); x.setDate(d.getDate()+i); return x; });
+}
+
+// ── Main render ─────────────────────────────────────────────
+function renderAgenda(el) {
+  const now = new Date();
+  const todayStr = agFmtDateStr(now);
+  const year  = AG.date.getFullYear();
+  const month = AG.date.getMonth();
+  const DOW   = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  function evBlock(ev) {
+    const col = AG_COLORS[ev.tipo] || AG_COLORS['Outro'];
+    return `<div class="ag-ev-block" style="background:${col.bg};border-left:2px solid ${col.border};color:${col.text}"
+      onclick="event.stopPropagation();agOpenModal('${ev.date}','${ev.id}')"
+      title="${ev.candidatoNome} · ${ev.hora}">
+      <span class="ag-ev-time">${ev.hora||''}</span>
+      <span class="ag-ev-name">${ev.candidatoNome}</span>
+    </div>`;
+  }
+
+  // ── Month view ──
+  let bodyHtml = '';
+  if (AG.view === 'month') {
+    const days = agMonthDays(year, month);
+    const cells = days.map(d => {
+      if (!d) return `<div class="ag-day ag-empty"></div>`;
+      const ds = agFmtDateStr(d);
+      const evs = agEventsForDate(ds);
+      const isToday = ds === todayStr;
+      return `<div class="ag-day ${isToday?'ag-today':''}" onclick="agOpenModal('${ds}')">
+        <div class="ag-day-num ${isToday?'ag-day-today-num':''}">${d.getDate()}</div>
+        <div class="ag-day-evs">${evs.slice(0,3).map(evBlock).join('')}${evs.length>3?`<div class="ag-more">+${evs.length-3}</div>`:''}</div>
+      </div>`;
+    }).join('');
+    bodyHtml = `<div class="ag-month-grid">
+      ${DOW.map(d=>`<div class="ag-dow">${d}</div>`).join('')}
+      ${cells}
+    </div>`;
+  }
+
+  // ── Week view ──
+  if (AG.view === 'week') {
+    const days = agWeekDays(AG.date);
+    const hours = Array.from({length:12}, (_,i) => i + 7); // 07:00–18:00
+    const cols = days.map(d => {
+      const ds = agFmtDateStr(d);
+      const evs = agEventsForDate(ds);
+      const isToday = ds === todayStr;
+      return `<div class="ag-week-col ${isToday?'ag-week-today':''}">
+        <div class="ag-week-hdr">
+          <div class="ag-week-dow">${DOW[d.getDay()]}</div>
+          <div class="ag-week-num ${isToday?'ag-day-today-num':''}">${d.getDate()}</div>
+        </div>
+        <div class="ag-week-body" onclick="agOpenModal('${ds}')">
+          ${evs.map(ev => {
+            const col = AG_COLORS[ev.tipo] || AG_COLORS['Outro'];
+            const hr = parseInt((ev.hora||'07:00').split(':')[0]) - 7;
+            const top = Math.max(0, hr * 52);
+            return `<div class="ag-week-ev" style="top:${top}px;background:${col.bg};border-left:2px solid ${col.border};color:${col.text}"
+              onclick="event.stopPropagation();agOpenModal('${ev.date}','${ev.id}')">
+              <span style="font-size:9px;font-family:var(--mono)">${ev.hora}</span>
+              <span style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.candidatoNome}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+    const timeCol = `<div class="ag-time-col">${hours.map(h=>`<div class="ag-time-slot">${String(h).padStart(2,'0')}:00</div>`).join('')}</div>`;
+    bodyHtml = `<div class="ag-week-grid">${timeCol}${cols}</div>`;
+  }
+
+  // ── Próximas entrevistas (sidebar) ──
+  const upcoming = AG.events
+    .filter(e => e.date >= todayStr)
+    .sort((a,b) => (a.date+a.hora) < (b.date+b.hora) ? -1 : 1)
+    .slice(0,8);
+
+  const upcomingHtml = upcoming.length
+    ? upcoming.map(ev => {
+        const col = AG_COLORS[ev.tipo] || AG_COLORS['Outro'];
+        const d = new Date(ev.date + 'T12:00:00');
+        const label = `${d.getDate()}/${d.getMonth()+1} ${ev.hora}`;
+        return `<div class="ag-upcoming" style="border-left:2px solid ${col.border}" onclick="agOpenModal('${ev.date}','${ev.id}')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:10px;color:var(--txt3);font-family:var(--mono)">${label}</span>
+            <span style="font-size:9px;padding:1px 6px;border-radius:99px;background:${col.bg};color:${col.text}">${ev.tipo.split(' ')[0]}</span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.candidatoNome}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:1px">${ev.responsavel}${ev.link?` · <a href="${ev.link}" target="_blank" style="color:var(--teal)" onclick="event.stopPropagation()">link</a>`:''}</div>
+        </div>`;
+      }).join('')
+    : `<div style="font-size:12px;color:var(--txt3);padding:12px 0">Nenhum agendamento futuro</div>`;
+
+  el.innerHTML = `
+<div class="ag-layout">
+  <!-- ── Coluna principal ── -->
+  <div class="ag-main">
+    <div class="ag-toolbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="ag-nav-btn" onclick="agNav(-1)">‹</button>
+        <div class="ag-title">${AG.view==='month'?`${MONTHS[month]} ${year}`:''}</div>
+        <button class="ag-nav-btn" onclick="agNav(1)">›</button>
+        <button class="ag-today-btn" onclick="AG.date=new Date();renderView()">Hoje</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="ag-view-btn ${AG.view==='month'?'active':''}" onclick="AG.view='month';renderView()">Mês</button>
+        <button class="ag-view-btn ${AG.view==='week'?'active':''}"  onclick="AG.view='week';renderView()">Semana</button>
+        <button class="btn btn-sm" onclick="agOpenModal('${todayStr}')" style="margin-left:6px;background:var(--teal);color:#0b0d12;border:none;font-weight:700;padding:6px 14px;border-radius:6px;font-size:12px">+ Agendar</button>
+      </div>
+    </div>
+    ${bodyHtml}
+  </div>
+
+  <!-- ── Sidebar próximas ── -->
+  <div class="ag-sidebar">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:12px">Próximas entrevistas</div>
+    ${upcomingHtml}
+
+    <div style="margin-top:20px;padding-top:14px;border-top:.5px solid var(--border)">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:10px">Legenda</div>
+      ${Object.entries(AG_COLORS).map(([tipo,col])=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11px;color:var(--txt2)">
+          <div style="width:10px;height:10px;border-radius:2px;background:${col.border};flex-shrink:0"></div>
+          ${tipo}
+        </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+// ── Navigation ───────────────────────────────────────────────
+function agNav(dir) {
+  if (AG.view === 'month') {
+    AG.date = new Date(AG.date.getFullYear(), AG.date.getMonth() + dir, 1);
+  } else {
+    AG.date = new Date(AG.date.getTime() + dir * 7 * 86400000);
+  }
+  renderView();
+}
+
 </script>
 </body>
 </html>
