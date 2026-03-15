@@ -390,23 +390,308 @@ a{color:inherit;text-decoration:none}
 .sync-dot.syncing{background:var(--yellow);animation:spin .7s linear infinite;border-radius:0;border:2px solid transparent;border-top-color:var(--yellow);width:12px;height:12px}
 .sync-dot.err{background:var(--red);animation:none}
 
-/* ══ GERMANY HERO BAR ══ */
-.de-hero{
-  background:linear-gradient(135deg,var(--bg2) 0%,rgba(196,30,58,.06) 50%,rgba(245,192,0,.04) 100%);
-  border:1px solid var(--border);border-radius:var(--r2);
-  padding:14px 20px;margin-bottom:16px;
-  display:flex;align-items:center;gap:16px
+
+/* ══════════════════════════════════════════════════════════════
+   BENTO DASHBOARD — Enterprise Edition v8.0
+   Bauhaus × Talents 4 × Deutschland
+══════════════════════════════════════════════════════════════ */
+
+/* ── Bento layout ── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 14px;
+  padding: 0 0 28px;
 }
-.de-hero-flag{display:flex;flex-direction:column;gap:2px;width:28px;flex-shrink:0}
-.de-hero-flag .f1{height:6px;background:var(--de-black);border-radius:2px}
-.de-hero-flag .f2{height:6px;background:var(--de-red);border-radius:2px}
-.de-hero-flag .f3{height:6px;background:var(--de-gold);border-radius:2px}
-.de-hero-text{font-size:12px;color:var(--txt3)}
-.de-hero-text strong{color:var(--txt);font-weight:700}
-.de-hero-kpis{display:flex;gap:24px;margin-left:auto}
-.de-kpi{text-align:center}
-.de-kpi-val{font-family:var(--mono);font-size:20px;font-weight:600;line-height:1}
-.de-kpi-lbl{font-size:10px;color:var(--txt3);letter-spacing:.03em;text-transform:uppercase;margin-top:2px}
+
+/* ── Hero KPI strip ── */
+.bento-hero {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr repeat(4, minmax(110px, 1fr));
+  align-items: center;
+  gap: 0;
+  background: var(--bg2);
+  border-radius: var(--r2);
+  border-left: 3px solid var(--de-gold);
+  overflow: hidden;
+}
+.bento-hero-brand {
+  padding: 18px 20px;
+  border-right: 1px solid var(--border);
+}
+.bento-hero-brand-name {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  letter-spacing: .01em;
+}
+.bento-hero-brand-sub {
+  font-size: 11px;
+  color: var(--txt3);
+  margin-top: 2px;
+}
+.bento-hero-spacer { flex: 1; padding: 18px 16px; }
+.bento-hero-spacer a { font-size: 11px; color: var(--teal); text-decoration: none; }
+.bento-hero-spacer a:hover { text-decoration: underline; }
+.bento-kpi {
+  padding: 18px 16px;
+  border-left: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s;
+}
+.bento-kpi:hover { background: var(--bg3); }
+.bento-kpi-val {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.bento-kpi-lbl {
+  font-size: 10px;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: 5px;
+}
+.bento-kpi-delta {
+  font-size: 10px;
+  font-family: var(--mono);
+  margin-top: 3px;
+}
+.delta-up { color: var(--green); }
+.delta-warn { color: var(--de-gold); }
+.delta-risk { color: var(--de-red); }
+
+/* ── Bento cards ── */
+.bento-card {
+  background: var(--bg2);
+  border-radius: var(--r2);
+  overflow: hidden;
+  position: relative;
+}
+.bento-card-hdr {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.bento-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--txt3);
+}
+.bento-card-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  border: 1px solid var(--border2);
+  color: var(--txt3);
+  margin-left: auto;
+}
+.bento-card-body { padding: 16px 18px; }
+
+/* ── Funil vertical ── */
+.bento-funnel { grid-column: 1 / 2; grid-row: 2 / 4; }
+.funnel-v { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; }
+.fv-stage {
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.fv-stage:hover { opacity: .85; }
+.fv-bar {
+  height: 32px;
+  min-width: 18px;
+  border-radius: 4px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.fv-label {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--txt);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.fv-count {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+  pointer-events: none;
+}
+.fv-drop {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px 0;
+  font-size: 10px;
+  color: var(--txt3);
+}
+.fv-drop-arrow { color: var(--txt3); font-size: 9px; }
+.fv-drop-pct { font-family: var(--mono); color: var(--de-red); }
+
+/* ── Data Health widget ── */
+.bento-health { grid-column: 2 / 3; grid-row: 2 / 3; }
+.health-body {
+  padding: 14px 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.health-donut-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+.health-donut-wrap canvas { position: absolute; top: 0; left: 0; }
+.health-score-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.health-score-num {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+}
+.health-score-lbl { font-size: 8px; color: var(--txt3); text-transform: uppercase; letter-spacing: .05em; }
+.health-issues { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.hi-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: background .12s;
+}
+.hi-row:hover { background: var(--bg3); }
+.hi-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.hi-lbl { flex: 1; color: var(--txt2); }
+.hi-val { font-family: var(--mono); font-size: 11px; font-weight: 500; }
+.hi-val.zero { color: var(--green); }
+.hi-val.warn { color: var(--de-gold); }
+.hi-val.risk { color: var(--de-red); }
+
+/* ── Aging heatmap ── */
+.bento-aging { grid-column: 2 / 4; grid-row: 3 / 4; }
+.aging-heatmap { padding: 12px 16px 16px; }
+.ah-row {
+  display: grid;
+  grid-template-columns: 130px repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+  align-items: center;
+  font-size: 11px;
+}
+.ah-header .ah-stage { color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.ah-header .ah-cell { font-size: 10px; color: var(--txt3); text-align: center; }
+.ah-stage { color: var(--txt2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ah-cell {
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: default;
+  transition: opacity .15s;
+}
+.ah-cell:hover { opacity: .8; }
+.ah-0 { background: rgba(29,233,155,.15); color: var(--green); }
+.ah-1 { background: rgba(245,192,0,.15);  color: var(--de-gold); }
+.ah-2 { background: rgba(255,140,66,.20); color: var(--orange); }
+.ah-3 { background: rgba(255,61,90,.25);  color: var(--de-red); }
+.ah-empty { background: var(--bg3); color: var(--txt3); }
+
+/* ── Perfil radar / chart cards ── */
+.bento-perfil    { grid-column: 3 / 4; grid-row: 2 / 3; }
+.bento-alemao    { grid-column: 4 / 5; grid-row: 2 / 3; }
+.bento-profissao { grid-column: 4 / 5; grid-row: 3 / 4; }
+.bento-recrutador{ grid-column: 3 / 4; grid-row: 3 / 4; }
+
+/* Row 3: profissoes + empregadores */
+.bento-bottom-left  { grid-column: 1 / 3; grid-row: 4; }
+.bento-bottom-right { grid-column: 3 / 5; grid-row: 4; }
+
+.chart-canvas-wrap {
+  padding: 10px 14px 14px;
+  position: relative;
+}
+.chart-canvas-wrap canvas { max-height: 180px; }
+
+/* ── Status badges enterprise ── */
+.sb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: .03em;
+}
+.sb::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.sb-ok     { background: rgba(29,233,155,.10); color: #1de99b; }
+.sb-warn   { background: rgba(245,192,0,.10);  color: #f5c000; }
+.sb-risk   { background: rgba(255,61,90,.10);  color: #ff3d5a; }
+.sb-gold   { background: rgba(245,192,0,.12);  color: var(--de-gold); }
+.sb-blue   { background: rgba(56,189,248,.10); color: #38bdf8; }
+.sb-teal   { background: rgba(45,212,191,.10); color: #2dd4bf; }
+
+/* ── Separator ── */
+.bento-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .bento-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bento-hero { grid-template-columns: auto 1fr repeat(4, 1fr); }
+  .bento-funnel { grid-column: 1 / 2; grid-row: auto; }
+  .bento-health { grid-column: 2 / 3; }
+  .bento-aging  { grid-column: 1 / 3; }
+  .bento-perfil, .bento-alemao, .bento-profissao, .bento-recrutador { grid-column: span 1; grid-row: auto; }
+  .bento-bottom-left, .bento-bottom-right { grid-column: 1 / 3; }
+}
+@media (max-width: 800px) {
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-hero { grid-template-columns: 1fr 1fr; }
+  .bento-kpi { border-left: none; border-top: 1px solid var(--border); }
+  .bento-hero-brand, .bento-hero-spacer { grid-column: 1 / 3; }
+}
+
 </style>
 </head>
 <body>
@@ -575,6 +860,7 @@ a{color:inherit;text-decoration:none}
 <!-- TOAST -->
 <div class="toast" id="toast"><span id="t-ico">✓</span><span id="t-msg"></span></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIG
@@ -1256,8 +1542,9 @@ function renderDashboard(el) {
   const charts = d.charts || {};
   const cands  = S.candidates;
   const ativos = cands.filter(c => isActiveCand(c));
+  const now    = Date.now();
 
-  const now = Date.now();
+  // ── Helpers ──────────────────────────────────────────────────
   function recentCount(list, days) {
     return list.filter(c => {
       const dt = fv(c,'Última atualização','Criado Em');
@@ -1272,362 +1559,414 @@ function renderDashboard(el) {
       return (now - new Date(dt).getTime()) > days * 86400000;
     }).length;
   }
-  function noRespCount(list) {
-    return list.filter(c => !fv(c,'Responsável interno','Avaliador')).length;
-  }
 
-  // Computed com novo score e funções melhoradas
+  // ── Computed values ───────────────────────────────────────────
+  const b1plus        = ativos.filter(c => ['B1','B2','B2+','C1','C2'].includes(fv(c,'Nível de alemão','Nível alemão'))).length;
   const b2plus        = ativos.filter(c => ['B2','B2+','C1','C2'].includes(fv(c,'Nível de alemão','Nível alemão'))).length;
-  const semAlemao     = ativos.filter(c => { const a=fv(c,'Nível de alemão','Nível alemão'); return !a || ['Nenhum','A0',''].includes(a); }).length;
+  const semAlemao     = ativos.filter(c => { const a=fv(c,'Nível de alemão','Nível alemão'); return !a||['Nenhum','A0',''].includes(a); }).length;
   const triagem       = ativos.filter(c => ['Triagem','Novo candidato'].includes(fv(c,'STATUS PIPELINE')));
-  const entrevistaData= cands.filter(c =>
-    (fv(c,'Resultado entrevista','Resultado da entrevista')||'').trim() ||
-    (fv(c,'Data da Entrevista','Data entrevista')||'').trim()
-  );
-  const analiseData   = cands.filter(c =>
-    (fv(c,'Análise do recrutador','Análise recrutador')||'').trim() ||
-    (fv(c,'Pontos fortes')||'').trim()
-  );
+  const entrevistaData= cands.filter(c => (fv(c,'Resultado entrevista','Resultado da entrevista')||'').trim() || (fv(c,'Data da Entrevista','Data entrevista')||'').trim());
+  const analiseData   = cands.filter(c => (fv(c,'Análise do recrutador','Análise recrutador')||'').trim() || (fv(c,'Pontos fortes')||'').trim());
   const cursoAlemao   = ativos.filter(c => fv(c,'STATUS PIPELINE') === 'Curso de alemão');
   const docStage      = ativos.filter(c => fv(c,'STATUS PIPELINE') === 'Documentação');
   const employerS     = ativos.filter(c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE')));
   const prontos       = ativos.filter(c => fv(c,'STATUS PIPELINE') === 'Aprovado / Pronto').length;
-  const comEmpregador = ativos.filter(c => (fv(c,'Hospital alvo','Empresa / Empregador')||'').trim()).length;
+  const contratados   = ativos.filter(c => fv(c,'STATUS PIPELINE') === 'Contratado').length;
   const naoQualif     = cands.filter(c => fv(c,'STATUS PIPELINE') === 'Não qualificado/ base de dados').length;
   const desistiu      = cands.filter(c => fv(c,'STATUS PIPELINE') === 'Desistiu').length;
-
-  // ── QUALIDADE DA BASE ──
-  const semProfissao      = ativos.filter(c => !fv(c,'Profissão principal','Profissão')).length;
-  const semResponsavel    = ativos.filter(c => !fv(c,'Responsável interno')).length;
-  const semStatusFinal    = ativos.filter(c => !fv(c,'Status Final')).length;
-  const semPerfil         = ativos.filter(c => !fv(c,'Perfil')).length;
-  const docIncompleta     = ativos.filter(c => !isYes(fv(c,'Documentação completa'))).length;
-  const empSemVinculo     = employerS.filter(c => !(fv(c,'Hospital alvo','Empresa / Empregador')||'').trim()).length;
-  const pendCritica       = ativos.filter(c => (fv(c,'Pendência documental crítica')||'').trim()).length;
-  const semCursoMarcado   = cursoAlemao.filter(c => !isYes(fv(c,'Em curso de alemão'))).length;
-  const prontosSemMarcacao= ativos.filter(c => isElegibleCalc(c) && !isYes(fv(c,'Elegível para employer'))).length;
-  const inconsistencias   = cands.filter(c => {
-    const ativo  = isYes(fv(c,'Ativo'));
-    const status = fv(c,'STATUS PIPELINE');
-    const inativo= INACTIVE_STATUSES.includes(status);
-    return (ativo && inativo) || (!ativo && !inativo && status !== '');
-  }).length;
-
-  const qualityScore = ativos.length > 0
-    ? Math.round(100 - ((semProfissao + semAlemao + semPerfil + docIncompleta) / (ativos.length * 4) * 100))
-    : 100;
-
-  function qCard(ico, val, lbl, cls) {
-    const level = val === 0 ? 'ok' : (val <= 3 ? 'warn' : 'risk');
-    return `<div class="quality-card ${val===0?'ok-card':''}" onclick="filterByMetric('${lbl}')">
-      <div class="qc-ico ${cls||level}">${ico}</div>
-      <div class="qc-txt">
-        <div class="qc-val ${level}">${val}</div>
-        <div class="qc-lbl">${lbl}</div>
-      </div>
-    </div>`;
-  }
-
-  // ── AGING BLOCKS — estágios reais ──
-  const agingStages = [
-    { label:'Triagem / Novo',   list:triagem,        color:'#38bdf8' },
-    { label:'Entrevistados',    list:entrevistaData, color:'#c084fc' },
-    { label:'Análise RH',       list:analiseData,    color:'#f5c84a' },
-    { label:'Curso de Alemão',  list:cursoAlemao,    color:'#ff8c42' },
-    { label:'Documentação',     list:docStage,       color:'#1de99b' },
-    { label:'Employer/Matching',list:employerS,      color:'#2dd4bf' },
-  ];
-
-  const agingHtml = agingStages.map(ag => {
-    const [b0,b1,b2,b3] = agingBands(ag.list, 'STATUS PIPELINE', 'Data entrada etapa atual');
-    return `<div class="aging-card">
-      <div class="aging-title">
-        <span class="ac-dot" style="background:${ag.color}"></span>
-        ${ag.label} <span style="color:var(--txt3);font-weight:400">(${ag.list.length})</span>
-      </div>
-      <div class="aging-bands">
-        <div class="aging-band"><div class="ab-days">0–7d</div><div class="ab-count b0">${b0}</div></div>
-        <div class="aging-band"><div class="ab-days">8–15d</div><div class="ab-count b1">${b1}</div></div>
-        <div class="aging-band"><div class="ab-days">16–30d</div><div class="ab-count b2">${b2}</div></div>
-        <div class="aging-band"><div class="ab-days">+30d</div><div class="ab-count b3">${b3}</div></div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // ── SMART METRIC CARDS ──
-  function smartCard(label, value, sub, cls, hints) {
-    const hintHtml = hints && hints.length ? `<div class="metric-hints">
-      ${hints.map(h => `<div class="mh-row">
-        <div class="mh-dot" style="background:${h.color}"></div>
-        <span class="mh-lbl">${h.lbl}</span>
-        <span class="mh-val ${h.cls||''}">${h.val}</span>
-      </div>`).join('')}
-    </div>` : '';
-    return `<div class="metric-card ${cls}" onclick="filterByMetric('${label}')">
-      <div class="metric-label">${label}</div>
-      <div class="metric-value">${value}</div>
-      <div class="metric-sub">${sub}</div>
-      ${hintHtml}
-    </div>`;
-  }
-
-  // Inativos reais
   const totalInativos = cands.filter(c => !isActiveCand(c)).length;
   const fortes        = ativos.filter(c => (fv(c,'Perfil')||'').toLowerCase().includes('forte')).length;
 
-  const kpis1 = [
-    smartCard('Total Cadastrados', cands.length, 'todos os registros', 'mc-accent', [
-      { lbl:'Ativos no pipeline', val:ativos.length,   color:'var(--green)', cls:'ok' },
-      { lbl:'Fora do pipeline',   val:totalInativos,   color:'var(--txt3)', cls:'' },
-    ]),
-    smartCard('Candidatos Ativos', ativos.length, 'no funil agora', 'mc-blue', [
-      { lbl:'Esta semana',              val:recentCount(ativos,7),  color:'var(--green)',  cls:'ok'   },
-      { lbl:'>15d sem atualização',     val:staleCount(ativos,15),  color:'var(--yellow)', cls:'warn' },
-    ]),
-    smartCard('Alemão B1+', ativos.filter(c=>['B1','B2','B2+','C1','C2'].includes(fv(c,'Nível de alemão','Nível alemão'))).length, 'prontos p/ processo', 'mc-purple', [
-      { lbl:'B2+',        val:b2plus,    color:'var(--green)', cls:'ok'   },
-      { lbl:'Sem alemão', val:semAlemao, color:'var(--red)',   cls:'risk' },
-    ]),
-    smartCard('Triagem / Novos', triagem.length, 'aguardando avaliação', 'mc-blue', [
-      { lbl:'Sem responsável', val:noRespCount(triagem), color:'var(--yellow)', cls:'warn' },
-      { lbl:'>15 dias parado', val:agingBands(triagem,'STATUS PIPELINE','Data entrada etapa atual')[2]+agingBands(triagem,'STATUS PIPELINE','Data entrada etapa atual')[3], color:'var(--red)', cls:'risk' },
-    ]),
-    smartCard('Entrevistados', entrevistaData.length, 'com dados de entrevista', 'mc-purple', [
-      { lbl:'Classificados',     val:entrevistaData.filter(c=>(fv(c,'Resultado entrevista')||'')==='Classificado').length,    color:'var(--green)',  cls:'ok'   },
-      { lbl:'Não classificados', val:entrevistaData.filter(c=>(fv(c,'Resultado entrevista')||'')==='Não classificado').length, color:'var(--red)',    cls:'risk' },
-      { lbl:'Em análise',        val:entrevistaData.filter(c=>(fv(c,'Resultado entrevista')||'')==='Em análise').length,       color:'var(--yellow)', cls:'warn' },
-    ]),
-    smartCard('Curso de Alemão', cursoAlemao.length, 'em preparação linguística', 'mc-orange', [
-      { lbl:'A0 (iniciantes)', val:cursoAlemao.filter(c=>fv(c,'Nível de alemão','Nível alemão')==='A0').length, color:'var(--orange)', cls:'warn' },
-      { lbl:'Não marcados',    val:semCursoMarcado, color:'var(--red)', cls:'risk' },
-    ]),
-    smartCard('Perfis Fortes', fortes, 'avaliados como forte', 'mc-gold', [
-      { lbl:'Análise RH preenchida', val:analiseData.length, color:'var(--green)', cls:'ok' },
-      { lbl:'Sem perfil definido',   val:semPerfil,          color:'var(--yellow)', cls:'warn' },
-    ]),
-    smartCard('Prontos / Aprovados', prontos, 'aguardando vaga', 'mc-green', [
-      { lbl:'Elegível Employer', val:ativos.filter(c=>isYes(fv(c,'Elegível para employer'))).length, color:'var(--teal)', cls:'' },
-      { lbl:'Prontos não marcados', val:prontosSemMarcacao, color:'var(--red)', cls:'risk' },
-    ]),
-  ];
-  const kpis2 = [
-    smartCard('Employer / Matching', employerS.length, 'Employer + Matching Instituição', 'mc-teal', [
-      { lbl:'Matching Instituição',  val:ativos.filter(c=>fv(c,'STATUS PIPELINE')==='Matching Instituição').length, color:'var(--teal)', cls:'' },
-      { lbl:'Sem empresa vinculada', val:empSemVinculo, color:'var(--red)', cls:'risk' },
-    ]),
-    smartCard('Contratados', ativos.filter(c=>fv(c,'STATUS PIPELINE')==='Contratado').length, 'acumulado total', 'mc-gold'),
-    smartCard('Doc. Completa', ativos.filter(c=>isYes(fv(c,'Documentação completa'))).length, 'documentação 100%', 'mc-blue', [
-      { lbl:'Pendência crítica', val:pendCritica, color:'var(--red)', cls:'risk' },
-    ]),
-    smartCard('Análise RH', analiseData.length, 'com análise preenchida', 'mc-yellow', [
-      { lbl:'Sem avaliador RH', val:analiseData.filter(c=>!fv(c,'Avaliador')).length, color:'var(--yellow)', cls:'warn' },
-    ]),
-    smartCard('Não Qualificados', naoQualif, 'base de dados', 'mc-orange', [
-      { lbl:'Desistências',      val:desistiu,       color:'var(--txt3)', cls:'' },
-      { lbl:'Inconsistências',   val:inconsistencias,color:'var(--red)',  cls:inconsistencias>0?'risk':'' },
-    ]),
-    smartCard('Score Qualidade Base', qualityScore+'%', 'integridade dos dados', qualityScore>=70?'mc-green':qualityScore>=40?'mc-yellow':'mc-red'),
+  // ── Data Health ───────────────────────────────────────────────
+  const semProfissao       = ativos.filter(c => !fv(c,'Profissão principal','Profissão')).length;
+  const semResponsavel     = ativos.filter(c => !fv(c,'Responsável interno')).length;
+  const semPerfil          = ativos.filter(c => !fv(c,'Perfil')).length;
+  const docIncompleta      = ativos.filter(c => !isYes(fv(c,'Documentação completa'))).length;
+  const pendCritica        = ativos.filter(c => (fv(c,'Pendência documental crítica')||'').trim()).length;
+  const semCursoMarcado    = cursoAlemao.filter(c => !isYes(fv(c,'Em curso de alemão'))).length;
+  const prontosSemMarcacao = ativos.filter(c => isElegibleCalc(c) && !isYes(fv(c,'Elegível para employer'))).length;
+  const empSemVinculo      = employerS.filter(c => !(fv(c,'Hospital alvo','Empresa / Empregador')||'').trim()).length;
+  const inconsistencias    = cands.filter(c => {
+    const ativo=isYes(fv(c,'Ativo')), status=fv(c,'STATUS PIPELINE'), inativo=INACTIVE_STATUSES.includes(status);
+    return (ativo&&inativo)||(!ativo&&!inativo&&status!=='');
+  }).length;
+
+  const totalIssues   = semProfissao + semAlemao + semPerfil + docIncompleta + pendCritica + semCursoMarcado + prontosSemMarcacao + empSemVinculo + inconsistencias + semResponsavel;
+  const healthScore   = ativos.length > 0 ? Math.max(0, Math.round(100 - (totalIssues / (ativos.length * 0.5)))) : 100;
+  const healthColor   = healthScore >= 80 ? '#1de99b' : healthScore >= 50 ? '#f5c000' : '#ff3d5a';
+
+  // ── Aging bands ───────────────────────────────────────────────
+  const agingStages = [
+    { label:'Triagem / Novo',    list:triagem },
+    { label:'Entrevistados',     list:entrevistaData },
+    { label:'Análise RH',        list:analiseData },
+    { label:'Curso de Alemão',   list:cursoAlemao },
+    { label:'Documentação',      list:docStage },
+    { label:'Employer/Matching', list:employerS },
   ];
 
-  // Funil — calculado localmente com estágios REAIS
-  const funnelStages = [
-    'Novo candidato','Triagem','Entrevista pessoal','Entrevista avaliação',
-    'Análise RH','Curso de alemão','Documentação','Jurídico',
-    'Matching Instituição','Employer / Matching','Aprovado / Pronto','Contratado'
-  ];
-  const funnelLocal = funnelStages.map(stage => ({
-    stage, count: ativos.filter(c => fv(c,'STATUS PIPELINE') === stage).length
-  })).filter(f => f.count > 0); // só mostra estágios com candidatos
+  // ── Funnel data ───────────────────────────────────────────────
+  const funnelData = PIPELINE_STAGES
+    .map(s => ({ stage: s, count: ativos.filter(c => fv(c,'STATUS PIPELINE') === s).length }))
+    .filter(f => f.count > 0);
+  const maxFunnel = Math.max(...funnelData.map(f => f.count), 1);
+  const funnelColors = ['#38bdf8','#818cf8','#c084fc','#a78bfa','#f5c84a','#ff8c42','#1de99b','#fb923c','#2dd4bf','#06b6d4','#f5c000','#10b981'];
 
-  const maxF = Math.max(...funnelLocal.map(f=>f.count), 1);
-  const funnelHtml = funnelLocal.map((f, i) => {
-    const pct  = ((f.count/maxF)*100).toFixed(0);
-    const prev = i > 0 ? funnelLocal[i-1].count : f.count;
-    const conv = prev > 0 ? ((f.count/prev)*100).toFixed(0) : 100;
-    const color = STAGE_COLORS[funnelStages.indexOf(f.stage)] || 'var(--accent)';
-    return `<div class="funnel-row">
-      <div class="funnel-lbl" style="color:${color}">${f.stage}</div>
-      <div><div class="funnel-bg"><div class="funnel-bar" style="width:${pct}%;background:${color}"></div></div></div>
-      <div style="text-align:right">
-        <div class="funnel-val">${f.count}</div>
-        ${i>0 ? `<div class="funnel-pct">${conv}%</div>` : ''}
+  const genAt = d.generatedAt ? new Date(d.generatedAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '—';
+
+  // ── Chart data helpers ────────────────────────────────────────
+  function groupCount(list, fn) {
+    const m = {};
+    list.forEach(c => { const k = fn(c)||'N/A'; m[k]=(m[k]||0)+1; });
+    return Object.entries(m).map(([k,v])=>({label:k,count:v})).sort((a,b)=>b.count-a.count);
+  }
+  const byPerfil    = groupCount(ativos, c => fv(c,'Perfil','perfil')||'Não avaliado').slice(0,5);
+  const byAlemao    = groupCount(ativos, c => fv(c,'Nível alemão','nivel_alemao')||'Nenhum').slice(0,8);
+  const byProf      = groupCount(ativos, c => normalizeProfissao(fv(c,'Profissão principal','profissao_principal')||'')).slice(0,6);
+  const byResp      = groupCount(ativos, c => fv(c,'Responsável interno','responsavel_interno')||'Sem responsável');
+  const byCidade    = groupCount(ativos, c => fv(c,'Cidade atual','cidade_atual')||'N/A').slice(0,6);
+
+  // ── Funnel HTML ───────────────────────────────────────────────
+  const funnelHtml = funnelData.map((f, i) => {
+    const pct = Math.round((f.count / maxFunnel) * 100);
+    const prev = i > 0 ? funnelData[i-1].count : f.count;
+    const drop = prev > 0 ? Math.round((1 - f.count/prev)*100) : 0;
+    const col = funnelColors[i % funnelColors.length];
+    return `
+      <div class="fv-stage" onclick="filterByMetric('${f.stage}')">
+        <div class="fv-bar" style="width:${Math.max(pct,8)}%;background:${col}20;border-left:3px solid ${col}"></div>
+        <span class="fv-label" style="color:${col}">${f.stage}</span>
+        <span class="fv-count">${f.count}</span>
       </div>
+      ${i < funnelData.length-1 && drop > 0 ? `<div class="fv-drop"><span class="fv-drop-arrow">↓</span><span class="fv-drop-pct">-${drop}%</span></div>` : ''}`;
+  }).join('');
+
+  // ── Aging heatmap HTML ────────────────────────────────────────
+  const agingHtml = agingStages.map(ag => {
+    const [b0,b1,b2,b3] = agingBands(ag.list,'STATUS PIPELINE','Data entrada etapa atual');
+    const cell = (v, cls) => `<div class="ah-cell ${v===0?'ah-empty':'ah-'+cls}" title="${v} candidatos">${v||'·'}</div>`;
+    return `<div class="ah-row">
+      <div class="ah-stage">${ag.label} <span style="color:var(--txt3);font-size:10px">(${ag.list.length})</span></div>
+      ${cell(b0,0)}${cell(b1,1)}${cell(b2,2)}${cell(b3,3)}
     </div>`;
-  }).join('') || '<p style="color:var(--txt3);font-size:12px">Sem dados</p>';
+  }).join('');
 
-  // Perfil — normaliza variante "Intermediário" → "Candidato intermediário"
-  const byPerfilRaw = groupCount(ativos, c => {
-    let p = fv(c,'Perfil') || 'Não avaliado';
-    if (p === 'Intermediário') p = 'Candidato intermediário';
-    return p;
-  });
-  const byPerfil = byPerfilRaw;
-  const maxP = Math.max(...byPerfil.map(x=>x[1]),1);
-  const PCOL = {'Candidato forte':'#1de99b','Candidato bom':'#38bdf8','Candidato mediano':'#f5c84a','Candidato fraco':'#ff4d6a','Candidato intermediário':'#c084fc','Não avaliado':'#424660'};
-  const perfilHtml = byPerfil.map(([k,v]) => `
-    <div class="bar-row narrow">
-      <div class="bar-lbl" style="color:${PCOL[k]||'var(--txt2)'}">${k.replace('Candidato ','')}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxP*100).toFixed(0)}%;background:${PCOL[k]||'var(--accent)'}"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
+  // ── Health issues list ────────────────────────────────────────
+  const healthIssues = [
+    { lbl:'Sem idioma alemão',      val:semAlemao,           dot:'#ff3d5a' },
+    { lbl:'Sem perfil avaliado',    val:semPerfil,           dot:'#ff8c42' },
+    { lbl:'Prontos não marcados',   val:prontosSemMarcacao,  dot:'#f5c000' },
+    { lbl:'"Em curso" não marcado', val:semCursoMarcado,     dot:'#f5c000' },
+    { lbl:'Sem responsável',        val:semResponsavel,      dot:'#c084fc' },
+    { lbl:'Pendência crítica',      val:pendCritica,         dot:'#ff3d5a' },
+    { lbl:'Inconsistência ativo',   val:inconsistencias,     dot:'#ff3d5a' },
+    { lbl:'Doc. incompleta',        val:docIncompleta,       dot:'#ff8c42' },
+  ].filter(h => h.val > 0).slice(0,6);
 
-  const byAlemao = groupCount(ativos, c => fv(c,'Nível alemão','Nível de alemão') || 'Nenhum');
-  const maxA = Math.max(...byAlemao.map(x=>x[1]),1);
-  const alemaoHtml = byAlemao.map(([k,v]) => `
-    <div class="bar-row narrow">
-      <div class="bar-lbl" style="color:${ALEMAO_COLORS[k]||'var(--txt2)'}">${k}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxA*100).toFixed(0)}%;background:${ALEMAO_COLORS[k]||'var(--accent)'}"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
+  const healthIssuesHtml = healthIssues.length
+    ? healthIssues.map(h => {
+        const cls = h.val === 0 ? 'zero' : h.val <= 3 ? 'warn' : 'risk';
+        return `<div class="hi-row" onclick="filterByMetric('${h.lbl}')">
+          <div class="hi-dot" style="background:${h.dot}"></div>
+          <span class="hi-lbl">${h.lbl}</span>
+          <span class="hi-val ${cls}">${h.val}</span>
+        </div>`;
+      }).join('')
+    : `<div style="padding:8px 6px;font-size:11px;color:var(--green)">✓ Base sem pendências críticas</div>`;
 
-  const byProf = groupCount(ativos, c => normalizeProfissao(fv(c,'Profissão principal','Profissão')||'N/A')).slice(0,8);
-  const maxPr = Math.max(...byProf.map(x=>x[1]),1);
-  const profHtml = byProf.map(([k,v]) => `
-    <div class="bar-row wide">
-      <div class="bar-lbl">${k}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxPr*100).toFixed(0)}%;background:var(--blue)"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
-
-  const byEmp = groupCount(ativos.filter(c=>(fv(c,'Hospital alvo','Empresa / Empregador')||'').trim()), c=>fv(c,'Hospital alvo','Empresa / Empregador')||'N/A').slice(0,8);
-  const maxEmp = Math.max(...byEmp.map(x=>x[1]),1);
-  const empHtml = byEmp.map(([k,v]) => `
-    <div class="bar-row wide">
-      <div class="bar-lbl">${k}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxEmp*100).toFixed(0)}%;background:var(--gold)"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
-
-  const byCid = (charts.byCidade || groupCount(ativos, c=>fv(c,'Cidade atual')||'N/A')).slice(0,8);
-  const maxCid = Math.max(...byCid.map(x=>x[1]),1);
-  const cidHtml = byCid.map(([k,v]) => `
-    <div class="bar-row wide">
-      <div class="bar-lbl">${k}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxCid*100).toFixed(0)}%;background:var(--teal)"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
-
-  const byAv = groupCount(cands, c=>fv(c,'Avaliador','Responsável interno')||'N/A').slice(0,8);
-  const maxAv = Math.max(...byAv.map(x=>x[1]),1);
-  const avHtml = byAv.map(([k,v]) => `
-    <div class="bar-row narrow">
-      <div class="bar-lbl">${k}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxAv*100).toFixed(0)}%;background:var(--purple)"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
-
-  const byPri = groupCount(ativos, c=>c['Prioridade comercial']||'Não definida');
-  const maxPri = Math.max(...byPri.map(x=>x[1]),1);
-  const PRICOL = {'Alta':'#ff4d6a','Média':'#f5c84a','Baixa':'#38bdf8','Não definida':'#424660'};
-  const priHtml = byPri.map(([k,v]) => `
-    <div class="bar-row narrow">
-      <div class="bar-lbl" style="color:${PRICOL[k]||'var(--txt2)'}">${k}</div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(v/maxPri*100).toFixed(0)}%;background:${PRICOL[k]||'var(--accent)'}"></div></div>
-      <div class="bar-val">${v}</div>
-    </div>`).join('');
-
-  const genAt = S.lastSync ? S.lastSync.toLocaleTimeString('pt-BR') : '—';
-
+  // ── Render ────────────────────────────────────────────────────
   el.innerHTML = `
-    <!-- HERO BAR -->
-    <div class="de-hero">
-      <div class="de-hero-flag"><div class="f1"></div><div class="f2"></div><div class="f3"></div></div>
-      <div class="de-hero-text">
-        <strong>Talents 4 Operations</strong> · Pipeline de Recrutamento para a Alemanha
-        <div style="margin-top:2px">Última atualização: ${genAt} · <a href="#" onclick="forceSync()" style="color:var(--gold)">atualizar agora</a></div>
-      </div>
-      <div class="de-hero-kpis">
-        <div class="de-kpi"><div class="de-kpi-val" style="color:var(--gold)">${s.contratados||0}</div><div class="de-kpi-lbl">Contratados</div></div>
-        <div class="de-kpi"><div class="de-kpi-val" style="color:var(--green)">${prontos}</div><div class="de-kpi-lbl">Prontos</div></div>
-        <div class="de-kpi"><div class="de-kpi-val" style="color:var(--accent)">${employerS.length}</div><div class="de-kpi-lbl">Em Employer</div></div>
-        <div class="de-kpi"><div class="de-kpi-val" style="color:var(--blue)">${ativos.length}</div><div class="de-kpi-lbl">Ativos</div></div>
-      </div>
-    </div>
+<div class="bento-grid">
 
-    <!-- KPIs ROW 1 -->
-    <div class="metric-grid">${kpis1.join('')}</div>
-    <div class="metric-grid">${kpis2.join('')}</div>
+  <!-- ══ HERO STRIP ══ -->
+  <div class="bento-hero">
+    <div class="bento-hero-brand">
+      <div class="bento-hero-brand-name">Talents 4 Operations</div>
+      <div class="bento-hero-brand-sub">Pipeline → Deutschland</div>
+    </div>
+    <div class="bento-hero-spacer">
+      <div style="font-size:10px;color:var(--txt3)">Atualizado às ${genAt} · <a href="#" onclick="forceSync();return false">sincronizar</a></div>
+    </div>
+    <div class="bento-kpi" onclick="filterByMetric('Total')">
+      <div class="bento-kpi-val" style="color:var(--txt)">${cands.length}</div>
+      <div class="bento-kpi-lbl">Total</div>
+      <div class="bento-kpi-delta delta-warn">${ativos.length} ativos</div>
+    </div>
+    <div class="bento-kpi" onclick="filterByMetric('Ativos')">
+      <div class="bento-kpi-val" style="color:var(--teal)">${ativos.length}</div>
+      <div class="bento-kpi-lbl">No pipeline</div>
+      <div class="bento-kpi-delta delta-up">+${recentCount(ativos,7)} esta semana</div>
+    </div>
+    <div class="bento-kpi" onclick="filterByMetric('B1+')">
+      <div class="bento-kpi-val" style="color:var(--de-gold)">${b1plus}</div>
+      <div class="bento-kpi-lbl">Alemão B1+</div>
+      <div class="bento-kpi-delta delta-up">${b2plus} em B2+</div>
+    </div>
+    <div class="bento-kpi" onclick="filterByMetric('Contratados')">
+      <div class="bento-kpi-val" style="color:var(--green)">${contratados + prontos}</div>
+      <div class="bento-kpi-lbl">Prontos/Contratados</div>
+      <div class="bento-kpi-delta delta-up">${prontos} prontos · ${contratados} contratados</div>
+    </div>
+  </div>
 
-    <!-- QUALIDADE DA BASE -->
-    <div class="dash-section-hdr">
-      <div class="dsh-icon" style="background:var(--red-bg);color:var(--red)">⚠</div>
-      <div class="dsh-title" style="color:var(--red)">Qualidade da Base</div>
-      <div class="dsh-sub">candidatos com dados críticos faltando · Score: <strong style="color:${qualityScore>=70?'var(--green)':qualityScore>=40?'var(--yellow)':'var(--red)'}">${qualityScore}%</strong></div>
+  <!-- ══ FUNIL VERTICAL ══ -->
+  <div class="bento-card bento-funnel">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Funil de Conversão</span>
+      <span class="bento-card-badge">${ativos.length} ativos</span>
     </div>
-    <div class="quality-grid">
-      ${qCard('💼', semProfissao,       'Sem profissão')}
-      ${qCard('🇩🇪', semAlemao,        'Sem nível de alemão')}
-      ${qCard('👤', semResponsavel,     'Sem responsável')}
-      ${qCard('⭐', semPerfil,          'Sem perfil avaliado')}
-      ${qCard('📋', docIncompleta,      'Documentação incompleta')}
-      ${qCard('⚡', pendCritica,        'Pendência crítica ativa')}
-      ${qCard('🏥', empSemVinculo,      'Employer sem empresa')}
-      ${qCard('🔔', semCursoMarcado,    '"Em curso" não marcado')}
-      ${qCard('⭐', prontosSemMarcacao, 'Prontos p/ employer não marcados')}
-      ${qCard('⚠', inconsistencias,    'Inconsistência Ativo × Status')}
+    <div class="funnel-v">
+      ${funnelHtml || '<p style="color:var(--txt3);font-size:11px;padding:12px 0">Sem dados de funil</p>'}
     </div>
+    <div style="padding:0 16px 14px;display:flex;gap:12px;flex-wrap:wrap">
+      <span class="sb sb-risk">${naoQualif} não qualif.</span>
+      <span class="sb sb-warn">${desistiu} desistiu</span>
+    </div>
+  </div>
 
-    <!-- AGING POR ETAPA -->
-    <div class="dash-section-hdr">
-      <div class="dsh-icon" style="background:var(--yellow-bg);color:var(--yellow)">⏱</div>
-      <div class="dsh-title" style="color:var(--yellow)">Aging por Etapa</div>
-      <div class="dsh-sub">tempo que os candidatos estão parados em cada fase</div>
+  <!-- ══ DATA HEALTH ══ -->
+  <div class="bento-card bento-health">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Data Health</span>
+      <span class="bento-card-badge" style="color:${healthColor}">${healthScore}% saudável</span>
     </div>
-    <div class="aging-grid">${agingHtml}</div>
+    <div class="health-body">
+      <div class="health-donut-wrap">
+        <canvas id="health-donut" width="80" height="80"></canvas>
+        <div class="health-score-center">
+          <div class="health-score-num" style="color:${healthColor}">${healthScore}</div>
+          <div class="health-score-lbl">score</div>
+        </div>
+      </div>
+      <div class="health-issues">
+        ${healthIssuesHtml}
+      </div>
+    </div>
+  </div>
 
-    <!-- FUNIL + PERFIL -->
-    <div class="dash-section-hdr">
-      <div class="dsh-icon" style="background:var(--blue-bg);color:var(--blue)">📊</div>
-      <div class="dsh-title" style="color:var(--txt2)">Funil & Perfis</div>
-      <div class="dsh-sub">${ativos.length} candidatos ativos</div>
+  <!-- ══ PERFIL ══ -->
+  <div class="bento-card bento-perfil">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Perfil</span>
+      <span class="bento-card-badge">${fortes} fortes</span>
     </div>
-    <div class="charts-row cols-2">
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">🔽 Funil de Conversão</div><div class="chart-sub">${ativos.length} ativos</div></div>
-        <div class="funnel-list">${funnelHtml||'<p style="color:var(--txt3);font-size:12px">Sem dados</p>'}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">⭐ Perfil dos Candidatos</div></div>
-        <div class="bar-list">${perfilHtml||'—'}</div>
-      </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="chart-perfil"></canvas>
     </div>
+  </div>
 
-    <!-- ALEMÃO + PRIORIDADE + RECRUTADOR -->
-    <div class="charts-row cols-3">
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">🇩🇪 Nível de Alemão</div></div>
-        <div class="bar-list">${alemaoHtml||'—'}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">🎯 Prioridade Comercial</div></div>
-        <div class="bar-list">${priHtml||'—'}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">👤 Por Recrutador</div></div>
-        <div class="bar-list">${avHtml||'—'}</div>
+  <!-- ══ ALEMÃO ══ -->
+  <div class="bento-card bento-alemao">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Nível de Alemão</span>
+      <span class="bento-card-badge">${b1plus} B1+</span>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="chart-alemao"></canvas>
+    </div>
+  </div>
+
+  <!-- ══ AGING HEATMAP ══ -->
+  <div class="bento-card bento-aging">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Aging por Etapa</span>
+      <div style="display:flex;gap:8px;margin-left:auto;align-items:center">
+        <span style="font-size:10px;color:var(--green)">■ 0–7d</span>
+        <span style="font-size:10px;color:var(--de-gold)">■ 8–15d</span>
+        <span style="font-size:10px;color:var(--orange)">■ 16–30d</span>
+        <span style="font-size:10px;color:var(--de-red)">■ +30d</span>
       </div>
     </div>
+    <div class="aging-heatmap">
+      <div class="ah-row ah-header">
+        <div class="ah-stage">Etapa</div>
+        <div class="ah-cell">0–7d</div>
+        <div class="ah-cell">8–15d</div>
+        <div class="ah-cell">16–30d</div>
+        <div class="ah-cell">+30d</div>
+      </div>
+      ${agingHtml}
+    </div>
+  </div>
 
-    <!-- PROFISSÕES + EMPREGADORES + CIDADES -->
-    <div class="charts-row cols-3">
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">💼 Profissões (Top 8)</div></div>
-        <div class="bar-list">${profHtml||'—'}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">🏥 Empregadores Vinculados</div></div>
-        <div class="bar-list">${empHtml||'<p style="color:var(--txt3);font-size:12px">Nenhum vínculo ainda</p>'}</div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-hdr"><div class="chart-title">📍 Cidades de Origem</div></div>
-        <div class="bar-list">${cidHtml||'—'}</div>
-      </div>
-    </div>`;
+  <!-- ══ RECRUTADOR ══ -->
+  <div class="bento-card bento-recrutador">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Por Recrutador</span>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="chart-resp"></canvas>
+    </div>
+  </div>
+
+  <!-- ══ PROFISSÕES ══ -->
+  <div class="bento-card bento-profissao">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Profissões</span>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="chart-prof"></canvas>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM: CIDADES + STATUS GERAL ══ -->
+  <div class="bento-card bento-bottom-left">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Cidades de Origem</span>
+      <span class="bento-card-badge">${byCidade.length} cidades</span>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="chart-cidade"></canvas>
+    </div>
+  </div>
+
+  <div class="bento-card bento-bottom-right">
+    <div class="bento-card-hdr">
+      <span class="bento-card-title">Status Geral (todos)</span>
+      <span class="bento-card-badge">${cands.length} cadastros</span>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="chart-status"></canvas>
+    </div>
+  </div>
+
+</div>`;
+
+  // ── Chart.js rendering (after DOM) ──────────────────────────
+  requestAnimationFrame(() => {
+    if (!window.Chart) return;
+
+    const CHART_DEFAULTS = {
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 500 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#11131a',
+          borderColor: '#242736',
+          borderWidth: 1,
+          titleColor: '#eaecf5',
+          bodyColor: '#7a80a0',
+          padding: 10,
+          cornerRadius: 6,
+          titleFont: { family: "'Bricolage Grotesque', sans-serif", size: 12 },
+          bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+        }
+      },
+      scales: {
+        x: { display: false },
+        y: {
+          display: true,
+          grid: { color: 'rgba(36,39,54,.6)', drawBorder: false },
+          ticks: { color: '#424660', font: { family: "'JetBrains Mono', monospace", size: 10 }, maxTicksLimit: 4 }
+        }
+      }
+    };
+
+    function hbar(id, data, colors) {
+      const ctx = document.getElementById(id);
+      if (!ctx || !data.length) return;
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.label),
+          datasets: [{
+            data: data.map(d => d.count),
+            backgroundColor: colors || data.map((_,i) => `hsl(${210+i*25},60%,55%,0.65)`),
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          indexAxis: 'y',
+          scales: {
+            x: { display: true, grid: { color: 'rgba(36,39,54,.6)' }, ticks: { color: '#424660', font: { family: "'JetBrains Mono', monospace", size: 10 }, maxTicksLimit: 4 } },
+            y: { display: true, grid: { display: false }, ticks: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 11 } } }
+          }
+        }
+      });
+    }
+
+    // Perfil chart
+    hbar('chart-perfil', byPerfil, ['#1de99b88','#38bdf888','#c084fc88','#f5c84a88','#ff3d5a88']);
+
+    // Alemão chart
+    const alemaoColors = byAlemao.map(d => {
+      const c = {'Nenhum':'#424660','A0':'#424660','A1':'#38bdf888','A2':'#60a5fa88','B1':'#818cf888','B2':'#a78bfa88','B2+':'#c084fc88','C1':'#1de99b88','C2':'#10b98188'};
+      return c[d.label] || '#7a80a088';
+    });
+    hbar('chart-alemao', byAlemao, alemaoColors);
+
+    // Profissões chart
+    hbar('chart-prof', byProf, byProf.map((_,i) => `hsla(${195+i*20},55%,55%,0.7)`));
+
+    // Recrutador — doughnut
+    const respCtx = document.getElementById('chart-resp');
+    if (respCtx && byResp.length) {
+      new Chart(respCtx, {
+        type: 'doughnut',
+        data: {
+          labels: byResp.map(d => d.label),
+          datasets: [{ data: byResp.map(d => d.count), backgroundColor: ['#2dd4bf88','#c084fc88','#38bdf888','#f5c84a88'], borderWidth: 2, borderColor: '#0b0d12', hoverBorderColor: '#11131a' }]
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          cutout: '62%',
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            legend: { display: true, position: 'bottom', labels: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 11 }, boxWidth: 10, padding: 10 } }
+          },
+          scales: {}
+        }
+      });
+    }
+
+    // Cidades chart
+    hbar('chart-cidade', byCidade, byCidade.map((_,i) => `hsla(${170+i*15},45%,55%,0.7)`));
+
+    // Status geral — doughnut
+    const statusData = groupCount(cands, c => fv(c,'STATUS PIPELINE','status_pipeline')||'Sem status').slice(0,8);
+    const statusCtx = document.getElementById('chart-status');
+    if (statusCtx && statusData.length) {
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: statusData.map(d => d.label),
+          datasets: [{ data: statusData.map(d => d.count), backgroundColor: statusData.map((_,i)=>`hsl(${200+i*30},55%,55%,0.65)`), borderWidth: 2, borderColor: '#0b0d12' }]
+        },
+        options: {
+          ...CHART_DEFAULTS,
+          cutout: '55%',
+          plugins: {
+            ...CHART_DEFAULTS.plugins,
+            legend: { display: true, position: 'right', labels: { color: '#7a80a0', font: { family: "'Bricolage Grotesque', sans-serif", size: 10 }, boxWidth: 8, padding: 8 } }
+          },
+          scales: {}
+        }
+      });
+    }
+
+    // Health donut
+    const healthCtx = document.getElementById('health-donut');
+    if (healthCtx) {
+      new Chart(healthCtx, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [healthScore, 100 - healthScore],
+            backgroundColor: [healthColor + 'cc', 'rgba(36,39,54,0.4)'],
+            borderWidth: 0,
+          }]
+        },
+        options: { cutout: '72%', animation: { duration: 700 }, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: {} }
+      });
+    }
+  });
 }
 
-// ══════════════════════════════════════════════════════════════
-// KANBAN
-// ══════════════════════════════════════════════════════════════
+
 function renderKanban(el) {
   const filtered = filterCands(S.candidates, false);
   const byStage  = {};
