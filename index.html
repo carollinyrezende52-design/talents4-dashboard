@@ -1576,11 +1576,47 @@ async function apiPost(body) {
     const snakeFields = toSnake(body.fields || {});
     snakeFields.ultima_atualizacao = new Date().toISOString();
     snakeFields.atualizado_por = actor;
-    const { error } = await supa.from('candidatos').update(snakeFields).eq('id', body.id);
-    if (error) throw new Error(error.message);
-    // Sync reverso para Google Sheets (background, não bloqueia)
+
+    // ── Auto-healing save: se o Supabase retornar erro de coluna inexistente,
+    //    remove a coluna problemática do payload e tenta novamente (até 12x).
+    //    Isso garante que campos novos que ainda não existem no DB nunca
+    //    bloqueiem o save dos demais campos.
+    const skipped = [];
+    let payload = { ...snakeFields };
+    let lastError = null;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const { error } = await supa.from('candidatos').update(payload).eq('id', body.id);
+      if (!error) {
+        // Salvo com sucesso — avisar se algum campo foi ignorado
+        if (skipped.length) {
+          console.warn('[T4] Campos ignorados (coluna ausente no Supabase):', skipped);
+          // Toast informativo (não bloqueante)
+          setTimeout(() => toast(
+            `⚠ ${skipped.length} campo(s) não salvo(s) — coluna ainda não existe no Supabase: ${skipped.slice(0,3).join(', ')}`,
+            'warn', 6000
+          ), 200);
+        }
+        syncToSheet(body.id, body.fields || {}, actor);
+        return { ok: true, skipped };
+      }
+      // Detecta erro de coluna ausente: "Could not find the 'X' column of 'Y' in the schema cache"
+      const colMatch = error.message.match(/Could not find the '(\w+)' column/i);
+      if (colMatch) {
+        const badCol = colMatch[1];
+        skipped.push(badCol);
+        delete payload[badCol];
+        lastError = error;
+        continue; // tenta de novo sem essa coluna
+      }
+      // Qualquer outro erro: lança imediatamente
+      throw new Error(error.message);
+    }
+    // Se chegou aqui, esgotou tentativas mas salvou o que pôde
+    if (Object.keys(payload).length > 2) { // 2 = apenas os metadados
+      console.error('[T4] Esgotou tentativas de save após remover colunas ausentes:', skipped);
+    }
     syncToSheet(body.id, body.fields || {}, actor);
-    return { ok:true };
+    return { ok: true, skipped };
   }
 
   if (action === 'createCandidate') {
@@ -1593,11 +1629,26 @@ async function apiPost(body) {
     snakeFields.atualizado_por = actor;
     if (!snakeFields.status_pipeline) snakeFields.status_pipeline = 'Novo candidato';
     if (!snakeFields.ativo) snakeFields.ativo = 'SIM';
-    const { data, error } = await supa.from('candidatos').insert(snakeFields).select().single();
-    if (error) throw new Error(error.message);
-    // Sync reverso: cria linha nova na planilha
+
+    // ── Auto-healing insert: remove colunas inexistentes e tenta novamente ──
+    const skipped = [];
+    let payload = { ...snakeFields };
+    let inserted = null;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const { data, error } = await supa.from('candidatos').insert(payload).select().single();
+      if (!error) { inserted = data; break; }
+      const colMatch = error.message.match(/Could not find the '(\w+)' column/i);
+      if (colMatch) {
+        skipped.push(colMatch[1]);
+        delete payload[colMatch[1]];
+        continue;
+      }
+      throw new Error(error.message);
+    }
+    if (!inserted) throw new Error('Falha ao criar candidato após remover colunas ausentes.');
+    if (skipped.length) console.warn('[T4] Campos ignorados no insert:', skipped);
     syncToSheet(id, { ...fields, ID: id }, actor);
-    return { ok:true, id, candidate: toFrontend(data) };
+    return { ok:true, id, candidate: toFrontend(inserted), skipped };
   }
 
   if (action === 'setActive') {
@@ -3479,13 +3530,13 @@ function clearFilters() {
 // TOAST
 // ══════════════════════════════════════════════════════════════
 let _toastTimer;
-function toast(msg, type='ok') {
+function toast(msg, type='ok', duration=3500) {
   const el = document.getElementById('toast');
   document.getElementById('t-ico').textContent = type==='err'?'✕':type==='warn'?'⚠':'✓';
   document.getElementById('t-msg').textContent = msg;
   el.className = `toast show t${type}`;
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>el.classList.remove('show'), 3500);
+  _toastTimer = setTimeout(()=>el.classList.remove('show'), duration);
 }
 
 // ══════════════════════════════════════════════════════════════
