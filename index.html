@@ -390,6 +390,138 @@ a{color:inherit;text-decoration:none}
 .sync-dot.syncing{background:var(--yellow);animation:spin .7s linear infinite;border-radius:0;border:2px solid transparent;border-top-color:var(--yellow);width:12px;height:12px}
 .sync-dot.err{background:var(--red);animation:none}
 
+/* ══════════════════════════════════════════════════════════════
+   V9.0 — MICROINTERAÇÕES, SKELETONS, PERMISSÕES, IDENTIDADE
+══════════════════════════════════════════════════════════════ */
+
+/* ── Saudação alemã no topbar ── */
+.de-greeting {
+  font-size: 11px;
+  color: var(--txt3);
+  font-style: italic;
+  letter-spacing: .02em;
+  transition: opacity .4s;
+}
+.de-greeting strong { color: var(--gold); font-style: normal; font-weight: 600; }
+
+/* ── Fade-in staggered para cards do dashboard ── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bento-card, .bento-hero, .metric-card, .quality-card, .aging-card {
+  animation: fadeSlideIn .28s ease both;
+}
+.bento-card:nth-child(1)  { animation-delay: .03s }
+.bento-card:nth-child(2)  { animation-delay: .06s }
+.bento-card:nth-child(3)  { animation-delay: .09s }
+.bento-card:nth-child(4)  { animation-delay: .12s }
+.bento-card:nth-child(5)  { animation-delay: .15s }
+.bento-card:nth-child(6)  { animation-delay: .18s }
+.bento-card:nth-child(7)  { animation-delay: .21s }
+.bento-card:nth-child(8)  { animation-delay: .24s }
+
+/* ── Tab transition suave no modal ── */
+.detail-panel {
+  transition: opacity .18s ease, transform .18s ease;
+}
+.detail-panel:not(.active) {
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+}
+.detail-panel.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Save button pulse ── */
+@keyframes savePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(196,30,58,.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(196,30,58,0); }
+  100% { box-shadow: 0 0 0 0 rgba(196,30,58,0); }
+}
+.btn-save-pulse { animation: savePulse .5s ease; }
+
+/* ── Skeleton loader ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--r);
+}
+.skeleton-row { height: 14px; margin-bottom: 8px; }
+.skeleton-row.w50 { width: 50%; }
+.skeleton-row.w75 { width: 75%; }
+.skeleton-row.w30 { width: 30%; }
+.skeleton-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 18px;
+  animation: fadeSlideIn .2s ease both;
+}
+
+/* ── Permissão visual para viewer ── */
+.viewer-lock {
+  position: relative;
+  pointer-events: none;
+  opacity: .55;
+}
+.viewer-lock::after {
+  content: '🔒';
+  position: absolute;
+  top: 6px; right: 8px;
+  font-size: 11px;
+  opacity: .6;
+}
+
+/* ── Toast premium (wunderbar) ── */
+.toast-wunderbar {
+  border-color: var(--gold) !important;
+  background: linear-gradient(135deg, var(--bg2) 0%, rgba(245,192,0,.06) 100%) !important;
+}
+.toast-wunderbar #t-ico { color: var(--gold); }
+
+/* ── Confetti canvas ── */
+#confetti-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9990;
+}
+
+/* ── Agenda loading state ── */
+.ag-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--txt3);
+  gap: 10px;
+  font-size: 13px;
+  padding: 40px;
+}
+
+/* ── Input focus refinado ── */
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(196,30,58,.08);
+}
+
+/* ── Hover refinado em nav-item ── */
+.nav-item { transition: all .15s cubic-bezier(.4,0,.2,1); }
+.nav-item:hover { transform: translateX(2px); }
+
+/* ── Botão salvar com feedback ── */
+#cm-save { transition: all .2s; }
+#cm-save.saved { background: var(--green); }
+#cm-save.has-changes { background: var(--accent); animation: savePulse 1.5s infinite; }
 
 /* ══════════════════════════════════════════════════════════════
    BENTO DASHBOARD — Enterprise Edition v8.0
@@ -1137,6 +1269,7 @@ a{color:inherit;text-decoration:none}
   <div id="main">
     <div id="topbar">
       <div class="tb-title" id="tb-title">Dashboard BI</div>
+      <div class="de-greeting" id="de-greeting"></div>
       <div class="tb-space"></div>
       <div class="search-wrap" id="search-wrap" style="display:none">
         <span style="color:var(--txt3);font-size:13px">⌕</span>
@@ -1235,6 +1368,9 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 </div>
+
+<!-- CONFETTI -->
+<canvas id="confetti-canvas" style="display:none"></canvas>
 
 <!-- TOAST -->
 <div class="toast" id="toast"><span id="t-ico">✓</span><span id="t-msg"></span></div>
@@ -1375,6 +1511,8 @@ function applySession(sess) {
   document.getElementById('user-role').textContent =
     sess.role === 'admin' ? 'Administrador' :
     sess.role === 'recrutador' ? 'Recrutador' : 'Visualizador';
+  // Atualiza saudação após login (nome está disponível agora)
+  setTimeout(initGermanGreeting, 50);
 }
 
 function doLogout() {
@@ -1560,7 +1698,7 @@ async function apiGet(params) {
 
   if (route === 'health') {
     const { error } = await supa.from('candidatos').select('id').limit(1);
-    return { ok: !error, version: '8.0-supabase', message: error ? error.message : 'Supabase conectado ✓' };
+    return { ok: !error, version: '9.0-supabase', message: error ? error.message : 'Supabase conectado ✓' };
   }
 
   return { ok:false, error:`Rota '${route}' não reconhecida` };
@@ -1688,12 +1826,22 @@ async function apiPost(body) {
 
   if (action === 'saveUser') {
     const u = body.user;
-    const { error } = await supa.from('usuarios').upsert({
+    // senha MUST be persisted — login validation reads it from the DB
+    const payload = {
       username: u.user, nome: u.nome, role: u.role,
       color: u.color||'#5b6af0', ativo: u.ativo||'SIM'
-    }, { onConflict: 'username' });
+    };
+    if (u.pass) payload.senha = u.pass; // only overwrite if provided
+    const { error } = await supa.from('usuarios').upsert(payload, { onConflict: 'username' });
     if (error) throw new Error(error.message);
-    return { ok:true };
+    // Reload enums so UI reflects latest users
+    const { data: usersData } = await supa.from('usuarios').select('*').order('nome');
+    const users = (usersData||[]).map(u2 => ({
+      user: u2.username, pass: u2.senha||'', nome: u2.nome,
+      role: u2.role, color: u2.color, ativo: u2.ativo
+    }));
+    S.users = users;
+    return { ok:true, users };
   }
 
   if (action === 'deleteUser') {
@@ -1707,13 +1855,23 @@ async function apiPost(body) {
       campo: body.field, valor: body.value, ordem: 99
     }, { onConflict: 'campo,valor' });
     if (error) throw new Error(error.message);
-    return { ok:true };
+    // Reload all enums so caller gets fresh data
+    const { data: enumData } = await supa.from('enums').select('*').order('campo').order('ordem');
+    const byField = {};
+    (enumData||[]).forEach(e => { if (!byField[e.campo]) byField[e.campo]=[]; byField[e.campo].push(e.valor); });
+    S.enums = byField;
+    return { ok:true, enums: byField };
   }
 
   if (action === 'removeEnum') {
     const { error } = await supa.from('enums').delete().eq('campo', body.field).eq('valor', body.value);
     if (error) throw new Error(error.message);
-    return { ok:true };
+    // Reload all enums so caller gets fresh data
+    const { data: enumData } = await supa.from('enums').select('*').order('campo').order('ordem');
+    const byField = {};
+    (enumData||[]).forEach(e => { if (!byField[e.campo]) byField[e.campo]=[]; byField[e.campo].push(e.valor); });
+    S.enums = byField;
+    return { ok:true, enums: byField };
   }
 
   return { ok:false, error:`Ação '${action}' não reconhecida` };
@@ -1790,24 +1948,45 @@ function syncToSheet(id, fields, actor) {
 
 async function startRealtime() {
   const supa = await getSupa();
+
+  // ── Candidatos: realtime updates ──────────────────────────
   supa.channel('candidatos-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatos' },
       payload => {
-        console.log('[Supabase Realtime]', payload.eventType, payload.new?.id);
-        // Atualiza candidato no estado local sem fazer nova request
+        console.log('[Realtime:candidatos]', payload.eventType, payload.new?.id);
         if (payload.eventType === 'UPDATE' && payload.new) {
           const updated = toFrontend(payload.new);
           const idx = (S.candidates||[]).findIndex(c => c.id === updated.id || c.ID === updated.ID);
           if (idx >= 0) S.candidates[idx] = updated;
           else S.candidates.push(updated);
         } else if (payload.eventType === 'INSERT' && payload.new) {
-          S.candidates.push(toFrontend(payload.new));
+          const novo = toFrontend(payload.new);
+          if (!(S.candidates||[]).find(c => c.ID === novo.ID)) S.candidates.push(novo);
         } else if (payload.eventType === 'DELETE' && payload.old) {
           S.candidates = (S.candidates||[]).filter(c => c.id !== payload.old.id);
         }
         S.dashboard = buildDashboardPayload(S.candidates);
-        renderCurrentView();
-        showToast('Dados atualizados em tempo real', 'ok');
+        renderView();  // ← corrigido: era renderCurrentView() — undefined
+        toast('↻ Dados atualizados', 'ok', 2000); // ← corrigido: era showToast() — undefined
+      })
+    .subscribe();
+
+  // ── Agenda: realtime updates ──────────────────────────────
+  supa.channel('agenda-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'agenda' },
+      payload => {
+        console.log('[Realtime:agenda]', payload.eventType, payload.new?.id);
+        if (payload.eventType === 'INSERT' && payload.new) {
+          if (!AG.events.find(e => e.id === payload.new.id)) {
+            AG.events.push(agFromDb(payload.new));
+          }
+        } else if (payload.eventType === 'UPDATE' && payload.new) {
+          const idx = AG.events.findIndex(e => e.id === payload.new.id);
+          if (idx >= 0) AG.events[idx] = agFromDb(payload.new);
+        } else if (payload.eventType === 'DELETE' && payload.old) {
+          AG.events = AG.events.filter(e => e.id !== payload.old.id);
+        }
+        if (S.view === 'agenda') renderView();
       })
     .subscribe();
 }
@@ -1819,11 +1998,14 @@ async function startRealtime() {
 async function initApp() {
   setSyncStatus('loading');
   populateNewForm();
+  initGermanGreeting(); // ← Saudação alemã dinâmica
   try {
     await loadAll();
+    agLoad().catch(e => console.warn('[Agenda] Load falhou na init:', e.message)); // não-bloqueante
     startRealtime().catch(e => console.warn('[Realtime]', e));
     nav('dashboard');
     startAutoSync();
+    applyViewerRestrictions();
   } catch(e) {
     setSyncStatus('err');
     toast('⚠ Erro ao carregar dados: ' + e.message, 'err');
@@ -3101,29 +3283,63 @@ function buildPanel(tabId, c) {
 }
 
 function switchTab(tabId) {
+  // Smooth fade transition between tabs
+  const panels = document.querySelectorAll('.detail-panel');
+  panels.forEach(p => {
+    if (p.id === tabId) {
+      p.classList.add('active');
+    } else {
+      p.classList.remove('active');
+    }
+  });
   document.querySelectorAll('.detail-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
-  document.querySelectorAll('.detail-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
 }
 
 function onEdit(el) {
+  // Block viewers from editing
+  const sess = getSession();
+  if (sess?.role === 'viewer') {
+    el.value = S.currentCand ? (S.currentCand[el.dataset.field] || '') : '';
+    toast('🔒 Visualizadores não podem editar.', 'warn', 2000);
+    return;
+  }
   S.pendingEdits[el.dataset.field] = el.value;
   const n = Object.keys(S.pendingEdits).length;
-  document.getElementById('cm-save').textContent = `💾 Salvar (${n})`;
+  const btn = document.getElementById('cm-save');
+  if (btn) {
+    btn.textContent = `💾 Salvar (${n})`;
+    btn.classList.add('has-changes');
+  }
 }
 
 async function saveCandidate() {
   if (!S.currentCand) return;
+  // ── Permission check: viewer cannot save ──
+  const sess = getSession();
+  if (sess?.role === 'viewer') { toast('🔒 Visualizadores não podem editar candidatos.', 'warn'); return; }
   if (!Object.keys(S.pendingEdits).length) { toast('Nenhuma alteração detectada.', 'warn'); return; }
+
   const btn = document.getElementById('cm-save');
   btn.textContent = '⏳ Salvando...'; btn.disabled = true;
-  const sess = getSession();
+  const prevStatus = fv(S.currentCand, 'STATUS PIPELINE') || '';
+
   try {
     await apiPost({ action:'updateCandidate', id:S.currentCand.ID, fields:S.pendingEdits, actor:sess?.nome||'web' });
     Object.assign(S.currentCand, S.pendingEdits);
     const idx = S.candidates.findIndex(c => c.ID === S.currentCand.ID);
     if (idx >= 0) Object.assign(S.candidates[idx], S.pendingEdits);
+
+    // ── Detecta mudança para "Contratado" → celebração Wunderbar ──
+    const newStatus = S.pendingEdits['STATUS PIPELINE'];
+    if (newStatus === 'Contratado' && prevStatus !== 'Contratado') {
+      fireWunderbar();
+    } else {
+      btn.classList.add('btn-save-pulse');
+      setTimeout(() => btn.classList.remove('btn-save-pulse'), 600);
+      toast('✅ Candidato atualizado!', 'ok');
+    }
+
     S.pendingEdits = {};
-    toast('✅ Candidato atualizado!', 'ok');
     btn.textContent = '💾 Salvar'; btn.disabled = false;
     updateBadges();
     if (['candidates','kanban','triagem','entrevistas','analise','documentacao','employer'].includes(S.view)) renderView();
@@ -3300,7 +3516,7 @@ function renderSettings(el) {
               <div>Última sincronização: <strong style="color:var(--txt)">${S.lastSync ? S.lastSync.toLocaleString('pt-BR') : '—'}</strong></div>
               <div>Enums carregados: <strong style="color:var(--txt)">${Object.keys(S.enums).length} campos</strong></div>
               <div>Usuários: <strong style="color:var(--txt)">${getUsers().length}</strong></div>
-              <div>Versão frontend: <strong style="color:var(--gold)">v6.9 Deutschland Edition</strong></div>
+              <div>Versão frontend: <strong style="color:var(--gold)">v9.0 Deutschland Edition</strong></div>
             </div>
           </div>
         </div>
@@ -3319,12 +3535,18 @@ function showSettingsPanel(id, navEl) {
 
 async function testConnection() {
   const el = document.getElementById('conn-result');
-  if (el) el.textContent = '⏳ Testando...';
+  if (el) el.textContent = '⏳ Testando conexão Supabase...';
   try {
     const r = await apiGet({ route:'health' });
-    if (el) el.innerHTML = `<span style="color:var(--green)">✅ Conectado · ${r.service} ${r.version} · ${new Date(r.now).toLocaleString('pt-BR')}</span>`;
+    // health returns: { ok, version, message } — not r.service or r.now
+    if (r.ok) {
+      const ts = new Date().toLocaleString('pt-BR');
+      if (el) el.innerHTML = `<span style="color:var(--green)">✅ Conectado · ${r.message} · ${r.version} · ${ts}</span>`;
+    } else {
+      if (el) el.innerHTML = `<span style="color:var(--red)">❌ ${r.message || 'Falha na conexão'}</span>`;
+    }
   } catch(e) {
-    if (el) el.innerHTML = `<span style="color:var(--red)">❌ Erro: ${e.message}</span>`;
+    if (el) el.innerHTML = `<span style="color:var(--red)">❌ Erro: ${esc(e.message)}</span>`;
   }
 }
 
@@ -3527,6 +3749,120 @@ function clearFilters() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// V9.0 — IDENTIDADE ALEMÃ + CONFETTI + PERMISSÕES
+// ══════════════════════════════════════════════════════════════
+
+// ── Saudação dinâmica baseada no horário da Alemanha ─────────
+function initGermanGreeting() {
+  const el = document.getElementById('de-greeting');
+  if (!el) return;
+  function update() {
+    // Obtém hora em Berlin (CET/CEST)
+    const berlinTime = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false });
+    const hour = parseInt(berlinTime.split(':')[0] || berlinTime, 10);
+    let gruss;
+    if (hour >= 5  && hour < 12) gruss = 'Guten Morgen';
+    else if (hour >= 12 && hour < 18) gruss = 'Guten Tag';
+    else gruss = 'Guten Abend';
+    const sess = getSession();
+    const nome = sess?.nome ? `, <strong>${sess.nome.split(' ')[0]}</strong>` : '';
+    el.innerHTML = `${gruss}${nome}`;
+  }
+  update();
+  setInterval(update, 60000); // atualiza a cada minuto
+}
+
+// ── Wunderbar! — Celebração ao contratar ─────────────────────
+function fireWunderbar() {
+  // Toast especial
+  const el = document.getElementById('toast');
+  document.getElementById('t-ico').textContent = '🎉';
+  document.getElementById('t-msg').textContent = 'Wunderbar! Mais um talento na Alemanha!';
+  el.className = 'toast show tok toast-wunderbar';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 5000);
+
+  // Confetti discreto: preto, vermelho, dourado
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const COLORS = ['#1a1a1a','#c41e3a','#e02040','#f5c000','#ffd700','#ffffff'];
+  const COUNT  = 90;
+  const particles = Array.from({length: COUNT}, () => ({
+    x:   Math.random() * canvas.width,
+    y:   -Math.random() * canvas.height * 0.5,
+    r:   Math.random() * 5 + 2,
+    d:   Math.random() * COUNT,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    tilt: Math.random() * 10 - 10,
+    tiltAngle: 0,
+    tiltAngleIncrement: Math.random() * 0.07 + 0.05,
+  }));
+
+  let angle = 0;
+  let frame = 0;
+  const MAX_FRAMES = 120; // ~2s at 60fps
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    angle += 0.01;
+    frame++;
+    particles.forEach(p => {
+      p.tiltAngle += p.tiltAngleIncrement;
+      p.y += (Math.cos(angle + p.d) + 2) * 1.8;
+      p.x += Math.sin(angle) * 1.2;
+      p.tilt = Math.sin(p.tiltAngle) * 12;
+      // Fade out in last 30 frames
+      const opacity = frame > MAX_FRAMES - 30 ? (MAX_FRAMES - frame) / 30 : 1;
+      ctx.globalAlpha = Math.max(0, opacity);
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 3, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 5);
+      ctx.stroke();
+    });
+    if (frame < MAX_FRAMES) {
+      requestAnimationFrame(draw);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = 'none';
+    }
+  }
+  requestAnimationFrame(draw);
+}
+
+// ── Permissões por perfil ─────────────────────────────────────
+// Nota: estas permissões são aplicadas no FRONTEND apenas.
+// Para segurança real de dados, RLS no Supabase é mandatório.
+// Risco remanescente: usuário com DevTools pode contornar isso.
+function canEdit()   { const s = getSession(); return s?.role === 'admin' || s?.role === 'recrutador'; }
+function canDelete() { const s = getSession(); return s?.role === 'admin'; }
+function canAdmin()  { const s = getSession(); return s?.role === 'admin'; }
+
+// Aplica visual de lock em elementos para viewer
+function applyViewerRestrictions() {
+  if (!canEdit()) {
+    // Esconde botão de salvar e novo candidato para viewers
+    const saveBtn = document.getElementById('cm-save');
+    if (saveBtn) saveBtn.style.display = 'none';
+    const newBtn = document.querySelector('.btn-primary[onclick="openNewCandidate()"]');
+    if (newBtn) newBtn.style.display = 'none';
+    // Footer do modal sem botão de salvar
+    const cmSave = document.getElementById('cm-save');
+    if (cmSave) cmSave.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════════════════════
 let _toastTimer;
@@ -3540,7 +3876,7 @@ function toast(msg, type='ok', duration=3500) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// INIT — CORRIGIDO: restaura sessão ou exibe login
+// INIT — v9.0: sessão + saudação alemã + agenda
 // ══════════════════════════════════════════════════════════════
 (function() {
   const liPass = document.getElementById('li-pass');
@@ -3548,11 +3884,9 @@ function toast(msg, type='ok', duration=3500) {
 
   const sess = getSession();
   if (sess && sess.user) {
-    // Sessão válida — entra direto sem pedir login novamente
     applySession(sess);
     initApp();
   } else {
-    // Sem sessão — mostra tela de login
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
   }
@@ -3560,36 +3894,135 @@ function toast(msg, type='ok', duration=3500) {
 
 
 // ══════════════════════════════════════════════════════════════
-// AGENDA / ENTREVISTAS — módulo completo
+// AGENDA — v9.0: Persistência real em Supabase (multiusuário)
+// Tabela: agenda (id, candidato_id, candidato_nome, tipo,
+//   data_agendamento, hora, responsavel, link, obs, criado_em, atualizado_em)
+// NOTA: rodar o SQL abaixo no Supabase antes de usar:
+//   CREATE TABLE IF NOT EXISTS agenda (
+//     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+//     candidato_id text, candidato_nome text NOT NULL,
+//     tipo text NOT NULL DEFAULT 'Entrevista Pessoal',
+//     data_agendamento date NOT NULL,
+//     hora time,
+//     responsavel text,
+//     link text,
+//     obs text,
+//     criado_por text,
+//     criado_em timestamptz DEFAULT now(),
+//     atualizado_em timestamptz DEFAULT now()
+//   );
+//   ALTER TABLE agenda ENABLE ROW LEVEL SECURITY;
+//   CREATE POLICY "anon_all_agenda" ON agenda FOR ALL TO anon USING (true) WITH CHECK (true);
 // ══════════════════════════════════════════════════════════════
 
-// State da agenda
+// State da agenda — eventos carregados do Supabase
 const AG = {
-  view: 'month',       // 'month' | 'week'
-  date: new Date(),    // data de referência
-  events: JSON.parse(localStorage.getItem('t4_agenda') || '[]'),
+  view: 'month',
+  date: new Date(),
+  events: [],          // nunca mais localStorage
+  loading: false,
+  loaded: false,
 };
 
-function agSave() {
-  try { localStorage.setItem('t4_agenda', JSON.stringify(AG.events)); } catch(e) {}
+// Converte linha do Supabase → objeto interno
+function agFromDb(row) {
+  return {
+    id:            row.id,
+    candidatoId:   row.candidato_id   || '',
+    candidatoNome: row.candidato_nome  || '—',
+    tipo:          row.tipo            || 'Entrevista Pessoal',
+    date:          row.data_agendamento|| '',
+    hora:          row.hora            ? String(row.hora).substring(0,5) : '',
+    responsavel:   row.responsavel     || '',
+    link:          row.link            || '',
+    obs:           row.obs             || '',
+    criadoPor:     row.criado_por      || '',
+  };
 }
 
-function agAddEvent(ev) {
-  ev.id = 'ev_' + Date.now();
-  AG.events.push(ev);
-  agSave();
+// Converte objeto interno → linha para Supabase
+function agToDb(ev, actor) {
+  return {
+    candidato_id:    ev.candidatoId   || null,
+    candidato_nome:  ev.candidatoNome || '—',
+    tipo:            ev.tipo          || 'Entrevista Pessoal',
+    data_agendamento:ev.date,
+    hora:            ev.hora          || null,
+    responsavel:     ev.responsavel   || null,
+    link:            ev.link          || null,
+    obs:             ev.obs           || null,
+    criado_por:      actor            || null,
+    atualizado_em:   new Date().toISOString(),
+  };
 }
 
-function agDeleteEvent(id) {
+// ── Carrega eventos da agenda do Supabase ─────────────────────
+async function agLoad() {
+  if (AG.loading) return;
+  AG.loading = true;
+  try {
+    const supa = await getSupa();
+    const { data, error } = await supa
+      .from('agenda')
+      .select('*')
+      .order('data_agendamento')
+      .order('hora');
+    if (error) {
+      // Tabela pode não existir ainda — fail gracefully
+      console.warn('[Agenda] Tabela não encontrada ou erro de acesso:', error.message);
+      AG.events = [];
+      AG.loaded = true;
+      return;
+    }
+    AG.events = (data || []).map(agFromDb);
+    AG.loaded = true;
+  } catch(e) {
+    console.warn('[Agenda] Falha ao carregar:', e.message);
+    AG.events = [];
+  } finally {
+    AG.loading = false;
+  }
+}
+
+// ── CRUD: Criar evento ────────────────────────────────────────
+async function agAddEvent(ev) {
+  const sess = getSession();
+  const supa = await getSupa();
+  const row = agToDb(ev, sess?.nome || 'web');
+  row.criado_em = new Date().toISOString();
+  const { data, error } = await supa.from('agenda').insert(row).select().single();
+  if (error) throw new Error(error.message);
+  const novo = agFromDb(data);
+  AG.events.push(novo);
+  return novo;
+}
+
+// ── CRUD: Atualizar evento ────────────────────────────────────
+async function agUpdateEvent(id, ev) {
+  const sess = getSession();
+  const supa = await getSupa();
+  const row = agToDb(ev, sess?.nome || 'web');
+  const { data, error } = await supa.from('agenda').update(row).eq('id', id).select().single();
+  if (error) throw new Error(error.message);
+  const updated = agFromDb(data);
+  const idx = AG.events.findIndex(e => e.id === id);
+  if (idx >= 0) AG.events[idx] = updated;
+  return updated;
+}
+
+// ── CRUD: Excluir evento ──────────────────────────────────────
+async function agDeleteEvent(id) {
+  const supa = await getSupa();
+  const { error } = await supa.from('agenda').delete().eq('id', id);
+  if (error) throw new Error(error.message);
   AG.events = AG.events.filter(e => e.id !== id);
-  agSave();
 }
 
 function agEventsForDate(dateStr) {
   return AG.events.filter(e => e.date === dateStr);
 }
 
-// ── Cores por tipo de entrevista ────────────────────────────
+// ── Cores por tipo ────────────────────────────────────────────
 const AG_COLORS = {
   'Entrevista Pessoal':      { bg:'rgba(56,189,248,.18)',  border:'#38bdf8', text:'#38bdf8' },
   'Avaliação Técnica':       { bg:'rgba(192,132,252,.18)', border:'#c084fc', text:'#c084fc' },
@@ -3598,16 +4031,17 @@ const AG_COLORS = {
   'Outro':                   { bg:'rgba(122,128,160,.18)', border:'#7a80a0', text:'#7a80a0' },
 };
 
-// ── Modal de nova entrevista ─────────────────────────────────
+// ── Modal de nova/editar entrevista ───────────────────────────
 function agOpenModal(dateStr, eventId) {
   const ev = eventId ? AG.events.find(e => e.id === eventId) : null;
-  const cands = (S.candidates || []).filter(c => isActiveCand(c)).sort((a,b) => (fv(a,'Nome completo')||'').localeCompare(fv(b,'Nome completo')||''));
-  const responsaveis = ['Carol','Sara','admin'];
+  const cands = (S.candidates || []).filter(c => isActiveCand(c)).sort((a,b) =>
+    (fv(a,'Nome completo')||'').localeCompare(fv(b,'Nome completo')||''));
+  const responsaveis = getUsers().filter(u => u.ativo !== 'NÃO').map(u => u.nome);
   const tipos = Object.keys(AG_COLORS);
 
   const modal = document.createElement('div');
   modal.id = 'ag-modal-overlay';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeSlideIn .18s ease';
   modal.innerHTML = `
     <div style="background:var(--bg2);border:.5px solid var(--border2);border-radius:14px;padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
@@ -3615,62 +4049,62 @@ function agOpenModal(dateStr, eventId) {
           <div style="font-size:14px;font-weight:700;color:var(--txt)">${ev ? 'Editar Entrevista' : 'Nova Entrevista'}</div>
           <div style="font-size:11px;color:var(--txt3);margin-top:2px">${dateStr}</div>
         </div>
-        <button onclick="agCloseModal()" style="font-size:20px;color:var(--txt3);background:none;border:none;cursor:pointer;line-height:1">×</button>
+        <button onclick="agCloseModal()" style="width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);font-size:16px;color:var(--txt2);display:flex;align-items:center;justify-content:center;cursor:pointer">✕</button>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:14px">
         <div>
-          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Candidato *</label>
-          <select id="ag-candidato" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+          <label class="field-lbl">Candidato *</label>
+          <select id="ag-candidato" class="field-select" style="margin-top:4px">
             <option value="">— Selecionar candidato —</option>
             ${cands.map(c => {
               const nome = fv(c,'Nome completo','nome_completo')||'—';
               const id = fv(c,'ID','id')||'';
-              return `<option value="${id}" ${ev&&ev.candidatoId===id?'selected':''}>${nome}</option>`;
+              return `<option value="${esc(id)}" ${ev&&ev.candidatoId===id?'selected':''}>${esc(nome)}</option>`;
             }).join('')}
           </select>
         </div>
 
         <div>
-          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Tipo de Entrevista</label>
-          <select id="ag-tipo" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
-            ${tipos.map(t => `<option ${ev&&ev.tipo===t?'selected':''}>${t}</option>`).join('')}
+          <label class="field-lbl">Tipo de Entrevista</label>
+          <select id="ag-tipo" class="field-select" style="margin-top:4px">
+            ${tipos.map(t => `<option value="${esc(t)}" ${ev&&ev.tipo===t?'selected':''}>${esc(t)}</option>`).join('')}
           </select>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div>
-            <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Data</label>
-            <input id="ag-data" type="date" value="${ev?ev.date:dateStr}" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+            <label class="field-lbl">Data</label>
+            <input id="ag-data" type="date" value="${ev?ev.date:dateStr}" class="field-input" style="margin-top:4px">
           </div>
           <div>
-            <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Horário</label>
-            <input id="ag-hora" type="time" value="${ev?ev.hora:'09:00'}" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+            <label class="field-lbl">Horário</label>
+            <input id="ag-hora" type="time" value="${ev?ev.hora:'09:00'}" class="field-input" style="margin-top:4px">
           </div>
         </div>
 
         <div>
-          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Recrutador Responsável</label>
-          <select id="ag-resp" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
-            ${responsaveis.map(r => `<option ${ev&&ev.responsavel===r?'selected':''}>${r}</option>`).join('')}
+          <label class="field-lbl">Recrutador Responsável</label>
+          <select id="ag-resp" class="field-select" style="margin-top:4px">
+            ${responsaveis.map(r => `<option value="${esc(r)}" ${ev&&ev.responsavel===r?'selected':''}>${esc(r)}</option>`).join('')}
           </select>
         </div>
 
         <div>
-          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Link da Reunião</label>
-          <input id="ag-link" type="url" placeholder="https://meet.google.com/..." value="${ev?ev.link||'':''}" style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none">
+          <label class="field-lbl">Link da Reunião</label>
+          <input id="ag-link" type="url" placeholder="https://meet.google.com/..." value="${ev?esc(ev.link||''):''}" class="field-input" style="margin-top:4px">
         </div>
 
         <div>
-          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);display:block;margin-bottom:5px">Observações</label>
-          <textarea id="ag-obs" rows="2" placeholder="Pautas, pontos a avaliar..." style="width:100%;background:var(--bg3);border:.5px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--txt);outline:none;resize:vertical">${ev?ev.obs||'':''}</textarea>
+          <label class="field-lbl">Observações</label>
+          <textarea id="ag-obs" rows="2" placeholder="Pautas, pontos a avaliar..." class="field-textarea" style="margin-top:4px">${ev?esc(ev.obs||''):''}</textarea>
         </div>
       </div>
 
       <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
-        ${ev ? `<button onclick="agDeleteAndClose('${ev.id}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
-        <button onclick="agCloseModal()" style="font-size:12px;color:var(--txt2);background:none;border:.5px solid var(--border2);border-radius:6px;padding:7px 14px;cursor:pointer">Cancelar</button>
-        <button onclick="agSaveModal('${ev?ev.id:''}')" style="font-size:12px;color:#0b0d12;background:var(--teal);border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer">
+        ${ev ? `<button id="ag-del-btn" onclick="agDeleteAndClose('${esc(ev.id)}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
+        <button onclick="agCloseModal()" class="btn btn-ghost btn-sm">Cancelar</button>
+        <button id="ag-save-btn" onclick="agSaveModal('${esc(ev?ev.id:'')}')" style="font-size:12px;color:#0b0d12;background:var(--teal);border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer">
           ${ev ? 'Salvar alterações' : '+ Agendar'}
         </button>
       </div>
@@ -3678,7 +4112,7 @@ function agOpenModal(dateStr, eventId) {
 
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if (e.target === modal) agCloseModal(); });
-  document.getElementById('ag-candidato').focus();
+  setTimeout(() => document.getElementById('ag-candidato')?.focus(), 50);
 }
 
 function agCloseModal() {
@@ -3686,50 +4120,65 @@ function agCloseModal() {
   if (el) el.remove();
 }
 
-function agSaveModal(existingId) {
-  const candidatoId = document.getElementById('ag-candidato').value;
+async function agSaveModal(existingId) {
+  const candidatoId   = document.getElementById('ag-candidato').value;
+  const tipo          = document.getElementById('ag-tipo').value;
+  const date          = document.getElementById('ag-data').value;
+  const hora          = document.getElementById('ag-hora').value;
+  const responsavel   = document.getElementById('ag-resp').value;
+  const link          = document.getElementById('ag-link').value.trim();
+  const obs           = document.getElementById('ag-obs').value.trim();
+
+  if (!candidatoId) { toast('⚠ Selecione um candidato.', 'warn'); return; }
+  if (!date)         { toast('⚠ Informe a data.', 'warn'); return; }
+
   const candidatoNome = candidatoId
-    ? (fv((S.candidates||[]).find(c=>(fv(c,'ID','id')||'')=== candidatoId)||{}, 'Nome completo','nome_completo')||'—')
+    ? (fv((S.candidates||[]).find(c=>(fv(c,'ID','id')||'')===candidatoId)||{}, 'Nome completo','nome_completo')||'—')
     : '—';
-  const tipo       = document.getElementById('ag-tipo').value;
-  const date       = document.getElementById('ag-data').value;
-  const hora       = document.getElementById('ag-hora').value;
-  const responsavel= document.getElementById('ag-resp').value;
-  const link       = document.getElementById('ag-link').value;
-  const obs        = document.getElementById('ag-obs').value;
 
-  if (!candidatoId) { alert('Selecione um candidato'); return; }
-  if (!date)         { alert('Informe a data');          return; }
+  const saveBtn = document.getElementById('ag-save-btn');
+  if (saveBtn) { saveBtn.textContent = '⏳ Salvando...'; saveBtn.disabled = true; }
 
-  if (existingId) {
-    const ev = AG.events.find(e => e.id === existingId);
-    if (ev) Object.assign(ev, { candidatoId, candidatoNome, tipo, date, hora, responsavel, link, obs });
-  } else {
-    agAddEvent({ candidatoId, candidatoNome, tipo, date, hora, responsavel, link, obs });
+  const ev = { candidatoId, candidatoNome, tipo, date, hora, responsavel, link, obs };
+
+  try {
+    if (existingId) {
+      await agUpdateEvent(existingId, ev);
+      toast('✅ Agendamento atualizado!', 'ok');
+    } else {
+      await agAddEvent(ev);
+      toast('✅ Entrevista agendada!', 'ok');
+    }
+    agCloseModal();
+    renderView();
+  } catch(e) {
+    toast('❌ ' + e.message, 'err');
+    if (saveBtn) { saveBtn.textContent = existingId ? 'Salvar alterações' : '+ Agendar'; saveBtn.disabled = false; }
   }
-
-  agSave();
-  agCloseModal();
-  renderView();
 }
 
-function agDeleteAndClose(id) {
+async function agDeleteAndClose(id) {
   if (!confirm('Excluir este agendamento?')) return;
-  agDeleteEvent(id);
-  agCloseModal();
-  renderView();
+  const delBtn = document.getElementById('ag-del-btn');
+  if (delBtn) { delBtn.textContent = '⏳...'; delBtn.disabled = true; }
+  try {
+    await agDeleteEvent(id);
+    toast('🗑 Agendamento excluído.', 'ok');
+    agCloseModal();
+    renderView();
+  } catch(e) {
+    toast('❌ ' + e.message, 'err');
+    if (delBtn) { delBtn.textContent = 'Excluir'; delBtn.disabled = false; }
+  }
 }
 
-// ── Helpers de data ─────────────────────────────────────────
-function agFmtDateStr(d) {
-  return d.toISOString().split('T')[0];
-}
+// ── Helpers de data ───────────────────────────────────────────
+function agFmtDateStr(d) { return d.toISOString().split('T')[0]; }
 
 function agMonthDays(year, month) {
   const first = new Date(year, month, 1);
   const last  = new Date(year, month + 1, 0);
   const days  = [];
-  // pad start
   for (let i = 0; i < first.getDay(); i++) days.push(null);
   for (let d = 1; d <= last.getDate(); d++) days.push(new Date(year, month, d));
   return days;
@@ -3741,8 +4190,15 @@ function agWeekDays(refDate) {
   return Array.from({length:7}, (_, i) => { const x = new Date(d); x.setDate(d.getDate()+i); return x; });
 }
 
-// ── Main render ─────────────────────────────────────────────
+// ── Main render ───────────────────────────────────────────────
 function renderAgenda(el) {
+  // Se ainda não carregou, busca do Supabase e mostra loading
+  if (!AG.loaded) {
+    el.innerHTML = `<div class="ag-layout"><div class="ag-main"><div class="ag-loading"><div class="spinner"></div><span>Carregando agenda...</span></div></div></div>`;
+    agLoad().then(() => { if (S.view === 'agenda') renderView(); });
+    return;
+  }
+
   const now = new Date();
   const todayStr = agFmtDateStr(now);
   const year  = AG.date.getFullYear();
@@ -3753,15 +4209,15 @@ function renderAgenda(el) {
   function evBlock(ev) {
     const col = AG_COLORS[ev.tipo] || AG_COLORS['Outro'];
     return `<div class="ag-ev-block" style="background:${col.bg};border-left:2px solid ${col.border};color:${col.text}"
-      onclick="event.stopPropagation();agOpenModal('${ev.date}','${ev.id}')"
-      title="${ev.candidatoNome} · ${ev.hora}">
+      onclick="event.stopPropagation();agOpenModal('${ev.date}','${esc(ev.id)}')"
+      title="${esc(ev.candidatoNome)} · ${ev.hora}">
       <span class="ag-ev-time">${ev.hora||''}</span>
-      <span class="ag-ev-name">${ev.candidatoNome}</span>
+      <span class="ag-ev-name">${esc(ev.candidatoNome)}</span>
     </div>`;
   }
 
-  // ── Month view ──
   let bodyHtml = '';
+
   if (AG.view === 'month') {
     const days = agMonthDays(year, month);
     const cells = days.map(d => {
@@ -3780,10 +4236,9 @@ function renderAgenda(el) {
     </div>`;
   }
 
-  // ── Week view ──
   if (AG.view === 'week') {
     const days = agWeekDays(AG.date);
-    const hours = Array.from({length:12}, (_,i) => i + 7); // 07:00–18:00
+    const hours = Array.from({length:12}, (_,i) => i + 7);
     const cols = days.map(d => {
       const ds = agFmtDateStr(d);
       const evs = agEventsForDate(ds);
@@ -3799,9 +4254,9 @@ function renderAgenda(el) {
             const hr = parseInt((ev.hora||'07:00').split(':')[0]) - 7;
             const top = Math.max(0, hr * 52);
             return `<div class="ag-week-ev" style="top:${top}px;background:${col.bg};border-left:2px solid ${col.border};color:${col.text}"
-              onclick="event.stopPropagation();agOpenModal('${ev.date}','${ev.id}')">
+              onclick="event.stopPropagation();agOpenModal('${ev.date}','${esc(ev.id)}')">
               <span style="font-size:9px;font-family:var(--mono)">${ev.hora}</span>
-              <span style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.candidatoNome}</span>
+              <span style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.candidatoNome)}</span>
             </div>`;
           }).join('')}
         </div>
@@ -3811,7 +4266,6 @@ function renderAgenda(el) {
     bodyHtml = `<div class="ag-week-grid">${timeCol}${cols}</div>`;
   }
 
-  // ── Próximas entrevistas (sidebar) ──
   const upcoming = AG.events
     .filter(e => e.date >= todayStr)
     .sort((a,b) => (a.date+a.hora) < (b.date+b.hora) ? -1 : 1)
@@ -3822,20 +4276,19 @@ function renderAgenda(el) {
         const col = AG_COLORS[ev.tipo] || AG_COLORS['Outro'];
         const d = new Date(ev.date + 'T12:00:00');
         const label = `${d.getDate()}/${d.getMonth()+1} ${ev.hora}`;
-        return `<div class="ag-upcoming" style="border-left:2px solid ${col.border}" onclick="agOpenModal('${ev.date}','${ev.id}')">
+        return `<div class="ag-upcoming" style="border-left:2px solid ${col.border}" onclick="agOpenModal('${ev.date}','${esc(ev.id)}')">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
             <span style="font-size:10px;color:var(--txt3);font-family:var(--mono)">${label}</span>
-            <span style="font-size:9px;padding:1px 6px;border-radius:99px;background:${col.bg};color:${col.text}">${ev.tipo.split(' ')[0]}</span>
+            <span style="font-size:9px;padding:1px 6px;border-radius:99px;background:${col.bg};color:${col.text}">${esc(ev.tipo.split(' ')[0])}</span>
           </div>
-          <div style="font-size:12px;font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.candidatoNome}</div>
-          <div style="font-size:11px;color:var(--txt3);margin-top:1px">${ev.responsavel}${ev.link?` · <a href="${ev.link}" target="_blank" style="color:var(--teal)" onclick="event.stopPropagation()">link</a>`:''}</div>
+          <div style="font-size:12px;font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.candidatoNome)}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:1px">${esc(ev.responsavel)}${ev.link?` · <a href="${esc(ev.link)}" target="_blank" style="color:var(--teal)" onclick="event.stopPropagation()">link</a>`:''}</div>
         </div>`;
       }).join('')
     : `<div style="font-size:12px;color:var(--txt3);padding:12px 0">Nenhum agendamento futuro</div>`;
 
   el.innerHTML = `
 <div class="ag-layout">
-  <!-- ── Coluna principal ── -->
   <div class="ag-main">
     <div class="ag-toolbar">
       <div style="display:flex;align-items:center;gap:10px">
@@ -3853,7 +4306,6 @@ function renderAgenda(el) {
     ${bodyHtml}
   </div>
 
-  <!-- ── Sidebar próximas ── -->
   <div class="ag-sidebar">
     <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:12px">Próximas entrevistas</div>
     ${upcomingHtml}
@@ -3863,14 +4315,13 @@ function renderAgenda(el) {
       ${Object.entries(AG_COLORS).map(([tipo,col])=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11px;color:var(--txt2)">
           <div style="width:10px;height:10px;border-radius:2px;background:${col.border};flex-shrink:0"></div>
-          ${tipo}
+          ${esc(tipo)}
         </div>`).join('')}
     </div>
   </div>
 </div>`;
 }
 
-// ── Navigation ───────────────────────────────────────────────
 function agNav(dir) {
   if (AG.view === 'month') {
     AG.date = new Date(AG.date.getFullYear(), AG.date.getMonth() + dir, 1);
@@ -3879,7 +4330,6 @@ function agNav(dir) {
   }
   renderView();
 }
-
 </script>
 </body>
 </html>
