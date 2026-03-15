@@ -896,6 +896,8 @@ async function apiPost(body) {
     snakeFields.atualizado_por = actor;
     const { error } = await supa.from('candidatos').update(snakeFields).eq('id', body.id);
     if (error) throw new Error(error.message);
+    // Sync reverso para Google Sheets (background, não bloqueia)
+    syncToSheet(body.id, body.fields || {}, actor);
     return { ok:true };
   }
 
@@ -911,6 +913,8 @@ async function apiPost(body) {
     if (!snakeFields.ativo) snakeFields.ativo = 'SIM';
     const { data, error } = await supa.from('candidatos').insert(snakeFields).select().single();
     if (error) throw new Error(error.message);
+    // Sync reverso: cria linha nova na planilha
+    syncToSheet(id, { ...fields, ID: id }, actor);
     return { ok:true, id, candidate: toFrontend(data) };
   }
 
@@ -922,6 +926,8 @@ async function apiPost(body) {
       atualizado_por: actor
     }).eq('id', body.id);
     if (error) throw new Error(error.message);
+    // Sync reverso para planilha
+    syncToSheet(body.id, { Ativo: body.active ? 'SIM' : 'NÃO', 'Motivo inativação': body.reason || '' }, actor);
     return { ok:true };
   }
 
@@ -942,6 +948,8 @@ async function apiPost(body) {
       atualizado_por: actor
     }).eq('id', body.id);
     if (error) throw new Error(error.message);
+    // Sync reverso
+    syncToSheet(body.id, { 'STATUS PIPELINE': body.toStage, 'Data entrada etapa atual': new Date().toISOString().split('T')[0] }, actor);
     return { ok:true };
   }
 
@@ -1026,7 +1034,27 @@ function buildDashboardPayload(cands) {
   };
 }
 
-// ── Realtime: escuta mudanças no Supabase ────────────────────
+// ── Apps Script URL para sync reverso (planilha espelho) ──
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx54xgjpP4djSleqpjXHfzHXfsxyhVuc7gqZsJJqWX9nUUi9G6hGymBA6I8ONT5LEjL/exec';
+const APPS_SCRIPT_KEY = 'bed530fb36824844bfb274ff4cf34b7e640e7cdc';
+
+// Sync reverso: dispara em background sem bloquear o save principal
+function syncToSheet(id, fields, actor) {
+  const payload = JSON.stringify({
+    action: 'updateCandidate',
+    id, fields, actor,
+    key: APPS_SCRIPT_KEY
+  });
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: payload,
+    redirect: 'follow'
+  }).then(r => r.json())
+    .then(d => { if (d.ok) console.log('[Sheets sync] ✓', id); else console.warn('[Sheets sync] erro:', d.error); })
+    .catch(e => console.warn('[Sheets sync] falhou (não crítico):', e.message));
+}
+
 async function startRealtime() {
   const supa = await getSupa();
   supa.channel('candidatos-changes')
