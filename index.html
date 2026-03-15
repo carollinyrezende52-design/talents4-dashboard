@@ -2165,7 +2165,7 @@ function renderView() {
     case 'analise':      renderTable(el, '__analise');        break;
     case 'alemao':       renderTable(el, 'Curso de alemão'); break;
     case 'agenda':       renderAgenda(el);                   break;
-    case 'documentacao': renderTable(el, 'Documentação');    break;
+    case 'documentacao': renderTable(el, '__documentacao');   break;
     case 'employer':     renderTable(el, '__employer');      break;
     case 'inativos':     renderInativo(el);                  break;
     case 'settings':     renderSettings(el);                 break;
@@ -2753,6 +2753,18 @@ function renderTable(el, filterStatus) {
     list = filterCands(S.candidates, false).filter(c =>
       ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'))
     );
+  } else if (filterStatus === '__documentacao') {
+    // Tracker transversal: mostra quem está em Documentação OU tem qualquer campo documental preenchido
+    list = filterCands(S.candidates, false).filter(c =>
+      fv(c,'STATUS PIPELINE') === 'Documentação' ||
+      (fv(c,'Número do Passaporte')||'').trim() ||
+      (fv(c,'Diploma')||'').trim() ||
+      (fv(c,'Histórico','Histórico Escolar')||'').trim() ||
+      (fv(c,'Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional')||'').trim() ||
+      (fv(c,'CPF')||'').trim() ||
+      (fv(c,'Documentação completa')||'').trim() ||
+      (fv(c,'Pendência documental crítica')||'').trim()
+    );
   } else if (filterStatus) {
     list = filterCands(S.candidates, false).filter(c =>
       fv(c,'STATUS PIPELINE') === filterStatus
@@ -2934,8 +2946,46 @@ function renderTable(el, filterStatus) {
       </tr>`;
     }).join('');
 
-  } else {
-    thead = `<tr><th>Nome</th><th>Status Pipeline</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador</th><th>Score</th><th>ID</th></tr>`;
+  } else if (filterStatus === '__documentacao') {
+    // ─── ABA DOCUMENTAÇÃO: Painel de Acompanhamento (Tracker) ───
+    thead = `<tr>
+      <th>Nome</th>
+      <th>Status Atual</th>
+      <th>Passaporte</th>
+      <th>Diploma</th>
+      <th>Reg. Profissional</th>
+      <th>Pendências Críticas</th>
+      <th>Doc. Completa</th>
+    </tr>`;
+
+    const checkDoc = (val) =>
+      (val||'').trim()
+        ? '<span style="color:var(--green);font-weight:600">✓ Sim</span>'
+        : '<span style="color:var(--txt3)">—</span>';
+
+    rows = paged.map(c => {
+      const st   = fv(c,'STATUS PIPELINE')||'';
+      const sc   = STATUS_BADGE[st]||'b-inativo';
+      const pass = checkDoc(fv(c,'Número do Passaporte','numero_do_passaporte'));
+      const dipl = checkDoc(fv(c,'Diploma'));
+      const reg  = checkDoc(fv(c,'Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional','documento_profissional_coren_crm_crea_outro'));
+      const pend = fv(c,'Pendência documental crítica','pendencia_documental_critica')||'';
+      const comp = fv(c,'Documentação completa','documentacao_completa')||'';
+      const compBadge = isYes(comp)
+        ? '<span class="badge b-aprovado">✓ Completa</span>'
+        : '<span class="badge b-fraco">Pendente</span>';
+      return `<tr onclick="openCand('${esc(c.ID)}')">
+        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
+        <td style="font-size:12px">${pass}</td>
+        <td style="font-size:12px">${dipl}</td>
+        <td style="font-size:12px">${reg}</td>
+        <td style="font-size:11.5px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${pend?'var(--red)':'var(--txt3)'}">${esc(pend||'—')}</td>
+        <td>${compBadge}</td>
+      </tr>`;
+    }).join('');
+
+  } else {<th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador</th><th>Score</th><th>ID</th></tr>`;
     rows = paged.map(c => {
       const st=c['STATUS PIPELINE']||'';
       const sc=STATUS_BADGE[st]||'b-inativo';
