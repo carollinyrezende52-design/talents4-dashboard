@@ -942,6 +942,134 @@ a{color:inherit;text-decoration:none}
   .ag-sidebar { display: none; }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO: JORNADA DO IDIOMA
+══════════════════════════════════════════════════════════════ */
+
+/* ── Stepper de nível na tabela ── */
+.level-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.ls-node {
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-weight: 600;
+  transition: all .12s;
+}
+.ls-node.ls-done  { background: var(--bg4); color: var(--txt3); }
+.ls-node.ls-current { background: var(--accent); color: #fff; box-shadow: 0 0 8px rgba(196,30,58,.4); }
+.ls-node.ls-target { background: var(--gold-bg); color: var(--gold); border: 1px solid rgba(245,192,0,.3); }
+.ls-arrow { color: var(--txt3); font-size: 9px; padding: 0 1px; }
+
+/* ── Bento Grid do modal de alemão ── */
+.idioma-bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 22px 20px;
+}
+.idioma-section {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  overflow: hidden;
+}
+.idioma-section.full { grid-column: 1 / -1; }
+.idioma-section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.idioma-section-ico {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.idioma-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--txt3);
+}
+.idioma-section-body { padding: 12px 14px; }
+.idioma-section-body .field-grid { gap: 8px; }
+/* Diário de Bordo específico */
+.log-wrap { padding: 12px 14px; }
+.log-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.log-meta-hint { font-size: 10px; color: var(--txt3); }
+.log-meta-stamp { font-size: 10px; color: var(--txt3); font-family: var(--mono); }
+.field-textarea.log-textarea {
+  min-height: 160px;
+  font-size: 12px;
+  line-height: 1.6;
+  resize: vertical;
+}
+/* Progress bar de nível no bento de matrícula */
+.nivel-progress {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  margin-bottom: 2px;
+}
+.np-node {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--bg4);
+  position: relative;
+  transition: background .3s;
+}
+.np-node.done    { background: var(--accent); }
+.np-node.current { background: var(--gold); box-shadow: 0 0 6px rgba(245,192,0,.4); }
+.np-node.target  { background: var(--green); }
+.np-labels {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.np-lbl {
+  flex: 1;
+  text-align: center;
+  font-size: 8px;
+  font-family: var(--mono);
+  color: var(--txt3);
+}
+.np-lbl.done    { color: var(--accent); font-weight: 600; }
+.np-lbl.current { color: var(--gold); font-weight: 700; }
+.np-lbl.target  { color: var(--green); font-weight: 700; }
+
+/* ── Tabela específica de Alemão ── */
+.alemao-tbl-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 </style>
 </head>
 <body>
@@ -1338,6 +1466,14 @@ const FIELD_MAP = {
   'Relato sobre a experiência profissional':'relato_sobre_a_experiencia_profissional',
   'Com quem você mora?':'com_quem_voce_mora',
   'Como você organiza seu dia a dia?':'como_voce_organiza_seu_dia_a_dia',
+  /* ── Módulo: Jornada do Idioma ── */
+  'Instituição de ensino':'instituicao_ensino',
+  'Nível inicial':'nivel_inicial',
+  'Nível alvo':'nivel_alvo',
+  'Data de início do curso':'data_inicio_curso_alemao',
+  'Previsão de término':'previsao_termino_alemao',
+  'Horário e Dias de Aula':'horario_dias_aula',
+  'Log de Acompanhamento':'log_acompanhamento_alemao',
 };
 const REV_MAP = Object.fromEntries(Object.entries(FIELD_MAP).map(([k,v])=>[v,k]));
 
@@ -1356,6 +1492,14 @@ function toFrontend(row) {
   if (!out['STATUS PIPELINE'] && row.status_pipeline) out['STATUS PIPELINE'] = row.status_pipeline;
   if (!out['Nível de alemão'] && row.nivel_alemao) out['Nível de alemão'] = row.nivel_alemao;
   if (!out['Nível alemão'] && row.nivel_alemao) out['Nível alemão'] = row.nivel_alemao;
+  // Jornada do Idioma
+  if (!out['Instituição de ensino'] && row.instituicao_ensino) out['Instituição de ensino'] = row.instituicao_ensino;
+  if (!out['Nível inicial'] && row.nivel_inicial) out['Nível inicial'] = row.nivel_inicial;
+  if (!out['Nível alvo'] && row.nivel_alvo) out['Nível alvo'] = row.nivel_alvo;
+  if (!out['Data de início do curso'] && row.data_inicio_curso_alemao) out['Data de início do curso'] = row.data_inicio_curso_alemao;
+  if (!out['Previsão de término'] && row.previsao_termino_alemao) out['Previsão de término'] = row.previsao_termino_alemao;
+  if (!out['Horário e Dias de Aula'] && row.horario_dias_aula) out['Horário e Dias de Aula'] = row.horario_dias_aula;
+  if (!out['Log de Acompanhamento'] && row.log_acompanhamento_alemao) out['Log de Acompanhamento'] = row.log_acompanhamento_alemao;
   out._score = row._score || 0;
   out._eligivelCalculado = row._elegivel_calculado || false;
   return out;
@@ -2429,8 +2573,69 @@ function renderTable(el, filterStatus) {
       </tr>`;
     }).join('');
 
+  } else if (filterStatus === 'Curso de alemão') {
+    // ─── ABA CURSO DE ALEMÃO: painel educacional ───
+    thead = `<tr>
+      <th>Nome</th>
+      <th>Instituição</th>
+      <th style="min-width:220px">Jornada de Nível</th>
+      <th>Início</th>
+      <th>Previsão Fim</th>
+      <th>Horário / Dias</th>
+      <th>Responsável</th>
+      <th>Última atualização</th>
+    </tr>`;
+
+    const NIVEL_ORDER = ['Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2'];
+    function levelStepper(inicial, atual, alvo) {
+      // Fallback: se não tem nível inicial registrado, usa o nível atual como inicial
+      const ini = inicial || atual || 'A0';
+      const cur = atual  || ini;
+      const tgt = alvo   || 'B2';
+      const iniIdx = NIVEL_ORDER.indexOf(ini);
+      const curIdx = NIVEL_ORDER.indexOf(cur);
+      const tgtIdx = NIVEL_ORDER.indexOf(tgt);
+      // Determina quais níveis exibir no stepper (de inicial a alvo inclusive)
+      const start = Math.max(0, iniIdx < 1 ? 1 : iniIdx); // skip 'Nenhum'
+      const end   = Math.min(NIVEL_ORDER.length - 1, tgtIdx < start ? start + 2 : tgtIdx);
+      const nodes = NIVEL_ORDER.slice(start, end + 1);
+      return `<div class="level-stepper">
+        ${nodes.map((n, i) => {
+          const nIdx = NIVEL_ORDER.indexOf(n);
+          let cls = 'ls-done';
+          if (nIdx === curIdx)  cls = 'ls-current';
+          else if (nIdx === tgtIdx && nIdx > curIdx) cls = 'ls-target';
+          else if (nIdx > curIdx) cls = 'ls-done'; // future nodes
+          const arrow = i < nodes.length - 1 ? '<span class="ls-arrow">›</span>' : '';
+          return `<span class="ls-node ${cls}">${n}</span>${arrow}`;
+        }).join('')}
+      </div>`;
+    }
+
+    rows = paged.map(c => {
+      const al    = fv(c,'Nível de alemão','nivel_alemao','Nível alemão') || '';
+      const ini   = fv(c,'Nível inicial','nivel_inicial') || '';
+      const alvo  = fv(c,'Nível alvo','nivel_alvo') || '';
+      const inst  = fv(c,'Instituição de ensino','instituicao_ensino') || '—';
+      const dtIni = (fv(c,'Data de início do curso','data_inicio_curso_alemao') || '').substring(0,10) || '—';
+      const dtFim = (fv(c,'Previsão de término','previsao_termino_alemao') || '').substring(0,10) || '—';
+      const hora  = fv(c,'Horário e Dias de Aula','horario_dias_aula') || '—';
+      const resp  = fv(c,'Responsável interno','responsavel_interno') || '—';
+      const upd   = (fv(c,'Última atualização','ultima_atualizacao') || '').substring(0,10) || '—';
+      const stepper = levelStepper(ini, al, alvo);
+      return `<tr onclick="openCand('${esc(c.ID)}')">
+        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td style="font-size:11.5px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(inst)}</td>
+        <td>${stepper}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${dtIni}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${dtFim}</td>
+        <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(hora)}</td>
+        <td style="font-size:11.5px">${esc(resp)}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${upd}</td>
+      </tr>`;
+    }).join('');
+
   } else {
-    // ─── TABELA PADRÃO ───
     thead = `<tr><th>Nome</th><th>Status Pipeline</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador</th><th>Score</th><th>ID</th></tr>`;
     rows = paged.map(c => {
       const st=c['STATUS PIPELINE']||'';
@@ -2537,8 +2742,9 @@ function buildCandModal(c) {
   const TABS = [
     {id:'t-pipeline',label:'Pipeline'},{id:'t-pessoal',label:'Pessoal'},
     {id:'t-profissional',label:'Profissional'},{id:'t-entrevista',label:'Entrevista'},
-    {id:'t-analise',label:'Análise RH'},{id:'t-docs',label:'Documentação'},
-    {id:'t-employer',label:'Employer'},{id:'t-saida',label:'Saída'},
+    {id:'t-analise',label:'Análise RH'},{id:'t-idioma',label:'🇩🇪 Alemão'},
+    {id:'t-docs',label:'Documentação'},{id:'t-employer',label:'Employer'},
+    {id:'t-saida',label:'Saída'},
   ];
   document.getElementById('cm-tabs').innerHTML = TABS.map(t =>
     `<div class="detail-tab ${t.id==='t-pipeline'?'active':''}" onclick="switchTab('${t.id}')" data-tab="${t.id}">${t.label}</div>`
@@ -2667,6 +2873,143 @@ function buildPanel(tabId, c) {
         ${fld('Observações internas','Observações internas','textarea',null,true)}
       </div>
     </div>`;
+    case 't-idioma': {
+      const NIVEL_OPT = ['Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2'];
+      const NIVEL_ALVO_OPT = ['B1','B2','B2+','C1','C2'];
+      const NIVEL_ORDER_P = ['Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2'];
+      const nivelAtual = c['Nível de alemão'] || c['Nível alemão'] || '';
+      const nivelIni   = c['Nível inicial'] || '';
+      const nivelAlvo  = c['Nível alvo'] || '';
+      // Build the visual progress bar
+      const curIdx = NIVEL_ORDER_P.indexOf(nivelAtual);
+      const tgtIdx = NIVEL_ORDER_P.indexOf(nivelAlvo);
+      const nodes  = NIVEL_ORDER_P.slice(1); // skip 'Nenhum'
+      const progressBar = nivelAtual ? `
+        <div style="padding: 12px 0 6px">
+          <div class="nivel-progress">
+            ${nodes.map(n => {
+              const nIdx = NIVEL_ORDER_P.indexOf(n);
+              const cls  = nIdx < curIdx ? 'done' : nIdx === curIdx ? 'current' : nIdx === tgtIdx ? 'target' : '';
+              return `<div class="np-node ${cls}"></div>`;
+            }).join('')}
+          </div>
+          <div class="np-labels">
+            ${nodes.map(n => {
+              const nIdx = NIVEL_ORDER_P.indexOf(n);
+              const cls  = nIdx < curIdx ? 'done' : nIdx === curIdx ? 'current' : nIdx === tgtIdx ? 'target' : '';
+              return `<div class="np-lbl ${cls}">${n}</div>`;
+            }).join('')}
+          </div>
+        </div>` : '';
+
+      const logVal = c['Log de Acompanhamento'] || '';
+      const logUpd = c['Última atualização'] ? new Date(c['Última atualização']).toLocaleDateString('pt-BR') : '';
+
+      return `<div class="idioma-bento">
+
+        <!-- ── Matrícula ── -->
+        <div class="idioma-section">
+          <div class="idioma-section-hdr">
+            <div class="idioma-section-ico" style="background:var(--blue-bg)">📚</div>
+            <span class="idioma-section-title">Dados da Matrícula</span>
+          </div>
+          <div class="idioma-section-body">
+            ${progressBar}
+            <div class="field-grid">
+              <div class="field-group fg-full">
+                <label class="field-lbl">Instituição de ensino</label>
+                <input class="field-input" type="text" data-field="Instituição de ensino" value="${esc(c['Instituição de ensino']||'')}" oninput="onEdit(this)" placeholder="ex: Goethe-Institut, Sprachschule...">
+              </div>
+              <div class="field-group">
+                <label class="field-lbl">Nível atual (Alemão)</label>
+                <div class="field-select-wrap">
+                  <select class="field-select" data-field="Nível alemão" onchange="onEdit(this)">
+                    ${NIVEL_OPT.map(o=>`<option value="${o}" ${nivelAtual===o?'selected':''}>${o}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-lbl">Nível inicial (ao ingressar)</label>
+                <div class="field-select-wrap">
+                  <select class="field-select" data-field="Nível inicial" onchange="onEdit(this)">
+                    <option value="">— Selecionar —</option>
+                    ${NIVEL_OPT.map(o=>`<option value="${o}" ${nivelIni===o?'selected':''}>${o}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-lbl">Nível alvo</label>
+                <div class="field-select-wrap">
+                  <select class="field-select" data-field="Nível alvo" onchange="onEdit(this)">
+                    <option value="">— Selecionar —</option>
+                    ${NIVEL_ALVO_OPT.map(o=>`<option value="${o}" ${nivelAlvo===o?'selected':''}>${o}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-lbl">Data de início</label>
+                <input class="field-input" type="date" data-field="Data de início do curso" value="${esc(c['Data de início do curso']||'')}" oninput="onEdit(this)">
+              </div>
+              <div class="field-group">
+                <label class="field-lbl">Previsão de término</label>
+                <input class="field-input" type="date" data-field="Previsão de término" value="${esc(c['Previsão de término']||'')}" oninput="onEdit(this)">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Rotina ── -->
+        <div class="idioma-section">
+          <div class="idioma-section-hdr">
+            <div class="idioma-section-ico" style="background:var(--teal-bg)">🗓</div>
+            <span class="idioma-section-title">Rotina de Aulas</span>
+          </div>
+          <div class="idioma-section-body">
+            <div class="field-grid g1">
+              <div class="field-group fg-full">
+                <label class="field-lbl">Horário e Dias de Aula</label>
+                <input class="field-input" type="text" data-field="Horário e Dias de Aula" value="${esc(c['Horário e Dias de Aula']||'')}" oninput="onEdit(this)" placeholder="ex: Seg/Qua/Sex 19h–21h">
+              </div>
+              <div class="field-group fg-full">
+                <label class="field-lbl">Está em curso de alemão?</label>
+                <div class="field-select-wrap">
+                  <select class="field-select" data-field="Em curso de alemão" onchange="onEdit(this)">
+                    ${['','SIM','NÃO'].map(o=>`<option value="${o}" ${(c['Em curso de alemão']||'')===o?'selected':''}>${o||'— Selecionar —'}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="field-group fg-full">
+                <label class="field-lbl">Resultado de prova (Telc, Goethe...)</label>
+                <div class="field-select-wrap">
+                  <select class="field-select" data-field="Resultado da prova" onchange="onEdit(this)">
+                    <option value="">— Selecionar —</option>
+                    ${(S.enums['Resultado da prova']||['Aprovado','Reprovado','Pendente','Não realizou']).map(o=>`<option value="${esc(o)}" ${(c['Resultado da prova']||''===o)?'selected':''}>${esc(o)}</option>`).join('')}
+                  </select>
+                  <button type="button" class="field-select-add" onclick="quickAddEnum('Resultado da prova',this)">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Diário de Bordo ── -->
+        <div class="idioma-section full">
+          <div class="idioma-section-hdr">
+            <div class="idioma-section-ico" style="background:var(--gold-bg)">📝</div>
+            <span class="idioma-section-title">Diário de Bordo / Acompanhamento</span>
+            <span style="margin-left:auto;font-size:10px;color:var(--txt3)">Histórico de evolução, faltas e notas</span>
+          </div>
+          <div class="log-wrap">
+            <div class="log-meta">
+              <span class="log-meta-hint">💡 Registre progresso semanal, faltas, resultados de simulados e observações de evolução.</span>
+              ${logUpd ? `<span class="log-meta-stamp">Atualizado em ${logUpd}</span>` : ''}
+            </div>
+            <textarea class="field-textarea log-textarea" data-field="Log de Acompanhamento" oninput="onEdit(this)" placeholder="Ex: 15/03 — Aluno relatou dificuldade com casos gramaticais (Akkusativ). Faltou à aula de quarta. Nota simulado B1: 62/100 — aprovado com margem estreita. Recomendar reforço em Modalverben...">${esc(logVal)}</textarea>
+          </div>
+        </div>
+
+      </div>`;
+    }
     case 't-docs': return `<div>
       <div class="section-hdr">Documentos</div>
       <div class="field-grid">
