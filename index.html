@@ -1656,6 +1656,19 @@ const FIELD_MAP = {
   'Previsão de término':'previsao_termino_alemao',
   'Horário e Dias de Aula':'horario_dias_aula',
   'Log de Acompanhamento':'log_acompanhamento_alemao',
+  /* ── Módulo: Documentação Estruturada ── */
+  'Passaporte status':'passaporte_status',
+  'Passaporte número':'passaporte_numero',
+  'Passaporte validade':'passaporte_validade',
+  'Passaporte arquivo':'passaporte_arquivo',
+  'Diploma status':'diploma_status',
+  'Diploma arquivo':'diploma_arquivo',
+  'Histórico status':'historico_status',
+  'Histórico arquivo':'historico_arquivo',
+  'Registro status':'registro_status',
+  'Registro número':'registro_numero',
+  'Registro validade':'registro_validade',
+  'Registro arquivo':'registro_arquivo',
 };
 const REV_MAP = Object.fromEntries(Object.entries(FIELD_MAP).map(([k,v])=>[v,k]));
 
@@ -2754,16 +2767,14 @@ function renderTable(el, filterStatus) {
       ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'))
     );
   } else if (filterStatus === '__documentacao') {
-    // Tracker transversal: mostra quem está em Documentação OU tem qualquer campo documental preenchido
+    // Tracker transversal: mostra quem está em Documentação OU possui ciclo documental iniciado
     list = filterCands(S.candidates, false).filter(c =>
       fv(c,'STATUS PIPELINE') === 'Documentação' ||
-      (fv(c,'Número do Passaporte')||'').trim() ||
-      (fv(c,'Diploma')||'').trim() ||
-      (fv(c,'Histórico','Histórico Escolar')||'').trim() ||
-      (fv(c,'Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional')||'').trim() ||
+      ['passaporte','diploma','historico','registro'].some(k => normalizeUpper(getDocStatus(c, k)) !== 'NAO SOLICITADO') ||
       (fv(c,'CPF')||'').trim() ||
-      (fv(c,'Documentação completa')||'').trim() ||
-      (fv(c,'Pendência documental crítica')||'').trim()
+      (fv(c,'Carteira de vacinação','carteira_de_vacinacao')||'').trim() ||
+      (fv(c,'Contrato','contrato')||'').trim() ||
+      (fv(c,'Pendência documental crítica','pendencia_documental_critica')||'').trim()
     );
   } else if (filterStatus) {
     list = filterCands(S.candidates, false).filter(c =>
@@ -2947,41 +2958,39 @@ function renderTable(el, filterStatus) {
     }).join('');
 
   } else if (filterStatus === '__documentacao') {
-    // ─── ABA DOCUMENTAÇÃO: Painel de Acompanhamento (Tracker) ───
+    // ─── ABA DOCUMENTAÇÃO: Tracker documental estruturado ───
     thead = `<tr>
       <th>Nome</th>
       <th>Status Atual</th>
       <th>Passaporte</th>
       <th>Diploma</th>
+      <th>Histórico</th>
       <th>Reg. Profissional</th>
-      <th>Pendências Críticas</th>
       <th>Doc. Completa</th>
+      <th>Pendências Críticas</th>
     </tr>`;
-
-    const checkDoc = (val) =>
-      (val||'').trim()
-        ? '<span style="color:var(--green);font-weight:600">✓ Sim</span>'
-        : '<span style="color:var(--txt3)">—</span>';
 
     rows = paged.map(c => {
       const st   = fv(c,'STATUS PIPELINE')||'';
       const sc   = STATUS_BADGE[st]||'b-inativo';
-      const pass = checkDoc(fv(c,'Número do Passaporte','numero_do_passaporte'));
-      const dipl = checkDoc(fv(c,'Diploma'));
-      const reg  = checkDoc(fv(c,'Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional','documento_profissional_coren_crm_crea_outro'));
-      const pend = fv(c,'Pendência documental crítica','pendencia_documental_critica')||'';
-      const comp = fv(c,'Documentação completa','documentacao_completa')||'';
+      const pass = getDocStatus(c, 'passaporte');
+      const dipl = getDocStatus(c, 'diploma');
+      const hist = getDocStatus(c, 'historico');
+      const reg  = getDocStatus(c, 'registro');
+      const comp = calcDocCompleta(c);
+      const pend = calcPendenciaDocumentalCritica(c) || fv(c,'Pendência documental crítica','pendencia_documental_critica') || '—';
       const compBadge = isYes(comp)
         ? '<span class="badge b-aprovado">✓ Completa</span>'
         : '<span class="badge b-fraco">Pendente</span>';
       return `<tr onclick="openCand('${esc(c.ID)}')">
         <td class="td-name">${esc(c['Nome completo']||'—')}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
-        <td style="font-size:12px">${pass}</td>
-        <td style="font-size:12px">${dipl}</td>
-        <td style="font-size:12px">${reg}</td>
-        <td style="font-size:11.5px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${pend?'var(--red)':'var(--txt3)'}">${esc(pend||'—')}</td>
+        <td>${docStatusBadge(pass)}</td>
+        <td>${docStatusBadge(dipl)}</td>
+        <td>${docStatusBadge(hist)}</td>
+        <td>${docStatusBadge(reg)}</td>
         <td>${compBadge}</td>
+        <td style="font-size:11.5px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${pend && pend!=='—'?'var(--red)':'var(--txt3)'}">${esc(pend)}</td>
       </tr>`;
     }).join('');
 
@@ -3360,22 +3369,79 @@ function buildPanel(tabId, c) {
 
       </div>`;
     }
-    case 't-docs': return `<div>
-      <div class="section-hdr">Documentos</div>
-      <div class="field-grid">
-        ${fld('Número do Passaporte','Número do Passaporte')}${fld('Validade do passaporte','Validade do Passaporte')}
-        ${fld('Diploma','Diploma')}${fld('Histórico','Histórico Escolar')}
-        ${fld('Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional')}
-        ${fld('Documentação completa','Doc. completa?','select')}<div></div>
-      </div>
-      <div class="section-hdr">Documentos Adicionais</div>
-      <div class="field-grid">
-        ${fld('CPF','CPF')}${fld('Carteira de vacinação','Carteira de vacinação')}
-        ${fld('Termo de consentimento de uso de dados','Termo de consentimento')}${fld('Contrato','Contrato')}
-      </div>
-      <div class="section-hdr">Pendências</div>
-      <div class="field-grid g1">${fld('Pendência documental crítica','Pendências documentais críticas','textarea',null,true)}</div>
-    </div>`;
+    case 't-docs': {
+      const docStatusField = (field, value) => `<div class="field-group fg-full">
+        <label class="field-lbl">Status</label>
+        <div class="field-select-wrap">
+          <select class="field-select" data-field="${esc(field)}" onchange="onEdit(this)" style="${docStatusStyle(value)}">
+            ${DOC_STATUS_OPTIONS.map(o=>`<option value="${esc(o)}" ${value===o?'selected':''}>${esc(o)}</option>`).join('')}
+          </select>
+        </div>
+      </div>`;
+      const docInput = (field, label, value='', type='text') => `<div class="field-group">
+        <label class="field-lbl">${label}</label>
+        <input class="field-input" type="${type}" data-field="${esc(field)}" value="${esc(value)}" oninput="onEdit(this)">
+      </div>`;
+      const card = (title, icon, body) => `<div class="idioma-section">
+        <div class="idioma-section-hdr">
+          <div class="idioma-section-ico">${icon}</div>
+          <span class="idioma-section-title">${title}</span>
+        </div>
+        <div class="idioma-section-body"><div class="field-grid">${body}</div></div>
+      </div>`;
+      const passStatus = getDocStatus(c, 'passaporte');
+      const diplStatus = getDocStatus(c, 'diploma');
+      const histStatus = getDocStatus(c, 'historico');
+      const regStatus  = getDocStatus(c, 'registro');
+      const docCompleta = calcDocCompleta(c);
+      const pendCrit = calcPendenciaDocumentalCritica(c) || fv(c,'Pendência documental crítica','pendencia_documental_critica');
+      return `<div>
+        <div class="section-hdr">Documentação Estruturada</div>
+        <div class="idioma-bento">
+          ${card('Passaporte','🛂',
+            docStatusField('Passaporte status', passStatus) +
+            docInput('Passaporte número','Número', fv(c,'Passaporte número','passaporte_numero','Número do Passaporte','numero_do_passaporte')) +
+            docInput('Passaporte validade','Validade', fv(c,'Passaporte validade','passaporte_validade','Validade do passaporte','validade_do_passaporte'),'date') +
+            docInput('Passaporte arquivo','Arquivo / Link', fv(c,'Passaporte arquivo','passaporte_arquivo'))
+          )}
+          ${card('Diploma','🎓',
+            docStatusField('Diploma status', diplStatus) +
+            docInput('Diploma arquivo','Arquivo / Link', fv(c,'Diploma arquivo','diploma_arquivo','Diploma','diploma'))
+          )}
+          ${card('Histórico Escolar','📄',
+            docStatusField('Histórico status', histStatus) +
+            docInput('Histórico arquivo','Arquivo / Link', fv(c,'Histórico arquivo','historico_arquivo','Histórico','historico','Histórico Escolar'))
+          )}
+          ${card('Registro Profissional','🪪',
+            docStatusField('Registro status', regStatus) +
+            docInput('Registro número','Número', fv(c,'Registro número','registro_numero','Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional','documento_profissional_coren_crm_crea_outro')) +
+            docInput('Registro validade','Validade', fv(c,'Registro validade','registro_validade'),'date') +
+            docInput('Registro arquivo','Arquivo / Link', fv(c,'Registro arquivo','registro_arquivo'))
+          )}
+        </div>
+        <div class="section-hdr">Documentos Adicionais</div>
+        <div class="field-grid">
+          ${fld('CPF','CPF')}
+          ${fld('Carteira de vacinação','Carteira de vacinação')}
+          ${fld('Termo de consentimento de uso de dados','Termo de consentimento')}
+          ${fld('Contrato','Contrato')}
+        </div>
+        <div class="section-hdr">Consolidação</div>
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="field-lbl">Documentação completa?</label>
+            <div class="field-input" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <span>${docStatusBadge(isYes(docCompleta)?'Aprovado':'Pendente')}</span>
+              <span style="font-size:11px;color:var(--txt3)">Calculado automaticamente</span>
+            </div>
+          </div>
+          <div class="field-group fg-full">
+            <label class="field-lbl">Pendências documentais críticas</label>
+            <textarea class="field-textarea" data-field="Pendência documental crítica" oninput="onEdit(this)">${esc(pendCrit||'')}</textarea>
+          </div>
+        </div>
+      </div>`;
+    }
     case 't-employer': return `<div>
       <div class="section-hdr">Elegibilidade & Matching</div>
       <div class="field-grid">
@@ -3421,6 +3487,9 @@ function onEdit(el) {
     return;
   }
   S.pendingEdits[el.dataset.field] = el.value;
+  if (el.matches('select[data-field$="status" i], select[data-field="Passaporte status"], select[data-field="Diploma status"], select[data-field="Histórico status"], select[data-field="Registro status"]')) {
+    el.style.cssText = docStatusStyle(el.value);
+  }
   const n = Object.keys(S.pendingEdits).length;
   const btn = document.getElementById('cm-save');
   if (btn) {
@@ -3441,13 +3510,20 @@ async function saveCandidate() {
   const prevStatus = fv(S.currentCand, 'STATUS PIPELINE') || '';
 
   try {
-    await apiPost({ action:'updateCandidate', id:S.currentCand.ID, fields:S.pendingEdits, actor:sess?.nome||'web' });
-    Object.assign(S.currentCand, S.pendingEdits);
+    const merged = { ...S.currentCand, ...S.pendingEdits };
+    const autoFields = {
+      'Documentação completa': calcDocCompleta(merged),
+      'Pendência documental crítica': S.pendingEdits['Pendência documental crítica'] ?? calcPendenciaDocumentalCritica(merged)
+    };
+    const fieldsToSave = { ...S.pendingEdits, ...autoFields };
+
+    await apiPost({ action:'updateCandidate', id:S.currentCand.ID, fields:fieldsToSave, actor:sess?.nome||'web' });
+    Object.assign(S.currentCand, fieldsToSave);
     const idx = S.candidates.findIndex(c => c.ID === S.currentCand.ID);
-    if (idx >= 0) Object.assign(S.candidates[idx], S.pendingEdits);
+    if (idx >= 0) Object.assign(S.candidates[idx], fieldsToSave);
 
     // ── Detecta mudança para "Contratado" → celebração Wunderbar ──
-    const newStatus = S.pendingEdits['STATUS PIPELINE'];
+    const newStatus = fieldsToSave['STATUS PIPELINE'];
     if (newStatus === 'Contratado' && prevStatus !== 'Contratado') {
       fireWunderbar();
     } else {
@@ -3859,6 +3935,80 @@ function fv(obj, ...keys) {
 function isYes(v) {
   return ['SIM','TRUE','VERDADEIRO','1','YES','Y'].includes(String(v||'').trim().toUpperCase());
 }
+
+const DOC_STATUS_OPTIONS = ['Não solicitado','Pendente','Recebido','Em análise','Aprovado','Rejeitado','Expirado'];
+
+function normalizeStr(v) {
+  return String(v || '').trim();
+}
+
+function normalizeUpper(v) {
+  return normalizeStr(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+}
+
+function isMeaningfulDocValue(v) {
+  const raw = normalizeStr(v);
+  if (!raw) return false;
+  const norm = normalizeUpper(raw);
+  return !['PENDENTE','PENDENCIA','NAO','NAO SOLICITADO','NÃO','NÃO SOLICITADO','SEM','-','—','N/A','NULL','UNDEFINED'].includes(norm);
+}
+
+function docStatusStyle(status) {
+  switch (normalizeUpper(status)) {
+    case 'APROVADO': return 'background:rgba(34,197,94,.14);color:var(--green);border:1px solid rgba(34,197,94,.2)';
+    case 'RECEBIDO':
+    case 'EM ANALISE':
+    case 'EM ANÁLISE': return 'background:rgba(59,130,246,.14);color:#67b6ff;border:1px solid rgba(59,130,246,.2)';
+    case 'PENDENTE': return 'background:rgba(245,158,11,.14);color:var(--yellow);border:1px solid rgba(245,158,11,.2)';
+    case 'REJEITADO':
+    case 'EXPIRADO': return 'background:rgba(239,68,68,.14);color:var(--red);border:1px solid rgba(239,68,68,.2)';
+    default: return 'background:var(--bg3);color:var(--txt3);border:1px solid var(--line)';
+  }
+}
+
+function docStatusBadge(status) {
+  const label = normalizeStr(status) || 'Não solicitado';
+  return `<span class="badge" style="${docStatusStyle(label)}">${esc(label)}</span>`;
+}
+
+function deriveLegacyDocStatus(c, kind) {
+  const map = {
+    passaporte: [fv(c,'Número do Passaporte','numero_do_passaporte'), fv(c,'Validade do passaporte','validade_do_passaporte')],
+    diploma: [fv(c,'Diploma','diploma')],
+    historico: [fv(c,'Histórico','historico','Histórico Escolar')],
+    registro: [fv(c,'Documento Profissional (COREN, CRM, CREA, outro)','Registro profissional','documento_profissional_coren_crm_crea_outro')]
+  };
+  const vals = map[kind] || [];
+  if (vals.some(v => isMeaningfulDocValue(v))) return 'Recebido';
+  if (vals.some(v => normalizeUpper(v).startsWith('PEND'))) return 'Pendente';
+  return 'Não solicitado';
+}
+
+function getDocStatus(c, kind) {
+  const fieldMap = {
+    passaporte: ['Passaporte status','passaporte_status'],
+    diploma: ['Diploma status','diploma_status'],
+    historico: ['Histórico status','historico_status'],
+    registro: ['Registro status','registro_status']
+  };
+  const keys = fieldMap[kind] || [];
+  const explicit = fv(c, ...keys);
+  return explicit || deriveLegacyDocStatus(c, kind);
+}
+
+function calcDocCompleta(c) {
+  const core = ['passaporte','diploma','historico','registro'];
+  return core.every(k => normalizeUpper(getDocStatus(c, k)) === 'APROVADO') ? 'SIM' : 'NÃO';
+}
+
+function calcPendenciaDocumentalCritica(c) {
+  const labels = { passaporte:'Passaporte', diploma:'Diploma', historico:'Histórico', registro:'Registro profissional' };
+  return ['passaporte','diploma','historico','registro']
+    .filter(k => !['APROVADO','NAO SOLICITADO'].includes(normalizeUpper(getDocStatus(c, k))))
+    .map(k => labels[k])
+    .join(', ');
+}
+
 function clearFilters() {
   S.filter = { status:'', q:'', perfil:'', alemao:'', profissao:'', empregador:'' };
   const gs = document.getElementById('global-search');
