@@ -310,6 +310,27 @@ a{color:inherit;text-decoration:none}
 .modal-footer{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;background:var(--bg2);flex-shrink:0}
 .detail-tabs{display:flex;gap:1px;background:var(--bg3);padding:4px;border-radius:var(--r);margin:16px 22px 0;flex-shrink:0}
 
+/* ── Parser de Currículo IA (sprint parser 1) ── */
+.ai-parse-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--gold-bg);
+  border: 1px solid rgba(245,192,0,.25);
+  border-radius: var(--r);
+  font-size: 11.5px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.ai-parse-bar .ai-ico { font-size: 14px; flex-shrink: 0; }
+.ai-parse-bar .ai-msg { flex: 1; }
+.ai-field-filled {
+  background: rgba(245,192,0,.07) !important;
+  border-color: rgba(245,192,0,.3) !important;
+  transition: background .3s, border-color .3s;
+}
+
 /* ── Histórico Operacional (sprint 11.2) ── */
 .hist-block {
   margin: 6px 22px 0;
@@ -1480,8 +1501,13 @@ a{color:inherit;text-decoration:none}
     <div class="modal-hdr">
       <div class="modal-av" style="background:var(--green-bg);color:var(--green)">+</div>
       <div style="flex:1"><div class="modal-title">Novo Candidato</div><div style="font-size:12px;color:var(--txt3)">Somente o nome é necessário</div></div>
+      <button class="btn btn-sm btn-ghost" id="n-ai-btn" onclick="triggerCurriculumParse()" title="Preencher campos automaticamente a partir de um PDF de currículo" style="gap:5px">
+        ✨ Currículo PDF
+      </button>
+      <input type="file" id="n-pdf-input" accept=".pdf" style="display:none" onchange="handleCurriculumFile(this)">
       <button class="modal-close" onclick="closeNew()">✕</button>
     </div>
+    <div id="n-ai-status" style="display:none;padding:0 22px;padding-top:10px"></div>
     <div class="modal-body" style="padding:16px 22px 20px;overflow-y:auto;max-height:60vh">
       <div class="field-grid">
         <div class="field-group fg-full"><label class="field-lbl">Nome completo *</label><input class="field-input" id="n-nome" placeholder="Nome completo" autocomplete="off"></div>
@@ -1544,12 +1570,20 @@ a{color:inherit;text-decoration:none}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIG
 // ══════════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://xcxqtjzlqmncwnhbolnl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
+
+// ── Google Drive OAuth (GIS popup flow) ──
+// Substitua pelo Client ID gerado no Google Cloud Console
+const GOOGLE_CLIENT_ID = '537631107304-oubpdolcprvc8nqpfmibd3oja7ng23ra.apps.googleusercontent.com';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_ROOT_FOLDER_ID = '1G-gQBz-5BasfwrBogLSlTLbNt5aJTzc6'; // pasta raiz T4 no Drive
+
 const SYNC_INTERVAL = 60000;
 
 // ── Supabase client ──
@@ -2176,6 +2210,146 @@ function buildDashboardPayload(cands) {
     },
     generatedAt: new Date().toISOString()
   };
+}
+
+// ══════════════════════════════════════════════════════════════
+// GOOGLE DRIVE — OAuth GIS Popup Flow
+// Sem redirect_uri. Sem client secret. Token em memória apenas.
+// Scope: drive.file — apenas arquivos criados por este app.
+// ══════════════════════════════════════════════════════════════
+const _drive = {
+  token: null,
+  client: null,
+  expiry: 0,
+};
+
+function _driveGetClient() {
+  if (_drive.client) return _drive.client;
+  if (!window.google?.accounts?.oauth2) return null;
+  _drive.client = window.google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: () => {},
+  });
+  return _drive.client;
+}
+
+// Obtém token válido — abre popup GIS se necessário
+function driveGetToken() {
+  return new Promise((resolve, reject) => {
+    if (_drive.token && Date.now() < _drive.expiry - 60000) return resolve(_drive.token);
+    const client = _driveGetClient();
+    if (!client) return reject(new Error('Google Identity Services não carregou. Recarregue a página.'));
+    client.callback = (resp) => {
+      if (resp.error) return reject(new Error('Autorização negada: ' + resp.error));
+      _drive.token  = resp.access_token;
+      _drive.expiry = Date.now() + (resp.expires_in || 3600) * 1000;
+      resolve(_drive.token);
+    };
+    client.requestAccessToken({ prompt: _drive.token ? '' : 'consent' });
+  });
+}
+
+function driveSignOut() {
+  if (_drive.token && window.google?.accounts?.oauth2) {
+    window.google.accounts.oauth2.revoke(_drive.token);
+  }
+  _drive.token = null; _drive.expiry = 0;
+  toast('Drive desconectado.', 'ok', 2500);
+  _driveUpdateSettingsUI();
+}
+
+function driveIsConnected() {
+  return !!(_drive.token && Date.now() < _drive.expiry - 60000);
+}
+
+// Garante que a subpasta do candidato existe dentro da pasta raiz do projeto
+// Padrão: IDCRM - NOME_COMPLETO (ex: T4-2026-0044 - João Silva)
+async function _driveEnsureFolder(token, candId, candName) {
+  const headers  = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
+  const folderName = `${candId || 'SEM_ID'} - ${(candName || 'Sem Nome').trim()}`;
+  // Busca pasta existente dentro da raiz do projeto (por ID fixo — sem varredura na raiz do Drive)
+  const q = `name='${folderName.replace(/'/g,"\\'")}' and mimeType='application/vnd.google-apps.folder'`
+           + ` and '${DRIVE_ROOT_FOLDER_ID}' in parents and trashed=false`;
+  const res  = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`,{ headers });
+  const data = await res.json();
+  if (data.files?.length) return { folderId: data.files[0].id, folderName };
+  // Cria pasta do candidato dentro da raiz do projeto
+  const cr   = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST', headers,
+    body: JSON.stringify({ name: folderName, mimeType: 'application/vnd.google-apps.folder', parents: [DRIVE_ROOT_FOLDER_ID] })
+  });
+  const created = await cr.json();
+  return { folderId: created.id, folderName };
+}
+
+// Upload de arquivo para a pasta do candidato
+// Retorna { fileId, folderId, folderName, fileName, webViewLink }
+async function driveUploadFile(file, candId, candName) {
+  const token  = await driveGetToken();
+  const { folderId, folderName } = await _driveEnsureFolder(token, candId, candName);
+  const metadata = { name: file.name, parents: [folderId] };
+  const form     = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', file);
+  const res = await fetch(
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,name',
+    { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: form }
+  );
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Falha no upload.'); }
+  const f = await res.json();
+  return { fileId: f.id, fileName: f.name, webViewLink: f.webViewLink, folderId, folderName };
+}
+
+// Handler dos botões de upload nos cards de documentação
+// field: ex. 'Passaporte arquivo' | candId: ID do CRM | candName: nome completo
+async function driveUploadDoc(field, candId, candName) {
+  const input  = document.createElement('input');
+  input.type   = 'file';
+  input.accept = '.pdf,.jpg,.jpeg,.png,.doc,.docx';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    toast('⏳ Enviando para o Drive...', 'ok', 999999);
+    try {
+      const result = await driveUploadFile(file, candId, candName);
+
+      // Campo principal: webViewLink (link clicável no CRM)
+      document.querySelectorAll(`[data-field="${CSS.escape(field)}"]`).forEach(el => {
+        el.value = result.webViewLink;
+        onEdit(el);
+      });
+
+      // Metadados mínimos: salva fileId, folderId e fileName em campos _meta
+      // Padrão: se field = 'Passaporte arquivo', meta field = 'Passaporte arquivo meta'
+      const metaField = field + ' meta';
+      const metaVal   = JSON.stringify({ fileId: result.fileId, folderId: result.folderId, fileName: result.fileName });
+      document.querySelectorAll(`[data-field="${CSS.escape(metaField)}"]`).forEach(el => {
+        el.value = metaVal; onEdit(el);
+      });
+      // Se não há input visível para o meta field, injeta diretamente em pendingEdits
+      if (!document.querySelector(`[data-field="${CSS.escape(metaField)}"]`)) {
+        S.pendingEdits[metaField] = metaVal;
+        const btn = document.getElementById('cm-save');
+        if (btn) { btn.classList.add('has-changes'); btn.textContent = `💾 Salvar (${Object.keys(S.pendingEdits).length})`; }
+      }
+
+      toast(`✅ "${result.fileName}" enviado. Salve o candidato para confirmar.`, 'ok', 5000);
+      _driveUpdateSettingsUI();
+    } catch(e) { toast(`❌ ${e.message}`, 'err', 5000); }
+  };
+  input.click();
+}
+
+// Atualiza o indicador de status do Drive em Configurações → Conexão
+function _driveUpdateSettingsUI() {
+  const el = document.getElementById('drive-status');
+  if (!el) return;
+  el.innerHTML = driveIsConnected()
+    ? `<span style="color:var(--green)">✓ Drive autorizado</span>
+       <button class="btn btn-xs btn-ghost" onclick="driveSignOut()" style="margin-left:8px">Desconectar</button>`
+    : `<span style="color:var(--txt3)">Não conectado</span>
+       <button class="btn btn-xs btn-ghost" onclick="driveGetToken().then(_driveUpdateSettingsUI).catch(e=>toast('❌ '+e.message,'err'))" style="margin-left:8px">Conectar agora</button>`;
 }
 
 // ── Apps Script URL para sync reverso (planilha espelho) ──
@@ -3996,10 +4170,24 @@ function buildPanel(tabId, c) {
           </select>
         </div>
       </div>`;
-      const docInput = (field, label, value='', type='text') => `<div class="field-group">
-        <label class="field-lbl">${label}</label>
-        <input class="field-input" type="${type}" data-field="${esc(field)}" value="${esc(value)}" oninput="onEdit(this)">
-      </div>`;
+      const docInput = (field, label, value='', type='text') => {
+        const isArquivo = field.toLowerCase().includes('arquivo');
+        const candName  = esc(c['Nome completo'] || '');
+        const candId    = esc(c['ID'] || c.ID || '');
+        const uploadBtn = isArquivo
+          ? `<button type="button" class="btn btn-xs btn-ghost" style="margin-left:4px;flex-shrink:0"
+               onclick="driveUploadDoc('${esc(field)}','${candId}','${candName}')" title="Enviar arquivo para o Google Drive">☁ Drive</button>`
+          : '';
+        return `<div class="field-group" style="${isArquivo ? 'flex-direction:column' : ''}">
+          <label class="field-lbl">${label}</label>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input class="field-input" type="${type}" data-field="${esc(field)}" value="${esc(value)}" oninput="onEdit(this)"
+              ${value && isArquivo ? `title="${esc(value)}"` : ''}>
+            ${uploadBtn}
+          </div>
+          ${value && isArquivo ? `<a href="${esc(value)}" target="_blank" style="font-size:10px;color:var(--blue);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block" title="${esc(value)}">↗ Abrir no Drive</a>` : ''}
+        </div>`;
+      };
       const card = (title, icon, body) => `<div class="idioma-section">
         <div class="idioma-section-hdr">
           <div class="idioma-section-ico">${icon}</div>
@@ -4329,8 +4517,182 @@ function populateNewForm() {
   fillSelect('n-status','STATUS PIPELINE', PIPELINE_STAGES);
 }
 
+// ══════════════════════════════════════════════════════════════
+// SPRINT PARSER 1 — Cadastro Assistido por IA via Currículo PDF
+// Fluxo: upload PDF → Edge Function → Gemini → preenche formulário
+// Nenhum dado é salvo automaticamente — revisão humana obrigatória.
+// ══════════════════════════════════════════════════════════════
+
+const PARSE_CURRICULUM_URL =
+  'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/parse-curriculum';
+
+// Abre o file picker quando o usuário clica em "✨ Currículo PDF"
+function triggerCurriculumParse() {
+  document.getElementById('n-pdf-input').value = '';
+  document.getElementById('n-pdf-input').click();
+}
+
+// Chamada quando o usuário seleciona o arquivo
+async function handleCurriculumFile(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const statusEl = document.getElementById('n-ai-status');
+  const btn      = document.getElementById('n-ai-btn');
+
+  // Estado: carregando
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = `<div class="ai-parse-bar"><span class="ai-ico">⏳</span><span class="ai-msg">Lendo currículo com IA… pode levar alguns segundos.</span></div>`;
+  btn.disabled = true;
+  btn.textContent = '⏳ Analisando...';
+
+  try {
+    // Converte PDF para base64
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
+      reader.readAsDataURL(file);
+    });
+
+    // Chama a Edge Function
+    const supa = await getSupa();  // Fix 3: getSupa() é async — await obrigatório
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session?.access_token) throw new Error('Sessão expirada. Faça login novamente.');
+    const res = await fetch(PARSE_CURRICULUM_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ pdf_base64: base64, mime_type: 'application/pdf' }),
+    });
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Erro na extração.');
+
+    // Preenche o formulário com os dados extraídos
+    _fillNewFormFromAI(data.fields, file.name);
+
+  } catch (e) {
+    statusEl.innerHTML = `<div class="ai-parse-bar" style="color:var(--red);background:var(--red-bg);border-color:rgba(255,61,90,.25)">
+      <span class="ai-ico">❌</span><span class="ai-msg">${esc(e.message)}</span></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Currículo PDF';
+  }
+}
+
+// Preenche os inputs do formulário com os dados da IA (schema expandido)
+function _fillNewFormFromAI(fields, fileName) {
+  // Mapa: chave do JSON → id do elemento no formulário
+  const textMap = {
+    'nome_completo': 'n-nome',
+    'email':         'n-email',
+    'telefone':      'n-tel',
+    'cidade_atual':  'n-cidade',
+    'pais_de_origem':'n-pais',
+    'observacao':    'n-obs',
+  };
+
+  let filled = 0;
+
+  // Campos de texto simples
+  for (const [key, elId] of Object.entries(textMap)) {
+    const val = fields[key];
+    if (!val) continue;
+    const el = document.getElementById(elId);
+    if (!el) continue;
+    el.value = val;
+    el.classList.add('ai-field-filled');
+    filled++;
+  }
+
+  // Profissão — select (com fallback de criação de opção temporária)
+  if (fields.profissao_principal) {
+    const sel = document.getElementById('n-prof');
+    if (sel) {
+      const match = Array.from(sel.options).find(o =>
+        o.value.toLowerCase() === String(fields.profissao_principal).toLowerCase()
+      );
+      if (match) {
+        sel.value = match.value;
+      } else {
+        const opt = document.createElement('option');
+        opt.value = opt.textContent = fields.profissao_principal;
+        sel.appendChild(opt);
+        sel.value = fields.profissao_principal;
+      }
+      sel.classList.add('ai-field-filled');
+      filled++;
+    }
+  }
+
+  // Nível de alemão — select (apenas valores exatos do enum)
+  if (fields.nivel_alemao) {
+    const sel = document.getElementById('n-alemao');
+    if (sel) {
+      const opt = Array.from(sel.options).find(o => o.value === fields.nivel_alemao);
+      if (opt) { sel.value = fields.nivel_alemao; sel.classList.add('ai-field-filled'); filled++; }
+    }
+  }
+
+  // Campos extras extraídos — vão para Observação como contexto adicional
+  // (especialidade, registro_profissional, formacao_principal, outros_idiomas, etc.)
+  // Appenda ao campo observação se ainda não estiver lá
+  const extrasToObs = [];
+  if (fields.especialidade)          extrasToObs.push(`Especialidade: ${fields.especialidade}`);
+  if (fields.tempo_experiencia)      extrasToObs.push(`Experiência: ${fields.tempo_experiencia} anos`);
+  if (fields.registro_profissional)  extrasToObs.push(`Registro: ${fields.registro_profissional}`);
+  if (fields.formacao_principal)     extrasToObs.push(`Formação: ${fields.formacao_principal}${fields.ano_formacao ? ` (${fields.ano_formacao})` : ''}`);
+  if (fields.outros_idiomas)         extrasToObs.push(`Idiomas: ${fields.outros_idiomas}`);
+  if (fields.linkedin)               extrasToObs.push(`LinkedIn: ${fields.linkedin}`);
+
+  if (extrasToObs.length) {
+    const obsEl = document.getElementById('n-obs');
+    if (obsEl) {
+      const existing = obsEl.value.trim();
+      const extras   = extrasToObs.join(' | ');
+      obsEl.value    = existing ? `${existing}\n${extras}` : extras;
+      obsEl.classList.add('ai-field-filled');
+    }
+  }
+
+  // Banner de status
+  const statusEl  = document.getElementById('n-ai-status');
+  const totalKeys = Object.values(fields).filter(v => v != null).length;
+  statusEl.innerHTML = `<div class="ai-parse-bar">
+    <span class="ai-ico">✨</span>
+    <span class="ai-msg">
+      <strong>${filled} campo(s) preenchido(s)</strong> a partir de <em>${esc(fileName)}</em>
+      ${extrasToObs.length ? `· ${extrasToObs.length} dado(s) adicional(is) em Observação` : ''}.
+      Revise os dados antes de salvar.
+      ${totalKeys < 3 ? '<span style="color:var(--red);font-size:10.5px"> ⚠ Poucos campos extraídos — verifique se o PDF é legível e não está protegido.</span>' : ''}
+    </span>
+    <button class="btn btn-xs btn-ghost" onclick="clearAIFill()" style="flex-shrink:0">Limpar</button>
+  </div>`;
+}
+
+// Limpa os campos preenchidos pela IA e o indicador
+function clearAIFill() {
+  ['n-nome','n-email','n-tel','n-cidade','n-obs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('ai-field-filled'); }
+  });
+  ['n-prof','n-alemao'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('ai-field-filled'); }
+  });
+  const statusEl = document.getElementById('n-ai-status');
+  if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
+}
+
 function openNewCandidate() { document.getElementById('new-overlay').classList.add('open'); }
-function closeNew() { document.getElementById('new-overlay').classList.remove('open'); }
+function closeNew() {
+  document.getElementById('new-overlay').classList.remove('open');
+  clearAIFill();
+}
 function closeNewOverlay(e) { if(e.target===document.getElementById('new-overlay')) closeNew(); }
 
 async function submitNew() {
@@ -4451,6 +4813,15 @@ function renderSettings(el) {
               <button class="btn btn-ghost btn-sm" onclick="forceSync()">↻ Forçar sync</button>
             </div>
             <div id="conn-result" style="margin-top:10px;font-size:12px;color:var(--txt3)"></div>
+          </div>
+          <div class="settings-card" style="margin-top:16px">
+            <h3>Google Drive</h3>
+            <p style="margin-bottom:10px">Autorize para enviar arquivos de documentação diretamente para o My Drive. Os links são salvos nos campos de arquivo do candidato.</p>
+            <div style="font-size:12px;color:var(--txt3);margin-bottom:6px">
+              Pasta de destino: <strong style="color:var(--txt2)">T4 Drive → [IDCRM - Nome do Candidato]</strong>
+            </div>
+            <div id="drive-status" style="font-size:12px;margin-top:8px"></div>
+            <script>setTimeout(_driveUpdateSettingsUI, 100)<\/script>
           </div>
         </div>
 
