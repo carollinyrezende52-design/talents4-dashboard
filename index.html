@@ -3423,7 +3423,7 @@ function buildPanel(tabId, c) {
                 <div class="field-select-wrap">
                   <select class="field-select" data-field="Resultado da prova" onchange="onEdit(this)">
                     <option value="">— Selecionar —</option>
-                    ${(S.enums['Resultado da prova']||['Aprovado','Reprovado','Pendente','Não realizou']).map(o=>`<option value="${esc(o)}" ${(c['Resultado da prova']||''===o)?'selected':''}>${esc(o)}</option>`).join('')}
+                    ${(S.enums['Resultado da prova']||['Aprovado','Reprovado','Pendente','Não realizou']).map(o=>`<option value="${esc(o)}" ${(c['Resultado da prova']||'') === o?'selected':''}>${esc(o)}</option>`).join('')}
                   </select>
                   <button type="button" class="field-select-add" onclick="quickAddEnum('Resultado da prova',this)">+</button>
                 </div>
