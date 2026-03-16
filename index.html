@@ -1808,6 +1808,8 @@ const FIELD_MAP = {
   'Curso de Graduação':'curso_de_graduacao','Anabin':'anabin','Pós-graduação':'posgraduacao',
   'Experiência Profissional (tempo)':'experiencia_profissional_tempo','Referência':'referencia',
   'Data da Candidatura':'data_da_candidatura','CV/ ARQUIVO DOC':'cv_arquivo_doc',
+  'CV Drive File ID':'cv_drive_file_id','CV Drive Folder ID':'cv_drive_folder_id',
+  'CV Drive File Name':'cv_drive_file_name','CV Drive Upload At':'cv_drive_upload_at',
   'Resumo profissional':'resumo_profissional','STATUS PIPELINE':'status_pipeline',
   'Substatus':'substatus','Status Final':'status_final',
   'Data entrada etapa atual':'data_entrada_etapa_atual',
@@ -2301,7 +2303,66 @@ async function driveUploadFile(file, candId, candName) {
   return { fileId: f.id, fileName: f.name, webViewLink: f.webViewLink, folderId, folderName };
 }
 
-// Handler dos botões de upload nos cards de documentação
+// Monta o objeto de campos a persistir após qualquer upload de currículo.
+// Centralizado para garantir consistência entre novo candidato e existente.
+function _cvBuildSaveFields(result) {
+  return {
+    'CV/ ARQUIVO DOC':     result.webViewLink,
+    'CV Drive File ID':    result.fileId,
+    'CV Drive Folder ID':  result.folderId,
+    'CV Drive File Name':  result.fileName,
+    'CV Drive Upload At':  new Date().toISOString(),
+  };
+}
+
+// Gera URL de download direto do Google Drive a partir do fileId.
+// <a download> não funciona para URLs do Drive — precisa da URL de exportação.
+function _cvDownloadUrl(fileId, webViewLink) {
+  if (fileId) return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}`;
+  // Fallback: extrai id da webViewLink se fileId não estiver salvo
+  const m = String(webViewLink || '').match(/\/d\/([^/]+)/);
+  if (m) return `https://drive.google.com/uc?export=download&id=${m[1]}`;
+  return webViewLink || '#'; // último recurso: abre no Drive
+}
+
+// Upload de currículo a partir do modal do candidato existente
+// Abre file picker, faz upload para a pasta do candidato e salva metadados
+async function driveUploadCurriculum(candId, candName) {
+  const input  = document.createElement('input');
+  input.type   = 'file';
+  input.accept = 'application/pdf';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const safeName = String(candName || 'Candidato').replace(/[^a-zA-ZÀ-ÿ0-9\s\-_.]/g,'').trim();
+    const ts       = new Date().toISOString().slice(0,16).replace('T',' ');
+    const hasExisting = !!S.candidates?.find(c=>(c.ID||c['ID'])===candId)?.['CV/ ARQUIVO DOC'];
+    const fileName = hasExisting
+      ? `Curriculo - ${safeName} - ${ts}.pdf`
+      : `Curriculo - ${safeName}.pdf`;
+    const renamedFile = new File([file], fileName, { type: 'application/pdf' });
+    toast('⏳ Enviando currículo ao Drive...', 'ok', 15000);
+    try {
+      const result   = await driveUploadFile(renamedFile, candId, candName);
+      const sess     = getSession();
+      const saveFields = _cvBuildSaveFields(result);
+      try {
+        await apiPost({ action:'updateCandidate', id:candId, actor:sess?.nome||'web', fields:saveFields });
+        toast(`✅ Currículo "${result.fileName}" enviado e vínculo salvo.`, 'ok', 6000);
+      } catch(saveErr) {
+        toast(`⚠ Currículo enviado ao Drive, mas falhou ao salvar vínculo no banco: ${saveErr.message}`, 'warn', 8000);
+      }
+      await loadAll();
+      const updated = S.candidates?.find(c=>(c.ID||c['ID'])===candId);
+      if (updated) buildCandModal(updated);
+    } catch(e) {
+      toast(`❌ Falha ao enviar currículo ao Drive: ${e.message}`, 'err', 7000);
+    }
+  };
+  input.click();
+}
+
+
 // field: ex. 'Passaporte arquivo' | candId: ID do CRM | candName: nome completo
 async function driveUploadDoc(field, candId, candName) {
   const input  = document.createElement('input');
@@ -4204,6 +4265,39 @@ function buildPanel(tabId, c) {
       return `<div>
         <div class="section-hdr">Documentação Estruturada</div>
         <div class="idioma-bento">
+          ${(()=>{
+            // ── Card de Currículo ──────────────────────────────────────
+            const cvUrl    = fv(c,'CV/ ARQUIVO DOC','cv_arquivo_doc') || '';
+            const cvFileId = fv(c,'CV Drive File ID','cv_drive_file_id') || '';
+            const cvName   = fv(c,'CV Drive File Name','cv_drive_file_name') || '';
+            const cvUpAt   = fv(c,'CV Drive Upload At','cv_drive_upload_at') || fv(c,'Última atualização','ultima_atualizacao') || '';
+            const cvDateFmt = cvUpAt ? new Date(cvUpAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+            // URL de download real — <a download> não funciona para o Drive
+            const dlUrl = _cvDownloadUrl(cvFileId, cvUrl);
+            return card('Currículo PDF','📎', `
+              <div class="field-group fg-full" style="flex-direction:column;gap:6px">
+                ${cvUrl
+                  ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                      <a href="${esc(cvUrl)}" target="_blank" class="btn btn-xs" style="background:var(--accent);color:#fff;text-decoration:none">↗ Abrir currículo</a>
+                      <a href="${esc(dlUrl)}" target="_blank" class="btn btn-xs btn-ghost">⬇ Baixar</a>
+                    </div>
+                    <div style="font-size:11px;color:var(--txt2);margin-top:2px">
+                      ${cvName ? `📄 <strong>${esc(cvName)}</strong>` : ''}
+                      ${cvDateFmt ? `<span style="color:var(--txt3)"> · Enviado em ${cvDateFmt}</span>` : ''}
+                    </div>`
+                  : `<div style="color:var(--txt3);font-size:12px">Nenhum currículo anexado.</div>`
+                }
+                <div style="display:flex;gap:6px;margin-top:4px">
+                  <button type="button" class="btn btn-xs btn-ghost"
+                    onclick="driveUploadCurriculum('${esc(c['ID']||c.ID||'')}','${esc(c['Nome completo']||'')}')">
+                    ☁ ${cvUrl ? 'Atualizar currículo' : 'Enviar currículo ao Drive'}
+                  </button>
+                </div>
+              </div>
+            `);
+          })()}
+        </div>
+        <div class="idioma-bento">
           ${card('Passaporte','🛂',
             docStatusField('Passaporte status', passStatus) +
             docInput('Passaporte número','Número', fv(c,'Passaporte número','passaporte_numero','Número do Passaporte','numero_do_passaporte')) +
@@ -4583,6 +4677,7 @@ async function handleCurriculumFile(input) {
 
     // Preenche o formulário com os dados extraídos
     // Edge Function retorna { ok, data } — não { ok, fields }
+    _pendingCurriculumFile = file;  // retém o arquivo para upload ao Drive após o save
     _fillNewFormFromAI(data.data, file.name);
 
   } catch (e) {
@@ -4595,69 +4690,118 @@ async function handleCurriculumFile(input) {
 }
 
 // Preenche os inputs do formulário com os dados da IA (schema expandido)
+// Referência ao arquivo PDF pendente de upload (mantido até o candidato ser salvo)
+let _pendingCurriculumFile = null;
+
 function _fillNewFormFromAI(fields, fileName) {
-  // Mapa: chave do JSON → id do elemento no formulário
+  // ── Mapa principal: chave do parser → id do input ──────────────────────
+  // Aceita variações de nome retornadas por diferentes versões do prompt Gemini
   const textMap = {
-    'nome_completo': 'n-nome',
-    'email':         'n-email',
-    'telefone':      'n-tel',
-    'cidade_atual':  'n-cidade',
-    'pais_de_origem':'n-pais',
-    'observacao':    'n-obs',
+    'nome_completo':  'n-nome',
+    'nome':           'n-nome',
+    'email':          'n-email',
+    'telefone':       'n-tel',
+    'cidade_atual':   'n-cidade',
+    'cidade':         'n-cidade',
+    'pais_de_origem': 'n-pais',
+    'pais_origem':    'n-pais',
+    'observacao':     'n-obs',
   };
 
-  let filled = 0;
+  const filled   = [];  // nomes amigáveis dos campos preenchidos
+  const skipped  = [];  // campos que o parser retornou mas não foram aplicados
 
-  // Campos de texto simples
+  // ── Campos de texto simples ────────────────────────────────────────────
   for (const [key, elId] of Object.entries(textMap)) {
     const val = fields[key];
-    if (!val) continue;
+    if (!val || String(val).trim() === '') continue;
     const el = document.getElementById(elId);
-    if (!el) continue;
-    el.value = val;
+    if (!el || el.value.trim() !== '') continue; // não sobrescreve se já preenchido
+    el.value = String(val).trim();
     el.classList.add('ai-field-filled');
-    filled++;
+    const label = { 'n-nome':'Nome', 'n-email':'E-mail', 'n-tel':'Telefone',
+                    'n-cidade':'Cidade', 'n-pais':'País de origem', 'n-obs':'Observação' }[elId];
+    if (label && !filled.includes(label)) filled.push(label);
   }
 
-  // Profissão — select (com fallback de criação de opção temporária)
-  if (fields.profissao_principal) {
+  // ── Profissão — select + criação dinâmica de opção ────────────────────
+  // Parser pode retornar: profissao, profissao_principal, profissao_extraida
+  const profVal = fields.profissao || fields.profissao_principal || fields.profissao_extraida || null;
+  if (profVal) {
     const sel = document.getElementById('n-prof');
     if (sel) {
-      const match = Array.from(sel.options).find(o =>
-        o.value.toLowerCase() === String(fields.profissao_principal).toLowerCase()
+      let match = Array.from(sel.options).find(
+        o => o.value.toLowerCase() === String(profVal).toLowerCase()
       );
-      if (match) {
-        sel.value = match.value;
-      } else {
+      if (!match) {
         const opt = document.createElement('option');
-        opt.value = opt.textContent = fields.profissao_principal;
+        opt.value = opt.textContent = String(profVal).trim();
         sel.appendChild(opt);
-        sel.value = fields.profissao_principal;
+        match = opt;
       }
+      sel.value = match.value;
       sel.classList.add('ai-field-filled');
-      filled++;
+      filled.push('Profissão');
     }
+  } else {
+    skipped.push('Profissão');
   }
 
-  // Nível de alemão — select (apenas valores exatos do enum)
-  if (fields.nivel_alemao) {
+  // ── Área profissional — select + criação dinâmica de opção ───────────
+  const areaVal = fields.area_profissional || null;
+  if (areaVal) {
+    const sel = document.getElementById('n-area');
+    if (sel) {
+      let match = Array.from(sel.options).find(
+        o => o.value.toLowerCase() === String(areaVal).toLowerCase()
+      );
+      if (!match) {
+        const opt = document.createElement('option');
+        opt.value = opt.textContent = String(areaVal).trim();
+        sel.appendChild(opt);
+        match = opt;
+      }
+      sel.value = match.value;
+      sel.classList.add('ai-field-filled');
+      filled.push('Área profissional');
+    }
+  } else {
+    skipped.push('Área profissional');
+  }
+
+  // ── Nível de alemão — só aceita valores exactos do enum ───────────────
+  const alemaoVal = fields.nivel_alemao || null;
+  if (alemaoVal) {
     const sel = document.getElementById('n-alemao');
     if (sel) {
-      const opt = Array.from(sel.options).find(o => o.value === fields.nivel_alemao);
-      if (opt) { sel.value = fields.nivel_alemao; sel.classList.add('ai-field-filled'); filled++; }
+      const opt = Array.from(sel.options).find(o =>
+        o.value.toLowerCase() === String(alemaoVal).toLowerCase()
+      );
+      if (opt) {
+        sel.value = opt.value;
+        sel.classList.add('ai-field-filled');
+        filled.push('Nível de alemão');
+      } else {
+        skipped.push(`Nível de alemão (valor "${alemaoVal}" não reconhecido)`);
+      }
     }
+  } else {
+    skipped.push('Nível de alemão');
   }
 
-  // Campos extras extraídos — vão para Observação como contexto adicional
-  // (especialidade, registro_profissional, formacao_principal, outros_idiomas, etc.)
-  // Appenda ao campo observação se ainda não estiver lá
+  // Campos não mapeados para o form → skipped
+  ['status_inicial','responsavel','referencia_origem'].forEach(k => {
+    if (!fields[k]) skipped.push({ status_inicial:'Status inicial', responsavel:'Responsável', referencia_origem:'Referência/Origem' }[k]);
+  });
+
+  // ── Extras → Observação (appenda sem sobrescrever) ─────────────────────
   const extrasToObs = [];
-  if (fields.especialidade)          extrasToObs.push(`Especialidade: ${fields.especialidade}`);
-  if (fields.tempo_experiencia)      extrasToObs.push(`Experiência: ${fields.tempo_experiencia} anos`);
-  if (fields.registro_profissional)  extrasToObs.push(`Registro: ${fields.registro_profissional}`);
-  if (fields.formacao_principal)     extrasToObs.push(`Formação: ${fields.formacao_principal}${fields.ano_formacao ? ` (${fields.ano_formacao})` : ''}`);
-  if (fields.outros_idiomas)         extrasToObs.push(`Idiomas: ${fields.outros_idiomas}`);
-  if (fields.linkedin)               extrasToObs.push(`LinkedIn: ${fields.linkedin}`);
+  if (fields.especialidade)         extrasToObs.push(`Especialidade: ${fields.especialidade}`);
+  if (fields.tempo_experiencia)     extrasToObs.push(`Experiência: ${fields.tempo_experiencia} anos`);
+  if (fields.registro_profissional) extrasToObs.push(`Registro: ${fields.registro_profissional}`);
+  if (fields.formacao_principal)    extrasToObs.push(`Formação: ${fields.formacao_principal}${fields.ano_formacao ? ` (${fields.ano_formacao})` : ''}`);
+  if (fields.outros_idiomas)        extrasToObs.push(`Idiomas: ${fields.outros_idiomas}`);
+  if (fields.linkedin)              extrasToObs.push(`LinkedIn: ${fields.linkedin}`);
 
   if (extrasToObs.length) {
     const obsEl = document.getElementById('n-obs');
@@ -4666,26 +4810,41 @@ function _fillNewFormFromAI(fields, fileName) {
       const extras   = extrasToObs.join(' | ');
       obsEl.value    = existing ? `${existing}\n${extras}` : extras;
       obsEl.classList.add('ai-field-filled');
+      if (!filled.includes('Observação')) filled.push('Observação');
     }
   }
 
-  // Banner de status
-  const statusEl  = document.getElementById('n-ai-status');
-  const totalKeys = Object.values(fields).filter(v => v != null).length;
-  statusEl.innerHTML = `<div class="ai-parse-bar">
-    <span class="ai-ico">✨</span>
-    <span class="ai-msg">
-      <strong>${filled} campo(s) preenchido(s)</strong> a partir de <em>${esc(fileName)}</em>
-      ${extrasToObs.length ? `· ${extrasToObs.length} dado(s) adicional(is) em Observação` : ''}.
-      Revise os dados antes de salvar.
-      ${totalKeys < 3 ? '<span style="color:var(--red);font-size:10.5px"> ⚠ Poucos campos extraídos — verifique se o PDF é legível e não está protegido.</span>' : ''}
-    </span>
-    <button class="btn btn-xs btn-ghost" onclick="clearAIFill()" style="flex-shrink:0">Limpar</button>
+  // ── Banner de resultado detalhado ─────────────────────────────────────
+  const statusEl = document.getElementById('n-ai-status');
+  const lowData  = filled.length < 3;
+  const skippedClean = skipped.filter(Boolean);
+  statusEl.innerHTML = `<div class="ai-parse-bar" style="flex-direction:column;align-items:flex-start;gap:6px">
+    <div style="display:flex;align-items:center;gap:8px;width:100%">
+      <span class="ai-ico">✨</span>
+      <span class="ai-msg" style="flex:1">
+        <strong>Currículo processado:</strong> <em>${esc(fileName)}</em>
+        ${lowData ? '<span style="color:var(--red);font-size:10.5px"> ⚠ Poucos campos — verifique se o PDF é legível.</span>' : ''}
+      </span>
+      <button class="btn btn-xs btn-ghost" onclick="clearAIFill()" style="flex-shrink:0">Limpar</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:11px;width:100%;padding-left:28px">
+      <div>
+        <div style="color:var(--green);font-weight:600;margin-bottom:2px">✓ Preenchidos (${filled.length})</div>
+        ${filled.length ? filled.map(f=>`<div style="color:var(--txt2)">· ${esc(f)}</div>`).join('') : '<div style="color:var(--txt3)">nenhum</div>'}
+        ${extrasToObs.length ? `<div style="color:var(--txt3);margin-top:2px">+ ${extrasToObs.length} item(s) em Observação</div>` : ''}
+      </div>
+      <div>
+        <div style="color:var(--txt3);font-weight:600;margin-bottom:2px">— Não preenchidos</div>
+        ${skippedClean.length ? skippedClean.map(f=>`<div style="color:var(--txt3)">· ${esc(f)}</div>`).join('') : '<div style="color:var(--txt3)">—</div>'}
+      </div>
+    </div>
+    ${_pendingCurriculumFile ? `<div style="font-size:11px;color:var(--blue);padding-left:28px">📎 PDF retido — será enviado ao Drive ao criar o candidato.</div>` : ''}
   </div>`;
 }
 
 // Limpa os campos preenchidos pela IA e o indicador
 function clearAIFill() {
+  _pendingCurriculumFile = null;
   ['n-nome','n-email','n-tel','n-cidade','n-obs'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.value = ''; el.classList.remove('ai-field-filled'); }
@@ -4733,12 +4892,46 @@ async function submitNew() {
       }
     });
     toast(`✅ Candidato criado: ${r.id}`, 'ok');
+
+    // ── Upload automático do currículo ao Drive, se houver PDF pendente ──
+    const pdfFile = _pendingCurriculumFile;
+    _pendingCurriculumFile = null;
     closeNew();
     btn.textContent = '✓ Criar Candidato'; btn.disabled = false;
     ['n-nome','n-email','n-tel','n-cidade','n-prof','n-area','n-origem','n-resp','n-obs'].forEach(id=>{
       const el = document.getElementById(id); if (el) el.value = '';
     });
     await loadAll(); renderView();
+
+    if (pdfFile && driveIsConnected()) {
+      toast('⏳ Enviando currículo ao Drive...', 'ok', 10000);
+      try {
+        const safeName = String(nome).replace(/[^a-zA-ZÀ-ÿ0-9\s\-_.]/g, '').trim();
+        const fileName = `Curriculo - ${safeName}.pdf`;
+        const renamedFile = new File([pdfFile], fileName, { type: 'application/pdf' });
+        let driveResult;
+        try {
+          driveResult = await driveUploadFile(renamedFile, r.id, nome);
+        } catch(uploadErr) {
+          toast(`⚠ Candidato criado, mas falhou ao enviar currículo ao Drive: ${uploadErr.message}`, 'warn', 8000);
+          return;
+        }
+        try {
+          await apiPost({
+            action: 'updateCandidate', id: r.id, actor: sess?.nome || 'web',
+            fields: _cvBuildSaveFields(driveResult),
+          });
+          toast(`✅ Currículo "${driveResult.fileName}" salvo no Drive e vínculo registrado.`, 'ok', 6000);
+          await loadAll(); renderView();
+        } catch(saveErr) {
+          toast(`⚠ Currículo enviado ao Drive, mas falhou ao salvar vínculo no banco: ${saveErr.message}`, 'warn', 8000);
+        }
+      } catch(driveErr) {
+        toast(`⚠ Candidato criado, mas erro inesperado no fluxo do Drive: ${driveErr.message}`, 'warn', 8000);
+      }
+    } else if (pdfFile && !driveIsConnected()) {
+      toast('⚠ Candidato criado. Currículo não enviado — conecte o Google Drive em Configurações → Conexão.', 'warn', 9000);
+    }
   } catch(e) {
     toast('❌ ' + e.message, 'err');
     btn.textContent = '✓ Criar Candidato'; btn.disabled = false;
