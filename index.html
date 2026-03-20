@@ -310,8 +310,8 @@ a{color:inherit;text-decoration:none}
 .modal-footer{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;background:var(--bg2);flex-shrink:0}
 .detail-tabs{display:flex;gap:1px;background:var(--bg3);padding:4px;border-radius:var(--r);margin:16px 22px 0;flex-shrink:0}
 
-/* ── Parser de Currículo IA (sprint parser 1) ── */
-.ai-parse-bar {
+/* ── Processamento de currículo (cadastro) ── */
+.doc-parse-bar {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -323,9 +323,9 @@ a{color:inherit;text-decoration:none}
   color: var(--gold);
   margin-bottom: 12px;
 }
-.ai-parse-bar .ai-ico { font-size: 14px; flex-shrink: 0; }
-.ai-parse-bar .ai-msg { flex: 1; }
-.ai-field-filled {
+.doc-parse-bar .doc-ico { font-size: 14px; flex-shrink: 0; }
+.doc-parse-bar .doc-msg { flex: 1; }
+.doc-field-filled {
   background: rgba(245,192,0,.07) !important;
   border-color: rgba(245,192,0,.3) !important;
   transition: background .3s, border-color .3s;
@@ -1510,14 +1510,14 @@ a{color:inherit;text-decoration:none}
     <div class="modal-hdr">
       <div class="modal-av" style="background:var(--green-bg);color:var(--green)">+</div>
       <div style="flex:1"><div class="modal-title">Novo Candidato</div><div style="font-size:12px;color:var(--txt3)">Somente o nome é necessário</div></div>
-      <button class="btn btn-sm btn-ghost" id="n-ai-btn" onclick="triggerCurriculumParse()" title="Preencher campos automaticamente a partir de um PDF de currículo" style="gap:5px">
-        ✨ Currículo PDF
+      <button class="btn btn-sm btn-ghost" id="n-cv-btn" onclick="triggerCurriculumImport()" title="Preencher campos a partir de um PDF de currículo" style="gap:5px">
+        📎 Currículo PDF
       </button>
       <input type="file" id="n-pdf-input" accept=".pdf" style="display:none" onchange="handleCurriculumFile(this)">
       <button class="modal-close" onclick="closeNew()">✕</button>
     </div>
     <div class="modal-body" style="padding:16px 22px 20px;overflow-y:auto">
-      <div id="n-ai-status" style="display:none;margin:-4px -22px 14px;padding:0 22px 12px;border-bottom:1px solid var(--border)"></div>
+      <div id="n-cv-status" style="display:none;margin:-4px -22px 14px;padding:0 22px 12px;border-bottom:1px solid var(--border)"></div>
       <div class="field-grid">
         <div class="field-group fg-full"><label class="field-lbl">Nome completo *</label><input class="field-input" id="n-nome" placeholder="Nome completo" autocomplete="off"></div>
         <div class="field-group"><label class="field-lbl">E-mail</label><input class="field-input" id="n-email" type="email" placeholder="email@exemplo.com" autocomplete="off"></div>
@@ -1580,6 +1580,7 @@ a{color:inherit;text-decoration:none}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIG
@@ -4743,20 +4744,25 @@ function populateNewForm() {
     const opts = (S.enums[field]&&S.enums[field].length ? S.enums[field] : fallback).filter(Boolean);
     el.innerHTML = '<option value="">Selecionar</option>' + opts.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
   };
-  fillSelect('n-prof','Profissão principal');
-  fillSelect('n-area','Área profissional');
+  fillSelect('n-prof','Profissão principal',[
+    'Assistente Administrativo','Analista Financeiro','Operador Logístico','Logística','Técnico de Enfermagem',
+    'Enfermeiro','Farmácia','Recepcionista','Operador de Produção','Cuidador de Idosos',
+    'Fisioterapeuta','Eletrotécnica','Outros'
+  ]);
+  fillSelect('n-area','Área profissional',[
+    'Administrativa','Financeira','Logística','Saúde','Industrial','Comercial','Tecnologia','Educação','Outros'
+  ]);
   fillSelect('n-alemao','Nível de alemão',['Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2']);
   fillSelect('n-status','STATUS PIPELINE', PIPELINE_STAGES);
 }
 
 // ══════════════════════════════════════════════════════════════
-// SPRINT PARSER 1 — Cadastro Assistido por IA via Currículo PDF
-// Fluxo: upload PDF → Edge Function → Gemini → preenche formulário
-// Nenhum dado é salvo automaticamente — revisão humana obrigatória.
+// Cadastro por currículo — pré-preenchimento objetivo do formulário
+// Fluxo: upload PDF → extração de texto no navegador → endpoint determinístico → revisão humana obrigatória
 // ══════════════════════════════════════════════════════════════
 
-const PARSE_CURRICULUM_URL =
-  'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/parse-curriculum';
+const EXTRACT_CURRICULUM_FIELDS_URL =
+  'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/extract-curriculum-fields';
 const PARSE_INTERVIEW_URL =
   'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/parse-interview';
 const GENERATE_QUESTIONS_URL =
@@ -4965,217 +4971,184 @@ async function generateInterviewQuestions(candId) {
     toast('❌ ' + e.message, 'err');
   }
 }
-function triggerCurriculumParse() {
+async function extractCurriculumTextFromPdf(file) {
+  if (!window.pdfjsLib) throw new Error('Leitor de PDF indisponível no navegador.');
+  if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const pages = [];
+
+  for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+    const page = await pdf.getPage(pageNo);
+    const content = await page.getTextContent();
+    let pageText = '';
+    let lastY = null;
+
+    for (const item of content.items || []) {
+      const str = item?.str || '';
+      if (!str) continue;
+      const y = Array.isArray(item.transform) ? item.transform[5] : null;
+      if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
+        pageText += '
+';
+      } else if (pageText && !pageText.endsWith('
+')) {
+        pageText += ' ';
+      }
+      pageText += str;
+      lastY = y;
+    }
+
+    pages.push(pageText.trim());
+  }
+
+  return pages.filter(Boolean).join('
+
+');
+}
+
+function triggerCurriculumImport() {
   document.getElementById('n-pdf-input').value = '';
   document.getElementById('n-pdf-input').click();
 }
+
+// Referência ao arquivo PDF pendente de upload (mantido até o candidato ser salvo)
+let _pendingCurriculumFile = null;
 
 // Chamada quando o usuário seleciona o arquivo
 async function handleCurriculumFile(input) {
   const file = input.files?.[0];
   if (!file) return;
 
-  const statusEl = document.getElementById('n-ai-status');
-  const btn      = document.getElementById('n-ai-btn');
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+    toast('⚠ Apenas arquivos PDF são aceitos neste fluxo.', 'warn', 5000);
+    return;
+  }
 
-  // Estado: carregando
+  const statusEl = document.getElementById('n-cv-status');
+  const btn      = document.getElementById('n-cv-btn');
+
   statusEl.style.display = 'block';
-  statusEl.innerHTML = `<div class="ai-parse-bar"><span class="ai-ico">⏳</span><span class="ai-msg">Lendo currículo com IA… pode levar alguns segundos.</span></div>`;
+  statusEl.innerHTML = `<div class="doc-parse-bar"><span class="doc-ico">⏳</span><span class="doc-msg">Processando currículo e identificando campos do cadastro...</span></div>`;
   btn.disabled = true;
-  btn.textContent = '⏳ Analisando...';
+  btn.textContent = '⏳ Processando...';
 
   try {
-    // Converte PDF para base64
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload  = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
-      reader.readAsDataURL(file);
-    });
+    const textContent = await extractCurriculumTextFromPdf(file);
+    if (!textContent || textContent.trim().length < 40) {
+      throw new Error('Não foi possível extrair texto suficiente do PDF. Faça o cadastro manualmente.');
+    }
 
-    // Chama a Edge Function
     const supa = await getSupa();
     const { data: { session } } = await supa.auth.getSession();
-
-    // Debug temporário — verificar sessão no console do navegador
-    console.log('[T4 Parser] session existe:', !!session);
-    console.log('[T4 Parser] access_token existe:', !!session?.access_token);
-    console.log('[T4 Parser] access_token tamanho:', session?.access_token?.length ?? 0);
-
     if (!session?.access_token) throw new Error('Sessão expirada. Faça login novamente.');
 
-    const res = await fetch(PARSE_CURRICULUM_URL, {
+    const res = await fetch(EXTRACT_CURRICULUM_FIELDS_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + session.access_token,
         'apikey': SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({ pdf_base64: base64, mime_type: 'application/pdf' }),
+      body: JSON.stringify({
+        text_content: textContent,
+        file_name: file.name,
+        mime_type: 'application/pdf'
+      }),
     });
 
-    console.log('[T4 Parser] Edge Function status:', res.status);
-
     const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Erro na extração.');
+    if (!data.ok) throw new Error(data.error || 'Erro ao processar o currículo.');
 
-    // Preenche o formulário com os dados extraídos
-    // Edge Function retorna { ok, data } — não { ok, fields }
-    _pendingCurriculumFile = file;  // retém o arquivo para upload ao Drive após o save
-    _fillNewFormFromAI(data.data, file.name, data);
+    _pendingCurriculumFile = file;
+    _fillNewFormFromCurriculum(data.data || {}, file.name, data);
 
   } catch (e) {
-    statusEl.innerHTML = `<div class="ai-parse-bar" style="color:var(--red);background:var(--red-bg);border-color:rgba(255,61,90,.25)">
-      <span class="ai-ico">❌</span><span class="ai-msg">${esc(e.message)}</span></div>`;
+    statusEl.innerHTML = `<div class="doc-parse-bar" style="color:var(--red);background:var(--red-bg);border-color:rgba(255,61,90,.25)">
+      <span class="doc-ico">❌</span><span class="doc-msg">${esc(e.message)}</span></div>`;
   } finally {
     btn.disabled = false;
-    btn.textContent = '✨ Currículo PDF';
+    btn.textContent = '📎 Currículo PDF';
   }
 }
 
-// Preenche os inputs do formulário com os dados da IA (schema expandido)
-// Referência ao arquivo PDF pendente de upload (mantido até o candidato ser salvo)
-let _pendingCurriculumFile = null;
-
-function _fillNewFormFromAI(fields, fileName) {
-  // ── Mapa principal: chave do parser → id do input ──────────────────────
-  // Aceita variações de nome retornadas por diferentes versões do prompt Gemini
+function _fillNewFormFromCurriculum(fields, fileName) {
   const textMap = {
     'nome_completo':  'n-nome',
-    'nome':           'n-nome',
     'email':          'n-email',
     'telefone':       'n-tel',
     'cidade_atual':   'n-cidade',
-    'cidade':         'n-cidade',
     'pais_de_origem': 'n-pais',
-    'pais_origem':    'n-pais',
     'observacao':     'n-obs',
   };
 
-  const filled   = [];  // nomes amigáveis dos campos preenchidos
-  const skipped  = [];  // campos que o parser retornou mas não foram aplicados
+  const labelMap = {
+    'n-nome':'Nome completo',
+    'n-email':'E-mail',
+    'n-tel':'Telefone',
+    'n-cidade':'Cidade atual',
+    'n-pais':'País de origem',
+    'n-obs':'Observação'
+  };
 
-  // ── Campos de texto simples ────────────────────────────────────────────
+  const filled = [];
+  const skipped = [];
+
   for (const [key, elId] of Object.entries(textMap)) {
     const val = fields[key];
     if (!val || String(val).trim() === '') continue;
     const el = document.getElementById(elId);
-    if (!el || el.value.trim() !== '') continue; // não sobrescreve se já preenchido
+    if (!el || el.value.trim() !== '') continue;
     el.value = String(val).trim();
-    el.classList.add('ai-field-filled');
-    const label = { 'n-nome':'Nome', 'n-email':'E-mail', 'n-tel':'Telefone',
-                    'n-cidade':'Cidade', 'n-pais':'País de origem', 'n-obs':'Observação' }[elId];
-    if (label && !filled.includes(label)) filled.push(label);
+    el.classList.add('doc-field-filled');
+    if (labelMap[elId] && !filled.includes(labelMap[elId])) filled.push(labelMap[elId]);
   }
 
-  // ── Profissão — select + criação dinâmica de opção ────────────────────
-  // Parser pode retornar: profissao, profissao_principal, profissao_extraida
-  const profVal = fields.profissao || fields.profissao_principal || fields.profissao_extraida || null;
-  if (profVal) {
-    const sel = document.getElementById('n-prof');
-    if (sel) {
-      let match = Array.from(sel.options).find(
-        o => o.value.toLowerCase() === String(profVal).toLowerCase()
-      );
-      if (!match) {
-        const opt = document.createElement('option');
-        opt.value = opt.textContent = String(profVal).trim();
-        sel.appendChild(opt);
-        match = opt;
-      }
+  const applySelectValue = (id, value, label) => {
+    if (!value) { skipped.push(label); return; }
+    const sel = document.getElementById(id);
+    if (!sel) { skipped.push(label); return; }
+    let match = Array.from(sel.options).find(o => o.value.toLowerCase() === String(value).trim().toLowerCase());
+    if (!match) {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = String(value).trim();
+      sel.appendChild(opt);
+      match = opt;
+    }
+    if (!sel.value) {
       sel.value = match.value;
-      sel.classList.add('ai-field-filled');
-      filled.push('Profissão');
+      sel.classList.add('doc-field-filled');
+      filled.push(label);
     }
-  } else {
-    skipped.push('Profissão');
-  }
+  };
 
-  // ── Área profissional — select + criação dinâmica de opção ───────────
-  const areaVal = fields.area_profissional || null;
-  if (areaVal) {
-    const sel = document.getElementById('n-area');
-    if (sel) {
-      let match = Array.from(sel.options).find(
-        o => o.value.toLowerCase() === String(areaVal).toLowerCase()
-      );
-      if (!match) {
-        const opt = document.createElement('option');
-        opt.value = opt.textContent = String(areaVal).trim();
-        sel.appendChild(opt);
-        match = opt;
-      }
-      sel.value = match.value;
-      sel.classList.add('ai-field-filled');
-      filled.push('Área profissional');
-    }
-  } else {
-    skipped.push('Área profissional');
-  }
+  applySelectValue('n-prof', fields.profissao_principal || fields.profissao || '', 'Profissão');
+  applySelectValue('n-area', fields.area_profissional || '', 'Área profissional');
+  applySelectValue('n-alemao', fields.nivel_alemao || '', 'Nível de alemão');
 
-  // ── Nível de alemão — só aceita valores exactos do enum ───────────────
-  const alemaoVal = fields.nivel_alemao || null;
-  if (alemaoVal) {
-    const sel = document.getElementById('n-alemao');
-    if (sel) {
-      const opt = Array.from(sel.options).find(o =>
-        o.value.toLowerCase() === String(alemaoVal).toLowerCase()
-      );
-      if (opt) {
-        sel.value = opt.value;
-        sel.classList.add('ai-field-filled');
-        filled.push('Nível de alemão');
-      } else {
-        skipped.push(`Nível de alemão (valor "${alemaoVal}" não reconhecido)`);
-      }
-    }
-  } else {
-    skipped.push('Nível de alemão');
-  }
-
-  // Campos não mapeados para o form → skipped
   ['status_inicial','responsavel','referencia_origem'].forEach(k => {
-    if (!fields[k]) skipped.push({ status_inicial:'Status inicial', responsavel:'Responsável', referencia_origem:'Referência/Origem' }[k]);
+    if (!fields[k]) skipped.push({ status_inicial:'Status inicial', responsavel:'Responsável', referencia_origem:'Referência / Origem' }[k]);
   });
 
-  // ── Extras → Observação (appenda sem sobrescrever) ─────────────────────
-  const extrasToObs = [];
-  if (fields.especialidade)         extrasToObs.push(`Especialidade: ${fields.especialidade}`);
-  if (fields.tempo_experiencia)     extrasToObs.push(`Experiência: ${fields.tempo_experiencia} anos`);
-  if (fields.registro_profissional) extrasToObs.push(`Registro: ${fields.registro_profissional}`);
-  if (fields.formacao_principal)    extrasToObs.push(`Formação: ${fields.formacao_principal}${fields.ano_formacao ? ` (${fields.ano_formacao})` : ''}`);
-  if (fields.outros_idiomas)        extrasToObs.push(`Idiomas: ${fields.outros_idiomas}`);
-  if (fields.linkedin)              extrasToObs.push(`LinkedIn: ${fields.linkedin}`);
-
-  if (extrasToObs.length) {
-    const obsEl = document.getElementById('n-obs');
-    if (obsEl) {
-      const existing = obsEl.value.trim();
-      const extras   = extrasToObs.join(' | ');
-      obsEl.value    = existing ? `${existing}\n${extras}` : extras;
-      obsEl.classList.add('ai-field-filled');
-      if (!filled.includes('Observação')) filled.push('Observação');
-    }
-  }
-
-  // ── Banner de resultado detalhado ─────────────────────────────────────
-  const statusEl = document.getElementById('n-ai-status');
-  const lowData  = filled.length < 3;
-  const skippedClean = skipped.filter(Boolean);
-  statusEl.innerHTML = `<div class="ai-parse-bar" style="flex-direction:column;align-items:flex-start;gap:6px">
+  const statusEl = document.getElementById('n-cv-status');
+  const lowData = filled.length < 3;
+  const skippedClean = [...new Set(skipped.filter(Boolean))];
+  statusEl.innerHTML = `<div class="doc-parse-bar" style="flex-direction:column;align-items:flex-start;gap:6px">
     <div style="display:flex;align-items:center;gap:8px;width:100%">
-      <span class="ai-ico">✨</span>
-      <span class="ai-msg" style="flex:1">
+      <span class="doc-ico">📎</span>
+      <span class="doc-msg" style="flex:1">
         <strong>Currículo processado:</strong> <em>${esc(fileName)}</em>
-        ${lowData ? '<span style="color:var(--red);font-size:10.5px"> ⚠ Poucos campos — verifique se o PDF é legível.</span>' : ''}
+        ${lowData ? '<span style="color:var(--red);font-size:10.5px"> ⚠ Poucos campos identificados. Revise o preenchimento.</span>' : ''}
       </span>
-      <button class="btn btn-xs btn-ghost" onclick="clearAIFill()" style="flex-shrink:0">Limpar</button>
+      <button class="btn btn-xs btn-ghost" onclick="clearCurriculumFill()" style="flex-shrink:0">Limpar</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:11px;width:100%;padding-left:28px">
       <div>
         <div style="color:var(--green);font-weight:600;margin-bottom:2px">✓ Preenchidos (${filled.length})</div>
         ${filled.length ? filled.map(f=>`<div style="color:var(--txt2)">· ${esc(f)}</div>`).join('') : '<div style="color:var(--txt3)">nenhum</div>'}
-        ${extrasToObs.length ? `<div style="color:var(--txt3);margin-top:2px">+ ${extrasToObs.length} item(s) em Observação</div>` : ''}
       </div>
       <div>
         <div style="color:var(--txt3);font-weight:600;margin-bottom:2px">— Não preenchidos</div>
@@ -5186,25 +5159,30 @@ function _fillNewFormFromAI(fields, fileName) {
   </div>`;
 }
 
-// Limpa os campos preenchidos pela IA e o indicador
-function clearAIFill() {
+function clearCurriculumFill() {
   _pendingCurriculumFile = null;
-  ['n-nome','n-email','n-tel','n-cidade','n-obs'].forEach(id => {
+  ['n-nome','n-email','n-tel','n-cidade','n-pais','n-obs'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) { el.value = ''; el.classList.remove('ai-field-filled'); }
+    if (el && el.classList.contains('doc-field-filled')) {
+      el.value = '';
+      el.classList.remove('doc-field-filled');
+    }
   });
-  ['n-prof','n-alemao'].forEach(id => {
+  ['n-prof','n-area','n-alemao'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) { el.classList.remove('ai-field-filled'); }
+    if (el && el.classList.contains('doc-field-filled')) {
+      el.value = '';
+      el.classList.remove('doc-field-filled');
+    }
   });
-  const statusEl = document.getElementById('n-ai-status');
+  const statusEl = document.getElementById('n-cv-status');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
 }
 
 function openNewCandidate() { document.getElementById('new-overlay').classList.add('open'); }
 function closeNew() {
   document.getElementById('new-overlay').classList.remove('open');
-  clearAIFill();
+  clearCurriculumFill();
 }
 function closeNewOverlay(e) { if(e.target===document.getElementById('new-overlay')) closeNew(); }
 
