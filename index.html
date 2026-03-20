@@ -4488,9 +4488,9 @@ const RH_DOC_IMPORT_FIELDS = {
   data_da_entrevista: { uiField: 'Data da Entrevista' },
   email: { uiField: 'E-mail', overwriteIfEmptyOnly: true },
   telefone: { uiField: 'Telefone', overwriteIfEmptyOnly: true },
-  profissao_principal: { uiField: 'Profissão principal', overwriteIfEmptyOnly: true, isSelect: true },
-  nivel_alemao: { uiField: 'Nível de alemão', overwriteIfEmptyOnly: true, isSelect: true },
-  area_profissional: { uiField: 'Área profissional', overwriteIfEmptyOnly: true, isSelect: true },
+  profissao_principal: { uiField: 'Profissão principal', overwriteIfEmptyOnly: true },
+  nivel_alemao: { uiField: 'Nível alemão', overwriteIfEmptyOnly: true, isSelect: true },
+  area_profissional: { uiField: 'Área profissional', overwriteIfEmptyOnly: true },
   resultado_entrevista: { uiField: 'Resultado entrevista', isSelect: true },
   pais_de_origem: { uiField: 'País de origem', overwriteIfEmptyOnly: true },
   cidade_atual: { uiField: 'Cidade atual', overwriteIfEmptyOnly: true },
@@ -4498,7 +4498,7 @@ const RH_DOC_IMPORT_FIELDS = {
   quem_e_voce: { uiField: 'Quem é você?' },
   porque_deseja_ir_para_alemanha_como_surgiu_o_interesse: { uiField: 'Porque deseja ir para Alemanha, como surgiu o interesse?' },
   relato_sobre_a_experiencia_profissional: { uiField: 'Relato sobre a experiência profissional' },
-  organizacao_financeira: { uiField: 'Como é sua organização financeira?\nTem reserva?\nComo será o preparo para Alemanha?' },
+  organizacao_financeira: { uiField: 'Como é sua organização financeira? Tem reserva? Como será o preparo para Alemanha?' },
   perfil: { uiField: 'Perfil', isSelect: true },
   tipo_de_candidato: { uiField: 'Tipo de candidato', isSelect: true },
   perfil_profissional_para_apresentacao: { uiField: 'Perfil profissional para apresentação' },
@@ -4640,8 +4640,9 @@ function parseRhDocxHtml(html) {
 
 function rhFindSelectOption(selectEl, value) {
   if (!selectEl || !value) return null;
+  if (String(selectEl.tagName || '').toUpperCase() !== 'SELECT') return null;
   const target = rhNormLabel(value);
-  return [...selectEl.options].find(opt => rhNormLabel(opt.value || opt.textContent) === target) || null;
+  return Array.from(selectEl.options || []).find(opt => rhNormLabel(opt.value || opt.textContent) === target) || null;
 }
 
 function rhFieldDisplayName(field) {
@@ -4663,13 +4664,18 @@ function applyRhDocFields(parsed) {
       summary.skippedExisting.push(rhFieldDisplayName(field));
       continue;
     }
-    if (el.tagName === 'SELECT' || cfg.isSelect) {
-      const opt = rhFindSelectOption(el, value);
-      if (!opt) {
-        summary.invalidSelect.push(`${rhFieldDisplayName(field)}: ${value}`);
-        continue;
+    const isSelectEl = String(el.tagName || '').toUpperCase() === 'SELECT';
+    if (isSelectEl || cfg.isSelect) {
+      if (!isSelectEl) {
+        el.value = value;
+      } else {
+        const opt = rhFindSelectOption(el, value);
+        if (!opt) {
+          summary.invalidSelect.push(`${rhFieldDisplayName(field)}: ${value}`);
+          continue;
+        }
+        el.value = opt.value;
       }
-      el.value = opt.value;
     } else {
       el.value = value;
     }
