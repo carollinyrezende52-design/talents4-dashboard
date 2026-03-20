@@ -5060,7 +5060,7 @@ async function handleCurriculumFile(input) {
     if (!data.ok) throw new Error(data.error || 'Erro ao processar o currículo.');
 
     _pendingCurriculumFile = file;
-    _fillNewFormFromCurriculum(data.data || {}, file.name, data);
+    _fillNewFormFromCurriculum(data.data || {}, file.name);
 
   } catch (e) {
     statusEl.innerHTML = `<div class="doc-parse-bar" style="color:var(--red);background:var(--red-bg);border-color:rgba(255,61,90,.25)">
