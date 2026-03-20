@@ -1387,6 +1387,8 @@ a{color:inherit;text-decoration:none}
 }
 
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -1487,11 +1489,16 @@ a{color:inherit;text-decoration:none}
         <div class="modal-title" id="cm-name">—</div>
         <div class="modal-meta-row" id="cm-meta"></div>
       </div>
+      <button class="btn btn-sm btn-ghost" id="cm-rh-btn" onclick="triggerRhDocImport()" title="Preencher entrevista e análise RH a partir do formulário DOCX" style="gap:5px">
+        📄 Formulário RH
+      </button>
+      <input type="file" id="cm-rh-docx-input" accept=".docx" style="display:none" onchange="handleRhDocxFile(this)">
       <button class="modal-close" onclick="closeCand()">✕</button>
     </div>
     <div id="cm-tabs" class="detail-tabs"></div>
     <div id="cm-summary" class="ops-summary" style="display:none"></div>
     <div id="cm-alerts" class="alerts-strip" style="display:none"></div>
+    <div id="cm-rh-status" class="ops-summary" style="display:none"></div>
     <div id="cm-hist" class="hist-block" style="display:none"></div>
     <div class="modal-body" id="cm-body" style="padding:0"></div>
     <div class="modal-footer">
@@ -1830,8 +1837,9 @@ const FIELD_MAP = {
   'Nível de alemão':'nivel_alemao','Em curso de alemão':'em_curso_de_alemao',
   'Língua Estrangeira':'lingua_estrangeira','Nível Língua Estrangeira':'nivel_lingua_estrangeira',
   'Resultado da prova':'resultado_da_prova','Data da Entrevista':'data_da_entrevista',
-  'Resultado entrevista':'resultado_entrevista','Avaliador':'avaliador',
-  'Perfil':'perfil','Tipo de candidato':'tipo_de_candidato',
+  'Data da entrevista':'data_da_entrevista','Resultado entrevista':'resultado_entrevista',
+  'Avaliador':'avaliador','Avaliador responsável':'avaliador',
+  'Perfil':'perfil','Perfil do candidato':'perfil','Tipo de candidato':'tipo_de_candidato',
   'Análise do recrutador':'analise_do_recrutador','Diferenciais do perfil':'diferenciais_do_perfil',
   'Pontos fortes':'pontos_fortes','Pontos de atenção':'pontos_de_atencao',
   'Perfil profissional para apresentação':'perfil_profissional_para_apresentacao',
@@ -1861,6 +1869,10 @@ const FIELD_MAP = {
   'Quem é você?':'quem_e_voce',
   'Porque deseja ir para Alemanha, como surgiu o interesse?':'porque_deseja_ir_para_alemanha_como_surgiu_o_interesse',
   'Relato sobre a experiência profissional':'relato_sobre_a_experiencia_profissional',
+  'Como é sua organização financeira?
+Tem reserva?
+Como será o preparo para Alemanha?':'organizacao_financeira',
+  'Como é sua organização financeira? Tem reserva? Como será o preparo para Alemanha?':'organizacao_financeira',
   'Com quem você mora?':'com_quem_voce_mora',
   'Como você organiza seu dia a dia?':'como_voce_organiza_seu_dia_a_dia',
   /* ── Módulo: Jornada do Idioma ── */
@@ -1885,10 +1897,6 @@ const FIELD_MAP = {
   'Registro número':'registro_numero',
   'Registro validade':'registro_validade',
   'Registro arquivo':'registro_arquivo',
-  /* ── M6: Campos de triagem IA ── */
-  'AI Summary':'ai_summary',
-  'AI Missing Fields':'ai_missing_fields',
-  'AI Attention Flags':'ai_attention_flags',
   /* ── M10: Bolsa do curso de alemão ── */
   'Bolsa concedida':'bolsa_concedida',
   'Bolsa percentual':'bolsa_percentual',
@@ -1910,10 +1918,6 @@ function toFrontend(row) {
   if (!out['STATUS PIPELINE'] && row.status_pipeline) out['STATUS PIPELINE'] = row.status_pipeline;
   if (!out['Nível de alemão'] && row.nivel_alemao) out['Nível de alemão'] = row.nivel_alemao;
   if (!out['Nível alemão'] && row.nivel_alemao) out['Nível alemão'] = row.nivel_alemao;
-  // M6: AI Triagem
-  if (!out['AI Summary']        && row.ai_summary)        out['AI Summary']        = row.ai_summary;
-  if (!out['AI Missing Fields'] && row.ai_missing_fields) out['AI Missing Fields'] = row.ai_missing_fields;
-  if (!out['AI Attention Flags']&& row.ai_attention_flags)out['AI Attention Flags']= row.ai_attention_flags;
   // M10: Bolsa
   if (out['Bolsa concedida'] === undefined && row.bolsa_concedida !== undefined) out['Bolsa concedida'] = row.bolsa_concedida;
   if (out['Bolsa percentual'] === undefined && row.bolsa_percentual !== undefined) out['Bolsa percentual'] = row.bolsa_percentual;
@@ -3466,7 +3470,7 @@ function renderTable(el, filterStatus) {
     // ─── ABA ENTREVISTAS: colunas específicas de entrevista ───
     thead = `<tr>
       <th>Nome</th><th>Status Atual</th><th>Resultado</th><th>Data Entrevista</th>
-      <th>Avaliador</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Score</th>
+      <th>Avaliador responsável</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Score</th>
     </tr>`;
     rows = paged.map(c => {
       const st  = fv(c,'STATUS PIPELINE')||'';
@@ -3496,7 +3500,7 @@ function renderTable(el, filterStatus) {
     // ─── ABA ANÁLISE RH: colunas específicas de análise ───
     thead = `<tr>
       <th>Nome</th><th>Status Atual</th><th>Perfil</th><th>Tipo</th>
-      <th>Avaliador</th><th>Pontos Fortes</th><th>Pontos Atenção</th><th>Alemão</th><th>Score</th>
+      <th>Avaliador responsável</th><th>Pontos Fortes</th><th>Pontos Atenção</th><th>Alemão</th><th>Score</th>
     </tr>`;
     rows = paged.map(c => {
       const st   = fv(c,'STATUS PIPELINE')||'';
@@ -3630,7 +3634,7 @@ function renderTable(el, filterStatus) {
     }).join('');
 
   } else {
-    thead = `<tr><th>Nome</th><th>Status Pipeline</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador</th><th>Score</th><th>ID</th></tr>`;
+    thead = `<tr><th>Nome</th><th>Status Pipeline</th><th>Perfil</th><th>Alemão</th><th>Profissão</th><th>Cidade</th><th>Avaliador responsável</th><th>Score</th><th>ID</th></tr>`;
     rows = paged.map(c => {
       const st=c['STATUS PIPELINE']||'';
       const sc=STATUS_BADGE[st]||'b-inativo';
@@ -4002,6 +4006,8 @@ function buildCandModal(c) {
   btn.style.color  = isActive ? 'var(--red)' : 'var(--green)';
   btn.className = 'btn btn-sm btn-ghost';
   document.getElementById('cm-save').textContent = '💾 Salvar';
+  const rhStatusEl = document.getElementById('cm-rh-status');
+  if (rhStatusEl) { rhStatusEl.style.display = 'none'; rhStatusEl.innerHTML = ''; }
 
   // ── Última atualização ──────────────────────────────────
   _refreshLastUpdated(c);
@@ -4140,40 +4146,26 @@ function buildPanel(tabId, c) {
       <div class="field-grid g1">${fld('Resumo profissional','Resumo profissional','textarea',null,true)}</div>
     </div>`;
     case 't-entrevista': return `<div>
-      <div class="section-hdr" style="display:flex;align-items:center;justify-content:space-between">
-        <span>Dados da Entrevista</span>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-xs btn-ghost" style="gap:4px"
-            onclick="triggerInterviewUpload('${esc(c['ID']||c.ID||'')}')">
-            📋 Carregar entrevista PDF
-          </button>
-          <button class="btn btn-xs btn-ghost" style="gap:4px;color:var(--gold)"
-            onclick="generateInterviewQuestions('${esc(c['ID']||c.ID||'')}')">
-            ✦ Gerar perguntas
-          </button>
-        </div>
-      </div>
-      <input type="file" id="interview-pdf-input-${esc(c['ID']||c.ID||'')}" accept=".pdf" style="display:none"
-             onchange="handleInterviewFile(this,'${esc(c['ID']||c.ID||'')}')">
-      <div id="interview-preview-${esc(c['ID']||c.ID||'')}" style="display:none;margin:10px 0 6px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2)"></div>
+      <div class="section-hdr">Dados da Entrevista</div>
       <div class="field-grid">
         ${fld('Data da Entrevista','Data da entrevista')}${fld('Resultado entrevista','Resultado','select')}
-        ${fld('Avaliador','Avaliador','select')}<div></div>
+        ${fld('Avaliador','Avaliador responsável','select')}<div></div>
       </div>
       <div class="section-hdr">Respostas da Entrevista</div>
       <div class="field-grid g1">
         ${fld('Quem é você?','Quem é você?','textarea',null,true)}
         ${fld('Porque deseja ir para Alemanha, como surgiu o interesse?','Por que Alemanha?','textarea',null,true)}
         ${fld('Relato sobre a experiência profissional','Relato exp. profissional','textarea',null,true)}
-        ${fld('Como é sua organização financeira?\nTem reserva?\nComo será o preparo para Alemanha?','Organização financeira','textarea',null,true)}
+        ${fld('Como é sua organização financeira?
+Tem reserva?
+Como será o preparo para Alemanha?','Organização financeira','textarea',null,true)}
       </div>
-      <div id="questions-block-${esc(c['ID']||c.ID||'')}" style="display:none;margin-top:14px"></div>
     </div>`;
     case 't-analise': return `<div>
       <div class="section-hdr">Classificação & Avaliação</div>
       <div class="field-grid">
         ${fld('Perfil','Perfil do candidato','select')}${fld('Tipo de candidato','Tipo de candidato','select')}
-        ${fld('Avaliador','Avaliador','select')}<div></div>
+        <div></div><div></div>
       </div>
       <div class="section-hdr">Análise Completa</div>
       <div class="field-grid g1">
@@ -4184,27 +4176,6 @@ function buildPanel(tabId, c) {
         ${fld('Perfil profissional para apresentação','Perfil para apresentação','textarea',null,true)}
         ${fld('Observações internas','Observações internas','textarea',null,true)}
       </div>
-      ${(()=>{
-        const sum  = c['AI Summary'] || c['ai_summary'] || '';
-        const miss = c['AI Missing Fields'] || c['ai_missing_fields'] || '';
-        const attn = c['AI Attention Flags'] || c['ai_attention_flags'] || '';
-        if (!sum && !miss && !attn) return '';
-        return `<div class="section-hdr" style="margin-top:14px">🤖 Triagem IA <span style="font-size:10px;font-weight:400;color:var(--txt3);margin-left:6px">gerado automaticamente — não substitui avaliação humana</span></div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
-          ${sum ? `<div style="background:var(--blue-bg);border:1px solid rgba(56,189,248,.2);border-radius:var(--r);padding:10px 13px;font-size:12.5px;line-height:1.55">
-            <span style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--blue);display:block;margin-bottom:4px">Resumo</span>
-            ${esc(sum)}
-          </div>` : ''}
-          ${miss ? `<div style="background:var(--yellow-bg);border:1px solid rgba(245,192,0,.2);border-radius:var(--r);padding:10px 13px;font-size:12.5px;line-height:1.55">
-            <span style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px">Campos não encontrados no currículo</span>
-            ${esc(miss)}
-          </div>` : ''}
-          ${attn ? `<div style="background:var(--orange-bg);border:1px solid rgba(255,140,66,.2);border-radius:var(--r);padding:10px 13px;font-size:12.5px;line-height:1.55">
-            <span style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:4px">Pontos de atenção identificados</span>
-            ${esc(attn)}
-          </div>` : ''}
-        </div>`;
-      })()}
     </div>`;
     case 't-idioma': {
       const NIVEL_OPT = ['Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2'];
@@ -4516,6 +4487,275 @@ function switchTab(tabId) {
   document.querySelectorAll('.detail-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
 }
 
+
+const RH_DOC_IMPORT_FIELDS = {
+  nome_completo: { uiField: 'Nome completo', overwriteIfEmptyOnly: true },
+  data_da_entrevista: { uiField: 'Data da Entrevista' },
+  email: { uiField: 'E-mail', overwriteIfEmptyOnly: true },
+  telefone: { uiField: 'Telefone', overwriteIfEmptyOnly: true },
+  profissao_principal: { uiField: 'Profissão principal', overwriteIfEmptyOnly: true, isSelect: true },
+  nivel_alemao: { uiField: 'Nível de alemão', overwriteIfEmptyOnly: true, isSelect: true },
+  area_profissional: { uiField: 'Área profissional', overwriteIfEmptyOnly: true, isSelect: true },
+  resultado_entrevista: { uiField: 'Resultado entrevista', isSelect: true },
+  pais_de_origem: { uiField: 'País de origem', overwriteIfEmptyOnly: true },
+  cidade_atual: { uiField: 'Cidade atual', overwriteIfEmptyOnly: true },
+  avaliador: { uiField: 'Avaliador', isSelect: true },
+  quem_e_voce: { uiField: 'Quem é você?' },
+  porque_deseja_ir_para_alemanha_como_surgiu_o_interesse: { uiField: 'Porque deseja ir para Alemanha, como surgiu o interesse?' },
+  relato_sobre_a_experiencia_profissional: { uiField: 'Relato sobre a experiência profissional' },
+  organizacao_financeira: { uiField: 'Como é sua organização financeira?\nTem reserva?\nComo será o preparo para Alemanha?' },
+  perfil: { uiField: 'Perfil', isSelect: true },
+  tipo_de_candidato: { uiField: 'Tipo de candidato', isSelect: true },
+  perfil_profissional_para_apresentacao: { uiField: 'Perfil profissional para apresentação' },
+  observacoes_internas: { uiField: 'Observações internas' },
+  analise_do_recrutador: { uiField: 'Análise do recrutador' },
+  diferenciais_do_perfil: { uiField: 'Diferenciais do perfil' },
+  pontos_fortes: { uiField: 'Pontos fortes' },
+  pontos_de_atencao: { uiField: 'Pontos de atenção' },
+};
+
+const RH_DOC_LABEL_MAP = {
+  'nome completo': 'nome_completo',
+  'data da entrevista': 'data_da_entrevista',
+  'e mail': 'email',
+  'telefone': 'telefone',
+  'profissao principal': 'profissao_principal',
+  'nivel de alemao': 'nivel_alemao',
+  'area profissional': 'area_profissional',
+  'resultado entrevista': 'resultado_entrevista',
+  'pais de origem': 'pais_de_origem',
+  'cidade atual': 'cidade_atual',
+  'avaliador responsavel': 'avaliador',
+  'avaliador': 'avaliador',
+  'avaliador entrevista': 'avaliador',
+  'avaliador analise rh': 'avaliador',
+  'perfil do candidato': 'perfil',
+  'perfil': 'perfil',
+  'tipo de candidato': 'tipo_de_candidato',
+  'perfil profissional para apresentacao': 'perfil_profissional_para_apresentacao',
+  'observacoes internas': 'observacoes_internas',
+  'analise do recrutador': 'analise_do_recrutador',
+  'diferenciais do perfil': 'diferenciais_do_perfil',
+  'pontos fortes': 'pontos_fortes',
+  'pontos de atencao': 'pontos_de_atencao',
+  'quem e voce': 'quem_e_voce',
+  'porque deseja ir para alemanha como surgiu o interesse': 'porque_deseja_ir_para_alemanha_como_surgiu_o_interesse',
+  'relato sobre a experiencia profissional': 'relato_sobre_a_experiencia_profissional',
+  'como e sua organizacao financeira tem reserva como sera o preparo para alemanha': 'organizacao_financeira',
+};
+
+function rhNormLabel(s) {
+  return String(s || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[()?:;,./\\-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function rhCleanText(s) {
+  return String(s || '')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\r/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function rhStripPlaceholders(text) {
+  let out = rhCleanText(text);
+  const placeholders = [
+    'Registrar exatamente a resposta do candidato ou síntese fiel do que foi dito.',
+    'Preencher somente com avaliação do analista responsável.',
+    'Observação operacional: campos não preenchidos devem permanecer em branco.',
+    'Formulário de Entrevista e Análise RH',
+  ];
+  placeholders.forEach(p => {
+    out = out.replaceAll(p, '').trim();
+  });
+  return rhCleanText(out);
+}
+
+function setRhField(out, field, value, meta) {
+  const clean = rhStripPlaceholders(value);
+  if (!field || !clean) return;
+  if (field === 'avaliador' && out[field] && out[field] !== clean) {
+    meta.conflicts.push(`Avaliador com valores diferentes no documento: "${out[field]}" e "${clean}".`);
+    return;
+  }
+  if (out[field] && out[field] !== clean) {
+    meta.warnings.push(`Campo duplicado no documento: ${field}. Mantido o primeiro valor.`);
+    return;
+  }
+  out[field] = clean;
+}
+
+function parseRhDocxHtml(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const tables = [...doc.querySelectorAll('table')];
+  const out = {};
+  const meta = { warnings: [], conflicts: [] };
+
+  const applyGridTable = (table) => {
+    if (!table) return;
+    table.querySelectorAll('tr').forEach(tr => {
+      const cells = [...tr.querySelectorAll('td,th')].map(td => rhCleanText(td.textContent));
+      for (let i = 0; i < cells.length; i += 2) {
+        const label = cells[i] || '';
+        const value = cells[i + 1] || '';
+        const field = RH_DOC_LABEL_MAP[rhNormLabel(label)];
+        if (field) setRhField(out, field, value, meta);
+      }
+    });
+  };
+
+  applyGridTable(tables[1]);
+  applyGridTable(tables[6]);
+
+  const interviewTables = [2,3,4,5];
+  const interviewFields = [
+    'quem_e_voce',
+    'porque_deseja_ir_para_alemanha_como_surgiu_o_interesse',
+    'relato_sobre_a_experiencia_profissional',
+    'organizacao_financeira',
+  ];
+  interviewFields.forEach((field, idx) => {
+    const table = tables[interviewTables[idx]];
+    if (!table) return;
+    const text = rhStripPlaceholders(table.textContent || '');
+    if (text) out[field] = text;
+  });
+
+  const analysisTables = [7,8,9,10];
+  const analysisFields = [
+    'analise_do_recrutador',
+    'diferenciais_do_perfil',
+    'pontos_fortes',
+    'pontos_de_atencao',
+  ];
+  analysisFields.forEach((field, idx) => {
+    const table = tables[analysisTables[idx]];
+    if (!table) return;
+    const text = rhStripPlaceholders(table.textContent || '');
+    if (text) out[field] = text;
+  });
+
+  return { fields: out, meta };
+}
+
+function rhFindSelectOption(selectEl, value) {
+  if (!selectEl || !value) return null;
+  const target = rhNormLabel(value);
+  return [...selectEl.options].find(opt => rhNormLabel(opt.value || opt.textContent) === target) || null;
+}
+
+function rhFieldDisplayName(field) {
+  return REV_MAP[field] || field.replaceAll('_', ' ');
+}
+
+function applyRhDocFields(parsed) {
+  const summary = { applied: [], skippedExisting: [], invalidSelect: [], missingField: [], conflicts: parsed.meta.conflicts || [], warnings: parsed.meta.warnings || [] };
+  for (const [field, value] of Object.entries(parsed.fields || {})) {
+    const cfg = RH_DOC_IMPORT_FIELDS[field];
+    if (!cfg) continue;
+    const el = document.querySelector(`[data-field="${CSS.escape(cfg.uiField)}"]`);
+    if (!el) {
+      summary.missingField.push(rhFieldDisplayName(field));
+      continue;
+    }
+    const current = rhCleanText(el.value || '');
+    if (cfg.overwriteIfEmptyOnly && current) {
+      summary.skippedExisting.push(rhFieldDisplayName(field));
+      continue;
+    }
+    if (el.tagName === 'SELECT' || cfg.isSelect) {
+      const opt = rhFindSelectOption(el, value);
+      if (!opt) {
+        summary.invalidSelect.push(`${rhFieldDisplayName(field)}: ${value}`);
+        continue;
+      }
+      el.value = opt.value;
+    } else {
+      el.value = value;
+    }
+    onEdit(el);
+    summary.applied.push(rhFieldDisplayName(field));
+  }
+  return summary;
+}
+
+function renderRhImportStatus(summary, fileName) {
+  const el = document.getElementById('cm-rh-status');
+  if (!el) return;
+  const parts = [];
+  parts.push(`<div class="ops-cell"><div class="ops-cell-lbl">Documento</div><div class="ops-cell-val" title="${esc(fileName || '—')}">${esc(fileName || '—')}</div></div>`);
+  parts.push(`<div class="ops-cell"><div class="ops-cell-lbl">Aplicados</div><div class="ops-cell-val">${summary.applied.length}</div></div>`);
+  parts.push(`<div class="ops-cell"><div class="ops-cell-lbl">Ignorados por já existir</div><div class="ops-cell-val">${summary.skippedExisting.length}</div></div>`);
+  parts.push(`<div class="ops-cell"><div class="ops-cell-lbl">Inválidos em seleção</div><div class="ops-cell-val">${summary.invalidSelect.length}</div></div>`);
+  parts.push(`<div class="ops-cell"><div class="ops-cell-lbl">Conflitos</div><div class="ops-cell-val">${summary.conflicts.length}</div></div>`);
+  const details = [];
+  if (summary.invalidSelect.length) details.push(`<div><b>Seleções não aplicadas:</b> ${esc(summary.invalidSelect.slice(0,4).join(' | '))}${summary.invalidSelect.length > 4 ? '…' : ''}</div>`);
+  if (summary.conflicts.length) details.push(`<div><b>Conflitos:</b> ${esc(summary.conflicts.slice(0,3).join(' | '))}${summary.conflicts.length > 3 ? '…' : ''}</div>`);
+  if (summary.skippedExisting.length) details.push(`<div><b>Campos preservados:</b> ${esc(summary.skippedExisting.slice(0,4).join(' | '))}${summary.skippedExisting.length > 4 ? '…' : ''}</div>`);
+  if (summary.warnings.length) details.push(`<div><b>Avisos:</b> ${esc(summary.warnings.slice(0,3).join(' | '))}${summary.warnings.length > 3 ? '…' : ''}</div>`);
+  el.style.display = 'grid';
+  el.innerHTML = parts.join('') + (details.length ? `<div class="ops-cell" style="grid-column:1/-1"><div class="ops-cell-lbl">Resumo da importação</div><div class="ops-cell-val" style="display:flex;flex-direction:column;gap:6px">${details.join('')}</div></div>` : '');
+}
+
+function triggerRhDocImport() {
+  if (!S.currentCand) { toast('Abra um candidato antes de importar o formulário RH.', 'warn'); return; }
+  const sess = getSession();
+  if (sess?.role === 'viewer') { toast('🔒 Visualizadores não podem importar dados no candidato.', 'warn'); return; }
+  const input = document.getElementById('cm-rh-docx-input');
+  if (input) {
+    input.value = '';
+    input.click();
+  }
+}
+
+async function handleRhDocxFile(input) {
+  const file = input?.files?.[0];
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.docx')) {
+    toast('Selecione um arquivo DOCX do formulário RH.', 'warn');
+    input.value = '';
+    return;
+  }
+  if (typeof mammoth === 'undefined') {
+    toast('Não foi possível carregar o leitor de DOCX. Verifique a conexão e tente novamente.', 'err', 6000);
+    input.value = '';
+    return;
+  }
+  try {
+    toast('⏳ Lendo formulário RH...', 'ok', 3000);
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.convertToHtml({ arrayBuffer });
+    const parsed = parseRhDocxHtml(result.value || '');
+    if (!Object.keys(parsed.fields || {}).length) {
+      throw new Error('Nenhum campo utilizável foi encontrado no documento.');
+    }
+    const summary = applyRhDocFields(parsed);
+    renderRhImportStatus(summary, file.name);
+    const totalAplicados = summary.applied.length;
+    const totalPend = Object.keys(S.pendingEdits || {}).length;
+    if (!totalAplicados && !summary.conflicts.length && !summary.invalidSelect.length) {
+      toast('⚠ O documento foi lido, mas não trouxe novos valores aplicáveis.', 'warn', 5000);
+    } else {
+      toast(`✅ Formulário RH lido. ${totalAplicados} campo(s) preparados para salvar.`, 'ok', 5000);
+    }
+    const btn = document.getElementById('cm-save');
+    if (btn && totalPend) {
+      btn.textContent = `💾 Salvar (${totalPend})`;
+      btn.classList.add('has-changes');
+    }
+  } catch (e) {
+    console.error('[RH DOCX] erro:', e);
+    toast(`❌ Falha ao ler o formulário RH: ${e.message || e}`, 'err', 7000);
+  } finally {
+    input.value = '';
+  }
+}
+
 function onEdit(el) {
   // Block viewers from editing
   const sess = getSession();
@@ -4762,214 +5002,6 @@ function populateNewForm() {
 
 const EXTRACT_CURRICULUM_FIELDS_URL =
   'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/extract-curriculum-fields';
-const PARSE_INTERVIEW_URL =
-  'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/parse-interview';
-const GENERATE_QUESTIONS_URL =
-  'https://xcxqtjzlqmncwnhbolnl.supabase.co/functions/v1/generate-questions';
-
-// ══════════════════════════════════════════════════════════════
-// M11 — Upload e parsing de entrevista PDF
-// ══════════════════════════════════════════════════════════════
-
-function triggerInterviewUpload(candId) {
-  const inp = document.getElementById(`interview-pdf-input-${candId}`);
-  if (!inp) { toast('⚠ Reabra o candidato e tente novamente.', 'warn'); return; }
-  inp.value = '';
-  inp.click();
-}
-
-async function handleInterviewFile(input, candId) {
-  const file = input.files?.[0];
-  if (!file) return;
-
-  // Apenas PDF — não enviar DOCX binário para Gemini
-  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-    toast('⚠ Apenas arquivos PDF são aceitos para parsing de entrevista.', 'warn', 5000);
-    return;
-  }
-
-  const previewEl = document.getElementById(`interview-preview-${candId}`);
-  if (previewEl) {
-    previewEl.style.display = 'block';
-    previewEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:var(--txt3);font-size:12.5px">
-      <div class="spinner" style="width:16px;height:16px;border-width:2px"></div>
-      Processando entrevista com IA...
-    </div>`;
-  }
-
-  try {
-    const supa = await getSupa();
-    const { data: { session } } = await supa.auth.getSession();
-    if (!session?.access_token) throw new Error('Sessão expirada. Faça login novamente.');
-
-    // Converter para base64
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = () => reject(new Error('Erro ao ler o arquivo.'));
-      reader.readAsDataURL(file);
-    });
-
-    const res = await fetch(PARSE_INTERVIEW_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + session.access_token,
-        'apikey': SUPABASE_ANON_KEY,
-      },
-      body: JSON.stringify({ pdf_base64: base64, mime_type: 'application/pdf' }),
-    });
-
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Erro ao processar entrevista.');
-
-    // Exibe prévia para revisão humana — NÃO salva automaticamente
-    const d = data.data || {};
-    const fields = [
-      { key: 'Quem é você?',                  val: d.quem_e_voce },
-      { key: 'Porque deseja ir para Alemanha, como surgiu o interesse?', val: d.porque_alemanha },
-      { key: 'Relato sobre a experiência profissional', val: d.relato_experiencia_profissional },
-      { key: 'Como é sua organização financeira?\nTem reserva?\nComo será o preparo para Alemanha?', val: d.organizacao_financeira },
-      { key: 'Perfil',                         val: d.perfil },
-      { key: 'Análise do recrutador',          val: d.analise_do_recrutador },
-      { key: 'Pontos fortes',                  val: d.pontos_fortes },
-      { key: 'Pontos de atenção',              val: d.pontos_de_atencao },
-      { key: 'Diferenciais do perfil',         val: d.diferenciais_do_perfil },
-    ].filter(f => f.val && f.val.trim());
-
-    if (!previewEl) return;
-
-    previewEl.innerHTML = `
-      <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--blue);margin-bottom:8px">
-        🤖 Prévia da entrevista extraída por IA — revise antes de aplicar
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto">
-        ${fields.map(f => `
-          <div style="background:var(--bg4);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px">
-            <div style="font-size:10px;font-weight:700;color:var(--txt3);margin-bottom:3px">${esc(f.key)}</div>
-            <div style="font-size:12px;color:var(--txt);line-height:1.5;white-space:pre-wrap">${esc(f.val)}</div>
-          </div>`).join('')}
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn btn-primary btn-sm" onclick="_applyInterviewFields(${JSON.stringify(fields).replace(/"/g,'&quot;')},'${esc(candId)}')">
-          ✓ Aplicar campos
-        </button>
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('interview-preview-${esc(candId)}').style.display='none'">
-          Descartar
-        </button>
-      </div>`;
-
-  } catch(e) {
-    if (previewEl) {
-      previewEl.style.display = 'block';
-      previewEl.innerHTML = `<div style="color:var(--red);font-size:12.5px">❌ ${esc(e.message)}</div>`;
-    }
-    toast('❌ ' + e.message, 'err');
-  }
-}
-
-// Aplica os campos extraídos nos textareas/inputs do painel — só após clique humano
-function _applyInterviewFields(fields, candId) {
-  // Mapa: chave retornada pelo parser → data-field no DOM
-  const fieldKeyMap = {
-    'Quem é você?':                   'Quem é você?',
-    'Porque deseja ir para Alemanha, como surgiu o interesse?': 'Porque deseja ir para Alemanha, como surgiu o interesse?',
-    'Relato sobre a experiência profissional': 'Relato sobre a experiência profissional',
-    'Como é sua organização financeira?\nTem reserva?\nComo será o preparo para Alemanha?': 'Como é sua organização financeira?\nTem reserva?\nComo será o preparo para Alemanha?',
-    'Perfil':              'Perfil',
-    'Análise do recrutador': 'Análise do recrutador',
-    'Pontos fortes':       'Pontos fortes',
-    'Pontos de atenção':   'Pontos de atenção',
-    'Diferenciais do perfil': 'Diferenciais do perfil',
-  };
-
-  let applied = 0;
-  fields.forEach(f => {
-    const dataField = fieldKeyMap[f.key] || f.key;
-    // Procura no modal do candidato o elemento com data-field correspondente
-    const el = document.querySelector(`[data-field="${CSS.escape(dataField)}"]`);
-    if (el && f.val && !el.value.trim()) {
-      el.value = f.val;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      applied++;
-    }
-  });
-
-  const previewEl = document.getElementById(`interview-preview-${candId}`);
-  if (previewEl) previewEl.style.display = 'none';
-
-  toast(applied > 0
-    ? `✅ ${applied} campo(s) preenchido(s) a partir da entrevista. Revise e salve.`
-    : '⚠ Nenhum campo vazio encontrado para preencher.', applied > 0 ? 'ok' : 'warn', 5000);
-}
-
-// ══════════════════════════════════════════════════════════════
-// M12 — Geração de perguntas de entrevista
-// ══════════════════════════════════════════════════════════════
-
-async function generateInterviewQuestions(candId) {
-  const cand = (S.candidates || []).find(c => (fv(c,'ID','id')||'') === candId);
-  if (!cand) { toast('⚠ Candidato não encontrado.', 'warn'); return; }
-
-  const qBlock = document.getElementById(`questions-block-${candId}`);
-  if (qBlock) {
-    qBlock.style.display = 'block';
-    qBlock.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:var(--txt3);font-size:12.5px;padding:10px 0">
-      <div class="spinner" style="width:16px;height:16px;border-width:2px"></div>
-      Gerando perguntas de entrevista...
-    </div>`;
-  }
-
-  try {
-    const supa = await getSupa();
-    const { data: { session } } = await supa.auth.getSession();
-    if (!session?.access_token) throw new Error('Sessão expirada.');
-
-    // Payload com contexto real do candidato
-    const payload = {
-      nome:       fv(cand,'Nome completo','nome_completo') || '',
-      profissao:  fv(cand,'Profissão principal','profissao_principal') || fv(cand,'Profissão') || '',
-      status:     fv(cand,'STATUS PIPELINE','status_pipeline') || '',
-      resumo:     fv(cand,'Resumo profissional','resumo_profissional') || fv(cand,'Observação','observacao') || '',
-      ai_summary: cand['AI Summary'] || cand['ai_summary'] || '',
-      ai_missing: cand['AI Missing Fields'] || cand['ai_missing_fields'] || '',
-      ai_atencao: cand['AI Attention Flags'] || cand['ai_attention_flags'] || '',
-    };
-
-    const res = await fetch(GENERATE_QUESTIONS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + session.access_token,
-        'apikey': SUPABASE_ANON_KEY,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Erro ao gerar perguntas.');
-
-    const questions = data.questions || [];
-
-    if (qBlock) {
-      qBlock.innerHTML = `
-        <div class="section-hdr" style="margin-top:0">
-          ✦ Perguntas sugeridas para a entrevista
-          <span style="font-size:10px;font-weight:400;color:var(--txt3);margin-left:6px">geradas por IA — use como guia, não como roteiro fixo</span>
-          <button class="btn btn-xs btn-ghost" style="margin-left:auto" onclick="this.closest('[id]').style.display='none'">Fechar</button>
-        </div>
-        <ol style="margin:8px 0 0 18px;display:flex;flex-direction:column;gap:7px">
-          ${questions.map(q => `<li style="font-size:12.5px;color:var(--txt);line-height:1.55">${esc(q)}</li>`).join('')}
-        </ol>`;
-    }
-
-  } catch(e) {
-    if (qBlock) {
-      qBlock.innerHTML = `<div style="color:var(--red);font-size:12.5px;padding:8px 0">❌ ${esc(e.message)}</div>`;
-    }
-    toast('❌ ' + e.message, 'err');
-  }
-}
 async function extractCurriculumTextFromPdf(file) {
   if (!window.pdfjsLib) throw new Error('Leitor de PDF indisponível no navegador.');
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
