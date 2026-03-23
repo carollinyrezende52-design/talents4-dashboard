@@ -1913,23 +1913,23 @@ function renderMfaQr(qrCode='') {
     qrWrap.innerHTML = '<span style="font-size:12px;color:var(--txt3)">QR Code indisponível. Use a chave manual.</span>';
     return;
   }
-  const imgTagMatch = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgTagMatch && imgTagMatch[1]) {
-    qrWrap.innerHTML = `<img src="${imgTagMatch[1]}" alt="QR Code MFA">`;
-    return;
-  }
-  if (raw.startsWith('<svg')) {
-    qrWrap.innerHTML = raw;
-    return;
-  }
-  if (raw.startsWith('data:image/')) {
-    qrWrap.innerHTML = `<img src="${raw}" alt="QR Code MFA">`;
-    return;
-  }
   if (raw.includes('<svg')) {
     const svgOnly = raw.slice(raw.indexOf('<svg'));
     const end = svgOnly.lastIndexOf('</svg>');
-    qrWrap.innerHTML = end >= 0 ? svgOnly.slice(0, end + 6) : svgOnly;
+    const svg = (end >= 0 ? svgOnly.slice(0, end + 6) : svgOnly).trim();
+    qrWrap.innerHTML = svg;
+    return;
+  }
+  if (raw.startsWith('<img')) {
+    const srcMatch = raw.match(/src=["']([\s\S]*?)["']\s*(?:alt=|\/?>|$)/i);
+    const src = srcMatch && srcMatch[1] ? srcMatch[1].trim() : '';
+    if (src) {
+      qrWrap.innerHTML = `<img src="${src}" alt="QR Code MFA">`;
+      return;
+    }
+  }
+  if (raw.startsWith('data:image/')) {
+    qrWrap.innerHTML = `<img src="${raw}" alt="QR Code MFA">`;
     return;
   }
   const encoded = `data:image/svg+xml;utf8,${encodeURIComponent(raw)}`;
