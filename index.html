@@ -1913,6 +1913,11 @@ function renderMfaQr(qrCode='') {
     qrWrap.innerHTML = '<span style="font-size:12px;color:var(--txt3)">QR Code indisponível. Use a chave manual.</span>';
     return;
   }
+  const imgTagMatch = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgTagMatch && imgTagMatch[1]) {
+    qrWrap.innerHTML = `<img src="${imgTagMatch[1]}" alt="QR Code MFA">`;
+    return;
+  }
   if (raw.startsWith('<svg')) {
     qrWrap.innerHTML = raw;
     return;
@@ -1922,7 +1927,9 @@ function renderMfaQr(qrCode='') {
     return;
   }
   if (raw.includes('<svg')) {
-    qrWrap.innerHTML = raw.slice(raw.indexOf('<svg'));
+    const svgOnly = raw.slice(raw.indexOf('<svg'));
+    const end = svgOnly.lastIndexOf('</svg>');
+    qrWrap.innerHTML = end >= 0 ? svgOnly.slice(0, end + 6) : svgOnly;
     return;
   }
   const encoded = `data:image/svg+xml;utf8,${encodeURIComponent(raw)}`;
@@ -1963,14 +1970,39 @@ async function openAdminMfaFlow() {
     setMfaError('Falha ao gerar MFA: ' + (e?.message || e));
   }
 }
-async function startAdminMfaEnrollment() {
+function getAdminMfaFriendlyName() {
+  return `T4 Admin ${getSession()?.user || ''}`.trim() || 'T4 Admin';
+}
+async function cleanupPendingAdminMfaFactors(supa) {
+  const factors = (getMfaState().factors || []).filter((f) => String(f.factorType || '').toLowerCase() === 'totp' && String(f.status || '').toLowerCase() !== 'verified');
+  for (const factor of factors) {
+    try {
+      const { error } = await supa.auth.mfa.unenroll({ factorId: factor.id });
+      if (error) throw error;
+    } catch (e) {
+      throw new Error('Falha ao limpar fator MFA pendente anterior. ' + (e?.message || e));
+    }
+  }
+  await refreshAdminMfaState(false).catch(() => null);
+}
+async function startAdminMfaEnrollment(forceReset=false) {
   const supa = await getSupa();
   setMfaError('');
   setMfaView('setup');
   const qrWrap = document.getElementById('mfa-qr-wrap');
   const secretEl = document.getElementById('mfa-secret');
   if (qrWrap) qrWrap.innerHTML = '<span style="font-size:12px;color:var(--txt3)">Gerando QR Code…</span>';
-  const { data, error } = await supa.auth.mfa.enroll({ factorType:'totp', friendlyName:`T4 Admin ${getSession()?.user || ''}`.trim() || 'T4 Admin' });
+  const state = getMfaState();
+  const pendingTotp = (state.factors || []).filter((f) => String(f.factorType || '').toLowerCase() === 'totp' && String(f.status || '').toLowerCase() !== 'verified');
+  if (pendingTotp.length && !forceReset) {
+    await cleanupPendingAdminMfaFactors(supa);
+  }
+  let result = await supa.auth.mfa.enroll({ factorType:'totp', friendlyName:getAdminMfaFriendlyName() });
+  if ((result.error || !result.data) && /already exists/i.test(String(result.error?.message || ''))) {
+    await cleanupPendingAdminMfaFactors(supa);
+    result = await supa.auth.mfa.enroll({ factorType:'totp', friendlyName:getAdminMfaFriendlyName() });
+  }
+  const { data, error } = result;
   if (error || !data) throw (error || new Error('Falha ao gerar MFA.'));
   S.mfaDialog.pendingFactor = { id:data.id, qrCode:data.totp?.qr_code || '', secret:data.totp?.secret || '', uri:data.totp?.uri || '' };
   renderMfaQr(data.totp?.qr_code || '');
