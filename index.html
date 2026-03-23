@@ -1905,6 +1905,29 @@ function buildMfaManageList() {
   }
   list.innerHTML = verified.map((f) => `<div>• <strong>${esc(f.friendlyName || 'Fator')}</strong> · ${esc(f.factorType)} · ${esc(f.status || 'verified')}</div>`).join('');
 }
+function renderMfaQr(qrCode='') {
+  const qrWrap = document.getElementById('mfa-qr-wrap');
+  if (!qrWrap) return;
+  const raw = String(qrCode || '').trim();
+  if (!raw) {
+    qrWrap.innerHTML = '<span style="font-size:12px;color:var(--txt3)">QR Code indisponível. Use a chave manual.</span>';
+    return;
+  }
+  if (raw.startsWith('<svg')) {
+    qrWrap.innerHTML = raw;
+    return;
+  }
+  if (raw.startsWith('data:image/')) {
+    qrWrap.innerHTML = `<img src="${raw}" alt="QR Code MFA">`;
+    return;
+  }
+  if (raw.includes('<svg')) {
+    qrWrap.innerHTML = raw.slice(raw.indexOf('<svg'));
+    return;
+  }
+  const encoded = `data:image/svg+xml;utf8,${encodeURIComponent(raw)}`;
+  qrWrap.innerHTML = `<img src="${encoded}" alt="QR Code MFA">`;
+}
 async function openAdminMfaFlow() {
   if (!canAdmin()) { toast('❌ Apenas admin pode acessar o fluxo de MFA.', 'err'); return; }
   resetMfaDialogState();
@@ -1932,7 +1955,13 @@ async function openAdminMfaFlow() {
     }
     return;
   }
-  await startAdminMfaEnrollment();
+  try {
+    await startAdminMfaEnrollment();
+  } catch (e) {
+    renderMfaQr('');
+    document.getElementById('mfa-secret').textContent = '—';
+    setMfaError('Falha ao gerar MFA: ' + (e?.message || e));
+  }
 }
 async function startAdminMfaEnrollment() {
   const supa = await getSupa();
@@ -1944,8 +1973,8 @@ async function startAdminMfaEnrollment() {
   const { data, error } = await supa.auth.mfa.enroll({ factorType:'totp', friendlyName:`T4 Admin ${getSession()?.user || ''}`.trim() || 'T4 Admin' });
   if (error || !data) throw (error || new Error('Falha ao gerar MFA.'));
   S.mfaDialog.pendingFactor = { id:data.id, qrCode:data.totp?.qr_code || '', secret:data.totp?.secret || '', uri:data.totp?.uri || '' };
-  if (qrWrap) qrWrap.innerHTML = data.totp?.qr_code ? `<img src="${data.totp.qr_code}" alt="QR Code MFA">` : '<span style="font-size:12px;color:var(--txt3)">QR Code indisponível. Use a chave manual.</span>';
-  if (secretEl) secretEl.textContent = data.totp?.secret || '—';
+  renderMfaQr(data.totp?.qr_code || '');
+  if (secretEl) secretEl.textContent = data.totp?.secret || data.totp?.uri || '—';
 }
 async function verifyAdminMfaEnrollment() {
   const supa = await getSupa();
