@@ -1973,6 +1973,28 @@ function toSnake(fields) {
   return out;
 }
 
+const API_EDIT_ACTIONS = new Set(['updateCandidate','createCandidate','setActive','addInterview','advanceStage']);
+const API_ADMIN_ACTIONS = new Set(['saveUser','deleteUser','upsertEnum','removeEnum']);
+const PROTECTED_CANDIDATE_WRITE_KEYS = new Set(['id','criado_em','ultima_atualizacao','atualizado_por']);
+
+function assertAuthorizedAction(action) {
+  if (API_ADMIN_ACTIONS.has(action) && !canAdmin()) {
+    throw new Error('Sem permissão para executar esta ação.');
+  }
+  if (API_EDIT_ACTIONS.has(action) && !canEdit()) {
+    throw new Error('Sem permissão para alterar candidatos.');
+  }
+}
+
+function sanitizeCandidateWritePayload(snakeFields, mode='update') {
+  const out = { ...(snakeFields || {}) };
+  PROTECTED_CANDIDATE_WRITE_KEYS.forEach(k => {
+    if (mode === 'create' && k === 'id') return;
+    delete out[k];
+  });
+  return out;
+}
+
 // ── apiGet: wrapper compatível com o frontend existente ──────
 async function apiGet(params) {
   const supa = await getSupa();
@@ -2033,9 +2055,10 @@ async function apiPost(body) {
   const supa = await getSupa();
   const action = body.action;
   const actor = body.actor || S.session?.nome || 'web';
+  assertAuthorizedAction(action);
 
   if (action === 'updateCandidate') {
-    const snakeFields = toSnake(body.fields || {});
+    const snakeFields = sanitizeCandidateWritePayload(toSnake(body.fields || {}), 'update');
     snakeFields.ultima_atualizacao = new Date().toISOString();
     snakeFields.atualizado_por = actor;
 
@@ -2060,7 +2083,7 @@ async function apiPost(body) {
     if (!fields['Nome completo']) throw new Error('Nome completo é obrigatório.');
 
     const id = fields.ID || `T4-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
-    const snakeFields = toSnake(fields);
+    const snakeFields = sanitizeCandidateWritePayload(toSnake(fields), 'create');
     snakeFields.id = id;
     snakeFields.criado_em = new Date().toISOString();
     snakeFields.ultima_atualizacao = new Date().toISOString();
@@ -2095,7 +2118,7 @@ async function apiPost(body) {
   }
 
   if (action === 'addInterview') {
-    const snakeFields = toSnake(body.data || {});
+    const snakeFields = sanitizeCandidateWritePayload(toSnake(body.data || {}), 'update');
     snakeFields.ultima_atualizacao = new Date().toISOString();
     snakeFields.atualizado_por = actor;
     const { error } = await supa.from('candidatos').update(snakeFields).eq('id', body.id);
