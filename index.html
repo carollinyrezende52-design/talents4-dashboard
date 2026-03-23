@@ -1461,7 +1461,7 @@ a{color:inherit;text-decoration:none}
         <span style="color:var(--txt3);font-size:13px">⌕</span>
         <input type="text" placeholder="Buscar candidatos..." id="global-search" oninput="onSearch(this.value)">
       </div>
-      <!-- M8: Busca inteligente por linguagem natural (client-side) -->
+      <!-- M8: Busca inteligente por linguagem natural (client-side, sem IA) -->
       <div class="search-wrap" id="nlp-search-wrap" style="display:none;width:260px;border-color:var(--border2)"
            title="Busca inteligente — ex: enfermeiros com B2, administrativos de Curitiba">
         <span style="color:var(--gold);font-size:12px">✦</span>
@@ -1613,7 +1613,7 @@ async function getSupa() {
   return _supa;
 }
 
-// Estágios REAIS conforme a planilha ⭐ DB_MASTER_V5
+// Estágios REAIS do pipeline ⭐ DB_MASTER_V5
 // M9: 'Entrevista pessoal' → 'Pré-seleção' | 'Entrevista avaliação' → 'Entrevista'
 const PIPELINE_STAGES = [
   'Novo candidato',
@@ -1814,7 +1814,7 @@ const S = {
 // API
 // ══════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════
-// SUPABASE API LAYER — substitui apiGet/apiPost do Apps Script
+// SUPABASE API LAYER
 // ══════════════════════════════════════════════════════════════
 
 // Mapeamento de campos do frontend (nomes originais) para snake_case do Supabase
@@ -1973,34 +1973,6 @@ function toSnake(fields) {
   return out;
 }
 
-function canonicalizeModule2Edits(fields) {
-  const out = {};
-  const canonicalBySnake = {
-    data_da_entrevista: 'Data da Entrevista',
-    avaliador: 'Avaliador',
-    perfil: 'Perfil',
-    resultado_entrevista: 'Resultado entrevista',
-    tipo_de_candidato: 'Tipo de candidato',
-    analise_do_recrutador: 'Análise do recrutador',
-    diferenciais_do_perfil: 'Diferenciais do perfil',
-    pontos_fortes: 'Pontos fortes',
-    pontos_de_atencao: 'Pontos de atenção',
-    perfil_profissional_para_apresentacao: 'Perfil profissional para apresentação',
-    observacoes_internas: 'Observações internas',
-    quem_e_voce: 'Quem é você?',
-    porque_deseja_ir_para_alemanha_como_surgiu_o_interesse: 'Porque deseja ir para Alemanha, como surgiu o interesse?',
-    relato_sobre_a_experiencia_profissional: 'Relato sobre a experiência profissional',
-    organizacao_financeira: 'Como é sua organização financeira? Tem reserva? Como será o preparo para Alemanha?'
-  };
-
-  for (const [key, value] of Object.entries(fields || {})) {
-    const snake = FIELD_MAP[key] || key;
-    const canonicalKey = canonicalBySnake[snake] || key;
-    out[canonicalKey] = value;
-  }
-  return out;
-}
-
 // ── apiGet: wrapper compatível com o frontend existente ──────
 async function apiGet(params) {
   const supa = await getSupa();
@@ -2078,7 +2050,6 @@ async function apiPost(body) {
       }
       throw new Error(error.message);
     }
-    syncToSheet(body.id, body.fields || {}, actor);
     return { ok: true };
   }
 
@@ -2109,7 +2080,6 @@ async function apiPost(body) {
       throw new Error(insErr.message);
     }
     if (!inserted) throw new Error('Falha ao criar candidato: nenhum registro retornado.');
-    syncToSheet(id, { ...fields, ID: id }, actor);
     return { ok:true, id, candidate: toFrontend(inserted) };
   }
 
@@ -2121,8 +2091,6 @@ async function apiPost(body) {
       atualizado_por: actor
     }).eq('id', body.id);
     if (error) throw new Error(error.message);
-    // Sync reverso para planilha
-    syncToSheet(body.id, { Ativo: body.active ? 'SIM' : 'NÃO', 'Motivo inativação': body.reason || '' }, actor);
     return { ok:true };
   }
 
@@ -2143,8 +2111,6 @@ async function apiPost(body) {
       atualizado_por: actor
     }).eq('id', body.id);
     if (error) throw new Error(error.message);
-    // Sync reverso
-    syncToSheet(body.id, { 'STATUS PIPELINE': body.toStage, 'Data entrada etapa atual': new Date().toISOString().split('T')[0] }, actor);
     return { ok:true };
   }
 
@@ -2548,27 +2514,6 @@ function _driveUpdateSettingsUI() {
        <button class="btn btn-xs btn-ghost" onclick="driveSignOut()" style="margin-left:8px">Desconectar</button>`
     : `<span style="color:var(--txt3)">Não conectado</span>
        <button class="btn btn-xs btn-ghost" onclick="driveGetToken().then(_driveUpdateSettingsUI).catch(e=>toast('❌ '+e.message,'err'))" style="margin-left:8px">Conectar agora</button>`;
-}
-
-// ── Apps Script URL para sync reverso (planilha espelho) ──
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx54xgjpP4djSleqpjXHfzHXfsxyhVuc7gqZsJJqWX9nUUi9G6hGymBA6I8ONT5LEjL/exec';
-const APPS_SCRIPT_KEY = 'bed530fb36824844bfb274ff4cf34b7e640e7cdc';
-
-// Sync reverso: dispara em background sem bloquear o save principal
-function syncToSheet(id, fields, actor) {
-  const payload = JSON.stringify({
-    action: 'updateCandidate',
-    id, fields, actor,
-    key: APPS_SCRIPT_KEY
-  });
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: payload,
-    redirect: 'follow'
-  }).then(r => r.json())
-    .then(d => { if (d.ok) console.log('[Sheets sync] ✓', id); else console.warn('[Sheets sync] erro:', d.error); })
-    .catch(e => console.warn('[Sheets sync] falhou (não crítico):', e.message));
 }
 
 async function startRealtime() {
@@ -4953,14 +4898,13 @@ async function saveCandidate() {
   const prevStatus = fv(S.currentCand, 'STATUS PIPELINE') || '';
 
   try {
-    const pendingEditsCanonical = canonicalizeModule2Edits(S.pendingEdits);
-    const merged = { ...S.currentCand, ...pendingEditsCanonical };
+    const merged = { ...S.currentCand, ...S.pendingEdits };
     const autoFields = {
       'Documentação completa': calcDocCompleta(merged),
-      'Pendência documental crítica': pendingEditsCanonical['Pendência documental crítica'] ?? calcPendenciaDocumentalCritica(merged)
+      'Pendência documental crítica': S.pendingEdits['Pendência documental crítica'] ?? calcPendenciaDocumentalCritica(merged)
     };
-    const fieldsToSave = { ...pendingEditsCanonical, ...autoFields };
-    const nFields = Object.keys(pendingEditsCanonical).length;
+    const fieldsToSave = { ...S.pendingEdits, ...autoFields };
+    const nFields = Object.keys(S.pendingEdits).length;
 
     // ── Rastreabilidade: detecta mudanças em campos críticos ─
     const histEntries = histBuildEntries(fieldsToSave, S.currentCand, sess?.nome || 'web');
@@ -5680,7 +5624,7 @@ function checkSemanticMatch(searchQuery, dbValue) {
 
 // ── M8: Parser local de linguagem natural ─────────────────────
 // Interpreta frases simples e retorna estrutura de filtro
-// Busca e leitura 100% client-side
+// Não usa Gemini — 100% client-side
 function nlpParseQuery(phrase) {
   const result = { profissao: null, nivel_alemao: null, cidade: null, idadeMax: null, idadeMin: null, rawQuery: null };
   if (!phrase || phrase.trim().length < 3) return result;
