@@ -1904,6 +1904,31 @@ const REV_MAP_MULTI = Object.entries(FIELD_MAP).reduce((acc, [k, v]) => {
 }, {});
 const REV_MAP = Object.fromEntries(Object.entries(REV_MAP_MULTI).map(([k, arr]) => [k, arr[arr.length - 1]]));
 
+const RH_CANONICAL_ALIASES = {
+  data_da_entrevista: ['Data da Entrevista', 'Data da entrevista', 'data_da_entrevista'],
+  avaliador: ['Avaliador', 'Avaliador responsável', 'avaliador'],
+  perfil: ['Perfil', 'Perfil do candidato', 'perfil'],
+  resultado_entrevista: ['Resultado entrevista', 'resultado_entrevista'],
+  tipo_de_candidato: ['Tipo de candidato', 'tipo_de_candidato'],
+  analise_do_recrutador: ['Análise do recrutador', 'analise_do_recrutador'],
+  diferenciais_do_perfil: ['Diferenciais do perfil', 'diferenciais_do_perfil'],
+  pontos_fortes: ['Pontos fortes', 'pontos_fortes'],
+  pontos_de_atencao: ['Pontos de atenção', 'pontos_de_atencao'],
+  perfil_profissional_para_apresentacao: ['Perfil profissional para apresentação', 'perfil_profissional_para_apresentacao'],
+  observacoes_internas: ['Observações internas', 'observacoes_internas'],
+  organizacao_financeira: ['Como é sua organização financeira? Tem reserva? Como será o preparo para Alemanha?', 'organizacao_financeira']
+};
+
+function applyRhCanonicalAliases(out, row) {
+  Object.entries(RH_CANONICAL_ALIASES).forEach(([snake, aliases]) => {
+    const value = row?.[snake];
+    if (value === undefined || value === null || value === '') return;
+    aliases.forEach(alias => {
+      if (alias && out[alias] === undefined) out[alias] = value;
+    });
+  });
+}
+
 // Converte registro snake_case → objeto com aliases originais (para o frontend)
 function toFrontend(row) {
   if (!row) return null;
@@ -1932,6 +1957,7 @@ function toFrontend(row) {
   if (!out['Previsão de término'] && row.previsao_termino_alemao) out['Previsão de término'] = row.previsao_termino_alemao;
   if (!out['Horário e Dias de Aula'] && row.horario_dias_aula) out['Horário e Dias de Aula'] = row.horario_dias_aula;
   if (!out['Log de Acompanhamento'] && row.log_acompanhamento_alemao) out['Log de Acompanhamento'] = row.log_acompanhamento_alemao;
+  applyRhCanonicalAliases(out, row);
   out._score = row._score || 0;
   out._eligivelCalculado = row._elegivel_calculado || false;
   return out;
@@ -4528,8 +4554,6 @@ const RH_DOC_LABEL_MAP = {
   'cidade atual': 'cidade_atual',
   'avaliador responsavel': 'avaliador',
   'avaliador': 'avaliador',
-  'avaliador entrevista': 'avaliador',
-  'avaliador analise rh': 'avaliador',
   'perfil do candidato': 'perfil',
   'perfil': 'perfil',
   'tipo de candidato': 'tipo_de_candidato',
@@ -4672,6 +4696,14 @@ function rhFieldDisplayName(field) {
   return REV_MAP[field] || field.replaceAll('_', ' ');
 }
 
+function rhGetUiReadAliases(uiField) {
+  const snake = FIELD_MAP[uiField];
+  const aliases = new Set([uiField]);
+  if (snake && RH_CANONICAL_ALIASES[snake]) RH_CANONICAL_ALIASES[snake].forEach(alias => aliases.add(alias));
+  if (snake && REV_MAP_MULTI[snake]) REV_MAP_MULTI[snake].forEach(alias => aliases.add(alias));
+  return [...aliases];
+}
+
 function applyRhDocFields(parsed) {
   const summary = { applied: [], skippedExisting: [], invalidSelect: [], missingField: [], conflicts: parsed.meta.conflicts || [], warnings: parsed.meta.warnings || [] };
   for (const [field, value] of Object.entries(parsed.fields || {})) {
@@ -4682,7 +4714,7 @@ function applyRhDocFields(parsed) {
       summary.missingField.push(rhFieldDisplayName(field));
       continue;
     }
-    const current = rhCleanText(el.value || '');
+    const current = rhCleanText(el.value || fv(S.currentCand || {}, ...rhGetUiReadAliases(cfg.uiField)) || '');
     if (cfg.overwriteIfEmptyOnly && current) {
       summary.skippedExisting.push(rhFieldDisplayName(field));
       continue;
