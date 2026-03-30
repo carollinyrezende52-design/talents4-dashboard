@@ -4147,11 +4147,143 @@ function renderEmployerHub(el) {
   bindEmployerHubInteractions(el);
 }
 
+
 function renderTable(el, filterStatus) {
 
-  // Para Entrevistas e Análise RH: filtra por dado preenchido, não por status atual
-  // (candidatos avançam de etapa mas seus dados históricos devem ser visíveis)
+  // Base de dados por aba
   let list;
+  if (filterStatus === '__entrevistas') {
+    list = S.candidates.filter(c => {
+      const epi = fv(c,'entrevista_preliminar_id');
+      const dt  = fv(c,'entrevista_preliminar_data','Data da Entrevista','data_da_entrevista');
+      const av  = fv(c,'entrevista_preliminar_entrevistador','Avaliador');
+      const rr  = fv(c,'resumo_rh_curto','entrevista_preliminar_resumo_rh');
+      return !!((epi||'').toString().trim() || (dt||'').toString().trim() || (av||'').toString().trim() || (rr||'').toString().trim());
+    });
+  } else if (filterStatus === '__analise') {
+    list = S.candidates.filter(c => {
+      const rr  = fv(c,'resumo_rh_curto','entrevista_preliminar_resumo_rh');
+      const rd  = fv(c,'risco_desistencia');
+      const pe  = fv(c,'pronto_para_employer');
+      const ci  = fv(c,'coerencia_candidatura');
+      const mr  = fv(c,'motivacao_real');
+      return !!((rr||'').toString().trim() || (rd||'').toString().trim() || (pe||'').toString().trim() || (ci||'').toString().trim() || (mr||'').toString().trim());
+    });
+  } else if (filterStatus === '__prioritarios') {
+    list = filterCands(S.candidates, false).filter(c => _nivelRank(c) >= 3);
+  } else if (filterStatus === '__triagem') {
+    list = filterCands(S.candidates, false).filter(c =>
+      ['Triagem','Novo candidato'].includes(fv(c,'STATUS PIPELINE'))
+    );
+  } else if (filterStatus === '__documentacao') {
+    list = filterCands(S.candidates, false).filter(c =>
+      fv(c,'STATUS PIPELINE') === 'Documentação' ||
+      ['passaporte','diploma','historico','registro'].some(k => normalizeUpper(getDocStatus(c, k)) !== 'NAO SOLICITADO') ||
+      (fv(c,'CPF')||'').trim() ||
+      (fv(c,'Carteira de vacinação','carteira_de_vacinacao')||'').trim() ||
+      (fv(c,'Contrato','contrato')||'').trim() ||
+      (fv(c,'Pendência documental crítica','pendencia_documental_critica')||'').trim()
+    );
+  } else if (filterStatus) {
+    list = filterCands(S.candidates, false).filter(c =>
+      fv(c,'STATUS PIPELINE') === filterStatus
+    );
+  } else {
+    list = filterCands(S.candidates, false);
+  }
+
+  // Filtros adicionais de coluna
+  if (S.filter.perfil)    list = list.filter(c => fv(c,'Perfil','Perfil do candidato','perfil') === S.filter.perfil);
+  if (S.filter.profissao) list = list.filter(c => checkSemanticMatch(S.filter.profissao, fv(c,'Profissão principal','Profissão')||''));
+  if (S.filter.alemao)    list = list.filter(c => fv(c,'Nível de alemão','Nível alemão') === S.filter.alemao);
+  if (S.filter.empregador === '__filled__') list = list.filter(c => (getEmployerDisplay(c)||'').trim());
+  else if (S.filter.empregador === '__unassigned__') list = list.filter(c => !(getEmployerDisplay(c)||'').trim());
+  else if (S.filter.empregador) list = list.filter(c => getEmployerDisplay(c) === S.filter.empregador);
+  if (S.filter.status)     list = list.filter(c => fv(c,'STATUS PIPELINE') === S.filter.status);
+  if (S.filter.substatus)  list = list.filter(c => fv(c,'Substatus','substatus') === S.filter.substatus);
+  if (S.filter.prioridade) list = list.filter(c => fv(c,'Prioridade comercial','prioridade_comercial') === S.filter.prioridade);
+  if (S.filter.q) {
+    const q = S.filter.q.toLowerCase();
+    list = list.filter(c =>
+      (fv(c,'Nome completo')||'').toLowerCase().includes(q) ||
+      (fv(c,'Profissão principal','Profissão')||'').toLowerCase().includes(q) ||
+      (fv(c,'E-mail')||'').toLowerCase().includes(q) ||
+      (fv(c,'Cidade atual')||'').toLowerCase().includes(q) ||
+      (c.ID||'').toLowerCase().includes(q)
+    );
+  }
+
+  list = sortCandidateList(list, filterStatus);
+  const total  = list.length;
+  const pages  = Math.max(1, Math.ceil(total / S.pageSize));
+  if (S.page > pages) S.page = pages;
+  const paged  = list.slice((S.page-1)*S.pageSize, S.page*S.pageSize);
+
+  const statusOpts = ['','Novo candidato','Triagem','Pré-seleção','Entrevista',
+    'Análise RH','Curso de alemão','Documentação','Jurídico',
+    'Matching Instituição','Employer / Matching','Aprovado / Pronto','Contratado',
+    'Não qualificado/ base de dados','Desistiu','Inativo / Arquivado'];
+  const alemaoOpts   = ['','Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2'];
+  const perfilOpts   = ['','Candidato forte','Candidato bom','Candidato mediano','Candidato fraco','Candidato intermediário'];
+  const profissaoOpts= [''].concat([...new Set((S.enums['Profissão principal']||S.candidates.map(c=>fv(c,'Profissão principal','Profissão'))).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR')));
+  const empregadorOpts=[''].concat([...new Set(S.candidates.map(c=>getEmployerDisplay(c)).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR')));
+  const substatusOpts = [''].concat([...new Set((S.enums['Substatus']||S.candidates.map(c=>fv(c,'Substatus','substatus'))).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR')));
+  const prioridadeOpts = ['','Alta','Média','Baixa'].concat(
+    [...new Set((S.enums['Prioridade comercial']||[]).filter(p=>!['Alta','Média','Baixa'].includes(p)))]);
+
+  const opChips = [
+    { label: 'Sem responsável',        fn: c => !fv(c,'Responsável interno','responsavel_interno') },
+    { label: 'Pendência crítica',      fn: c => !!(fv(c,'Pendência documental crítica','pendencia_documental_critica')||'').trim() },
+    { label: 'Doc. incompleta',        fn: c => !isYes(fv(c,'Documentação completa','documentacao_completa')) },
+    { label: 'Idioma insuficiente',    fn: c => (_nivelRank(c) < 3) },
+    { label: 'Parado +30d',            fn: c => { const d = daysSince(fv(c,'Data entrada etapa atual','data_entrada_etapa_atual')); return d !== null && d > 30; } },
+    { label: 'Pronto para employer',   fn: c => isElegibleCalc(c) },
+    { label: 'Curso sem previsão',     fn: c => fv(c,'STATUS PIPELINE')==='Curso de alemão' && isYes(fv(c,'Em curso de alemão','em_curso_de_alemao')) && !fv(c,'Previsão de término','previsao_termino_alemao') },
+  ];
+  const opChipHtml = `<div class="op-filters-bar">
+    ${opChips.map(ch => {
+      const active = S.filter._customFn && S.filter._customFn.toString() === ch.fn.toString();
+      return `<button class="op-chip${active?' active':''}" onclick="applyOpFilter(${opChips.indexOf(ch)})">${esc(ch.label)}</button>`;
+    }).join('')}
+    ${S.filter._customFn ? `<button class="op-chip" onclick="clearFilters();renderView()" style="color:var(--txt3)">✕ Limpar</button>` : ''}
+  </div>`;
+  window._opChips = opChips;
+
+  const filterBar = `${opChipHtml}<div class="filters-bar">
+    <div style="font-size:12px;color:var(--txt3)">${total} candidatos</div>
+    ${S.filter._customFn ? `
+    <div style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid var(--accent);border-radius:var(--r);padding:3px 9px;font-size:11.5px;color:var(--accent2)">
+      <span>Filtro ativo</span>
+      <button onclick="clearFilters();setFilter('status','')" style="font-size:13px;color:var(--accent2);line-height:1;background:none;border:none;cursor:pointer" title="Limpar filtro">✕</button>
+    </div>` : ''}
+    <div style="flex:1"></div>
+    <select class="filter-select" onchange="setFilter('status',this.value)">
+      ${statusOpts.map(s=>`<option value="${s}" ${S.filter.status===s?'selected':''}>${s||'Todos os status'}</option>`).join('')}
+    </select>
+    <select class="filter-select" onchange="setFilter('substatus',this.value)">
+      ${substatusOpts.map(s=>`<option value="${esc(s)}" ${S.filter.substatus===s?'selected':''}>${s||'Substatus (todos)'}</option>`).join('')}
+    </select>
+    <select class="filter-select" onchange="setFilter('empregador',this.value)">
+      <option value="" ${S.filter.empregador===''?'selected':''}>Employer (todos)</option>
+      <option value="__filled__" ${S.filter.empregador==='__filled__'?'selected':''}>Com employer</option>
+      <option value="__unassigned__" ${S.filter.empregador==='__unassigned__'?'selected':''}>Sem employer</option>
+      ${empregadorOpts.map(e=>`<option value="${esc(e)}" ${S.filter.empregador===e?'selected':''}>${e}</option>`).join('')}
+    </select>
+    <select class="filter-select" onchange="setFilter('prioridade',this.value)">
+      ${prioridadeOpts.map(p=>`<option value="${esc(p)}" ${S.filter.prioridade===p?'selected':''}>${p||'Prioridade (todas)'}</option>`).join('')}
+    </select>
+    <select class="filter-select" onchange="setFilter('alemao',this.value)">
+      ${alemaoOpts.map(a=>`<option value="${a}" ${S.filter.alemao===a?'selected':''}>${a||'Alemão (todos)'}</option>`).join('')}
+    </select>
+    <select class="filter-select" onchange="setFilter('perfil',this.value)">
+      ${perfilOpts.map(p=>`<option value="${p}" ${S.filter.perfil===p?'selected':''}>${p||'Perfil (todos)'}</option>`).join('')}
+    </select>
+    <select class="filter-select" onchange="setFilter('profissao',this.value)">
+      ${profissaoOpts.map(p=>`<option value="${esc(p)}" ${S.filter.profissao===p?'selected':''}>${p||'Profissão (todas)'}</option>`).join('')}
+    </select>
+  </div>`;
+
+  let thead = '', rows = '';
 
   if (filterStatus === '__entrevistas') {
     const viewKey = getSortViewKey(filterStatus);
@@ -4254,7 +4386,6 @@ function renderTable(el, filterStatus) {
     }).join('');
 
   } else if (filterStatus === 'Curso de alemão') {
-    // ─── ABA CURSO DE ALEMÃO: painel educacional ───
     const viewKey = getSortViewKey(filterStatus);
     thead = `<tr>
       ${renderSortableTh('Nome','nome',viewKey)}
@@ -4270,24 +4401,22 @@ function renderTable(el, filterStatus) {
 
     const NIVEL_ORDER = ['Nenhum','A0','A1','A2','B1','B2','B2+','C1','C2'];
     function levelStepper(inicial, atual, alvo) {
-      // Fallback: se não tem nível inicial registrado, usa o nível atual como inicial
       const ini = inicial || atual || 'A0';
       const cur = atual  || ini;
       const tgt = alvo   || 'B2';
       const iniIdx = NIVEL_ORDER.indexOf(ini);
       const curIdx = NIVEL_ORDER.indexOf(cur);
       const tgtIdx = NIVEL_ORDER.indexOf(tgt);
-      // Determina quais níveis exibir no stepper (de inicial a alvo inclusive)
-      const start = Math.max(0, iniIdx < 1 ? 1 : iniIdx); // skip 'Nenhum'
+      const start = Math.max(0, iniIdx < 1 ? 1 : iniIdx);
       const end   = Math.min(NIVEL_ORDER.length - 1, tgtIdx < start ? start + 2 : tgtIdx);
       const nodes = NIVEL_ORDER.slice(start, end + 1);
       return `<div class="level-stepper">
         ${nodes.map((n, i) => {
           const nIdx = NIVEL_ORDER.indexOf(n);
           let cls = 'ls-done';
-          if (nIdx === curIdx)  cls = 'ls-current';
+          if (nIdx === curIdx) cls = 'ls-current';
           else if (nIdx === tgtIdx && nIdx > curIdx) cls = 'ls-target';
-          else if (nIdx > curIdx) cls = 'ls-done'; // future nodes
+          else if (nIdx > curIdx) cls = 'ls-done';
           const arrow = i < nodes.length - 1 ? '<span class="ls-arrow">›</span>' : '';
           return `<span class="ls-node ${cls}">${n}</span>${arrow}`;
         }).join('')}
@@ -4324,7 +4453,6 @@ function renderTable(el, filterStatus) {
     }).join('');
 
   } else if (filterStatus === '__documentacao') {
-    // ─── ABA DOCUMENTAÇÃO: Tracker documental estruturado ───
     const viewKey = getSortViewKey(filterStatus);
     thead = `<tr>
       ${renderSortableTh('Nome','nome',viewKey)}
@@ -4408,6 +4536,7 @@ function renderTable(el, filterStatus) {
       </table>
     </div>${pg}`;
 }
+
 
 function renderInativo(el) {
   S.filter.status = '';
@@ -6172,7 +6301,7 @@ async function saveCandidate() {
         'warn', 7000
       );
     } else if (newStatus === 'Contratado' && prevStatus !== 'Contratado') {
-      fireWunderbar();
+      // celebração visual desativada
     } else {
       const quant = nFields === 1 ? '1 campo salvo' : `${nFields} campos salvos`;
       btn.classList.add('btn-save-pulse');
@@ -6694,7 +6823,7 @@ function renderSettings(el) {
               <div>Última sincronização: <strong style="color:var(--txt)">${S.lastSync ? S.lastSync.toLocaleString('pt-BR') : '—'}</strong></div>
               <div>Enums carregados: <strong style="color:var(--txt)">${Object.keys(S.enums).length} campos</strong></div>
               <div>Usuários: <strong style="color:var(--txt)">${getUsers().length}</strong></div>
-              <div>Versão frontend: <strong style="color:var(--gold)">v9.1 Deutschland Edition — Supabase Auth</strong></div>
+              <div>Versão frontend: <strong style="color:var(--gold)">v9.1 Supabase Auth</strong></div>
               <div>Plataforma operacional interna</div>
             </div>
           </div>
@@ -7193,8 +7322,7 @@ function initGermanGreeting() {
   if (el) el.innerHTML = '';
 }
 
-// ── Wunderbar! — Celebração ao contratar ─────────────────────
-function fireWunderbar() {
+function fireWunderbar() { return; /* celebração desativada */
   const el = document.getElementById('toast');
   document.getElementById('t-ico').textContent = '✅';
   document.getElementById('t-msg').textContent = 'Candidato contratado com sucesso.';
