@@ -3758,6 +3758,14 @@ function renderDashboard(el) {
 }
 
 
+
+function isTalentCandidate(c) {
+  try { return _nivelRank(c) >= 3; } catch(_e) {
+    const n = String(fv(c,'Nível de alemão','Nível alemão','nivel_alemao') || '').trim();
+    return ['B1','B2','B2+','C1','C2'].includes(n);
+  }
+}
+
 function renderKanban(el) {
   const filtered = filterCands(S.candidates, false);
   const byStage  = {};
@@ -3765,12 +3773,17 @@ function renderKanban(el) {
   filtered.forEach(c => { const st=c['STATUS PIPELINE']||'Triagem'; if(!byStage[st]) byStage[st]=[]; byStage[st].push(c); });
   el.innerHTML = `<div id="kanban-wrap">${
     PIPELINE_STAGES.map((stage,i) => {
-      const cards = byStage[stage]||[];
+      let cards = byStage[stage]||[];
+      let title = stage;
+      if (stage === 'Novo candidato') {
+        cards = cards.filter(isTalentCandidate);
+        title = 'Talentos novos';
+      }
       const col = STAGE_COLORS[i]||'var(--accent)';
       return `<div class="k-col">
         <div class="k-hdr">
           <div class="k-dot" style="background:${col}"></div>
-          <div class="k-title">${stage}</div>
+          <div class="k-title">${title}</div>
           <div class="k-cnt">${cards.length}</div>
         </div>
         <div class="k-cards">
