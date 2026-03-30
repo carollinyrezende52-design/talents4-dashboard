@@ -1389,56 +1389,72 @@ a{color:inherit;text-decoration:none}
 
 
 
-/* ───────── Employer Hub v2 ───────── */
-.emp-hub{display:grid;grid-template-columns:280px minmax(360px,1fr) 420px;gap:14px;min-height:calc(100vh - 180px)}
-.emp-pane{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:18px;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
-.emp-pane-hd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.emp-pane-title{font-size:15px;font-weight:800;color:var(--txt)}
-.emp-pane-sub{font-size:11.5px;color:var(--txt3);margin-top:3px}
+/* ───────── Employer Hub v3 ───────── */
+.emp-hub{display:grid;grid-template-columns:300px minmax(420px,1fr) 420px;gap:14px;min-height:calc(100vh - 180px)}
+.emp-pane{background:linear-gradient(180deg,rgba(13,19,33,.98),rgba(10,15,27,.98));border:1px solid rgba(103,126,170,.18);border-radius:18px;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.emp-pane-hd{padding:16px 16px 12px;border-bottom:1px solid rgba(103,126,170,.16);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.emp-pane-title{font-size:15px;font-weight:900;color:#f4f7ff}
+.emp-pane-sub{font-size:11.5px;color:#97a7c6;margin-top:4px;line-height:1.45}
+.emp-pane-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .emp-scroll{overflow:auto;min-height:0}
-.emp-list{padding:10px}
-.emp-item{padding:12px 13px;border:1px solid transparent;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;gap:7px;transition:.15s;background:transparent}
-.emp-item:hover{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.06)}
-.emp-item.active{background:rgba(228,43,74,.08);border-color:rgba(228,43,74,.25);box-shadow:inset 0 0 0 1px rgba(228,43,74,.08)}
+.emp-list{padding:10px;display:flex;flex-direction:column;gap:10px}
+.emp-controls{padding:0 10px 10px;display:flex;flex-direction:column;gap:10px}
+.emp-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.emp-search,.emp-select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(103,126,170,.22);background:#0c1424;color:#eef4ff;font-size:12px;outline:none}
+.emp-search::placeholder{color:#8191af}
+.emp-select{cursor:pointer}
+.emp-item{padding:13px 14px;border:1px solid rgba(103,126,170,.18);border-radius:14px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:.15s;background:#0f172a;text-align:left;width:100%}
+.emp-item:hover{background:#15203a;border-color:rgba(116,165,255,.36)}
+.emp-item.active{background:linear-gradient(180deg,rgba(59,130,246,.18),rgba(59,130,246,.10));border-color:rgba(96,165,250,.62);box-shadow:0 0 0 1px rgba(96,165,250,.18) inset}
+.emp-item.warn{border-color:rgba(245,158,11,.34);background:linear-gradient(180deg,rgba(245,158,11,.10),rgba(245,158,11,.05))}
+.emp-item.warn.active{border-color:rgba(245,158,11,.62);box-shadow:0 0 0 1px rgba(245,158,11,.18) inset}
 .emp-item-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.emp-item-name{font-size:13.5px;font-weight:700;color:var(--txt);line-height:1.3}
-.emp-count{font-size:11px;font-weight:700;color:var(--txt);background:var(--bg3);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.emp-item-name{font-size:13.5px;font-weight:800;color:#f4f7ff;line-height:1.35}
+.emp-count{font-size:11px;font-weight:800;color:#f5f8ff;background:#111b31;border:1px solid rgba(103,126,170,.18);border-radius:999px;padding:2px 8px}
 .emp-mini{display:flex;flex-wrap:wrap;gap:6px}
-.emp-mini span{font-size:10.5px;color:var(--txt3);background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:999px;padding:2px 7px}
-.emp-empty-note{margin:10px;border:1px dashed rgba(255,255,255,.10);background:rgba(255,255,255,.02);border-radius:14px;padding:12px 13px;font-size:11.5px;color:var(--txt3);line-height:1.45}
-.emp-main-top{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.emp-mini span{font-size:10.5px;color:#c4d0e8;background:#10192d;border:1px solid rgba(103,126,170,.16);border-radius:999px;padding:2px 7px}
+.emp-empty-note{margin:10px;border:1px dashed rgba(103,126,170,.26);background:#0d1526;border-radius:14px;padding:12px 13px;font-size:11.5px;color:#a6b3cb;line-height:1.5}
+.emp-main-top{padding:16px;border-bottom:1px solid rgba(103,126,170,.16);display:flex;flex-direction:column;gap:12px}
+.emp-main-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .emp-main-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.emp-stat{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
-.emp-stat-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3)}
-.emp-stat-val{font-size:18px;font-weight:800;color:var(--txt);margin-top:4px}
+.emp-stat{padding:11px 12px;border-radius:14px;background:#0f172a;border:1px solid rgba(103,126,170,.16)}
+.emp-stat-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#92a3c2}
+.emp-stat-val{font-size:20px;font-weight:900;color:#f4f7ff;margin-top:4px}
 .emp-tabs{display:flex;gap:8px;flex-wrap:wrap}
-.emp-tab{padding:8px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--txt3);font-size:11.5px;cursor:pointer}
-.emp-tab.active{background:rgba(228,43,74,.08);border-color:rgba(228,43,74,.3);color:var(--txt)}
+.emp-tab{padding:9px 12px;border-radius:999px;border:1px solid rgba(103,126,170,.18);background:#0d1526;color:#b6c3db;font-size:11.5px;font-weight:700;cursor:pointer}
+.emp-tab:hover{border-color:rgba(116,165,255,.34);color:#eef4ff}
+.emp-tab.active{background:rgba(59,130,246,.16);border-color:rgba(96,165,250,.58);color:#f5f8ff}
 .emp-cands{padding:10px;display:flex;flex-direction:column;gap:10px}
-.emp-cand{padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02);cursor:pointer;transition:.15s}
-.emp-cand:hover{background:rgba(255,255,255,.03)}
-.emp-cand.active{border-color:rgba(228,43,74,.32);background:rgba(228,43,74,.08)}
+.emp-cand{padding:13px 14px;border:1px solid rgba(103,126,170,.16);border-radius:14px;background:#0f172a;cursor:pointer;transition:.15s;text-align:left;width:100%}
+.emp-cand:hover{background:#15203a;border-color:rgba(116,165,255,.34)}
+.emp-cand.active{border-color:rgba(96,165,250,.58);background:linear-gradient(180deg,rgba(59,130,246,.16),rgba(59,130,246,.08))}
 .emp-cand-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.emp-cand-name{font-size:13.5px;font-weight:800;color:var(--txt);line-height:1.35}
+.emp-cand-name{font-size:14px;font-weight:900;color:#f4f7ff;line-height:1.35}
 .emp-cand-meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.emp-cand-meta span{font-size:10.5px;color:var(--txt3);padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
-.emp-cand-foot{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--txt3)}
+.emp-cand-meta span{font-size:10.5px;color:#d1dcf2;padding:2px 7px;border-radius:999px;background:#10192d;border:1px solid rgba(103,126,170,.16)}
+.emp-cand-foot{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.2px;color:#b4c0d8}
 .emp-summary{padding:16px;display:flex;flex-direction:column;gap:12px}
-.emp-summary-name{font-size:20px;font-weight:900;color:var(--txt);line-height:1.25}
+.emp-summary-name{font-size:20px;font-weight:900;color:#f8fbff;line-height:1.25}
 .emp-summary-sub{display:flex;flex-wrap:wrap;gap:7px}
 .emp-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.emp-box{padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
-.emp-box-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3)}
-.emp-box-val{font-size:13px;color:var(--txt);font-weight:700;margin-top:5px;line-height:1.4}
-.emp-text{padding:12px 13px;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid var(--line)}
-.emp-text-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);margin-bottom:6px}
-.emp-text-val{font-size:12.5px;color:var(--txt2);line-height:1.55;white-space:pre-wrap}
+.emp-box{padding:11px 12px;border-radius:14px;background:#0f172a;border:1px solid rgba(103,126,170,.16)}
+.emp-box-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#92a3c2}
+.emp-box-val{font-size:13px;color:#f1f6ff;font-weight:800;margin-top:5px;line-height:1.4}
+.emp-text{padding:12px 13px;border-radius:14px;background:#0f172a;border:1px solid rgba(103,126,170,.16)}
+.emp-text-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#92a3c2;margin-bottom:6px}
+.emp-text-val{font-size:12.5px;color:#d9e4f6;line-height:1.6;white-space:pre-wrap}
 .emp-actions{display:flex;gap:8px;flex-wrap:wrap}
-.emp-btn{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);font-size:12px;font-weight:700;cursor:pointer}
-.emp-btn.primary{background:var(--accent);border-color:var(--accent);color:white}
-.emp-link{background:none;border:none;color:var(--accent2);cursor:pointer;padding:0;font-size:11.5px;font-weight:700}
-@media (max-width: 1380px){.emp-hub{grid-template-columns:260px minmax(320px,1fr) 360px}}
-@media (max-width: 1120px){.emp-hub{grid-template-columns:1fr}.emp-pane{min-height:auto}.emp-scroll{max-height:none}}
+.emp-btn{padding:10px 12px;border-radius:12px;border:1px solid rgba(103,126,170,.18);background:#10192d;color:#eef4ff;font-size:12px;font-weight:800;cursor:pointer}
+.emp-btn:hover{border-color:rgba(116,165,255,.34);background:#14203a}
+.emp-btn.primary{background:#2457d6;border-color:#2457d6;color:white}
+.emp-link{background:none;border:none;color:#7eb5ff;cursor:pointer;padding:0;font-size:11.5px;font-weight:800}
+.emp-link:hover{text-decoration:underline}
+.emp-muted{color:#9baccc}
+.emp-section-note{font-size:11px;color:#8fa1bf}
+.emp-create{white-space:nowrap}
+@media (max-width: 1480px){.emp-hub{grid-template-columns:280px minmax(360px,1fr) 360px}}
+@media (max-width: 1120px){.emp-hub{grid-template-columns:1fr}.emp-pane{min-height:auto}.emp-scroll{max-height:none}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 
 </style>
 
@@ -3792,100 +3808,205 @@ function getEmployerLinkBucket(c) {
   if (s.includes('AGUARD')) return 'aguardando';
   return 'outros';
 }
+function normalizeSearchToken(v) {
+  return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+}
+function normalizeEmployerNameClient(v) {
+  return normalizeSearchToken(v).replace(/\s+/g,' ');
+}
 function getEmployerHubBase() {
-  return filterCands(S.candidates, false).filter(c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE')));
+  return filterCands(S.candidates, false).filter(c => {
+    const st = fv(c,'STATUS PIPELINE');
+    return ['Employer / Matching','Matching Instituição'].includes(st) || !!getEmployerDisplay(c).trim();
+  });
 }
 function ensureEmployerHubState(base) {
-  S.employerHub = S.employerHub || { selectedEmployer:'', selectedCandidateId:'', tab:'todos' };
-  const employers = [...new Set(base.map(c => getEmployerDisplay(c).trim()).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
-  if (!employers.length) {
-    S.employerHub.selectedEmployer='';
-    S.employerHub.selectedCandidateId='';
-    return { employers, selectedEmployer:'', selectedCandidateId:'', tab:S.employerHub.tab||'todos' };
+  S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
+  const inEmployerPipeline = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'));
+  const unresolved = base.filter(c => inEmployerPipeline(c) && !getEmployerDisplay(c).trim());
+  const employerNames = [...new Set(base.map(c => getEmployerDisplay(c).trim()).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
+  const groups = employerNames.map(name => {
+    const items = base.filter(c => getEmployerDisplay(c).trim() === name);
+    return {
+      key: name,
+      name,
+      kind: 'employer',
+      total: items.length,
+      aguardando: items.filter(c => getEmployerLinkBucket(c) === 'aguardando').length,
+      aprovados: items.filter(c => getEmployerLinkBucket(c) === 'aprovados').length,
+      contratados: items.filter(c => getEmployerLinkBucket(c) === 'contratados').length,
+      semResp: items.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador')).length,
+      items,
+    };
+  });
+  if (unresolved.length) {
+    groups.unshift({
+      key: '__UNASSIGNED__',
+      name: 'Sem employer definido',
+      kind: 'unassigned',
+      total: unresolved.length,
+      aguardando: unresolved.length,
+      aprovados: 0,
+      contratados: 0,
+      semResp: unresolved.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador')).length,
+      items: unresolved,
+    });
   }
-  if (!employers.includes(S.employerHub.selectedEmployer)) S.employerHub.selectedEmployer = employers[0];
-  const selectedEmployer = S.employerHub.selectedEmployer;
-  let pool = base.filter(c => getEmployerDisplay(c).trim() === selectedEmployer);
+  const employerSearch = normalizeSearchToken(S.employerHub.employerSearch);
+  const visibleGroups = employerSearch ? groups.filter(g => normalizeSearchToken(g.name).includes(employerSearch)) : groups;
+  if (!visibleGroups.length) {
+    return { groups, visibleGroups, selectedGroup: null, selectedCandidateId:'', tab:S.employerHub.tab || 'todos', unresolvedCount: unresolved.length, filteredPool: [] };
+  }
+  if (!visibleGroups.some(g => g.key === S.employerHub.selectedEmployer)) S.employerHub.selectedEmployer = visibleGroups[0].key;
+  const selectedGroup = visibleGroups.find(g => g.key === S.employerHub.selectedEmployer) || visibleGroups[0];
   const tab = S.employerHub.tab || 'todos';
+  let pool = (selectedGroup?.items || []).slice();
   if (tab !== 'todos') pool = pool.filter(c => getEmployerLinkBucket(c) === tab);
-  const poolIds = new Set(pool.map(c => String(c.ID||'')));
-  if (!poolIds.has(String(S.employerHub.selectedCandidateId||''))) S.employerHub.selectedCandidateId = pool[0]?.ID || base.find(c => getEmployerDisplay(c).trim() === selectedEmployer)?.ID || '';
-  return { employers, selectedEmployer:S.employerHub.selectedEmployer, selectedCandidateId:S.employerHub.selectedCandidateId, tab };
+  const candidateSearch = normalizeSearchToken(S.employerHub.candidateSearch);
+  if (candidateSearch) {
+    pool = pool.filter(c => [fv(c,'Nome completo'), fv(c,'Profissão principal','Profissão'), fv(c,'Cidade atual'), fv(c,'Nível de alemão','Nível alemão')].some(v => normalizeSearchToken(v).includes(candidateSearch)));
+  }
+  const qf = S.employerHub.quickFilter || 'todos';
+  if (qf === 'sem_responsavel') pool = pool.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador'));
+  else if (qf === 'docs_pendentes') pool = pool.filter(c => !isYes(fv(c,'Documentação completa','documentacao_completa')));
+  else if (qf === 'b1plus') pool = pool.filter(c => ['B1','B2','B2+','C1','C2'].includes(String(fv(c,'Nível de alemão','Nível alemão') || '').trim()));
+  else if (qf === 'forte') pool = pool.filter(c => normalizeUpper(fv(c,'Perfil','perfil')).includes('FORTE'));
+  const poolIds = new Set(pool.map(c => String(c.ID||c.id||'')));
+  if (!poolIds.has(String(S.employerHub.selectedCandidateId||''))) S.employerHub.selectedCandidateId = pool[0]?.ID || pool[0]?.id || selectedGroup?.items?.[0]?.ID || selectedGroup?.items?.[0]?.id || '';
+  return { groups, visibleGroups, selectedGroup, selectedCandidateId:S.employerHub.selectedCandidateId, tab, unresolvedCount: unresolved.length, filteredPool: pool };
 }
-function setEmployerHubEmployer(name) {
-  S.employerHub = S.employerHub || { selectedEmployer:'', selectedCandidateId:'', tab:'todos' };
-  S.employerHub.selectedEmployer = name || '';
+function setEmployerHubEmployer(key) {
+  S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
+  S.employerHub.selectedEmployer = key || '';
   S.employerHub.selectedCandidateId = '';
   renderView();
 }
 function setEmployerHubCandidate(id) {
-  S.employerHub = S.employerHub || { selectedEmployer:'', selectedCandidateId:'', tab:'todos' };
+  S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   S.employerHub.selectedCandidateId = id || '';
   renderView();
 }
 function setEmployerHubTab(tab) {
-  S.employerHub = S.employerHub || { selectedEmployer:'', selectedCandidateId:'', tab:'todos' };
+  S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   S.employerHub.tab = tab || 'todos';
+  S.employerHub.selectedCandidateId = '';
+  renderView();
+}
+function setEmployerHubSearch(kind, value) {
+  S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
+  if (kind === 'employers') {
+    S.employerHub.employerSearch = value || '';
+    S.employerHub.selectedEmployer = '';
+  } else {
+    S.employerHub.candidateSearch = value || '';
+    S.employerHub.selectedCandidateId = '';
+  }
+  renderView();
+}
+function setEmployerHubQuickFilter(value) {
+  S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
+  S.employerHub.quickFilter = value || 'todos';
   S.employerHub.selectedCandidateId = '';
   renderView();
 }
 function goToCandidatesByEmployer(employer) {
   _navSetupUI('candidates');
   clearFilters();
-  S.filter.empregador = employer || '';
+  if (employer === '__UNASSIGNED__') {
+    S.filter._customFn = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE')) && !getEmployerDisplay(c).trim();
+  } else if (employer === '__ALL_LINKED__') {
+    S.filter._customFn = c => !!getEmployerDisplay(c).trim() || ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'));
+  } else {
+    S.filter.empregador = employer || '';
+  }
   renderView();
+}
+async function createEmployerHubEmployer() {
+  const nome = prompt('Nome do novo empregador:');
+  if (!nome || !String(nome).trim()) return;
+  const cleaned = String(nome).trim();
+  const nome_normalizado = normalizeEmployerNameClient(cleaned);
+  if (!nome_normalizado) return;
+  try {
+    const supa = await getSupa();
+    const payload = { nome: cleaned, nome_normalizado, ativo: true };
+    const { data, error } = await supa.from('employers').upsert(payload, { onConflict:'nome_normalizado' }).select().single();
+    if (error) throw error;
+    await loadAll();
+    S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
+    S.employerHub.selectedEmployer = data?.nome || cleaned;
+    renderView();
+    toast('✅ Empregador salvo.', 'ok');
+  } catch (e) {
+    toast('❌ Não foi possível criar o empregador: ' + (e?.message || e), 'err');
+  }
+}
+function bindEmployerHubInteractions(root) {
+  const hub = root.querySelector('.emp-hub');
+  if (!hub) return;
+  hub.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-emp-action]');
+    if (!btn) return;
+    const action = btn.dataset.empAction;
+    if (action === 'select-employer') setEmployerHubEmployer(btn.dataset.employerKey || '');
+    else if (action === 'select-candidate') setEmployerHubCandidate(btn.dataset.candidateId || '');
+    else if (action === 'set-tab') setEmployerHubTab(btn.dataset.tab || 'todos');
+    else if (action === 'open-filtered') goToCandidatesByEmployer(btn.dataset.employer || '');
+    else if (action === 'open-candidate') openCand(btn.dataset.candidateId || '');
+    else if (action === 'create-employer') await createEmployerHubEmployer();
+  });
+  hub.addEventListener('input', (ev) => {
+    const inp = ev.target.closest('[data-emp-input]');
+    if (!inp) return;
+    setEmployerHubSearch(inp.dataset.empInput, inp.value || '');
+  });
+  hub.addEventListener('change', (ev) => {
+    const sel = ev.target.closest('[data-emp-select]');
+    if (!sel) return;
+    setEmployerHubQuickFilter(sel.value || 'todos');
+  });
 }
 function renderEmployerHub(el) {
   const base = getEmployerHubBase();
-  const unresolved = base.filter(c => !getEmployerDisplay(c).trim());
   const state = ensureEmployerHubState(base);
-  const { employers, selectedEmployer, selectedCandidateId, tab } = state;
-  if (!employers.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-title">Nenhum employer vinculado</div><div class="empty-sub">Ainda não há candidatos no pipeline de employer com vínculo reconhecido.</div></div>`;
+  const { groups, visibleGroups, selectedGroup, selectedCandidateId, tab, unresolvedCount, filteredPool } = state;
+  if (!groups.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-title">Nenhum employer vinculado</div><div class="empty-sub">Ainda não há candidatos no pipeline de employer nem vínculos ativos reconhecidos.</div></div>`;
     return;
   }
-  const j = v => JSON.stringify(String(v || ''));
-  const grouped = employers.map(name => {
-    const items = base.filter(c => getEmployerDisplay(c).trim() === name);
-    return {
-      name,
-      total: items.length,
-      aguardando: items.filter(c => getEmployerLinkBucket(c) === 'aguardando').length,
-      aprovados: items.filter(c => getEmployerLinkBucket(c) === 'aprovados').length,
-      contratados: items.filter(c => getEmployerLinkBucket(c) === 'contratados').length,
-      semResp: items.filter(c => !fv(c,'Responsável interno','responsavel_interno')).length,
-      items,
-    };
-  });
-  const selectedGroup = grouped.find(g => g.name === selectedEmployer) || grouped[0];
-  let centerList = (selectedGroup?.items || []).slice();
-  if (tab !== 'todos') centerList = centerList.filter(c => getEmployerLinkBucket(c) === tab);
-  const current = centerList.find(c => String(c.ID||'') === String(selectedCandidateId||'')) || centerList[0] || selectedGroup?.items?.[0] || null;
+  const current = (filteredPool || []).find(c => String(c.ID||c.id||'') === String(selectedCandidateId||'')) || (filteredPool || [])[0] || selectedGroup?.items?.[0] || null;
   const ops = current ? getOperationalSummary(current) : null;
   const readiness = current ? getReadiness(current) : null;
-  const tabs = [
-    { key:'todos', label:'Todos', count:selectedGroup.total },
-    { key:'aguardando', label:'Aguardando retorno', count:selectedGroup.aguardando },
-    { key:'aprovados', label:'Aprovados', count:selectedGroup.aprovados },
-    { key:'contratados', label:'Contratados', count:selectedGroup.contratados },
-  ];
   const docLabel = current ? (isYes(fv(current,'Documentação completa','documentacao_completa')) ? 'Completa' : 'Pendente') : '—';
   const pontosFortes = current ? (fv(current,'Pontos fortes') || fv(current,'Diferenciais do perfil','Diferenciais') || '—') : '—';
   const pontosAtencao = current ? (fv(current,'Pontos de atenção') || '—') : '—';
   const analise = current ? (fv(current,'Análise do recrutador','Análise recrutador') || '—') : '—';
+  const tabs = selectedGroup ? [
+    { key:'todos', label:'Todos', count:selectedGroup.total },
+    { key:'aguardando', label:'Aguardando retorno', count:selectedGroup.aguardando },
+    { key:'aprovados', label:'Aprovados', count:selectedGroup.aprovados },
+    { key:'contratados', label:'Contratados', count:selectedGroup.contratados },
+  ] : [];
   el.innerHTML = `
     <div class="emp-hub">
       <section class="emp-pane">
         <div class="emp-pane-hd">
           <div>
             <div class="emp-pane-title">Empregadores</div>
-            <div class="emp-pane-sub">Escolha a empresa para ver somente os candidatos vinculados.</div>
+            <div class="emp-pane-sub">Aqui entram candidatos no pipeline de employer <strong>e também</strong> candidatos com employer já vinculado, mesmo que o status atual deles tenha mudado.</div>
           </div>
-          <span class="emp-count">${grouped.length}</span>
+          <div class="emp-pane-actions">
+            <span class="emp-count">${groups.length}</span>
+            <button type="button" class="emp-btn emp-create" data-emp-action="create-employer">+ Novo empregador</button>
+          </div>
+        </div>
+        <div class="emp-controls">
+          <input class="emp-search" data-emp-input="employers" placeholder="Pesquisar empregador..." value="${esc(S.employerHub?.employerSearch || '')}">
+          <button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="__ALL_LINKED__">Abrir lista geral de employer</button>
         </div>
         <div class="emp-scroll"><div class="emp-list">
-          ${grouped.map(g => `
-            <div class="emp-item ${g.name===selectedGroup.name?'active':''}" onclick="setEmployerHubEmployer(${j(g.name)})">
+          ${visibleGroups.map(g => `
+            <button type="button" class="emp-item ${g.key===selectedGroup?.key?'active':''} ${g.kind==='unassigned'?'warn':''}" data-emp-action="select-employer" data-employer-key="${esc(g.key)}">
               <div class="emp-item-row">
                 <div class="emp-item-name">${esc(g.name)}</div>
                 <span class="emp-count">${g.total}</span>
@@ -3896,35 +4017,54 @@ function renderEmployerHub(el) {
                 <span>${g.contratados} contratados</span>
                 ${g.semResp?`<span>${g.semResp} sem responsável</span>`:''}
               </div>
-            </div>`).join('')}
-          ${unresolved.length ? `<div class="emp-empty-note"><strong>${unresolved.length} candidato(s)</strong> seguem em Employer / Matching sem empresa definida. Não foram perdidos; ficaram fora desta visão até revisão manual.</div>` : ''}
+            </button>`).join('')}
+          ${!visibleGroups.length ? `<div class="emp-empty-note">Nenhum empregador encontrado para esta busca.</div>` : ''}
+          ${unresolvedCount ? `<div class="emp-empty-note"><strong>${unresolvedCount} candidato(s)</strong> estão sem employer definido. Agora eles aparecem numa coluna própria chamada <strong>Sem employer definido</strong>, e não ficam mais escondidos.</div>` : ''}
         </div></div>
       </section>
 
       <section class="emp-pane">
         <div class="emp-main-top">
-          <div class="emp-pane-title">${esc(selectedGroup.name)}</div>
-          <div class="emp-main-stats">
+          <div class="emp-main-head">
+            <div>
+              <div class="emp-pane-title">${esc(selectedGroup?.name || 'Sem seleção')}</div>
+              <div class="emp-pane-sub">${selectedGroup?.kind==='unassigned' ? 'Casos no pipeline de employer que ainda não têm empresa definida.' : 'Candidatos vinculados a este empregador.'}</div>
+            </div>
+            <div class="emp-pane-actions">
+              ${selectedGroup ? `<button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="${esc(selectedGroup.key)}">Abrir lista geral filtrada</button>` : ''}
+            </div>
+          </div>
+          ${selectedGroup ? `<div class="emp-main-stats">
             <div class="emp-stat"><div class="emp-stat-lbl">Vinculados</div><div class="emp-stat-val">${selectedGroup.total}</div></div>
             <div class="emp-stat"><div class="emp-stat-lbl">Aguardando</div><div class="emp-stat-val">${selectedGroup.aguardando}</div></div>
             <div class="emp-stat"><div class="emp-stat-lbl">Aprovados</div><div class="emp-stat-val">${selectedGroup.aprovados}</div></div>
             <div class="emp-stat"><div class="emp-stat-lbl">Contratados</div><div class="emp-stat-val">${selectedGroup.contratados}</div></div>
+          </div>` : ''}
+          <div class="emp-toolbar">
+            <input class="emp-search" data-emp-input="candidates" placeholder="Pesquisar candidato, profissão, cidade..." value="${esc(S.employerHub?.candidateSearch || '')}">
+            <select class="emp-select" data-emp-select="quickFilter">
+              <option value="todos" ${(S.employerHub?.quickFilter||'todos')==='todos'?'selected':''}>Filtro rápido: todos</option>
+              <option value="sem_responsavel" ${(S.employerHub?.quickFilter||'todos')==='sem_responsavel'?'selected':''}>Sem responsável</option>
+              <option value="docs_pendentes" ${(S.employerHub?.quickFilter||'todos')==='docs_pendentes'?'selected':''}>Documentação pendente</option>
+              <option value="b1plus" ${(S.employerHub?.quickFilter||'todos')==='b1plus'?'selected':''}>Alemão B1+</option>
+              <option value="forte" ${(S.employerHub?.quickFilter||'todos')==='forte'?'selected':''}>Perfil forte</option>
+            </select>
           </div>
           <div class="emp-tabs">
-            ${tabs.map(t => `<button class="emp-tab ${tab===t.key?'active':''}" onclick="setEmployerHubTab(${j(t.key)})">${esc(t.label)} · ${t.count}</button>`).join('')}
-            <button class="emp-link" onclick="goToCandidatesByEmployer(${j(selectedGroup.name)})">Abrir lista geral filtrada</button>
+            ${tabs.map(t => `<button type="button" class="emp-tab ${tab===t.key?'active':''}" data-emp-action="set-tab" data-tab="${esc(t.key)}">${esc(t.label)} · ${t.count}</button>`).join('')}
           </div>
         </div>
         <div class="emp-scroll"><div class="emp-cands">
-          ${centerList.length ? centerList.map(c => {
+          ${(filteredPool && filteredPool.length) ? filteredPool.map(c => {
             const score = c._score || 0;
             const pf = fv(c,'Perfil','perfil') || '—';
             const al = fv(c,'Nível de alemão','Nível alemão') || '—';
             const prof = fv(c,'Profissão principal','Profissão') || '—';
-            const resp = fv(c,'Avaliador','Responsável interno') || '—';
+            const resp = fv(c,'Avaliador','Responsável interno','responsavel_interno') || '—';
             const city = fv(c,'Cidade atual') || '—';
-            const linkStatus = getEmployerLinkStatus(c) || '—';
-            return `<div class="emp-cand ${String(c.ID||'')===String(current?.ID||'')?'active':''}" onclick="setEmployerHubCandidate(${j(c.ID)})">
+            const linkStatus = getEmployerLinkStatus(c) || (selectedGroup?.kind==='unassigned' ? 'Sem employer definido' : '—');
+            const cid = String(c.ID||c.id||'');
+            return `<button type="button" class="emp-cand ${cid===String(current?.ID||current?.id||'')?'active':''}" data-emp-action="select-candidate" data-candidate-id="${esc(cid)}">
               <div class="emp-cand-top">
                 <div>
                   <div class="emp-cand-name">${esc(fv(c,'Nome completo')||'—')}</div>
@@ -3940,8 +4080,8 @@ function renderEmployerHub(el) {
                 <span>${esc(linkStatus)}</span>
                 <span>${esc(city)} · ${esc(resp)}</span>
               </div>
-            </div>`;
-          }).join('') : `<div class="emp-empty-note">Nenhum candidato nesta faixa para <strong>${esc(selectedGroup.name)}</strong>.</div>`}
+            </button>`;
+          }).join('') : `<div class="emp-empty-note">Nenhum candidato encontrado com os filtros atuais.</div>`}
         </div></div>
       </section>
 
@@ -3949,7 +4089,7 @@ function renderEmployerHub(el) {
         <div class="emp-pane-hd">
           <div>
             <div class="emp-pane-title">Resumo do candidato</div>
-            <div class="emp-pane-sub">Visão rápida para o RH sem abrir o modal completo.</div>
+            <div class="emp-pane-sub">Visão rápida e legível. Clique no candidato ao centro para trocar a seleção.</div>
           </div>
         </div>
         <div class="emp-scroll">
@@ -3963,13 +4103,13 @@ function renderEmployerHub(el) {
               </div>
             </div>
             <div class="emp-summary-grid">
-              <div class="emp-box"><div class="emp-box-lbl">Employer</div><div class="emp-box-val">${esc(getEmployerDisplay(current)||'—')}</div></div>
+              <div class="emp-box"><div class="emp-box-lbl">Employer</div><div class="emp-box-val">${esc(getEmployerDisplay(current)||'Sem employer definido')}</div></div>
               <div class="emp-box"><div class="emp-box-lbl">Prontidão</div><div class="emp-box-val ${readiness?.cls||''}">${esc(readiness?.label||'—')}</div></div>
               <div class="emp-box"><div class="emp-box-lbl">Alemão</div><div class="emp-box-val">${esc(fv(current,'Nível de alemão','Nível alemão')||'—')}</div></div>
               <div class="emp-box"><div class="emp-box-lbl">Documentação</div><div class="emp-box-val">${esc(docLabel)}</div></div>
               <div class="emp-box"><div class="emp-box-lbl">Profissão</div><div class="emp-box-val">${esc(fv(current,'Profissão principal','Profissão')||'—')}</div></div>
               <div class="emp-box"><div class="emp-box-lbl">Cidade</div><div class="emp-box-val">${esc(fv(current,'Cidade atual')||'—')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Responsável</div><div class="emp-box-val">${esc(fv(current,'Avaliador','Responsável interno')||'—')}</div></div>
+              <div class="emp-box"><div class="emp-box-lbl">Responsável</div><div class="emp-box-val">${esc(fv(current,'Avaliador','Responsável interno','responsavel_interno')||'—')}</div></div>
               <div class="emp-box"><div class="emp-box-lbl">Score</div><div class="emp-box-val">${esc(String(current._score||0))}</div></div>
             </div>
             <div class="emp-text"><div class="emp-text-lbl">Próxima ação</div><div class="emp-text-val">${esc(ops?.acao||'—')}</div></div>
@@ -3977,16 +4117,18 @@ function renderEmployerHub(el) {
             <div class="emp-text"><div class="emp-text-lbl">Pontos fortes / diferenciais</div><div class="emp-text-val">${esc(pontosFortes)}</div></div>
             <div class="emp-text"><div class="emp-text-lbl">Pontos de atenção</div><div class="emp-text-val">${esc(pontosAtencao)}</div></div>
             <div class="emp-actions">
-              <button class="emp-btn primary" onclick="openCand(${j(current.ID)})">Abrir ficha completa</button>
-              <button class="emp-btn" onclick="goToCandidatesByEmployer(${j(getEmployerDisplay(current))})">Ver todos deste employer</button>
+              <button type="button" class="emp-btn primary" data-emp-action="open-candidate" data-candidate-id="${esc(String(current.ID||current.id||''))}">Abrir ficha completa</button>
+              <button type="button" class="emp-btn" data-emp-action="open-filtered" data-employer="${esc(getEmployerDisplay(current) ? getEmployerDisplay(current) : '__UNASSIGNED__')}">Ver todos deste grupo</button>
             </div>
           </div>` : `<div class="emp-empty-note" style="margin:16px">Selecione um candidato para ver o resumo rápido.</div>`}
         </div>
       </section>
     </div>`;
+  bindEmployerHubInteractions(el);
 }
 
 function renderTable(el, filterStatus) {
+
   // Para Entrevistas e Análise RH: filtra por dado preenchido, não por status atual
   // (candidatos avançam de etapa mas seus dados históricos devem ser visíveis)
   let list;
