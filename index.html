@@ -1882,10 +1882,48 @@ details.bi-secondary {
 @media (max-width: 1480px){.emp-hub{grid-template-columns:280px minmax(360px,1fr) 360px}}
 @media (max-width: 1120px){.emp-hub{grid-template-columns:1fr}.emp-pane{min-height:auto}.emp-scroll{max-height:none}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* ───────── Employer Modal ───────── */
+.emp-modal-overlay{position:fixed;inset:0;background:rgba(4,6,14,.82);backdrop-filter:blur(4px);z-index:9000;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow:auto}
+.emp-modal{background:#0b0e18;border:1px solid rgba(103,126,170,.28);border-radius:18px;width:820px;max-width:100%;box-shadow:0 24px 64px rgba(0,0,0,.7);display:flex;flex-direction:column;max-height:90vh}
+.emp-modal-hd{padding:20px 24px 16px;border-bottom:1px solid rgba(103,126,170,.18);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.emp-modal-title{font-size:16px;font-weight:900;color:#f4f7ff}
+.emp-modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#1a2035;border:1px solid rgba(103,126,170,.2);color:#aab8d4;cursor:pointer;font-size:14px}
+.emp-modal-close:hover{background:#242d44;color:#f4f7ff}
+.emp-modal-body{padding:20px 24px;overflow:auto;flex:1}
+.emp-modal-foot{padding:14px 24px;border-top:1px solid rgba(103,126,170,.18);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+.emp-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.emp-form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.emp-form-grid.col1{grid-template-columns:1fr}
+.emp-form-sec{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6b7fa6;padding:14px 0 8px;border-top:1px solid rgba(103,126,170,.14);margin-top:6px;grid-column:1/-1}
+.emp-form-sec:first-child{border-top:none;padding-top:0;margin-top:0}
+.emp-field{display:flex;flex-direction:column;gap:5px}
+.emp-field.full{grid-column:1/-1}
+.emp-label{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8191af}
+.emp-input,.emp-textarea,.emp-fselect{background:#0d1424;border:1px solid rgba(103,126,170,.22);border-radius:10px;padding:9px 12px;font-size:13px;color:#eef4ff;font-family:inherit;transition:border-color .15s;width:100%}
+.emp-input:focus,.emp-textarea:focus,.emp-fselect:focus{outline:none;border-color:rgba(96,165,250,.6);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.emp-input::placeholder,.emp-textarea::placeholder{color:#4a5670}
+.emp-textarea{min-height:80px;resize:vertical}
+.emp-fselect{cursor:pointer}
+.emp-fselect option{background:#0d1424}
+
+/* ───────── Match Link Modal ───────── */
+.match-modal-overlay{position:fixed;inset:0;background:rgba(4,6,14,.82);backdrop-filter:blur(4px);z-index:9100;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.match-modal{background:#0b0e18;border:1px solid rgba(103,126,170,.28);border-radius:18px;width:660px;max-width:100%;box-shadow:0 24px 64px rgba(0,0,0,.7);max-height:88vh;display:flex;flex-direction:column}
+
+/* ───────── Summary enriched cards ───────── */
+.emp-summary-section{background:#0d1526;border:1px solid rgba(103,126,170,.16);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.emp-summary-section-title{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#5a6e94;margin-bottom:2px}
+.emp-employer-pill{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#0f172a;border:1px solid rgba(103,126,170,.2)}
+.emp-employer-pill.primary{border-color:rgba(96,165,250,.4);background:rgba(59,130,246,.08)}
+.emp-employer-pill-name{font-size:12.5px;font-weight:800;color:#e8f0ff}
+.emp-employer-pill-status{font-size:10px;color:#8fa5c8;margin-left:auto}
+.emp-employer-pill-badge{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(96,165,250,.18);color:#7eb3ff;border:1px solid rgba(96,165,250,.3)}
+
 
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -1927,7 +1965,6 @@ details.bi-secondary {
     <div class="nav-sec">Principal</div>
     <div class="nav-item active" onclick="nav('dashboard')" data-v="dashboard"><span class="ico">📊</span>Dashboard BI<span class="nav-badge" id="nb-total">—</span></div>
     <div class="nav-item" onclick="nav('kanban')" data-v="kanban"><span class="ico">🗂</span>Kanban Pipeline<span class="nav-badge" id="nb-ativos">—</span></div>
-    <div class="nav-item" onclick="nav('candidates')" data-v="candidates"><span class="ico">👥</span>Candidatos<span class="nav-badge" id="nb-cands">—</span></div>
     <div class="nav-item" onclick="nav('prioritarios')" data-v="prioritarios"><span class="ico">⭐</span>Talentos Prioritários<span class="nav-badge" id="nb-prioritarios">—</span></div>
     <div class="nav-sec">Pipeline</div>
     <div class="nav-item" onclick="nav('triagem')" data-v="triagem"><span class="ico">🔍</span>Triagem</div>
@@ -1936,8 +1973,10 @@ details.bi-secondary {
     <div class="nav-item" onclick="nav('alemao')" data-v="alemao"><span class="ico">🇩🇪</span>Curso de Alemão</div>
     <div class="nav-item" onclick="nav('documentacao')" data-v="documentacao"><span class="ico">📋</span>Documentação</div>
     <div class="nav-item" onclick="nav('employer')" data-v="employer"><span class="ico">🏥</span>Employer / Matching</div>
-    <div class="nav-item" onclick="nav('inativos')" data-v="inativos"><span class="ico">📦</span>Inativos</div>
     <div class="nav-item" onclick="nav('agenda')" data-v="agenda"><span class="ico">📅</span>Agenda / Entrevistas</div>
+    <div class="nav-sec">Base de talentos</div>
+    <div class="nav-item" onclick="nav('candidates')" data-v="candidates"><span class="ico">👥</span>Candidatos<span class="nav-badge" id="nb-cands">—</span></div>
+    <div class="nav-item" onclick="nav('inativos')" data-v="inativos"><span class="ico">📦</span>Inativos</div>
     <div class="nav-sec">Sistema</div>
     <div class="nav-item" onclick="nav('settings')" data-v="settings"><span class="ico">⚙️</span>Configurações</div>
     <div class="sidebar-bottom">
@@ -2161,7 +2200,8 @@ async function getSupa() {
 
 async function invokeAdminUserLifecycle(action, payload) {
   const supa = await getSupa();
-  const { data: { session } } = await supa.auth.getSession();
+  const { data: sessionData } = await supa.auth.getSession();
+  const session = sessionData?.session ?? null;
   const token = session?.access_token;
   if (!token) throw new Error('Sessão expirada. Entre novamente.');
 
@@ -3471,6 +3511,7 @@ async function initApp() {
 async function loadAll() {
   setSyncStatus('loading');
   try {
+    const supa = await getSupa();
     const [candResp, dashResp, schemaResp, usersResp] = await Promise.all([
       apiGet({ route:'candidates', includeHidden:'true', pageSize:500 }),
       apiGet({ route:'dashboard' }),
@@ -3484,6 +3525,16 @@ async function loadAll() {
     const fetchedUsers = Array.isArray(usersResp?.users) ? usersResp.users : [];
     if (fetchedUsers.length) S.users = fetchedUsers;
     else S.users = Array.isArray(S.users) && S.users.length ? S.users : [];
+
+    // Load employers list for modal selects
+    try {
+      const { data: empData } = await supa.from('employers').select('*').eq('ativo', true).order('nome');
+      S.employers = empData || [];
+    } catch { S.employers = []; }
+
+    // Load N:N matches
+    await loadAllMatches();
+
     S.lastSync   = new Date();
     updateBadges();
     setSyncStatus('ok');
@@ -3736,80 +3787,22 @@ function dashboardGroupCount(list, fn) {
   });
   return Object.entries(m).map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);
 }
-
 function dashboardDrill(key, extra='') {
   clearFilters();
   clearSort();
   const employerPipe = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline'));
-  const ownerMissing = c => !fv(c,'Responsável interno','responsavel_interno','Avaliador');
-  const docsPending = c => !!String(fv(c,'Pendência documental crítica','pendencia_documental_critica') || '').trim() || !isYes(fv(c,'Documentação completa','documentacao_completa'));
-  const levelRank = c => _nivelRank(c);
-  const readinessHigh = c => normalizeUpper(fv(c,'readiness_internacional') || '') === 'ALTO';
-  const motivLow = c => normalizeUpper(fv(c,'motivacao_real','Motivação real') || '').includes('BAIX');
-  const coerLow = c => normalizeUpper(fv(c,'coerencia_candidatura','Coerência da candidatura') || '').includes('BAIX');
-  const employerName = c => getEmployerDisplay(c).trim();
-  const employerBase = getEmployerHubBase();
-  const lowCoverageEmployers = new Set(
-    [...new Set(employerBase.map(c => employerName(c)).filter(Boolean))]
-      .map(name => ({ name, total: employerBase.filter(c => employerName(c) === name).length }))
-      .filter(g => g.total <= 1)
-      .map(g => g.name)
-  );
-
   switch (key) {
     case 'talents_b1':
-    case 'talents_b1plus':
-    case 'talents_all':
       _navSetupUI('prioritarios');
       S.filter._customFn = c => isTalentCandidate(c);
       break;
     case 'talents_b2':
       _navSetupUI('prioritarios');
-      S.filter._customFn = c => levelRank(c) >= 4;
-      break;
-    case 'talents_ready':
-      _navSetupUI('prioritarios');
-      S.filter._customFn = c => isTalentCandidate(c) && isEmployerReadyDashboard(c);
-      break;
-    case 'talents_docs':
-      _navSetupUI('prioritarios');
-      S.filter._customFn = c => isTalentCandidate(c) && docsPending(c);
-      break;
-    case 'talents_no_employer':
-      _navSetupUI('prioritarios');
-      S.filter._customFn = c => isTalentCandidate(c) && !employerName(c);
-      break;
-    case 'talents_international':
-      _navSetupUI('prioritarios');
-      S.filter._customFn = c => isTalentCandidate(c) && readinessHigh(c);
+      S.filter._customFn = c => _nivelRank(c) >= 4;
       break;
     case 'course':
       _navSetupUI('alemao');
       S.filter._customFn = c => isCourseCandidate(c);
-      break;
-    case 'course_next_b1':
-      _navSetupUI('alemao');
-      S.filter._customFn = c => isCourseCandidate(c) && levelRank(c) === 2;
-      break;
-    case 'course_next_b2':
-      _navSetupUI('alemao');
-      S.filter._customFn = c => isCourseCandidate(c) && levelRank(c) === 3;
-      break;
-    case 'course_no_forecast':
-      _navSetupUI('alemao');
-      S.filter._customFn = c => isCourseCandidate(c) && !fv(c,'Previsão de término','previsao_termino_alemao');
-      break;
-    case 'course_stalled':
-      _navSetupUI('alemao');
-      S.filter._customFn = c => {
-        const dt = fv(c,'Última atualização','updated_at','Criado Em');
-        const days = daysSince(dt);
-        return isCourseCandidate(c) && days !== null && days > 21;
-      };
-      break;
-    case 'course_ready':
-      _navSetupUI('alemao');
-      S.filter._customFn = c => isCourseCandidate(c) && (isEmployerReadyDashboard(c) || isTalentCandidate(c));
       break;
     case 'ready_employer':
       _navSetupUI('candidates');
@@ -3817,35 +3810,6 @@ function dashboardDrill(key, extra='') {
       break;
     case 'employers_active':
       _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
-      break;
-    case 'employer_waiting':
-      _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'aguardando', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {}, { tab:'aguardando', quickFilter:'todos', selectedCandidateId:'' });
-      break;
-    case 'employer_approved':
-      _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'aprovados', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {}, { tab:'aprovados', quickFilter:'todos', selectedCandidateId:'' });
-      break;
-    case 'employer_hired':
-      _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'contratados', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {}, { tab:'contratados', quickFilter:'todos', selectedCandidateId:'' });
-      break;
-    case 'employer_docs':
-      _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'docs_pendentes' }, S.employerHub || {}, { quickFilter:'docs_pendentes', selectedCandidateId:'' });
-      break;
-    case 'employer_no_owner':
-      _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'sem_responsavel' }, S.employerHub || {}, { quickFilter:'sem_responsavel', selectedCandidateId:'' });
-      break;
-    case 'employer_b1plus':
-      _navSetupUI('employer');
-      S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'b1plus' }, S.employerHub || {}, { quickFilter:'b1plus', selectedCandidateId:'' });
-      break;
-    case 'employer_low_coverage':
-      _navSetupUI('candidates');
-      S.filter._customFn = c => employerPipe(c) && lowCoverageEmployers.has(employerName(c));
       break;
     case 'critical':
       _navSetupUI('candidates');
@@ -3853,40 +3817,35 @@ function dashboardDrill(key, extra='') {
       break;
     case 'employer_unassigned':
       _navSetupUI('employer');
-      S.filter._customFn = c => employerPipe(c) && !employerName(c);
+      S.filter._customFn = c => employerPipe(c) && !getEmployerDisplay(c).trim();
       break;
     case 'ready_without_employer':
       _navSetupUI('candidates');
-      S.filter._customFn = c => isEmployerReadyDashboard(c) && !employerName(c);
+      S.filter._customFn = c => isEmployerReadyDashboard(c) && !getEmployerDisplay(c).trim();
       break;
     case 'talent_no_owner':
       _navSetupUI('prioritarios');
-      S.filter._customFn = c => isTalentCandidate(c) && ownerMissing(c);
+      S.filter._customFn = c => isTalentCandidate(c) && !fv(c,'Responsável interno','responsavel_interno','Avaliador');
       break;
-    case 'rh_imported':
-      _navSetupUI('analise');
-      S.filter._customFn = c => hasInterviewData(c);
+    case 'course_next_b1':
+      _navSetupUI('alemao');
+      S.filter._customFn = c => isCourseCandidate(c) && _nivelRank(c) === 2;
+      break;
+    case 'course_next_b2':
+      _navSetupUI('alemao');
+      S.filter._customFn = c => isCourseCandidate(c) && _nivelRank(c) === 3;
+      break;
+    case 'course_no_forecast':
+      _navSetupUI('alemao');
+      S.filter._customFn = c => isCourseCandidate(c) && !fv(c,'Previsão de término','previsao_termino_alemao');
       break;
     case 'rh_pending':
-    case 'rh_no_decision':
       _navSetupUI('analise');
       S.filter._customFn = c => hasInterviewData(c) && !fv(c,'decisao_operacional_rh','Decisão operacional RH');
       break;
     case 'rh_risk_high':
       _navSetupUI('analise');
       S.filter._customFn = c => getRiskLevel(c) === 'ALTO';
-      break;
-    case 'rh_motiv_low':
-      _navSetupUI('analise');
-      S.filter._customFn = c => motivLow(c);
-      break;
-    case 'rh_coer_low':
-      _navSetupUI('analise');
-      S.filter._customFn = c => coerLow(c);
-      break;
-    case 'rh_ready_high':
-      _navSetupUI('analise');
-      S.filter._customFn = c => readinessHigh(c);
       break;
     case 'profession':
       _navSetupUI('prioritarios');
@@ -3898,7 +3857,6 @@ function dashboardDrill(key, extra='') {
   }
   renderView();
 }
-
 function dashboardOpenEmployerGroup(groupKey) {
   const base = getEmployerHubBase();
   ensureEmployerHubState(base);
@@ -3906,7 +3864,6 @@ function dashboardOpenEmployerGroup(groupKey) {
   _navSetupUI('employer');
   renderView();
 }
-
 
 function renderDashboard(el) {
   if (!S.dashboard) {
@@ -3926,54 +3883,9 @@ function renderDashboard(el) {
   const employerBase = getEmployerHubBase();
   const employerPipeline = ativos.filter(c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline')));
   const criticalPool = ativos.filter(c => hasCriticalDashboardIssue(c));
-
-  const jsq = v => String(v ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  const ownerValue = c => String(fv(c,'Responsável interno','responsavel_interno','Avaliador') || '').trim();
-  const ownerLabel = c => ownerValue(c) || 'Sem responsável';
-  const employerName = c => String(getEmployerDisplay(c) || '').trim();
-  const levelLabel = c => String(fv(c,'Nível de alemão','Nível alemão','nivel_alemao') || 'Sem nível').trim() || 'Sem nível';
-  const profileLabel = c => String(fv(c,'Perfil','perfil') || '').trim() || 'Sem perfil';
-  const docsOk = c => isYes(fv(c,'Documentação completa','documentacao_completa'));
-  const docCritical = c => String(fv(c,'Pendência documental crítica','pendencia_documental_critica') || '').trim();
-  const hasDocsIssue = c => !!docCritical(c) || !docsOk(c);
-  const stageLabel = c => String(fv(c,'STATUS PIPELINE','status_pipeline') || 'Sem etapa');
-  const stageDays = c => {
-    const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','Data da Candidatura','created_at');
-    const days = daysSince(dt);
-    return days === null ? null : days;
-  };
-  const fmtDays = v => v === null || v === undefined ? 'sem aging' : `${v}d`;
-  const fmtDate = v => {
-    if (!v) return 'Sem data';
-    const d = new Date(v);
-    if (Number.isNaN(d.getTime())) return 'Sem data';
-    return d.toLocaleDateString('pt-BR');
-  };
-  const fmtMonthKey = key => {
-    const [y,m] = String(key || '').split('-').map(Number);
-    if (!y || !m) return String(key || 'Sem previsão');
-    return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month:'short', year:'2-digit' });
-  };
-  const readyState = c => {
-    const v = normalizeUpper(fv(c,'pronto_para_employer','Pronto para employer') || '');
-    if (v === 'SIM') return 'Pronto';
-    if (v === 'PARCIAL') return 'Parcial';
-    return 'Não definido';
-  };
-  const intlState = c => normalizeUpper(fv(c,'readiness_internacional') || '') || 'NÃO INFORMADO';
-  const scoreOps = c => {
-    let s = Number(c._score || 0);
-    s += isEmployerReadyDashboard(c) ? 18 : 0;
-    s += docsOk(c) ? 10 : 0;
-    s += intlState(c) === 'ALTO' ? 8 : 0;
-    s += _nivelRank(c) * 3;
-    s -= getRiskLevel(c) === 'ALTO' ? 15 : 0;
-    return Math.max(0, Math.round(s));
-  };
-
-  const employers = [...new Set(employerBase.map(c => employerName(c)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const employers = [...new Set(employerBase.map(c => getEmployerDisplay(c).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const employerGroups = employers.map(name => {
-    const items = employerBase.filter(c => employerName(c) === name);
+    const items = employerBase.filter(c => getEmployerDisplay(c).trim() === name);
     return {
       key: name,
       name,
@@ -3982,41 +3894,22 @@ function renderDashboard(el) {
       aguardando: items.filter(c => getEmployerLinkBucket(c) === 'aguardando').length,
       aprovados: items.filter(c => getEmployerLinkBucket(c) === 'aprovados').length,
       contratados: items.filter(c => getEmployerLinkBucket(c) === 'contratados').length,
-      semResp: items.filter(c => !ownerValue(c)).length,
-      docsPendentes: items.filter(c => hasDocsIssue(c)).length,
-      b1plus: items.filter(c => _nivelRank(c) >= 3).length,
-      lowCoverage: items.length <= 1,
-      score: 0,
+      semResp: items.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador')).length,
     };
-  }).map(g => ({
-    ...g,
-    score: Math.round(((g.contratados * 3) + (g.aprovados * 2) + Math.max(g.total - g.aguardando, 0)) / Math.max(g.total, 1) * 100)
-  })).sort((a,b)=> b.total - a.total || b.contratados - a.contratados || a.name.localeCompare(b.name,'pt-BR'));
+  }).sort((a,b)=> b.total - a.total || a.name.localeCompare(b.name,'pt-BR'));
 
   const employersLowCoverage = employerGroups.filter(g => g.total <= 1).length;
-  const employerUnassigned = employerPipeline.filter(c => !employerName(c));
-  const readyWithoutEmployer = readyPool.filter(c => !employerName(c));
+  const employerUnassigned = employerPipeline.filter(c => !getEmployerDisplay(c).trim());
+  const readyWithoutEmployer = readyPool.filter(c => !getEmployerDisplay(c).trim());
   const employersAwaiting = employerGroups.filter(g => g.aguardando > 0).length;
   const employersApproved = employerGroups.filter(g => g.aprovados > 0).length;
   const employersHired = employerGroups.filter(g => g.contratados > 0).length;
-  const employerAwaitingCandidates = employerBase.filter(c => getEmployerLinkBucket(c) === 'aguardando');
-  const employerApprovedCandidates = employerBase.filter(c => getEmployerLinkBucket(c) === 'aprovados');
-  const employerHiredCandidates = employerBase.filter(c => getEmployerLinkBucket(c) === 'contratados');
-  const employerNoOwner = employerBase.filter(c => !ownerValue(c));
-  const employerDocsPending = employerBase.filter(c => hasDocsIssue(c));
-  const employerLowCoverageSet = new Set(employerGroups.filter(g => g.lowCoverage).map(g => g.name));
-  const employerLowCoverageCases = employerBase.filter(c => employerLowCoverageSet.has(employerName(c)));
 
-  const noOwnerTalents = talentos.filter(c => !ownerValue(c));
-  const docsBlockingTalents = talentos.filter(c => hasDocsIssue(c));
+  const noOwnerTalents = talentos.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador'));
+  const docsBlockingTalents = talentos.filter(c => !!(fv(c,'Pendência documental crítica','pendencia_documental_critica')||'').trim() || !isYes(fv(c,'Documentação completa','documentacao_completa')));
   const riskTalents = talentos.filter(c => getRiskLevel(c) === 'ALTO');
-  const readyTalents = talentos.filter(c => isEmployerReadyDashboard(c));
-  const noEmployerTalents = talentos.filter(c => !employerName(c));
-  const intlHighTalents = talentos.filter(c => intlState(c) === 'ALTO');
-  const byTalentAlemao = dashboardGroupCount(talentos, c => levelLabel(c)).filter(d => d.label !== 'N/A');
-  const byTalentProf = dashboardGroupCount(talentos, c => normalizeProfissao(fv(c,'Profissão principal','profissao_principal') || '')).slice(0,8);
-  const byTalentReady = dashboardGroupCount(talentos, c => readyState(c));
-  const byTalentOwner = dashboardGroupCount(talentos, c => ownerLabel(c)).slice(0,6);
+  const byTalentAlemao = dashboardGroupCount(talentos, c => fv(c,'Nível de alemão','Nível alemão','nivel_alemao') || 'Nenhum').filter(d=>d.label!=='N/A');
+  const byTalentProf = dashboardGroupCount(talentos, c => normalizeProfissao(fv(c,'Profissão principal','profissao_principal') || '')).slice(0,6);
 
   const courseNextB1 = coursePool.filter(c => _nivelRank(c) === 2);
   const courseNextB2 = coursePool.filter(c => _nivelRank(c) === 3);
@@ -4026,25 +3919,8 @@ function renderDashboard(el) {
     const days = daysSince(dt);
     return days !== null && days > 21;
   });
-  const courseByLevel = dashboardGroupCount(coursePool, c => levelLabel(c));
-  const courseTalentReady = coursePool.filter(c => isEmployerReadyDashboard(c) || isTalentCandidate(c));
-  const byCourseOwner = dashboardGroupCount(coursePool, c => ownerLabel(c)).slice(0,6);
-  const forecastMap = {};
-  coursePool.forEach(c => {
-    const raw = fv(c,'Previsão de término','previsao_termino_alemao');
-    if (!raw) return;
-    const d = new Date(raw);
-    if (Number.isNaN(d.getTime())) return;
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    if (!forecastMap[key]) forecastMap[key] = { label:key, b1:0, b2:0, total:0 };
-    if (_nivelRank(c) === 2) forecastMap[key].b1 += 1;
-    if (_nivelRank(c) === 3) forecastMap[key].b2 += 1;
-    forecastMap[key].total += 1;
-  });
-  const forecastRows = Object.values(forecastMap)
-    .sort((a,b)=> String(a.label).localeCompare(String(b.label)))
-    .slice(0,6)
-    .map(r => ({ ...r, labelFmt: fmtMonthKey(r.label) }));
+  const courseByLevel = dashboardGroupCount(coursePool, c => fv(c,'Nível de alemão','Nível alemão','nivel_alemao') || 'Nenhum');
+  const courseTalentReady = coursePool.filter(c => isTalentCandidate(c)).length;
 
   const interviewsImported = ativos.filter(c => hasInterviewData(c));
   const rhPending = interviewsImported.filter(c => !fv(c,'decisao_operacional_rh','Decisão operacional RH'));
@@ -4052,35 +3928,6 @@ function renderDashboard(el) {
   const rhMotivacaoLow = ativos.filter(c => normalizeUpper(fv(c,'motivacao_real','Motivação real') || '').includes('BAIX'));
   const rhCoerenciaLow = ativos.filter(c => normalizeUpper(fv(c,'coerencia_candidatura','Coerência da candidatura') || '').includes('BAIX'));
   const readinessHigh = ativos.filter(c => normalizeUpper(fv(c,'readiness_internacional') || '') === 'ALTO');
-  const rhDecision = dashboardGroupCount(interviewsImported, c => {
-    const v = normalizeUpper(fv(c,'decisao_operacional_rh','Decisão operacional RH') || '');
-    return v || 'SEM DECISÃO';
-  });
-  const rhOwner = dashboardGroupCount(interviewsImported, c => ownerLabel(c)).slice(0,6);
-  const rhReadiness = dashboardGroupCount(interviewsImported, c => intlState(c));
-
-  const topReadyTalents = talentos.slice()
-    .sort((a,b) => scoreOps(b) - scoreOps(a) || _nivelRank(b) - _nivelRank(a) || String(fv(a,'Nome completo') || '').localeCompare(String(fv(b,'Nome completo') || ''),'pt-BR'))
-    .slice(0,8);
-  const courseStalledList = courseStalled.slice()
-    .sort((a,b) => (stageDays(b) || 0) - (stageDays(a) || 0))
-    .slice(0,8);
-  const courseReadyList = courseTalentReady.slice()
-    .sort((a,b) => scoreOps(b) - scoreOps(a))
-    .slice(0,8);
-  const employerRankList = employerGroups.slice()
-    .sort((a,b) => b.contratados - a.contratados || b.aprovados - a.aprovados || b.total - a.total || a.name.localeCompare(b.name,'pt-BR'))
-    .slice(0,8);
-  const employerOldestCases = employerPipeline.slice()
-    .sort((a,b) => (stageDays(b) || 0) - (stageDays(a) || 0))
-    .slice(0,8);
-  const rhPendingList = rhPending.slice()
-    .sort((a,b) => {
-      const da = daysSince(fv(a,'entrevista_preliminar_data','Data da Entrevista')) || 0;
-      const db = daysSince(fv(b,'entrevista_preliminar_data','Data da Entrevista')) || 0;
-      return db - da;
-    })
-    .slice(0,8);
 
   const currentScope = S.dashboardUi.scope || 'all';
   const scopePools = {
@@ -4091,19 +3938,16 @@ function renderDashboard(el) {
     rh: rhPool,
   };
   const scopeMeta = {
-    all: { label:'Visão geral', sub:'Cockpit executivo da operação ativa com foco em supply, employers, curso e conversão.' },
-    talents: { label:'Talentos', sub:'Oferta qualificada, prontidão comercial e gargalos do lado candidato.' },
-    employers: { label:'Employers', sub:'Cobertura por conta, retorno do matching e higiene operacional do pipeline.' },
-    course: { label:'Curso de alemão', sub:'Pipeline futuro de idioma, ritmo de evolução e previsibilidade de supply.' },
-    rh: { label:'RH readiness', sub:'Fila de decisão, risco, qualidade da análise e prontidão internacional.' },
+    all: { label:'Visão geral', sub:'Toda a operação ativa, com foco em supply e conversão.' },
+    talents: { label:'Foco em talentos', sub:'Base qualificada por idioma e prontidão.' },
+    employers: { label:'Foco em employers', sub:'Empresas, cobertura e retorno comercial.' },
+    course: { label:'Foco em curso de alemão', sub:'Supply pipeline e evolução de idioma.' },
+    rh: { label:'Foco em RH readiness', sub:'Entrevistas, decisão e risco operacional.' },
   };
   const scopePool = scopePools[currentScope] || ativos;
   const scopeInfo = scopeMeta[currentScope] || scopeMeta.all;
 
-  const genAt = S.lastSync ? new Date(S.lastSync).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : 'Sem horário';
-  const cities = dashboardGroupCount(scopePool, c => fv(c,'Cidade atual','cidade_atual') || 'N/A').slice(0,6);
-  const substatus = dashboardGroupCount(scopePool, c => fv(c,'Substatus','substatus') || 'Sem substatus').slice(0,8);
-  const priorities = dashboardGroupCount(scopePool, c => fv(c,'Prioridade comercial','prioridade_comercial') || 'Não definida').slice(0,6);
+  const genAt = S.lastSync ? new Date(S.lastSync).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '—';
 
   const funnelData = PIPELINE_STAGES
     .map(stage => ({ stage, count: ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === stage).length }))
@@ -4113,575 +3957,77 @@ function renderDashboard(el) {
   const funnelHtml = funnelData.map((row, idx) => {
     const pct = Math.max(9, Math.round((row.count / maxFunnel) * 100));
     const col = funnelColors[idx % funnelColors.length];
-    return `<div class="bi-funnel-mini-row" onclick="filterByMetric('${row.stage.replace(/'/g, "\'")}')">
+    return `<div class="bi-funnel-mini-row" onclick="filterByMetric('${row.stage.replace(/'/g, "\\'")}')">
       <div class="bi-funnel-mini-fill" style="width:${pct}%;background:${col}"></div>
       <div class="bi-funnel-mini-label">${esc(row.stage)}</div>
       <div class="bi-funnel-mini-count">${row.count}</div>
     </div>`;
   }).join('');
 
-  const agingRowsMap = {
-    all: [
-      { label:'Triagem / novo', list: ativos.filter(c => ['Triagem','Novo candidato'].includes(stageLabel(c))) },
-      { label:'Curso', list: coursePool },
-      { label:'Employer', list: employerPipeline },
-      { label:'Documentação', list: ativos.filter(c => stageLabel(c) === 'Documentação') },
-    ],
-    talents: [
-      { label:'Talentos totais', list: talentos },
-      { label:'Prontos employer', list: readyTalents },
-      { label:'Sem employer', list: noEmployerTalents },
-      { label:'Docs travando', list: docsBlockingTalents },
-    ],
-    employers: [
-      { label:'Pipeline employer', list: employerPipeline },
-      { label:'Sem employer', list: employerUnassigned },
-      { label:'Aguardando retorno', list: employerAwaitingCandidates },
-      { label:'Docs pendentes', list: employerDocsPending },
-    ],
-    course: [
-      { label:'Em curso', list: coursePool },
-      { label:'Próximos B1', list: courseNextB1 },
-      { label:'Próximos B2', list: courseNextB2 },
-      { label:'Sem previsão', list: courseNoForecast },
-    ],
-    rh: [
-      { label:'Entrevistas', list: interviewsImported },
-      { label:'Sem decisão', list: rhPending },
-      { label:'Risco alto', list: rhRiskHigh },
-      { label:'Coerência baixa', list: rhCoerenciaLow },
-    ],
-  };
+  const agingStages = [
+    { label:'Triagem / Novo', list: ativos.filter(c => ['Triagem','Novo candidato'].includes(fv(c,'STATUS PIPELINE','status_pipeline'))) },
+    { label:'Curso de Alemão', list: coursePool },
+    { label:'Documentação', list: ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Documentação') },
+    { label:'Employer / Matching', list: employerPipeline },
+  ];
+  const agingHtml = agingStages.map(stage => {
+    const [a,b,c,d] = agingBands(stage.list);
+    const cell = (val, cls) => `<div class="bi-aging-cell ${cls}">${val || '·'}</div>`;
+    return `<div class="bi-aging-row">
+      <div class="bi-aging-stage">${esc(stage.label)} <span style="color:var(--txt3)">(${stage.list.length})</span></div>
+      ${cell(a,'good')}${cell(b,'warn')}${cell(c,'risk')}${cell(d,'danger')}
+    </div>`;
+  }).join('');
 
-  const kpi = ({label, value, sub='', color='var(--txt)', action='', extra=''}) => {
-    const click = action ? ` onclick="dashboardDrill('${jsq(action)}','${jsq(extra)}')"` : '';
-    return `<div class="bi-kpi"${click}>
-      <div class="bi-kpi-label">${esc(label)}</div>
-      <div class="bi-kpi-value" style="color:${color}">${value}</div>
-      <div class="bi-kpi-sub">${sub}</div>
-    </div>`;
-  };
-  const mini = ({label, value, sub='', action='', extra='', color='var(--txt)'}) => {
-    const click = action ? ` onclick="dashboardDrill('${jsq(action)}','${jsq(extra)}')" style="cursor:pointer"` : '';
-    return `<div class="bi-mini"${click}>
-      <div class="lbl">${esc(label)}</div>
-      <div class="val" style="color:${color}">${value}</div>
-      <div class="sub">${sub}</div>
-    </div>`;
-  };
-  const card = ({title, sub='', badge='', span=6, body=''}) => `<section class="bi-card span-${span}">
-      <div class="bi-card-head">
-        <div>
-          <div class="bi-card-title">${esc(title)}</div>
-          <div class="bi-card-sub">${esc(sub)}</div>
-        </div>
-        ${badge ? `<span class="bi-card-badge">${esc(badge)}</span>` : ''}
-      </div>
-      <div class="bi-card-body">${body}</div>
-    </section>`;
-  const summaryStack = rows => `<div class="bi-summary-stack">${rows.map(r => `<div class="bi-summary-box">
-      <div class="top"><div class="name">${esc(r.title)}</div><div class="num">${r.value}</div></div>
-      ${(r.lines || []).map(line => `<div class="line">${line}</div>`).join('')}
-    </div>`).join('')}</div>`;
-  const actionList = (rows, empty='Sem dados relevantes nesta visão.') => {
-    if (!rows.length) return `<div class="bi-data-note">${esc(empty)}</div>`;
-    return `<div class="bi-action-list">${rows.map(r => `<div class="bi-action-row"${r.click ? ` onclick="${r.click}"` : ''}>
+  const topEmployerRows = employerGroups.slice(0, 6).map(g => `
+    <div class="bi-action-row" onclick="dashboardOpenEmployerGroup('${g.key.replace(/'/g,"\\'")}')">
       <div class="bi-action-main">
-        <div class="bi-action-name">${esc(r.name || 'Sem nome')}</div>
-        <div class="bi-action-sub">${esc(r.sub || '')}</div>
+        <div class="bi-action-name">${esc(g.name)}</div>
+        <div class="bi-action-sub">${g.total} vinculados · ${g.aguardando} aguardando · ${g.aprovados} aprovados · ${g.contratados} contratados</div>
       </div>
-      <div class="bi-action-meta">${esc(r.meta || '')}</div>
-      ${r.tag ? `<span class="bi-tag ${r.tagClass || 'info'}">${esc(r.tag)}</span>` : '<span></span>'}
-    </div>`).join('')}</div>`;
-  };
-  const agingTable = rows => `<div class="bi-aging-table">
-      <div class="bi-aging-row head"><div></div><div>0-7d</div><div>8-15d</div><div>16-30d</div><div>30d+</div></div>
-      ${rows.map(r => {
-        const bands = agingBands(r.list || []);
-        const cls = ['good','warn','risk','danger'];
-        return `<div class="bi-aging-row">
-          <div class="bi-aging-stage">${esc(r.label)}</div>
-          ${bands.map((n,i) => `<div class="bi-aging-cell ${cls[i]}">${n}</div>`).join('')}
-        </div>`;
-      }).join('')}
-    </div>`;
+      <span class="bi-tag ${g.total <= 1 ? 'warn' : g.contratados ? 'good' : 'info'}">${g.total <= 1 ? 'cobertura baixa' : g.contratados ? 'conversão' : 'ativo'}</span>
+      <div class="bi-action-meta">${g.semResp} sem resp.</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Nenhum employer vinculado ainda.</div>`;
 
-  const topReadyRows = topReadyTalents.map(c => ({
-    click: `openCand('${jsq(c.ID || c.id || '')}')`,
-    name: fv(c,'Nome completo') || 'Sem nome',
-    sub: `${normalizeProfissao(fv(c,'Profissão principal','profissao_principal') || '')} · ${levelLabel(c)} · ${employerName(c) || 'Sem employer'}`,
-    meta: `${scoreOps(c)} pts · ${ownerLabel(c)}`,
-    tag: readyState(c),
-    tagClass: readyState(c) === 'Pronto' ? 'good' : readyState(c) === 'Parcial' ? 'warn' : 'info'
-  }));
-  const courseStalledRows = courseStalledList.map(c => ({
-    click: `openCand('${jsq(c.ID || c.id || '')}')`,
-    name: fv(c,'Nome completo') || 'Sem nome',
-    sub: `${levelLabel(c)} · ${ownerLabel(c)} · previsão ${fmtDate(fv(c,'Previsão de término','previsao_termino_alemao'))}`,
-    meta: fmtDays(stageDays(c)),
-    tag: stageDays(c) !== null && stageDays(c) > 30 ? 'crítico' : 'atenção',
-    tagClass: stageDays(c) !== null && stageDays(c) > 30 ? 'risk' : 'warn'
-  }));
-  const courseReadyRows = courseReadyList.map(c => ({
-    click: `openCand('${jsq(c.ID || c.id || '')}')`,
-    name: fv(c,'Nome completo') || 'Sem nome',
-    sub: `${normalizeProfissao(fv(c,'Profissão principal','profissao_principal') || '')} · ${levelLabel(c)} · ${ownerLabel(c)}`,
-    meta: `${scoreOps(c)} pts`,
-    tag: isEmployerReadyDashboard(c) ? 'pronto' : 'potencial',
-    tagClass: isEmployerReadyDashboard(c) ? 'good' : 'info'
-  }));
-  const employerRankRows = employerRankList.map(g => ({
-    click: `dashboardOpenEmployerGroup('${jsq(g.key)}')`,
-    name: g.name,
-    sub: `${g.total} vinculados · ${g.aguardando} aguardando · ${g.aprovados} aprovados · ${g.contratados} contratados`,
-    meta: `${g.score} pts`,
-    tag: g.lowCoverage ? 'baixa cobertura' : g.contratados ? 'com conversão' : 'em andamento',
-    tagClass: g.lowCoverage ? 'warn' : g.contratados ? 'good' : 'info'
-  }));
-  const employerCaseRows = employerOldestCases.map(c => ({
-    click: `openCand('${jsq(c.ID || c.id || '')}')`,
-    name: fv(c,'Nome completo') || 'Sem nome',
-    sub: `${employerName(c) || 'Sem employer'} · ${stageLabel(c)} · ${ownerLabel(c)}`,
-    meta: fmtDays(stageDays(c)),
-    tag: hasDocsIssue(c) ? 'docs' : getEmployerLinkBucket(c),
-    tagClass: hasDocsIssue(c) ? 'risk' : getEmployerLinkBucket(c) === 'contratados' ? 'good' : getEmployerLinkBucket(c) === 'aprovados' ? 'info' : 'warn'
-  }));
-  const rhPendingRows = rhPendingList.map(c => ({
-    click: `openCand('${jsq(c.ID || c.id || '')}')`,
-    name: fv(c,'Nome completo') || 'Sem nome',
-    sub: `${normalizeProfissao(fv(c,'Profissão principal','profissao_principal') || '')} · entrevista ${fmtDate(fv(c,'entrevista_preliminar_data','Data da Entrevista'))}`,
-    meta: `${daysSince(fv(c,'entrevista_preliminar_data','Data da Entrevista')) || 0}d · ${ownerLabel(c)}`,
-    tag: getRiskLevel(c) === 'ALTO' ? 'risco alto' : 'pendente',
-    tagClass: getRiskLevel(c) === 'ALTO' ? 'risk' : 'warn'
-  }));
-
-  const priorityRowsMap = {
-    all: [
-      { name:'Prontos sem employer', sub:'Talentos vendáveis ainda sem conta definida.', meta:String(readyWithoutEmployer.length), tag:'agir agora', tagClass:'risk', click:`dashboardDrill('ready_without_employer')` },
-      { name:'Matching sem employer', sub:'Pipeline employer sem destino explícito.', meta:String(employerUnassigned.length), tag:'gargalo', tagClass:'risk', click:`dashboardDrill('employer_unassigned')` },
-      { name:'Talentos sem responsável', sub:'Risco de abandono operacional.', meta:String(noOwnerTalents.length), tag:'ownership', tagClass:'warn', click:`dashboardDrill('talent_no_owner')` },
-      { name:'Curso sem previsão', sub:'Sem forecast confiável para supply futuro.', meta:String(courseNoForecast.length), tag:'forecast', tagClass:'warn', click:`dashboardDrill('course_no_forecast')` },
-      { name:'RH sem decisão', sub:'Entrevistas importadas e travadas.', meta:String(rhPending.length), tag:'fila', tagClass:'warn', click:`dashboardDrill('rh_pending')` },
-      { name:'Pendências críticas', sub:'Documentos, risco alto ou matching incompleto.', meta:String(criticalPool.length), tag:'crítico', tagClass:'risk', click:`dashboardDrill('critical')` },
-    ],
-    talents: [
-      { name:'Talentos prontos sem employer', sub:'Oferta pronta sem destino comercial.', meta:String(readyTalents.filter(c => !employerName(c)).length), tag:'venda', tagClass:'risk', click:`dashboardDrill('talents_no_employer')` },
-      { name:'Docs travando talentos', sub:'Base boa bloqueada por documentação.', meta:String(docsBlockingTalents.length), tag:'docs', tagClass:'risk', click:`dashboardDrill('talents_docs')` },
-      { name:'Talentos sem responsável', sub:'Base B1+ sem dono operacional.', meta:String(noOwnerTalents.length), tag:'ownership', tagClass:'warn', click:`dashboardDrill('talent_no_owner')` },
-      { name:'Readiness internacional alto', sub:'Talentos mais maduros para mobilização.', meta:String(intlHighTalents.length), tag:'alto', tagClass:'good', click:`dashboardDrill('talents_international')` },
-      { name:'Risco alto', sub:'Talentos que exigem retenção ou revalidação.', meta:String(riskTalents.length), tag:'retenção', tagClass:'risk', click:`dashboardDrill('rh_risk_high')` },
-    ],
-    employers: [
-      { name:'Sem employer definido', sub:'Matching aberto e incompleto.', meta:String(employerUnassigned.length), tag:'gargalo', tagClass:'risk', click:`dashboardDrill('employer_unassigned')` },
-      { name:'Cobertura baixa', sub:'Employers com 0 ou 1 candidato.', meta:String(employersLowCoverage), tag:'cobertura', tagClass:'warn', click:`dashboardDrill('employer_low_coverage')` },
-      { name:'Docs pendentes', sub:'Vínculos employer travados por documentação.', meta:String(employerDocsPending.length), tag:'docs', tagClass:'risk', click:`dashboardDrill('employer_docs')` },
-      { name:'Sem responsável', sub:'Conta ativa sem ownership operacional.', meta:String(employerNoOwner.length), tag:'ownership', tagClass:'warn', click:`dashboardDrill('employer_no_owner')` },
-      { name:'Aguardando retorno', sub:'Pipeline parado no lado employer.', meta:String(employerAwaitingCandidates.length), tag:'SLA', tagClass:'warn', click:`dashboardDrill('employer_waiting')` },
-    ],
-    course: [
-      { name:'Sem previsão', sub:'Sem forecast mensal confiável.', meta:String(courseNoForecast.length), tag:'forecast', tagClass:'risk', click:`dashboardDrill('course_no_forecast')` },
-      { name:'Parados há mais de 21d', sub:'Acompanhamento fraco ou atualização atrasada.', meta:String(courseStalled.length), tag:'ritmo', tagClass:'risk', click:`dashboardDrill('course_stalled')` },
-      { name:'Próximos a B1', sub:'Oferta com maior chance de virar talento.', meta:String(courseNextB1.length), tag:'B1', tagClass:'info', click:`dashboardDrill('course_next_b1')` },
-      { name:'Próximos a B2', sub:'Upgrade de qualidade do supply.', meta:String(courseNextB2.length), tag:'B2', tagClass:'good', click:`dashboardDrill('course_next_b2')` },
-      { name:'Elegíveis enquanto estudam', sub:'Casos já acionáveis comercialmente.', meta:String(courseTalentReady.length), tag:'potencial', tagClass:'good', click:`dashboardDrill('course_ready')` },
-    ],
-    rh: [
-      { name:'Sem decisão RH', sub:'Fila primária de decisão.', meta:String(rhPending.length), tag:'fila', tagClass:'risk', click:`dashboardDrill('rh_pending')` },
-      { name:'Risco alto', sub:'Candidatos com chance elevada de perda.', meta:String(rhRiskHigh.length), tag:'risco', tagClass:'risk', click:`dashboardDrill('rh_risk_high')` },
-      { name:'Motivação baixa', sub:'Sinal de baixa aderência real.', meta:String(rhMotivacaoLow.length), tag:'fit', tagClass:'warn', click:`dashboardDrill('rh_motiv_low')` },
-      { name:'Coerência baixa', sub:'História / candidatura precisam revisão.', meta:String(rhCoerenciaLow.length), tag:'qualidade', tagClass:'warn', click:`dashboardDrill('rh_coer_low')` },
-      { name:'Readiness internacional alto', sub:'Casos mais maduros para avanço.', meta:String(readinessHigh.length), tag:'alto', tagClass:'good', click:`dashboardDrill('rh_ready_high')` },
-    ],
-  };
-
-  const kpiMap = {
-    all: [
-      { label:'Talentos B1+', value: talentos.length, sub:`<strong>${readyTalents.length}</strong> prontos · <strong>${docsBlockingTalents.length}</strong> com travas`, color:'var(--de-gold)', action:'talents_all' },
-      { label:'Prontos para employer', value: readyPool.length, sub:`<strong>${readyWithoutEmployer.length}</strong> sem employer`, color:'var(--green)', action:'ready_employer' },
-      { label:'Employers ativos', value: employerGroups.length, sub:`<strong>${employersAwaiting}</strong> aguardando · <strong>${employersHired}</strong> com contratação`, color:'#f8d46b', action:'employers_active' },
-      { label:'Curso de alemão', value: coursePool.length, sub:`<strong>${courseNextB1.length}</strong> próximos a B1 · <strong>${courseNextB2.length}</strong> próximos a B2`, color:'#38bdf8', action:'course' },
-      { label:'RH sem decisão', value: rhPending.length, sub:`<strong>${interviewsImported.length}</strong> entrevistas importadas`, color:'#d5bfff', action:'rh_pending' },
-      { label:'Pendências críticas', value: criticalPool.length, sub:`<strong>${employerUnassigned.length}</strong> sem employer definido`, color:'#ff5d76', action:'critical' },
-    ],
-    talents: [
-      { label:'Talentos B1+', value: talentos.length, sub:`<strong>${talentosB2.length}</strong> em B2+`, color:'var(--de-gold)', action:'talents_all' },
-      { label:'Prontos employer', value: readyTalents.length, sub:`<strong>${intlHighTalents.length}</strong> readiness internacional alto`, color:'var(--green)', action:'talents_ready' },
-      { label:'Sem employer', value: noEmployerTalents.length, sub:`<strong>${readyTalents.filter(c => !employerName(c)).length}</strong> já prontos`, color:'#38bdf8', action:'talents_no_employer' },
-      { label:'Docs travando', value: docsBlockingTalents.length, sub:`<strong>${docsBlockingTalents.filter(c => docCritical(c)).length}</strong> com pendência crítica`, color:'#ff8c42', action:'talents_docs' },
-      { label:'Sem responsável', value: noOwnerTalents.length, sub:`<strong>${readyTalents.filter(c => !ownerValue(c)).length}</strong> também prontos`, color:'#f5c84a', action:'talent_no_owner' },
-      { label:'Risco alto', value: riskTalents.length, sub:`<strong>${intlHighTalents.length}</strong> com readiness alto`, color:'#ff5d76', action:'rh_risk_high' },
-    ],
-    employers: [
-      { label:'Employers ativos', value: employerGroups.length, sub:`<strong>${employerBase.length}</strong> vínculos no total`, color:'#f8d46b', action:'employers_active' },
-      { label:'Aguardando retorno', value: employerAwaitingCandidates.length, sub:`<strong>${employersAwaiting}</strong> employers impactados`, color:'#ff8c42', action:'employer_waiting' },
-      { label:'Aprovados', value: employerApprovedCandidates.length, sub:`<strong>${employersApproved}</strong> employers com aprovados`, color:'#38bdf8', action:'employer_approved' },
-      { label:'Contratados', value: employerHiredCandidates.length, sub:`<strong>${employersHired}</strong> employers com contratação`, color:'var(--green)', action:'employer_hired' },
-      { label:'Cobertura baixa', value: employersLowCoverage, sub:`<strong>${employerLowCoverageCases.length}</strong> casos em contas frágeis`, color:'#f5c84a', action:'employer_low_coverage' },
-      { label:'Sem responsável', value: employerNoOwner.length, sub:`<strong>${employerDocsPending.length}</strong> também com docs pendentes`, color:'#ff5d76', action:'employer_no_owner' },
-    ],
-    course: [
-      { label:'Em curso', value: coursePool.length, sub:`<strong>${forecastRows.length}</strong> meses com forecast`, color:'#38bdf8', action:'course' },
-      { label:'Próximos a B1', value: courseNextB1.length, sub:`<strong>${courseNextB2.length}</strong> próximos a B2`, color:'#f5c84a', action:'course_next_b1' },
-      { label:'Sem previsão', value: courseNoForecast.length, sub:`<strong>${coursePool.length ? Math.round((courseNoForecast.length / coursePool.length) * 100) : 0}%</strong> da base em curso`, color:'#ff8c42', action:'course_no_forecast' },
-      { label:'Parados 21d+', value: courseStalled.length, sub:`<strong>${courseStalled.filter(c => (stageDays(c) || 0) > 30).length}</strong> acima de 30d`, color:'#ff5d76', action:'course_stalled' },
-      { label:'Elegíveis no curso', value: courseTalentReady.length, sub:`<strong>${courseTalentReady.filter(c => isEmployerReadyDashboard(c)).length}</strong> já prontos`, color:'var(--green)', action:'course_ready' },
-      { label:'Responsáveis ativos', value: byCourseOwner.filter(r => r.label !== 'Sem responsável').length, sub:`<strong>${byCourseOwner.find(r => r.label === 'Sem responsável')?.count || 0}</strong> sem dono`, color:'#d5bfff', action:'course' },
-    ],
-    rh: [
-      { label:'Entrevistas importadas', value: interviewsImported.length, sub:`<strong>${rhPending.length}</strong> sem decisão`, color:'#d5bfff', action:'rh_imported' },
-      { label:'Sem decisão', value: rhPending.length, sub:`<strong>${rhPending.filter(c => getRiskLevel(c) === 'ALTO').length}</strong> em risco alto`, color:'#ff8c42', action:'rh_pending' },
-      { label:'Risco alto', value: rhRiskHigh.length, sub:`<strong>${rhMotivacaoLow.length}</strong> com motivação baixa`, color:'#ff5d76', action:'rh_risk_high' },
-      { label:'Motivação baixa', value: rhMotivacaoLow.length, sub:`<strong>${rhCoerenciaLow.length}</strong> com coerência baixa`, color:'#f5c84a', action:'rh_motiv_low' },
-      { label:'Coerência baixa', value: rhCoerenciaLow.length, sub:`<strong>${readinessHigh.length}</strong> readiness internacional alto`, color:'#38bdf8', action:'rh_coer_low' },
-      { label:'Readiness alto', value: readinessHigh.length, sub:`<strong>${readyPool.length}</strong> prontos para employer`, color:'var(--green)', action:'rh_ready_high' },
-    ],
-  };
-
-  const generalCards = [
-    card({
-      title:'Employer portfolio',
-      sub:'Cobertura por employer, evolução de conta e densidade de pipeline.',
-      badge:`${employerBase.length} vínculos`,
-      span:8,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-employers"></canvas></div>
-          <div class="bi-data-note">Clique em um employer no ranking para abrir a visão dedicada de matching.</div>
-        </div>
-        ${summaryStack([
-          { title:'Cobertura ativa', value: employerGroups.length, lines:[`<strong>${employersLowCoverage}</strong> employers com cobertura baixa`, `<strong>${employersApproved}</strong> com aprovados e <strong>${employersHired}</strong> com contratados`] },
-          { title:'Pipeline pendente', value: employerAwaitingCandidates.length, lines:[`<strong>${employerUnassigned.length}</strong> casos sem employer definido`, `<strong>${employerDocsPending.length}</strong> casos com documentos travando`] },
-          { title:'Concentração', value: employerGroups[0]?.name || 'N/A', lines:[`<strong>${employerGroups[0]?.total || 0}</strong> candidatos no maior cluster`, `<strong>${employerGroups.slice(0,3).reduce((acc,g)=>acc+g.total,0)}</strong> nos 3 maiores employers`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'Prioridades de ação',
-      sub:'Fila crítica orientada a venda, ownership e fluxo.',
-      badge:'live',
-      span:4,
-      body:actionList(priorityRowsMap.all, 'Sem prioridades abertas na visão geral.')
-    }),
-    card({
-      title:'Supply de talentos',
-      sub:'Volume qualificado, distribuição de idioma e prontidão operacional.',
-      badge:`${talentos.length} talentos`,
-      span:6,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-talents-language"></canvas></div>
-          <div class="bi-data-note">Leitura rápida do supply vendável por idioma.</div>
-        </div>
-        ${summaryStack([
-          { title:'Prontos para employer', value: readyTalents.length, lines:[`<strong>${noEmployerTalents.length}</strong> sem employer`, `<strong>${docsBlockingTalents.length}</strong> com docs travando`] },
-          { title:'Ownership', value: talentos.length - noOwnerTalents.length, lines:[`<strong>${noOwnerTalents.length}</strong> sem responsável`, `<strong>${intlHighTalents.length}</strong> com readiness internacional alto`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'Curso como forecast de supply',
-      sub:'Quem pode virar B1/B2 e onde a previsibilidade ainda falha.',
-      badge:`${coursePool.length} em curso`,
-      span:6,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-course-levels"></canvas></div>
-          <div class="bi-data-note">Base de curso segmentada pelo nível atual.</div>
-        </div>
-        ${summaryStack([
-          { title:'Próximos B1', value: courseNextB1.length, lines:[`<strong>${courseNextB2.length}</strong> próximos a B2`, `<strong>${courseTalentReady.length}</strong> já elegíveis comercialmente`] },
-          { title:'Forecast confiável', value: coursePool.length - courseNoForecast.length, lines:[`<strong>${courseNoForecast.length}</strong> sem previsão`, `<strong>${courseStalled.length}</strong> parados há mais de 21 dias`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'RH readiness',
-      sub:'Fila de decisão, sinais de risco e qualidade da análise.',
-      badge:`${interviewsImported.length} entrevistas`,
-      span:6,
-      body:`<div class="bi-mini-metrics">
-        ${mini({ label:'Sem decisão', value: rhPending.length, sub:'Entrevistas ainda sem fechamento', action:'rh_pending', color:'#ff8c42' })}
-        ${mini({ label:'Risco alto', value: rhRiskHigh.length, sub:'Possível perda ou reversão', action:'rh_risk_high', color:'#ff5d76' })}
-        ${mini({ label:'Motivação baixa', value: rhMotivacaoLow.length, sub:'Sinal de aderência fraca', action:'rh_motiv_low', color:'#f5c84a' })}
-        ${mini({ label:'Coerência baixa', value: rhCoerenciaLow.length, sub:'Narrativa inconsistente', action:'rh_coer_low', color:'#38bdf8' })}
+  const topProfessionRows = byTalentProf.slice(0,5).map(p => `
+    <div class="bi-action-row" onclick="dashboardDrill('profession','${p.label.replace(/'/g,"\\'")}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(p.label)}</div>
+        <div class="bi-action-sub">Talentos priorizados por profissão</div>
       </div>
-      <div class="bi-data-note">Use RH readiness como fila de decisão, não como card decorativo.</div>`
-    }),
-    card({
-      title:'Conversão e aging',
-      sub:'Leitura do funil macro e do tempo parado nas fases críticas.',
-      badge:`${ativos.length} ativos`,
-      span:6,
-      body:`<div class="bi-flow-grid">
-        <div>
-          <div class="bi-funnel-mini">${funnelHtml || '<div class="bi-data-note">Sem dados de funil.</div>'}</div>
-        </div>
-        <div>${agingTable(agingRowsMap.all)}</div>
-      </div>`
-    }),
-    card({
-      title:'Cortes operacionais adicionais',
-      sub:'Profissões, cidades e prioridade comercial da visão geral.',
-      badge:'cross-section',
-      span:12,
-      body:`<div class="bi-secondary-grid">
-        <div class="bi-secondary-panel"><h4>Profissões dos talentos</h4><canvas id="chart-bi-professions"></canvas></div>
-        <div class="bi-secondary-panel"><h4>Cidades da visão atual</h4><canvas id="chart-bi-cities"></canvas></div>
-        <div class="bi-secondary-panel"><h4>Substatus e prioridade</h4><canvas id="chart-bi-substatus"></canvas></div>
-      </div>`
-    }),
-  ].join('');
+      <span class="bi-tag info">talento</span>
+      <div class="bi-action-meta">${p.count}</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem talentos qualificados nessa base.</div>`;
 
-  const talentCards = [
-    card({
-      title:'Mapa de prontidão dos talentos',
-      sub:'Idioma, qualidade de supply e blocos prontos para employer.',
-      badge:`${talentos.length} B1+`,
-      span:8,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-talents-language"></canvas></div>
-          <div class="bi-data-note">Concentração de talentos por nível de alemão.</div>
-        </div>
-        ${summaryStack([
-          { title:'Prontos employer', value: readyTalents.length, lines:[`<strong>${readyTalents.filter(c => !employerName(c)).length}</strong> ainda sem employer`, `<strong>${talentosB2.length}</strong> já em B2+`] },
-          { title:'Higiene operacional', value: talentos.length - docsBlockingTalents.length, lines:[`<strong>${docsBlockingTalents.length}</strong> com docs travando`, `<strong>${noOwnerTalents.length}</strong> sem responsável`] },
-          { title:'Readiness internacional', value: intlHighTalents.length, lines:[`<strong>${riskTalents.length}</strong> em risco alto`, `<strong>${readyTalents.filter(c => docsOk(c)).length}</strong> prontos com docs ok`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'Fila crítica de talentos',
-      sub:'O que precisa ser destravado para vender melhor a base.',
-      badge:'operacional',
-      span:4,
-      body:actionList(priorityRowsMap.talents, 'Sem alertas críticos na base de talentos.')
-    }),
-    card({
-      title:'Top talentos mais prontos',
-      sub:'Ranking operacional para ação comercial ou revisão final.',
-      badge:'top 8',
-      span:6,
-      body:actionList(topReadyRows, 'Sem talentos suficientemente maduros para ranking.')
-    }),
-    card({
-      title:'Aging dos gargalos de talentos',
-      sub:'Quanto tempo a base está parada nos principais bloqueios.',
-      badge:'aging',
-      span:6,
-      body:agingTable(agingRowsMap.talents)
-    }),
-    card({
-      title:'Profissões dos talentos',
-      sub:'Onde está a maior densidade de oferta qualificada.',
-      badge:`${byTalentProf.length} clusters`,
-      span:6,
-      body:`<div class="bi-chart-wrap"><canvas id="chart-bi-professions"></canvas></div>
-      <div class="bi-data-note">Clique em uma profissão para abrir os candidatos correspondentes.</div>`
-    }),
-    card({
-      title:'Ownership e readiness',
-      sub:'Quem segura a base e qual o estado de prontidão atual.',
-      badge:'2 cortes',
-      span:6,
-      body:`<div class="bi-secondary-grid">
-        <div class="bi-secondary-panel"><h4>Pronto para employer</h4><canvas id="chart-bi-talent-ready"></canvas></div>
-        <div class="bi-secondary-panel"><h4>Responsáveis internos</h4><canvas id="chart-bi-talent-owners"></canvas></div>
-      </div>`
-    }),
-  ].join('');
+  const criticalListHtml = [
+    { label:'Prontos sem employer', value: readyWithoutEmployer.length, tag:'warn', action:'ready_without_employer' },
+    { label:'Sem employer definido', value: employerUnassigned.length, tag:'risk', action:'employer_unassigned' },
+    { label:'Talentos sem responsável', value: noOwnerTalents.length, tag:'warn', action:'talent_no_owner' },
+    { label:'Docs travando talentos', value: docsBlockingTalents.length, tag:'risk', action:'critical' },
+  ].filter(x => x.value > 0).map(row => `
+    <div class="bi-action-row" onclick="dashboardDrill('${row.action}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${row.label}</div>
+        <div class="bi-action-sub">Acione esse gargalo a partir da dashboard</div>
+      </div>
+      <span class="bi-tag ${row.tag}">${row.tag === 'risk' ? 'crítico' : 'atenção'}</span>
+      <div class="bi-action-meta">${row.value}</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem gargalos críticos destacados agora.</div>`;
 
-  const employerCards = [
-    card({
-      title:'Portfolio de employers',
-      sub:'Contas ativas, cobertura por employer e profundidade do matching.',
-      badge:`${employerGroups.length} employers`,
-      span:8,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-employers"></canvas></div>
-          <div class="bi-data-note">Clique em um employer para abrir o hub operacional correspondente.</div>
-        </div>
-        ${summaryStack([
-          { title:'Cobertura baixa', value: employersLowCoverage, lines:[`<strong>${employerLowCoverageCases.length}</strong> candidatos em contas frágeis`, `<strong>${employerGroups.filter(g => g.total >= 3).length}</strong> employers com densidade aceitável`] },
-          { title:'Pipeline parado', value: employerAwaitingCandidates.length, lines:[`<strong>${employerUnassigned.length}</strong> sem employer definido`, `<strong>${employerDocsPending.length}</strong> com docs pendentes`] },
-          { title:'Conversão', value: employerHiredCandidates.length, lines:[`<strong>${employerApprovedCandidates.length}</strong> aprovados`, `<strong>${employersHired}</strong> employers com contratado`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'Fila crítica de employer',
-      sub:'Ownership, documentos e SLA de retorno das contas.',
-      badge:'matching',
-      span:4,
-      body:actionList(priorityRowsMap.employers, 'Sem alertas críticos no funil de employer.')
-    }),
-    card({
-      title:'Ranking de employers',
-      sub:'Ordenação prática por volume e resultado operacional.',
-      badge:'top 8',
-      span:6,
-      body:actionList(employerRankRows, 'Sem employers suficientes para ranking.')
-    }),
-    card({
-      title:'Casos mais antigos no pipeline employer',
-      sub:'Onde o matching está acumulando tempo parado.',
-      badge:'aging cases',
-      span:6,
-      body:actionList(employerCaseRows, 'Sem casos antigos no pipeline employer.')
-    }),
-    card({
-      title:'Status do vínculo employer',
-      sub:'Leitura objetiva do estado comercial das contas.',
-      badge:'status',
-      span:6,
-      body:`<div class="bi-secondary-grid">
-        <div class="bi-secondary-panel"><h4>Status vínculo</h4><canvas id="chart-bi-employer-status"></canvas></div>
-        <div class="bi-secondary-panel"><h4>Responsáveis internos</h4><canvas id="chart-bi-employer-owners"></canvas></div>
-      </div>`
-    }),
-    card({
-      title:'Aging operacional employer',
-      sub:'Tempo parado nos principais blocos do funil employer.',
-      badge:'aging',
-      span:6,
-      body:agingTable(agingRowsMap.employers)
-    }),
-  ].join('');
-
-  const courseCards = [
-    card({
-      title:'Pipeline de idioma',
-      sub:'Distribuição atual do curso e previsibilidade real do supply futuro.',
-      badge:`${coursePool.length} em curso`,
-      span:8,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-course-levels"></canvas></div>
-          <div class="bi-data-note">A base precisa migrar de curso para talento, não ficar estacionada.</div>
-        </div>
-        ${summaryStack([
-          { title:'Próximos a B1', value: courseNextB1.length, lines:[`<strong>${courseNextB2.length}</strong> próximos a B2`, `<strong>${forecastRows.reduce((acc,r)=>acc+r.total,0)}</strong> com forecast nos próximos meses`] },
-          { title:'Sem forecast', value: courseNoForecast.length, lines:[`<strong>${courseStalled.length}</strong> parados há mais de 21 dias`, `<strong>${byCourseOwner.find(r => r.label === 'Sem responsável')?.count || 0}</strong> sem responsável`] },
-          { title:'Elegíveis já no curso', value: courseTalentReady.length, lines:[`<strong>${courseReadyList.filter(c => isEmployerReadyDashboard(c)).length}</strong> realmente prontos`, `<strong>${coursePool.filter(c => docsOk(c)).length}</strong> com documentação completa`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'Ações urgentes do curso',
-      sub:'Ritmo, forecast e casos que já deveriam migrar de estágio.',
-      badge:'follow-up',
-      span:4,
-      body:actionList(priorityRowsMap.course, 'Sem gargalos relevantes no curso no momento.')
-    }),
-    card({
-      title:'Forecast mensal B1 / B2',
-      sub:'Janela prevista de geração de novos talentos qualificados.',
-      badge:`${forecastRows.length} meses`,
-      span:6,
-      body: forecastRows.length ? `<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-course-forecast"></canvas></div>
-        </div>
-        <div class="bi-action-list">${forecastRows.map(r => `<div class="bi-action-row">
-          <div class="bi-action-main"><div class="bi-action-name">${esc(r.labelFmt)}</div><div class="bi-action-sub">B1: ${r.b1} · B2: ${r.b2}</div></div>
-          <div class="bi-action-meta">${r.total}</div>
-          <span class="bi-tag ${r.total >= 3 ? 'good' : 'info'}">forecast</span>
-        </div>`).join('')}</div>
-      </div>` : `<div class="bi-data-note">Sem previsões suficientes para forecast mensal.</div>`
-    }),
-    card({
-      title:'Alunos com ritmo fraco ou travado',
-      sub:'Casos sem atualização recente ou sem previsão confiável.',
-      badge:'top 8',
-      span:6,
-      body:actionList(courseStalledRows, 'Sem alunos com atraso operacional relevante.')
-    }),
-    card({
-      title:'Casos acionáveis ainda no curso',
-      sub:'Quem já pode virar pauta comercial ou de revisão final.',
-      badge:'potencial',
-      span:6,
-      body:actionList(courseReadyRows, 'Sem casos acionáveis dentro da base em curso.')
-    }),
-    card({
-      title:'Ownership do curso',
-      sub:'Distribuição por responsável e aging dos principais blocos.',
-      badge:'controle',
-      span:6,
-      body:`<div class="bi-secondary-grid">
-        <div class="bi-secondary-panel"><h4>Responsáveis internos</h4><canvas id="chart-bi-course-owners"></canvas></div>
-        <div class="bi-secondary-panel"><h4>Aging do curso</h4>${agingTable(agingRowsMap.course)}</div>
-      </div>`
-    }),
-  ].join('');
-
-  const rhCards = [
-    card({
-      title:'Decisão operacional RH',
-      sub:'Status da análise, risco e qualidade do pipeline de entrevistas.',
-      badge:`${interviewsImported.length} entrevistas`,
-      span:8,
-      body:`<div class="bi-split">
-        <div>
-          <div class="bi-chart-wrap"><canvas id="chart-bi-rh-decision"></canvas></div>
-          <div class="bi-data-note">Esta aba só faz sentido se direcionar fila de decisão e priorização.</div>
-        </div>
-        ${summaryStack([
-          { title:'Sem decisão', value: rhPending.length, lines:[`<strong>${rhPending.filter(c => getRiskLevel(c) === 'ALTO').length}</strong> com risco alto`, `<strong>${rhPending.filter(c => !ownerValue(c)).length}</strong> sem responsável`] },
-          { title:'Sinais de baixa qualidade', value: rhMotivacaoLow.length + rhCoerenciaLow.length, lines:[`<strong>${rhMotivacaoLow.length}</strong> motivação baixa`, `<strong>${rhCoerenciaLow.length}</strong> coerência baixa`] },
-          { title:'Readiness internacional alto', value: readinessHigh.length, lines:[`<strong>${readyPool.length}</strong> prontos para employer`, `<strong>${rhRiskHigh.length}</strong> com risco alto no total`] },
-        ])}
-      </div>`
-    }),
-    card({
-      title:'Fila crítica RH',
-      sub:'Quem exige decisão rápida, rechecagem ou retenção.',
-      badge:'queue',
-      span:4,
-      body:actionList(priorityRowsMap.rh, 'Sem alertas críticos na fila de RH.')
-    }),
-    card({
-      title:'Pendentes mais antigos',
-      sub:'Entrevistas importadas sem fechamento operacional.',
-      badge:'top 8',
-      span:6,
-      body:actionList(rhPendingRows, 'Sem pendências antigas de entrevista.')
-    }),
-    card({
-      title:'Readiness, responsáveis e aging',
-      sub:'Camada tática para destravar decisão e encaminhamento.',
-      badge:'controle',
-      span:6,
-      body:`<div class="bi-secondary-grid">
-        <div class="bi-secondary-panel"><h4>Readiness internacional</h4><canvas id="chart-bi-rh-readiness"></canvas></div>
-        <div class="bi-secondary-panel"><h4>Responsáveis / avaliadores</h4><canvas id="chart-bi-rh-owners"></canvas></div>
-      </div>`
-    }),
-    card({
-      title:'Aging da fila RH',
-      sub:'Tempo parado nas frentes mais sensíveis de análise.',
-      badge:'aging',
-      span:12,
-      body:agingTable(agingRowsMap.rh)
-    }),
-  ].join('');
-
-  const scopeCards = {
-    all: generalCards,
-    talents: talentCards,
-    employers: employerCards,
-    course: courseCards,
-    rh: rhCards,
-  };
+  const cities = dashboardGroupCount(scopePool, c => fv(c,'Cidade atual','cidade_atual') || 'N/A').slice(0,6);
+  const substatus = dashboardGroupCount(scopePool, c => fv(c,'Substatus','substatus') || 'Sem substatus').slice(0,8);
+  const priorities = dashboardGroupCount(scopePool, c => fv(c,'Prioridade comercial','prioridade_comercial') || 'Não definida').slice(0,5);
 
   el.innerHTML = `
     <div class="bi-premium">
       <div class="bi-premium-top">
         <div class="bi-premium-head">
           <div>
-            <div class="bi-premium-title">Dashboard BI | Supply, Employers e Conversão</div>
-            <div class="bi-premium-sub">${scopeInfo.sub} Cada aba agora prioriza KPIs, cards e drilldowns próprios, sem reaproveitar a mesma narrativa de forma cosmética.</div>
+            <div class="bi-premium-title">Dashboard BI — Supply, Employers e Conversão</div>
+            <div class="bi-premium-sub">${scopeInfo.sub} A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.</div>
           </div>
           <div class="bi-premium-meta">
             <span class="bi-pill"><span class="bi-pill-dot" style="color:var(--de-gold)"></span>${scopeInfo.label}</span>
@@ -4698,10 +4044,280 @@ function renderDashboard(el) {
           <button class="bi-scope-btn ${currentScope==='rh'?'active':''}" onclick="dashboardSetScope('rh')">RH readiness</button>
         </div>
 
-        <div class="bi-kpi-strip">${(kpiMap[currentScope] || kpiMap.all).map(kpi).join('')}</div>
+        <div class="bi-kpi-strip">
+          <div class="bi-kpi" onclick="dashboardDrill('talents_b1')">
+            <div class="bi-kpi-label">Talentos B1+</div>
+            <div class="bi-kpi-value" style="color:var(--de-gold)">${talentos.length}</div>
+            <div class="bi-kpi-sub"><strong>${noOwnerTalents.length}</strong> sem responsável · <strong>${docsBlockingTalents.length}</strong> com travas</div>
+          </div>
+          <div class="bi-kpi" onclick="dashboardDrill('talents_b2')">
+            <div class="bi-kpi-label">Talentos B2+</div>
+            <div class="bi-kpi-value" style="color:#d5bfff">${talentosB2.length}</div>
+            <div class="bi-kpi-sub"><strong>${riskTalents.length}</strong> em risco alto</div>
+          </div>
+          <div class="bi-kpi" onclick="dashboardDrill('course')">
+            <div class="bi-kpi-label">Em curso de alemão</div>
+            <div class="bi-kpi-value" style="color:#38bdf8">${coursePool.length}</div>
+            <div class="bi-kpi-sub"><strong>${courseNextB1.length}</strong> próximos a B1 · <strong>${courseNextB2.length}</strong> próximos a B2</div>
+          </div>
+          <div class="bi-kpi" onclick="dashboardDrill('ready_employer')">
+            <div class="bi-kpi-label">Prontos para employer</div>
+            <div class="bi-kpi-value" style="color:var(--green)">${readyPool.length}</div>
+            <div class="bi-kpi-sub"><strong>${readyWithoutEmployer.length}</strong> sem vínculo employer</div>
+          </div>
+          <div class="bi-kpi" onclick="dashboardDrill('employers_active')">
+            <div class="bi-kpi-label">Employers ativos</div>
+            <div class="bi-kpi-value" style="color:#f8d46b">${employerGroups.length}</div>
+            <div class="bi-kpi-sub"><strong>${employersAwaiting}</strong> aguardando · <strong>${employersHired}</strong> com contratação</div>
+          </div>
+          <div class="bi-kpi" onclick="dashboardDrill('critical')">
+            <div class="bi-kpi-label">Pendências críticas</div>
+            <div class="bi-kpi-value" style="color:#ff5d76">${criticalPool.length}</div>
+            <div class="bi-kpi-sub"><strong>${employerUnassigned.length}</strong> sem employer definido</div>
+          </div>
+        </div>
       </div>
 
-      <div class="bi-grid">${scopeCards[currentScope] || scopeCards.all}</div>
+      <div class="bi-grid">
+        <section class="bi-card span-8">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Employer intelligence</div>
+              <div class="bi-card-sub">Cobertura por employer, retorno comercial e fila de conversão.</div>
+            </div>
+            <span class="bi-card-badge">${employerBase.length} vínculos / pipeline</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-split">
+              <div>
+                <div class="bi-chart-wrap"><canvas id="chart-bi-employers"></canvas></div>
+                <div class="bi-data-note">Clique em um employer no ranking ou na lista para abrir a visão dedicada de Employer / Matching.</div>
+              </div>
+              <div class="bi-summary-stack">
+                <div class="bi-summary-box">
+                  <div class="top"><div class="name">Cobertura de employers</div><div class="num">${employerGroups.length}</div></div>
+                  <div class="line"><strong>${employersLowCoverage}</strong> com cobertura baixa (0–1 candidato)</div>
+                </div>
+                <div class="bi-summary-box">
+                  <div class="top"><div class="name">Retorno employer</div><div class="num">${employersAwaiting}</div></div>
+                  <div class="line"><strong>${employersApproved}</strong> com aprovados · <strong>${employersHired}</strong> com contratados</div>
+                </div>
+                <div class="bi-summary-box">
+                  <div class="top"><div class="name">Gargalo de vinculação</div><div class="num">${employerUnassigned.length}</div></div>
+                  <div class="line"><strong>${readyWithoutEmployer.length}</strong> prontos sem employer</div>
+                </div>
+                <div class="bi-action-list">${topEmployerRows}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bi-card span-4">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Prioridades de ação</div>
+              <div class="bi-card-sub">Ações imediatas para operação e employer conversion.</div>
+            </div>
+            <span class="bi-card-badge">live</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-mini-metrics">
+              <div class="bi-mini" onclick="dashboardDrill('ready_without_employer')">
+                <div class="lbl">Prontos sem employer</div>
+                <div class="val" style="color:var(--de-gold)">${readyWithoutEmployer.length}</div>
+                <div class="sub">Talentos prontos sem vínculo</div>
+              </div>
+              <div class="bi-mini" onclick="dashboardDrill('employer_unassigned')">
+                <div class="lbl">Sem employer definido</div>
+                <div class="val" style="color:#ff5d76">${employerUnassigned.length}</div>
+                <div class="sub">No pipeline employer sem empresa</div>
+              </div>
+              <div class="bi-mini" onclick="dashboardDrill('talent_no_owner')">
+                <div class="lbl">Talentos sem responsável</div>
+                <div class="val" style="color:#c9a7ff">${noOwnerTalents.length}</div>
+                <div class="sub">Sem dono claro na operação</div>
+              </div>
+              <div class="bi-mini" onclick="dashboardDrill('critical')">
+                <div class="lbl">Críticos totais</div>
+                <div class="val" style="color:#ff8c42">${criticalPool.length}</div>
+                <div class="sub">Docs, employer e risco</div>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="bi-action-list">${criticalListHtml}</div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Talent pool intelligence</div>
+              <div class="bi-card-sub">Qualidade do supply, idioma e concentração por profissão.</div>
+            </div>
+            <span class="bi-card-badge">${talentos.length} talentos</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-split">
+              <div>
+                <div class="bi-chart-wrap"><canvas id="chart-bi-talents-language"></canvas></div>
+                <div class="bi-data-note">A visão de talentos usa o critério de idioma já validado no produto.</div>
+              </div>
+              <div class="bi-summary-stack">
+                <div class="bi-summary-box">
+                  <div class="top"><div class="name">Talentos sem employer</div><div class="num">${talentos.filter(c => !getEmployerDisplay(c).trim()).length}</div></div>
+                  <div class="line"><strong>${readyWithoutEmployer.length}</strong> já prontos para abordagem</div>
+                </div>
+                <div class="bi-summary-box">
+                  <div class="top"><div class="name">Risco alto</div><div class="num">${riskTalents.length}</div></div>
+                  <div class="line"><strong>${docsBlockingTalents.length}</strong> com travas documentais ou críticas</div>
+                </div>
+                <div class="bi-action-list">${topProfessionRows}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Curso de alemão como supply pipeline</div>
+              <div class="bi-card-sub">Evolução do pool e proximidade de B1/B2.</div>
+            </div>
+            <span class="bi-card-badge">${coursePool.length} em curso</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-split">
+              <div>
+                <div class="bi-chart-wrap"><canvas id="chart-bi-course-levels"></canvas></div>
+                <div class="bi-data-note">Esse painel mostra o curso como motor de abastecimento do pipeline futuro.</div>
+              </div>
+              <div class="bi-course-grid">
+                <div class="bi-mini" onclick="dashboardDrill('course_next_b1')">
+                  <div class="lbl">Próximos a B1</div>
+                  <div class="val" style="color:#38bdf8">${courseNextB1.length}</div>
+                  <div class="sub">Base A2 prestes a virar talento</div>
+                </div>
+                <div class="bi-mini" onclick="dashboardDrill('course_next_b2')">
+                  <div class="lbl">Próximos a B2</div>
+                  <div class="val" style="color:#c9a7ff">${courseNextB2.length}</div>
+                  <div class="sub">Base B1 em evolução</div>
+                </div>
+                <div class="bi-mini" onclick="dashboardDrill('course_no_forecast')">
+                  <div class="lbl">Sem previsão</div>
+                  <div class="val" style="color:#ff8c42">${courseNoForecast.length}</div>
+                  <div class="sub">Necessita governança de cronograma</div>
+                </div>
+                <div class="bi-mini" onclick="dashboardDrill('course')">
+                  <div class="lbl">Talento já qualificado</div>
+                  <div class="val" style="color:var(--green)">${courseTalentReady}</div>
+                  <div class="sub">Em curso e já B1+</div>
+                </div>
+                <div class="bi-mini">
+                  <div class="lbl">Parados</div>
+                  <div class="val" style="color:#ff5d76">${courseStalled.length}</div>
+                  <div class="sub">Sem atualização recente</div>
+                </div>
+                <div class="bi-mini">
+                  <div class="lbl">Base analisada</div>
+                  <div class="val" style="color:var(--txt)">${scopePool.length}</div>
+                  <div class="sub">${scopeInfo.label}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">RH readiness</div>
+              <div class="bi-card-sub">Entrevista importada, risco, coerência e prontidão internacional.</div>
+            </div>
+            <span class="bi-card-badge">${interviewsImported.length} entrevistas</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-rh-grid">
+              <div class="bi-mini" onclick="dashboardDrill('rh_pending')">
+                <div class="lbl">Análise RH pendente</div>
+                <div class="val" style="color:#f5c000">${rhPending.length}</div>
+                <div class="sub">Entrevista importada sem decisão</div>
+              </div>
+              <div class="bi-mini" onclick="dashboardDrill('rh_risk_high')">
+                <div class="lbl">Risco de desistência alto</div>
+                <div class="val" style="color:#ff5d76">${rhRiskHigh.length}</div>
+                <div class="sub">Exige revisão de prioridade</div>
+              </div>
+              <div class="bi-mini">
+                <div class="lbl">Motivação baixa</div>
+                <div class="val" style="color:#ff8c42">${rhMotivacaoLow.length}</div>
+                <div class="sub">Pode afetar avanço real</div>
+              </div>
+              <div class="bi-mini">
+                <div class="lbl">Coerência baixa</div>
+                <div class="val" style="color:#ff8c42">${rhCoerenciaLow.length}</div>
+                <div class="sub">Candidatura pouco consistente</div>
+              </div>
+              <div class="bi-mini">
+                <div class="lbl">Readiness internacional alto</div>
+                <div class="val" style="color:var(--green)">${readinessHigh.length}</div>
+                <div class="sub">Melhor base para employer</div>
+              </div>
+              <div class="bi-mini">
+                <div class="lbl">Aderência / prontidão</div>
+                <div class="val" style="color:#38bdf8">${readyPool.length}</div>
+                <div class="sub">Prontos ou muito próximos</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Conversão e aging</div>
+              <div class="bi-card-sub">Funil e tempo parado nas etapas mais críticas.</div>
+            </div>
+            <span class="bi-card-badge">${ativos.length} ativos</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-flow-grid">
+              <div>
+                <div class="bi-chart-wrap" style="min-height:auto;padding-top:0">
+                  <div class="bi-funnel-mini">${funnelHtml || '<div class="bi-data-note">Sem dados de funil.</div>'}</div>
+                </div>
+              </div>
+              <div>
+                <div class="bi-aging-table">
+                  <div class="bi-aging-row head">
+                    <div></div><div>0–7d</div><div>8–15d</div><div>16–30d</div><div>+30d</div>
+                  </div>
+                  ${agingHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <details class="bi-card bi-secondary span-12">
+          <summary>Analytics secundário</summary>
+          <div class="bi-secondary-body">
+            <div class="bi-secondary-grid">
+              <div class="bi-secondary-panel">
+                <h4>Profissões dos talentos</h4>
+                <canvas id="chart-bi-professions"></canvas>
+              </div>
+              <div class="bi-secondary-panel">
+                <h4>Cidades</h4>
+                <canvas id="chart-bi-cities"></canvas>
+              </div>
+              <div class="bi-secondary-panel">
+                <h4>Substatus / prioridade</h4>
+                <canvas id="chart-bi-substatus"></canvas>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
   `;
 
@@ -4714,6 +4330,7 @@ function renderDashboard(el) {
       titleFont: { family: "'Bricolage Grotesque', sans-serif", size: 12 },
       bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
     };
+    const idCache = {};
     function destroyIfExists(id){
       const node = document.getElementById(id);
       if (!node) return null;
@@ -4723,7 +4340,7 @@ function renderDashboard(el) {
     }
     function hbar(id, data, colors, opts={}) {
       const ctx = destroyIfExists(id);
-      if (!ctx || !data || !data.length) return;
+      if (!ctx || !data.length) return;
       new Chart(ctx, {
         type: 'bar',
         plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
@@ -4741,7 +4358,7 @@ function renderDashboard(el) {
           responsive: true,
           maintainAspectRatio: false,
           indexAxis: opts.indexAxis || 'y',
-          animation: { duration: 450 },
+          animation: { duration: 500 },
           plugins: {
             legend: { display: false },
             tooltip: TOOLTIP,
@@ -4774,30 +4391,32 @@ function renderDashboard(el) {
       });
     }
 
-    const levelColorMap = label => ({
-      'Nenhum':'rgba(95,102,130,.7)','Sem nível':'rgba(95,102,130,.7)','A0':'rgba(95,102,130,.7)','A1':'rgba(56,189,248,.75)','A2':'rgba(96,165,250,.78)','B1':'rgba(245,200,74,.80)','B2':'rgba(201,167,255,.82)','B2+':'rgba(186,132,255,.82)','C1':'rgba(29,233,155,.85)','C2':'rgba(16,185,129,.85)'
-    }[label] || 'rgba(122,128,160,.7)');
-    const readyColorMap = label => ({ 'Pronto':'rgba(29,233,155,.82)','Parcial':'rgba(245,200,74,.82)','Não definido':'rgba(122,128,160,.7)','SIM':'rgba(29,233,155,.82)','PARCIAL':'rgba(245,200,74,.82)','NÃO DEFINIDO':'rgba(122,128,160,.7)','SEM DECISÃO':'rgba(255,140,66,.78)','ALTO':'rgba(255,93,118,.82)','MÉDIO':'rgba(245,200,74,.82)','MEDIO':'rgba(245,200,74,.82)','BAIXO':'rgba(56,189,248,.75)','NÃO INFORMADO':'rgba(122,128,160,.7)' }[label] || 'rgba(122,128,160,.7)');
+    hbar('chart-bi-employers',
+      employerGroups.slice(0,7).map(g => ({ label:g.name, count:g.total })),
+      employerGroups.slice(0,7).map((_,i)=>`hsla(${42+i*8},78%,62%,0.78)`),
+      { onClickLabel: label => dashboardOpenEmployerGroup(label) }
+    );
 
-    hbar('chart-bi-employers', employerGroups.slice(0,7).map(g => ({ label:g.name, count:g.total })), employerGroups.slice(0,7).map((_,i)=>`hsla(${42+i*8},78%,62%,0.78)`), { onClickLabel: label => dashboardOpenEmployerGroup(label) });
-    hbar('chart-bi-talents-language', byTalentAlemao, byTalentAlemao.map(d => levelColorMap(d.label)));
-    hbar('chart-bi-course-levels', courseByLevel, courseByLevel.map(d => levelColorMap(d.label)));
-    hbar('chart-bi-professions', byTalentProf, byTalentProf.map((_,i)=>`hsla(${190+i*18},58%,58%,0.74)`), { onClickLabel: label => dashboardDrill('profession', label) });
+    const talentLangColors = byTalentAlemao.map(d => {
+      const c = {'Nenhum':'rgba(95,102,130,.7)','A0':'rgba(95,102,130,.7)','A1':'rgba(56,189,248,.75)','A2':'rgba(96,165,250,.78)','B1':'rgba(245,200,74,.80)','B2':'rgba(201,167,255,.82)','B2+':'rgba(186,132,255,.82)','C1':'rgba(29,233,155,.85)','C2':'rgba(16,185,129,.85)'};
+      return c[d.label] || 'rgba(122,128,160,.7)';
+    });
+    hbar('chart-bi-talents-language', byTalentAlemao, talentLangColors);
+
+    const courseColors = courseByLevel.map(d => {
+      const c = {'Nenhum':'rgba(95,102,130,.7)','A0':'rgba(95,102,130,.7)','A1':'rgba(56,189,248,.75)','A2':'rgba(96,165,250,.78)','B1':'rgba(245,200,74,.80)','B2':'rgba(201,167,255,.82)','B2+':'rgba(186,132,255,.82)','C1':'rgba(29,233,155,.85)','C2':'rgba(16,185,129,.85)'};
+      return c[d.label] || 'rgba(122,128,160,.7)';
+    });
+    hbar('chart-bi-course-levels', courseByLevel, courseColors);
+
+    hbar('chart-bi-professions', byTalentProf, byTalentProf.map((_,i)=>`hsla(${190+i*18},58%,58%,0.74)`), {
+      onClickLabel: label => dashboardDrill('profession', label)
+    });
     hbar('chart-bi-cities', cities, cities.map((_,i)=>`hsla(${170+i*14},45%,56%,0.72)`));
     const substatusMerged = substatus.slice(0,4).concat(priorities.slice(0,3).map(p => ({ label:`Prioridade · ${p.label}`, count:p.count })));
     hbar('chart-bi-substatus', substatusMerged, substatusMerged.map((_,i)=>`hsla(${260+i*20},50%,62%,0.74)`));
-    hbar('chart-bi-talent-ready', byTalentReady, byTalentReady.map(d => readyColorMap(d.label)));
-    hbar('chart-bi-talent-owners', byTalentOwner, byTalentOwner.map((_,i)=>`hsla(${210+i*16},48%,58%,0.74)`));
-    hbar('chart-bi-employer-status', dashboardGroupCount(employerBase, c => getEmployerLinkStatus(c) || 'Sem status').slice(0,6), dashboardGroupCount(employerBase, c => getEmployerLinkStatus(c) || 'Sem status').slice(0,6).map((_,i)=>`hsla(${35+i*18},72%,60%,0.78)`));
-    hbar('chart-bi-employer-owners', dashboardGroupCount(employerBase, c => ownerLabel(c)).slice(0,6), dashboardGroupCount(employerBase, c => ownerLabel(c)).slice(0,6).map((_,i)=>`hsla(${210+i*15},45%,58%,0.74)`));
-    hbar('chart-bi-course-forecast', forecastRows.map(r => ({ label:r.labelFmt, count:r.total })), forecastRows.map((_,i)=>`hsla(${195+i*16},62%,58%,0.76)`), { indexAxis:'x', maxBarThickness:36 });
-    hbar('chart-bi-course-owners', byCourseOwner, byCourseOwner.map((_,i)=>`hsla(${206+i*18},46%,58%,0.74)`));
-    hbar('chart-bi-rh-decision', rhDecision, rhDecision.map(d => readyColorMap(d.label)));
-    hbar('chart-bi-rh-readiness', rhReadiness, rhReadiness.map(d => readyColorMap(d.label)));
-    hbar('chart-bi-rh-owners', rhOwner, rhOwner.map((_,i)=>`hsla(${220+i*14},46%,58%,0.74)`));
   });
 }
-
 
 function isTalentCandidate(c) {
   try { return _nivelRank(c) >= 3; } catch(_e) {
@@ -4866,13 +4485,20 @@ function getEmployerDisplay(c) {
 function getEmployerLinkStatus(c) {
   return fv(c,'Status vínculo employer','status_vinculo','Status employer','status_employer') || '';
 }
-
+function getEmployerLinkStatusFor(match, c) {
+  return match?.status_vinculo || getEmployerLinkStatus(c) || '';
+}
 function getEmployerLinkBucket(c) {
-  const s = normalizeUpper(getEmployerLinkStatus(c));
+  return getEmployerLinkBucketFor(null, c);
+}
+function getEmployerLinkBucketFor(match, c) {
+  const s = normalizeUpper(getEmployerLinkStatusFor(match, c));
   if (!s) return 'sem-status';
   if (s.includes('CONTRAT')) return 'contratados';
   if (s.includes('APROV')) return 'aprovados';
-  if (s.includes('AGUARD')) return 'aguardando';
+  if (s.includes('NOVA ENTREVISTA') || s.includes('AGENDAR') || s.includes('ENTREVISTA')) return 'nova_entrevista';
+  if (s.includes('CONFIRM')) return 'confirmar_status';
+  if (s.includes('AGUARD') || s.includes('ENVIAD') || s.includes('AVALIA') || s.includes('ESPERA')) return 'aguardando';
   return 'outros';
 }
 function normalizeSearchToken(v) {
@@ -4884,63 +4510,155 @@ function normalizeEmployerNameClient(v) {
 function getEmployerHubBase() {
   return filterCands(S.candidates, false).filter(c => {
     const st = fv(c,'STATUS PIPELINE');
-    return ['Employer / Matching','Matching Instituição'].includes(st) || !!getEmployerDisplay(c).trim();
+    const cid = String(c.ID || c.id || '');
+    return ['Employer / Matching','Matching Instituição'].includes(st) || !!getEmployerDisplay(c).trim() || getMatchesForCandidate(cid).length > 0;
   });
 }
 function ensureEmployerHubState(base) {
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   const inEmployerPipeline = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'));
-  const unresolved = base.filter(c => inEmployerPipeline(c) && !getEmployerDisplay(c).trim());
-  const employerNames = [...new Set(base.map(c => getEmployerDisplay(c).trim()).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
-  const groups = employerNames.map(name => {
-    const items = base.filter(c => getEmployerDisplay(c).trim() === name);
-    return {
-      key: name,
-      name,
+  const employersById = new Map((S.employers || []).map(e => [String(e.id || ''), e]));
+  const groupsMap = new Map();
+  const unresolved = [];
+
+  function ensureGroup(key, seed) {
+    if (!groupsMap.has(key)) groupsMap.set(key, Object.assign({ key, name:'', kind:'employer', employerId:'', entries:[] }, seed || {}));
+    return groupsMap.get(key);
+  }
+  function addEntry(group, candidate, match = null, source = 'legacy') {
+    if (!group || !candidate) return;
+    const cid = String(candidate.ID || candidate.id || '');
+    const mid = String(match?.id || '');
+    const dedupeKey = `${cid}::${mid || source}`;
+    if (!group.entries.some(e => e.__k === dedupeKey)) {
+      group.entries.push({ __k: dedupeKey, candidate, match, source });
+    }
+  }
+
+  // seed com employers cadastrados para permitir edição/vinculação mesmo sem candidatos
+  (S.employers || []).forEach(emp => {
+    const id = String(emp.id || '');
+    if (!id) return;
+    ensureGroup(`emp:${id}`, {
+      name: emp.nome || 'Empregador sem nome',
       kind: 'employer',
-      total: items.length,
-      aguardando: items.filter(c => getEmployerLinkBucket(c) === 'aguardando').length,
-      aprovados: items.filter(c => getEmployerLinkBucket(c) === 'aprovados').length,
-      contratados: items.filter(c => getEmployerLinkBucket(c) === 'contratados').length,
-      semResp: items.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador')).length,
-      items,
-    };
+      employerId: id,
+      employerType: emp.tipo || '',
+      employerObj: emp,
+    });
   });
+
+  base.forEach(c => {
+    const cid = String(c.ID || c.id || '');
+    const matches = getMatchesForCandidate(cid);
+    if (matches.length) {
+      matches.forEach(match => {
+        const empId = String(match.empregador_id || match.employers?.id || '');
+        const empObj = employersById.get(empId) || match.employers || null;
+        const empName = empObj?.nome || match.employers?.nome || getEmployerDisplay(c).trim() || 'Empregador sem nome';
+        const key = empId ? `emp:${empId}` : `legacy:${normalizeEmployerNameClient(empName)}`;
+        const group = ensureGroup(key, {
+          name: empName,
+          kind: empId ? 'employer' : 'legacy',
+          employerId: empId || '',
+          employerType: empObj?.tipo || match.employers?.tipo || '',
+          employerObj: empObj || null,
+        });
+        addEntry(group, c, match, 'nn');
+      });
+    } else {
+      const legacyName = getEmployerDisplay(c).trim();
+      if (legacyName) {
+        const linkedEmp = (S.employers || []).find(e => normalizeEmployerNameClient(e.nome) === normalizeEmployerNameClient(legacyName));
+        const empId = String(linkedEmp?.id || '');
+        const key = empId ? `emp:${empId}` : `legacy:${normalizeEmployerNameClient(legacyName)}`;
+        const group = ensureGroup(key, {
+          name: linkedEmp?.nome || legacyName,
+          kind: empId ? 'employer' : 'legacy',
+          employerId: empId,
+          employerType: linkedEmp?.tipo || '',
+          employerObj: linkedEmp || null,
+        });
+        addEntry(group, c, null, 'legacy');
+      } else if (inEmployerPipeline(c)) {
+        unresolved.push({ __k: `${cid}::unassigned`, candidate:c, match:null, source:'unassigned' });
+      }
+    }
+  });
+
+  let groups = Array.from(groupsMap.values()).map(g => {
+    const entries = g.entries || [];
+    return Object.assign(g, {
+      total: entries.length,
+      aguardando: entries.filter(e => getEmployerLinkBucketFor(e.match, e.candidate) === 'aguardando').length,
+      aprovados: entries.filter(e => getEmployerLinkBucketFor(e.match, e.candidate) === 'aprovados').length,
+      contratados: entries.filter(e => getEmployerLinkBucketFor(e.match, e.candidate) === 'contratados').length,
+      semResp: entries.filter(e => !fv(e.candidate,'Responsável interno','responsavel_interno','Avaliador')).length,
+    });
+  });
+
+  groups.sort((a,b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'));
+
   if (unresolved.length) {
     groups.unshift({
       key: '__UNASSIGNED__',
       name: 'Sem employer definido',
       kind: 'unassigned',
+      employerId: '',
+      employerType: '',
+      employerObj: null,
+      entries: unresolved,
       total: unresolved.length,
       aguardando: unresolved.length,
       aprovados: 0,
       contratados: 0,
-      semResp: unresolved.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador')).length,
-      items: unresolved,
+      semResp: unresolved.filter(e => !fv(e.candidate,'Responsável interno','responsavel_interno','Avaliador')).length,
     });
   }
+
   const employerSearch = normalizeSearchToken(S.employerHub.employerSearch);
   const visibleGroups = employerSearch ? groups.filter(g => normalizeSearchToken(g.name).includes(employerSearch)) : groups;
   if (!visibleGroups.length) {
-    return { groups, visibleGroups, selectedGroup: null, selectedCandidateId:'', tab:S.employerHub.tab || 'todos', unresolvedCount: unresolved.length, filteredPool: [] };
+    return { groups, visibleGroups, selectedGroup: null, selectedCandidateId:'', selectedEntry:null, tab:S.employerHub.tab || 'todos', unresolvedCount: unresolved.length, filteredEntries: [] };
   }
+
   if (!visibleGroups.some(g => g.key === S.employerHub.selectedEmployer)) S.employerHub.selectedEmployer = visibleGroups[0].key;
   const selectedGroup = visibleGroups.find(g => g.key === S.employerHub.selectedEmployer) || visibleGroups[0];
   const tab = S.employerHub.tab || 'todos';
-  let pool = (selectedGroup?.items || []).slice();
-  if (tab !== 'todos') pool = pool.filter(c => getEmployerLinkBucket(c) === tab);
+  let entries = (selectedGroup?.entries || []).slice();
+
+  if (tab !== 'todos') {
+    entries = entries.filter(e => {
+      const bucket = getEmployerLinkBucketFor(e.match, e.candidate);
+      if (tab === 'aguardando') return bucket === 'aguardando' || bucket === 'nova_entrevista' || bucket === 'confirmar_status' || bucket === 'outros' || bucket === 'sem-status';
+      if (tab === 'aprovados') return bucket === 'aprovados';
+      if (tab === 'contratados') return bucket === 'contratados';
+      return true;
+    });
+  }
+
   const candidateSearch = normalizeSearchToken(S.employerHub.candidateSearch);
   if (candidateSearch) {
-    pool = pool.filter(c => [fv(c,'Nome completo'), fv(c,'Profissão principal','Profissão'), fv(c,'Cidade atual'), fv(c,'Nível de alemão','Nível alemão')].some(v => normalizeSearchToken(v).includes(candidateSearch)));
+    entries = entries.filter(e => {
+      const c = e.candidate;
+      return [fv(c,'Nome completo'), fv(c,'Profissão principal','Profissão'), fv(c,'Cidade atual'), fv(c,'Nível de alemão','Nível alemão')]
+        .some(v => normalizeSearchToken(v).includes(candidateSearch));
+    });
   }
+
   const qf = S.employerHub.quickFilter || 'todos';
-  if (qf === 'sem_responsavel') pool = pool.filter(c => !fv(c,'Responsável interno','responsavel_interno','Avaliador'));
-  else if (qf === 'docs_pendentes') pool = pool.filter(c => !isYes(fv(c,'Documentação completa','documentacao_completa')));
-  else if (qf === 'b1plus') pool = pool.filter(c => ['B1','B2','B2+','C1','C2'].includes(String(fv(c,'Nível de alemão','Nível alemão') || '').trim()));
-  else if (qf === 'forte') pool = pool.filter(c => normalizeUpper(fv(c,'Perfil','perfil')).includes('FORTE'));
-  const poolIds = new Set(pool.map(c => String(c.ID||c.id||'')));
-  if (!poolIds.has(String(S.employerHub.selectedCandidateId||''))) S.employerHub.selectedCandidateId = pool[0]?.ID || pool[0]?.id || selectedGroup?.items?.[0]?.ID || selectedGroup?.items?.[0]?.id || '';
-  return { groups, visibleGroups, selectedGroup, selectedCandidateId:S.employerHub.selectedCandidateId, tab, unresolvedCount: unresolved.length, filteredPool: pool };
+  if (qf === 'sem_responsavel') entries = entries.filter(e => !fv(e.candidate,'Responsável interno','responsavel_interno','Avaliador'));
+  else if (qf === 'docs_pendentes') entries = entries.filter(e => !isYes(fv(e.candidate,'Documentação completa','documentacao_completa')));
+  else if (qf === 'b1plus') entries = entries.filter(e => ['B1','B2','B2+','C1','C2'].includes(String(fv(e.candidate,'Nível de alemão','Nível alemão') || '').trim()));
+  else if (qf === 'forte') entries = entries.filter(e => normalizeUpper(fv(e.candidate,'Perfil','perfil')).includes('FORTE'));
+
+  const poolIds = new Set(entries.map(e => String(e.candidate.ID || e.candidate.id || '')));
+  if (!poolIds.has(String(S.employerHub.selectedCandidateId || ''))) {
+    S.employerHub.selectedCandidateId = entries[0]?.candidate?.ID || entries[0]?.candidate?.id || selectedGroup?.entries?.[0]?.candidate?.ID || selectedGroup?.entries?.[0]?.candidate?.id || '';
+  }
+  const selectedEntry = entries.find(e => String(e.candidate.ID || e.candidate.id || '') === String(S.employerHub.selectedCandidateId || '')) || entries[0] || null;
+
+  return { groups, visibleGroups, selectedGroup, selectedCandidateId:S.employerHub.selectedCandidateId, selectedEntry, tab, unresolvedCount: unresolved.length, filteredEntries: entries };
 }
 function setEmployerHubEmployer(key) {
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
@@ -4980,32 +4698,614 @@ function goToCandidatesByEmployer(employer) {
   _navSetupUI('candidates');
   clearFilters();
   if (employer === '__UNASSIGNED__') {
-    S.filter._customFn = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE')) && !getEmployerDisplay(c).trim();
+    S.filter._customFn = c => {
+      const cid = String(c.ID || c.id || '');
+      return ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE')) && !getEmployerDisplay(c).trim() && !getMatchesForCandidate(cid).length;
+    };
   } else if (employer === '__ALL_LINKED__') {
-    S.filter._customFn = c => !!getEmployerDisplay(c).trim() || ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'));
+    S.filter._customFn = c => {
+      const cid = String(c.ID || c.id || '');
+      return !!getEmployerDisplay(c).trim() || getMatchesForCandidate(cid).length > 0 || ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'));
+    };
   } else {
-    S.filter.empregador = employer || '';
+    S.filter._customFn = c => {
+      const cid = String(c.ID || c.id || '');
+      if (normalizeEmployerNameClient(getEmployerDisplay(c)) === normalizeEmployerNameClient(employer)) return true;
+      return getMatchesForCandidate(cid).some(m => normalizeEmployerNameClient(m.employers?.nome || '') === normalizeEmployerNameClient(employer));
+    };
   }
   renderView();
 }
-async function createEmployerHubEmployer() {
-  const nome = prompt('Nome do novo empregador:');
-  if (!nome || !String(nome).trim()) return;
-  const cleaned = String(nome).trim();
-  const nome_normalizado = normalizeEmployerNameClient(cleaned);
-  if (!nome_normalizado) return;
+// ══════════════════════════════════════════════════════════════
+// EMPLOYER MODAL — criar / editar empregador
+// ══════════════════════════════════════════════════════════════
+function openEmployerModal(employerData = null) {
+  const isEdit = !!employerData;
+  const d = employerData || {};
+  const tipoOpts = ['empregador','canal regional','parceiro','outro'];
+  const statusOpts = ['ativo','inativo','em prospecção','em negociação','parceiro confirmado'];
+  const alemaoOpts = ['','A1','A2','B1','B2','B2+','C1','C2'];
+  const prioOpts = ['Alta','Média','Baixa'];
+
+  const sel = (opts, val) => opts.map(o => `<option value="${esc(o)}" ${(d[val]||'')==o?'selected':''}>${esc(o)}</option>`).join('');
+
+  const html = `
+  <div class="emp-modal-overlay" id="employer-modal-overlay" onclick="if(event.target===this)closeEmployerModal()">
+    <div class="emp-modal">
+      <div class="emp-modal-hd">
+        <div class="emp-modal-title">${isEdit ? '✏️ Editar empregador' : '➕ Novo empregador'}</div>
+        <button type="button" class="emp-modal-close" onclick="closeEmployerModal()">✕</button>
+      </div>
+      <div class="emp-modal-body">
+        <input type="hidden" id="em-id" value="${esc(d.id||'')}">
+        <div class="emp-form-grid">
+          <div class="emp-form-sec">Identificação</div>
+          <div class="emp-field full"><label class="emp-label">Nome *</label><input class="emp-input" id="em-nome" value="${esc(d.nome||'')}" placeholder="Nome do empregador"></div>
+          <div class="emp-field"><label class="emp-label">Tipo</label><select class="emp-fselect" id="em-tipo"><option value="">Selecionar...</option>${sel(tipoOpts,'tipo')}</select></div>
+          <div class="emp-field"><label class="emp-label">Status</label><select class="emp-fselect" id="em-status"><option value="">Selecionar...</option>${sel(statusOpts,'status')}</select></div>
+          <div class="emp-field"><label class="emp-label">Área de atuação</label><input class="emp-input" id="em-area" value="${esc(d.area_atuacao||'')}" placeholder="Ex: Indústria, Saúde, Construção"></div>
+          <div class="emp-field"><label class="emp-label">Subsetor / Especialidade</label><input class="emp-input" id="em-subsetor" value="${esc(d.subsetor||'')}" placeholder="Ex: Metalurgia, CNC, Montagem"></div>
+          <div class="emp-field full"><label class="emp-label">Descrição resumida</label><input class="emp-input" id="em-desc" value="${esc(d.descricao_resumida||'')}" placeholder="Descrição curta do empregador"></div>
+          <div class="emp-field full"><label class="emp-label">Descrição operacional interna</label><textarea class="emp-textarea" id="em-desc-op" placeholder="Contexto operacional interno, perfis buscados historicamente...">${esc(d.descricao_operacional||'')}</textarea></div>
+
+          <div class="emp-form-sec">Localização</div>
+          <div class="emp-field"><label class="emp-label">País</label><input class="emp-input" id="em-pais" value="${esc(d.pais||'Alemanha')}" placeholder="Alemanha"></div>
+          <div class="emp-field"><label class="emp-label">Região / Estado</label><input class="emp-input" id="em-regiao" value="${esc(d.regiao||'')}" placeholder="Ex: Baden-Württemberg"></div>
+          <div class="emp-field"><label class="emp-label">Cidade</label><input class="emp-input" id="em-cidade" value="${esc(d.cidade||'')}" placeholder="Ex: Stuttgart, Freiburg"></div>
+          <div class="emp-field"><label class="emp-label">Site</label><input class="emp-input" id="em-site" value="${esc(d.site||'')}" placeholder="https://..."></div>
+
+          <div class="emp-form-sec">Contato</div>
+          <div class="emp-field"><label class="emp-label">Contato principal</label><input class="emp-input" id="em-contato" value="${esc(d.contato_principal||'')}" placeholder="Nome do contato"></div>
+          <div class="emp-field"><label class="emp-label">E-mail principal</label><input class="emp-input" id="em-email" type="email" value="${esc(d.email_principal||'')}" placeholder="contato@empresa.de"></div>
+          <div class="emp-field"><label class="emp-label">Telefone</label><input class="emp-input" id="em-tel" value="${esc(d.telefone||'')}" placeholder="+49 ..."></div>
+          <div class="emp-field"><label class="emp-label">Data último contato</label><input class="emp-input" id="em-dt-contato" type="date" value="${esc(d.data_ultimo_contato||'')}"></div>
+
+          <div class="emp-form-sec">Perfil de vaga</div>
+          <div class="emp-field"><label class="emp-label">Idioma exigido</label><input class="emp-input" id="em-idioma" value="${esc(d.idioma_exigido||'')}" placeholder="Ex: Alemão, Inglês"></div>
+          <div class="emp-field"><label class="emp-label">Nível mínimo de alemão</label><select class="emp-fselect" id="em-alemao"><option value="">Selecionar...</option>${sel(alemaoOpts,'nivel_alemao_minimo')}</select></div>
+          <div class="emp-field"><label class="emp-label">Vagas em aberto</label><input class="emp-input" id="em-vagas" type="number" min="0" value="${esc(String(d.vagas_abertas||0))}"></div>
+          <div class="emp-field full"><label class="emp-label">Perfis buscados</label><textarea class="emp-textarea" id="em-perfis" placeholder="Descreva os perfis que o empregador busca...">${esc(d.perfis_buscados||'')}</textarea></div>
+          <div class="emp-field full"><label class="emp-label">Requisitos principais</label><textarea class="emp-textarea" id="em-req" placeholder="Requisitos técnicos, idioma, certificações...">${esc(d.requisitos_principais||'')}</textarea></div>
+          <div class="emp-field full"><label class="emp-label">Diferenciais desejáveis</label><textarea class="emp-textarea" id="em-dif" placeholder="O que diferencia candidatos aprovados...">${esc(d.diferenciais_desejaveis||'')}</textarea></div>
+
+          <div class="emp-form-sec">Comercial</div>
+          <div class="emp-field"><label class="emp-label">Prioridade comercial</label><select class="emp-fselect" id="em-prio"><option value="">Selecionar...</option>${sel(prioOpts,'prioridade_comercial')}</select></div>
+          <div class="emp-field"><label class="emp-label">Origem do lead</label><input class="emp-input" id="em-origem" value="${esc(d.origem_lead||'')}" placeholder="Ex: indicação, evento, prospecção"></div>
+          <div class="emp-field"><label class="emp-label">Responsável interno</label>
+            <select class="emp-fselect" id="em-resp">
+              <option value="">Selecionar...</option>
+              ${(S.users||[]).map(u => `<option value="${esc(u.nome||u.user)}" ${(d.responsavel_interno||'')===(u.nome||u.user)?'selected':''}>${esc(u.nome||u.user)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="emp-field"><label class="emp-label">Tags (separadas por vírgula)</label><input class="emp-input" id="em-tags" value="${esc(Array.isArray(d.tags)?d.tags.join(', '):(d.tags||''))}" placeholder="Ex: construção, CNC, prioritário"></div>
+          <div class="emp-field full"><label class="emp-label">Observações internas</label><textarea class="emp-textarea" id="em-obs" placeholder="Notas internas sobre o empregador...">${esc(d.observacoes_internas||'')}</textarea></div>
+        </div>
+      </div>
+      <div class="emp-modal-foot">
+        <button type="button" class="emp-btn" onclick="closeEmployerModal()">Cancelar</button>
+        <button type="button" class="emp-btn primary" onclick="saveEmployerModal()">💾 Salvar empregador</button>
+      </div>
+    </div>
+  </div>`;
+
+  const wrapper = document.createElement('div');
+  wrapper.id = 'employer-modal-root';
+  wrapper.innerHTML = html;
+  document.body.appendChild(wrapper);
+  document.getElementById('em-nome')?.focus();
+}
+
+function closeEmployerModal() {
+  const el = document.getElementById('employer-modal-root');
+  if (el) el.remove();
+}
+
+async function saveEmployerModal() {
+  const nome = (document.getElementById('em-nome')?.value || '').trim();
+  if (!nome) { toast('❌ Nome é obrigatório.', 'err'); return; }
+  const nome_normalizado = normalizeEmployerNameClient(nome);
+  if (!nome_normalizado) { toast('❌ Nome inválido.', 'err'); return; }
+
+  const tagsRaw = (document.getElementById('em-tags')?.value || '').trim();
+  const tagsArr = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  const payload = {
+    nome, nome_normalizado, ativo: true,
+    tipo: document.getElementById('em-tipo')?.value || 'empregador',
+    status: document.getElementById('em-status')?.value || 'ativo',
+    area_atuacao: document.getElementById('em-area')?.value || null,
+    subsetor: document.getElementById('em-subsetor')?.value || null,
+    descricao_resumida: document.getElementById('em-desc')?.value || null,
+    descricao_operacional: document.getElementById('em-desc-op')?.value || null,
+    pais: document.getElementById('em-pais')?.value || 'Alemanha',
+    regiao: document.getElementById('em-regiao')?.value || null,
+    cidade: document.getElementById('em-cidade')?.value || null,
+    site: document.getElementById('em-site')?.value || null,
+    contato_principal: document.getElementById('em-contato')?.value || null,
+    email_principal: document.getElementById('em-email')?.value || null,
+    telefone: document.getElementById('em-tel')?.value || null,
+    data_ultimo_contato: document.getElementById('em-dt-contato')?.value || null,
+    idioma_exigido: document.getElementById('em-idioma')?.value || null,
+    nivel_alemao_minimo: document.getElementById('em-alemao')?.value || null,
+    vagas_abertas: parseInt(document.getElementById('em-vagas')?.value || '0') || 0,
+    perfis_buscados: document.getElementById('em-perfis')?.value || null,
+    requisitos_principais: document.getElementById('em-req')?.value || null,
+    diferenciais_desejaveis: document.getElementById('em-dif')?.value || null,
+    observacoes_internas: document.getElementById('em-obs')?.value || null,
+    prioridade_comercial: document.getElementById('em-prio')?.value || null,
+    origem_lead: document.getElementById('em-origem')?.value || null,
+    responsavel_interno: document.getElementById('em-resp')?.value || null,
+    tags: tagsArr,
+    updated_at: new Date().toISOString(),
+  };
+
+  const existingId = document.getElementById('em-id')?.value || '';
+  const btn = document.querySelector('#employer-modal-root .emp-btn.primary');
+  if (btn) { btn.textContent = '⏳ Salvando...'; btn.disabled = true; }
+
   try {
     const supa = await getSupa();
-    const payload = { nome: cleaned, nome_normalizado, ativo: true };
-    const { data, error } = await supa.from('employers').upsert(payload, { onConflict:'nome_normalizado' }).select().single();
+    let data, error;
+    if (existingId) {
+      ({ data, error } = await supa.from('employers').update(payload).eq('id', existingId).select().single());
+    } else {
+      payload.created_at = new Date().toISOString();
+      ({ data, error } = await supa.from('employers').upsert(payload, { onConflict:'nome_normalizado' }).select().single());
+    }
     if (error) throw error;
+    closeEmployerModal();
     await loadAll();
     S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
-    S.employerHub.selectedEmployer = data?.nome || cleaned;
+    S.employerHub.selectedEmployer = data?.id ? `emp:${data.id}` : (data?.nome || nome);
     renderView();
     toast('✅ Empregador salvo.', 'ok');
   } catch (e) {
-    toast('❌ Não foi possível criar o empregador: ' + (e?.message || e), 'err');
+    toast('❌ Erro ao salvar empregador: ' + (e?.message || e), 'err', 5000);
+    if (btn) { btn.textContent = '💾 Salvar empregador'; btn.disabled = false; }
+  }
+}
+
+async function editEmployerModal(nomeOrId) {
+  try {
+    const supa = await getSupa();
+    const q = supa.from('employers').select('*');
+    let data, error;
+    if (String(nomeOrId || '').startsWith('emp:')) nomeOrId = String(nomeOrId).slice(4);
+    if (/^[0-9a-fA-F-]{36}$/.test(String(nomeOrId || ''))) {
+      ({ data, error } = await q.eq('id', String(nomeOrId)).single());
+    } else {
+      ({ data, error } = await q.eq('nome', nomeOrId).single());
+    }
+    if (error || !data) { toast('❌ Empregador não encontrado.', 'err'); return; }
+    openEmployerModal(data);
+  } catch (e) {
+    toast('❌ ' + (e?.message || e), 'err');
+  }
+}
+
+async function createEmployerHubEmployer() {
+  openEmployerModal(null);
+}
+
+// ══════════════════════════════════════════════════════════════
+// CANDIDATE-EMPLOYER MATCHES (N:N)
+// ══════════════════════════════════════════════════════════════
+async function loadMatchesForCandidate(candidatoId) {
+  if (!candidatoId) return [];
+  try {
+    const supa = await getSupa();
+    const { data, error } = await supa
+      .from('candidate_employer_matches')
+      .select('*, employers(id, nome, tipo, area_atuacao, cidade)')
+      .eq('candidato_id', String(candidatoId))
+      .order('is_primary', { ascending: false })
+      .order('prioridade', { ascending: true });
+    if (error) {
+      // tabela pode não existir ainda — retorna vazio silenciosamente
+      console.warn('[T4] candidate_employer_matches:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch { return []; }
+}
+
+async function loadAllMatches() {
+  try {
+    const supa = await getSupa();
+    const { data, error } = await supa
+      .from('candidate_employer_matches')
+      .select('*, employers(id, nome, tipo, area_atuacao, cidade)')
+      .order('is_primary', { ascending: false })
+      .order('prioridade', { ascending: true });
+    if (error) { console.warn('[T4] candidate_employer_matches (all):', error.message); return []; }
+    S.candidateMatches = data || [];
+  } catch { S.candidateMatches = []; }
+}
+
+function getMatchesForCandidate(candidatoId) {
+  return (S.candidateMatches || []).filter(m => String(m.candidato_id) === String(candidatoId));
+}
+
+function openMatchModal(candidatoId, matchData = null) {
+  const supa_employers = (S.employers || []);
+  if (!supa_employers.length) {
+    toast('⚠️ Nenhum empregador cadastrado. Crie um primeiro.', 'warn');
+    return;
+  }
+  const isEdit = !!matchData;
+  const m = matchData || {};
+  const statusOpts = ['Aguardando retorno','Enviado','Em avaliação','Aprovado','Contratado','Descartado','Em espera'];
+  const matchOpts = ['Alta','Média-Alta','Média','Média-Baixa','Baixa'];
+  const sel = (opts, val) => opts.map(o => `<option value="${esc(o)}" ${(m[val]||'')==o?'selected':''}>${esc(o)}</option>`).join('');
+
+  const html = `
+  <div class="match-modal-overlay" id="match-modal-overlay" onclick="if(event.target===this)closeMatchModal()">
+    <div class="match-modal emp-modal">
+      <div class="emp-modal-hd">
+        <div class="emp-modal-title">${isEdit ? '✏️ Editar vínculo' : '🔗 Vincular empregador'}</div>
+        <button type="button" class="emp-modal-close" onclick="closeMatchModal()">✕</button>
+      </div>
+      <div class="emp-modal-body">
+        <input type="hidden" id="mm-match-id" value="${esc(m.id||'')}">
+        <input type="hidden" id="mm-cand-id" value="${esc(String(candidatoId))}">
+        <div class="emp-form-grid">
+          <div class="emp-form-sec" style="border-top:none;padding-top:0;margin-top:0">Vínculo</div>
+          <div class="emp-field full"><label class="emp-label">Empregador *</label>
+            <select class="emp-fselect" id="mm-emp-id">
+              <option value="">Selecionar empregador...</option>
+              ${supa_employers.map(e => `<option value="${esc(e.id)}" ${(m.empregador_id||'')==e.id?'selected':''}>${esc(e.nome)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="emp-field"><label class="emp-label">Status do vínculo</label><select class="emp-fselect" id="mm-status"><option value="">Selecionar...</option>${sel(statusOpts,'status_vinculo')}</select></div>
+          <div class="emp-field"><label class="emp-label">Prioridade (1=alta)</label><input class="emp-input" id="mm-prio" type="number" min="1" max="10" value="${esc(String(m.prioridade||1))}"></div>
+          <div class="emp-field"><label class="emp-label">Força do match</label><select class="emp-fselect" id="mm-strength"><option value="">Selecionar...</option>${sel(matchOpts,'match_strength')}</select></div>
+          <div class="emp-field"><label class="emp-label">Empregador principal?</label><select class="emp-fselect" id="mm-primary"><option value="false" ${!m.is_primary?'selected':''}>Não</option><option value="true" ${m.is_primary?'selected':''}>Sim</option></select></div>
+          <div class="emp-field"><label class="emp-label">Data de envio</label><input class="emp-input" id="mm-envio" type="date" value="${esc(m.data_envio||'')}"></div>
+          <div class="emp-field"><label class="emp-label">Data de retorno</label><input class="emp-input" id="mm-retorno" type="date" value="${esc(m.data_retorno||'')}"></div>
+          <div class="emp-field"><label class="emp-label">Elegível</label><select class="emp-fselect" id="mm-elegivel"><option value="">Não definido</option><option value="true" ${m.elegivel===true?'selected':''}>Sim</option><option value="false" ${m.elegivel===false?'selected':''}>Não</option></select></div>
+          <div class="emp-field full"><label class="emp-label">Motivo do encaixe</label><textarea class="emp-textarea" id="mm-motivo" placeholder="Por que este candidato é adequado para este empregador...">${esc(m.motivo_encaixe||'')}</textarea></div>
+          <div class="emp-field full"><label class="emp-label">Riscos / Ressalvas</label><textarea class="emp-textarea" id="mm-riscos" placeholder="Pontos de atenção, riscos ou ressalvas...">${esc(m.riscos_ressalvas||'')}</textarea></div>
+          <div class="emp-field full"><label class="emp-label">Próxima ação</label><input class="emp-input" id="mm-acao" value="${esc(m.proxima_acao||'')}" placeholder="Ex: Agendar entrevista, enviar CV"></div>
+          <div class="emp-field full"><label class="emp-label">Observações</label><textarea class="emp-textarea" id="mm-obs" placeholder="Notas adicionais sobre este vínculo...">${esc(m.observacoes||'')}</textarea></div>
+        </div>
+      </div>
+      <div class="emp-modal-foot">
+        ${isEdit ? `<button type="button" class="emp-btn btn-danger" onclick="deleteMatchConfirm('${esc(m.id||'')}')">🗑 Remover vínculo</button>` : ''}
+        <button type="button" class="emp-btn" onclick="closeMatchModal()">Cancelar</button>
+        <button type="button" class="emp-btn primary" onclick="saveMatchModal()">💾 Salvar vínculo</button>
+      </div>
+    </div>
+  </div>`;
+
+  const wrapper = document.createElement('div');
+  wrapper.id = 'match-modal-root';
+  wrapper.innerHTML = html;
+  document.body.appendChild(wrapper);
+}
+
+function closeMatchModal() {
+  const el = document.getElementById('match-modal-root');
+  if (el) el.remove();
+}
+
+async function saveMatchModal() {
+  const candidatoId = document.getElementById('mm-cand-id')?.value || '';
+  const empregadorId = document.getElementById('mm-emp-id')?.value || '';
+  if (!empregadorId) { toast('❌ Selecione um empregador.', 'err'); return; }
+
+  const elegRaw = document.getElementById('mm-elegivel')?.value || '';
+  const elegivel = elegRaw === 'true' ? true : elegRaw === 'false' ? false : null;
+
+  const payload = {
+    candidato_id: candidatoId,
+    empregador_id: empregadorId,
+    status_vinculo: document.getElementById('mm-status')?.value || null,
+    prioridade: parseInt(document.getElementById('mm-prio')?.value || '1') || 1,
+    match_strength: document.getElementById('mm-strength')?.value || null,
+    is_primary: document.getElementById('mm-primary')?.value === 'true',
+    data_envio: document.getElementById('mm-envio')?.value || null,
+    data_retorno: document.getElementById('mm-retorno')?.value || null,
+    elegivel,
+    motivo_encaixe: document.getElementById('mm-motivo')?.value || null,
+    riscos_ressalvas: document.getElementById('mm-riscos')?.value || null,
+    proxima_acao: document.getElementById('mm-acao')?.value || null,
+    observacoes: document.getElementById('mm-obs')?.value || null,
+    updated_at: new Date().toISOString(),
+    updated_by: S.session?.nome || 'web',
+  };
+
+  const matchId = document.getElementById('mm-match-id')?.value || '';
+  const btn = document.querySelector('#match-modal-root .emp-btn.primary');
+  if (btn) { btn.textContent = '⏳ Salvando...'; btn.disabled = true; }
+
+  try {
+    const supa = await getSupa();
+    let error;
+    if (matchId) {
+      ({ error } = await supa.from('candidate_employer_matches').update(payload).eq('id', matchId));
+    } else {
+      payload.created_at = new Date().toISOString();
+      payload.created_by = S.session?.nome || 'web';
+      ({ error } = await supa.from('candidate_employer_matches').insert(payload));
+    }
+    if (error) throw error;
+    closeMatchModal();
+    await loadAllMatches();
+    renderView();
+    toast('✅ Vínculo salvo.', 'ok');
+  } catch (e) {
+    toast('❌ Erro ao salvar vínculo: ' + (e?.message || e), 'err', 5000);
+    if (btn) { btn.textContent = '💾 Salvar vínculo'; btn.disabled = false; }
+  }
+}
+
+async function deleteMatchConfirm(matchId) {
+  if (!matchId) return;
+  if (!confirm('Remover este vínculo candidato-empregador?')) return;
+  try {
+    const supa = await getSupa();
+    const { error } = await supa.from('candidate_employer_matches').delete().eq('id', matchId);
+    if (error) throw error;
+    closeMatchModal();
+    await loadAllMatches();
+    renderView();
+    toast('✅ Vínculo removido.', 'ok');
+  } catch (e) {
+    toast('❌ Erro: ' + (e?.message || e), 'err');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// XLSX EXPORT — mapeamento_candidatos_empregadores
+// ══════════════════════════════════════════════════════════════
+async function exportEmployerXLSX() {
+  const btn = document.getElementById('btn-export-employer-xlsx');
+  if (btn) { btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
+  try {
+    // Biblioteca usada no frontend:
+    // <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    // Se você mover este export para outro HTML, copie essa linha também.
+    if (typeof XLSX === 'undefined') {
+      toast('❌ Biblioteca XLSX não carregada. Recarregue a página.', 'err');
+      return;
+    }
+
+    const supa = await getSupa();
+
+    // ─────────────────────────────────────────────────────────
+    // Consulta real no Supabase
+    // 1) Employers
+    // 2) Vínculos N:N candidato x empregador
+    // 3) Candidatos já carregados do Supabase em S.candidates
+    // ─────────────────────────────────────────────────────────
+    const [{ data: empRows, error: empErr }, { data: matchRows, error: matchErr }] = await Promise.all([
+      supa.from('employers').select('*').order('nome', { ascending:true }),
+      supa.from('candidate_employer_matches').select('*, employers(*)').order('is_primary', { ascending:false }).order('prioridade', { ascending:true }),
+    ]);
+    if (empErr) throw empErr;
+    if (matchErr && !/does not exist|relation|not found/i.test(String(matchErr.message || ''))) throw matchErr;
+
+    const employers = (empRows || []).filter(e => String(e.status || '').toLowerCase() !== 'inativo');
+    S.candidateMatches = matchRows || [];
+
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('pt-BR');
+    const fileDate = today.toISOString().slice(0,10);
+    const wb = XLSX.utils.book_new();
+
+    // ════════════════════════════════════════════════════════
+    // MAPA DE COLUNAS (DE -> PARA)
+    // Altere SOMENTE a lista "from" abaixo se o nome do campo
+    // no seu Supabase for diferente do nome desejado no Excel.
+    // Formato:
+    //   "candidate:Nome completo"  -> campo do candidato
+    //   "match:prioridade"         -> campo do vínculo N:N
+    //   "employer:tipo"            -> campo do empregador
+    // ════════════════════════════════════════════════════════
+    const EMPLOYER_XLSX_COLUMN_MAP = [
+      { header:'Prioridade', from:['match:prioridade','candidate:Prioridade comercial','candidate:prioridade_comercial'] },
+      { header:'Status entrevista', compute: ctx => getStatusEntrevistaExport(ctx) },
+      { header:'Data base', compute: ctx => todayStr },
+      { header:'Nome', from:['candidate:Nome completo','candidate:nome_completo'] },
+      { header:'Idade', from:['candidate:Idade','candidate:idade'] },
+      { header:'Cidade atual', from:['candidate:Cidade atual','candidate:cidade_atual'] },
+      { header:'Telefone', from:['candidate:Telefone','candidate:telefone'] },
+      { header:'E-mail', from:['candidate:E-mail','candidate:email'] },
+      { header:'Área-alvo', from:['candidate:Profissão principal','candidate:Profissão','candidate:profissao_principal'] },
+      { header:'Formação', from:['candidate:Curso de Graduação','candidate:Diploma','candidate:diploma'] },
+      { header:'Alemão', from:['candidate:Nível de alemão','candidate:Nível alemão','candidate:nivel_alemao'] },
+      { header:'Outros idiomas', from:['candidate:Língua Estrangeira','candidate:idiomas_adicionais','candidate:Idiomas'] },
+      { header:'Disponibilidade', from:['candidate:disponibilidade_mudanca','candidate:Disponibilidade para mudança','candidate:disponibilidade'] },
+      { header:'Fit', from:['match:match_strength','candidate:Perfil','candidate:perfil'] },
+      { header:'Motivo do encaixe', from:['match:motivo_encaixe','candidate:resumo_rh_curto','candidate:Resumo RH curto'] },
+      { header:'Riscos / ressalvas', from:['match:riscos_ressalvas','candidate:restricoes_objetivas','candidate:Restrições objetivas'] },
+      { header:'Próxima ação', from:['match:proxima_acao','candidate:proxima_acao','candidate:Próxima ação'] },
+      { header:'Arquivo / Fonte interna', from:['candidate:CV/ ARQUIVO DOC','candidate:curriculo_link_drive','candidate:Currículo arquivo','candidate:fonte_interna'] },
+    ];
+
+    function sanitizeSheetName(name) {
+      const cleaned = String(name || 'Sem nome').replace(/[:\/?*\[\]]/g, '').trim();
+      return (cleaned || 'Sem nome').slice(0,31);
+    }
+    function normalizeName(name) {
+      return normalizeEmployerNameClient(name || '');
+    }
+    function readRef(ctx, ref) {
+      const [root, ...rest] = String(ref || '').split(':');
+      const key = rest.join(':');
+      const source = ctx?.[root];
+      if (!source || !key) return '';
+      return source?.[key];
+    }
+    function pickMapped(ctx, refs, fallback='') {
+      for (const ref of (refs || [])) {
+        const value = readRef(ctx, ref);
+        if (value !== undefined && value !== null && String(value).trim() !== '') return value;
+      }
+      return fallback;
+    }
+    function getStatusEntrevistaExport(ctx) {
+      const raw = String(ctx.match?.status_vinculo || fv(ctx.candidate,'STATUS PIPELINE') || '').trim();
+      if (raw) return raw;
+      const hasInterview = !!(fv(ctx.candidate,'entrevista_preliminar_id') || fv(ctx.candidate,'Data da Entrevista') || fv(ctx.candidate,'entrevista_preliminar_data'));
+      return hasInterview ? 'Entrevistado' : 'Mapeado';
+    }
+    function getBucketFromStatus(status) {
+      const s = normalizeUpper(status);
+      if (!s) return 'aguardando';
+      if (s.includes('CONTRAT')) return 'contratados';
+      if (s.includes('APROV')) return 'aprovados';
+      if (s.includes('CONFIRM')) return 'confirmar_status';
+      if (s.includes('NOVA ENTREVISTA') || s.includes('AGENDAR')) return 'nova_entrevista';
+      if (s.includes('ENTREVISTADO')) return 'entrevistados';
+      if (s.includes('AGUARD') || s.includes('ENVIAD') || s.includes('AVALIA') || s.includes('ESPERA')) return 'aguardando';
+      return 'aguardando';
+    }
+    function hasInterviewData(candidate) {
+      return !!(fv(candidate,'entrevista_preliminar_id') || fv(candidate,'Data da Entrevista') || fv(candidate,'entrevista_preliminar_data') || fv(candidate,'resumo_rh_curto'));
+    }
+    function makeCandidateRow(ctx) {
+      return EMPLOYER_XLSX_COLUMN_MAP.map(col => {
+        const raw = typeof col.compute === 'function' ? col.compute(ctx) : pickMapped(ctx, col.from, '');
+        return raw === undefined || raw === null ? '' : raw;
+      });
+    }
+    function padRows(rows, minDataRows = 6) {
+      const out = rows.slice();
+      const need = Math.max(minDataRows, rows.length + 2);
+      while (out.length < need) out.push(Array(18).fill(''));
+      return out;
+    }
+
+    const employersById = new Map(employers.map(e => [String(e.id || ''), e]));
+    const groups = employers.map(emp => ({ employer: emp, rows: [] }));
+    const groupByKey = new Map(groups.map(g => [String(g.employer.id || ''), g]));
+
+    // vínculos N:N reais
+    (S.candidateMatches || []).forEach(match => {
+      const empId = String(match.empregador_id || match.employers?.id || '');
+      const group = groupByKey.get(empId);
+      if (!group) return;
+      const candidate = (S.candidates || []).find(c => String(c.ID || c.id || '') === String(match.candidato_id || ''));
+      if (!candidate) return;
+      group.rows.push({ candidate, match, employer: group.employer });
+    });
+
+    // fallback legado: candidato com employer textual, sem vínculo N:N
+    (S.candidates || []).forEach(candidate => {
+      const cid = String(candidate.ID || candidate.id || '');
+      const legacyName = String(getEmployerDisplay(candidate) || '').trim();
+      if (!legacyName) return;
+      const hasMatch = (S.candidateMatches || []).some(m => String(m.candidato_id || '') === cid);
+      if (hasMatch) return;
+      const employer = employers.find(e => normalizeName(e.nome) === normalizeName(legacyName));
+      if (!employer) return;
+      const group = groupByKey.get(String(employer.id || ''));
+      if (!group) return;
+      if (!group.rows.some(r => String(r.candidate.ID || r.candidate.id || '') === cid)) {
+        group.rows.push({ candidate, match:null, employer });
+      }
+    });
+
+    // ── Aba 1: Resumo ───────────────────────────────────────
+    const wsResumo = XLSX.utils.aoa_to_sheet([]);
+    const summaryRows = groups.map(g => {
+      const employer = g.employer;
+      const total = g.rows.length;
+      const entrevistados = g.rows.filter(r => {
+        const bucket = getBucketFromStatus(getStatusEntrevistaExport(r));
+        return hasInterviewData(r.candidate) || ['entrevistados','aprovados','contratados'].includes(bucket);
+      }).length;
+      const novaEnt = g.rows.filter(r => getBucketFromStatus(getStatusEntrevistaExport(r)) === 'nova_entrevista').length;
+      const confirmar = g.rows.filter(r => getBucketFromStatus(getStatusEntrevistaExport(r)) === 'confirmar_status').length;
+      g.__metrics = { total, entrevistados, novaEnt, confirmar, pendencias: novaEnt + confirmar };
+      return [
+        employer.nome || '—',
+        employer.tipo ? employer.tipo.charAt(0).toUpperCase() + employer.tipo.slice(1) : 'Empregador',
+        total,
+        entrevistados,
+        novaEnt,
+        confirmar,
+        employer.perfis_buscados || employer.descricao_resumida || ''
+      ];
+    });
+
+    const totalMapeado = groups.reduce((acc, g) => acc + (g.__metrics?.total || 0), 0);
+    const totalEntrevistados = groups.reduce((acc, g) => acc + (g.__metrics?.entrevistados || 0), 0);
+    const totalNovaEnt = groups.reduce((acc, g) => acc + (g.__metrics?.novaEnt || 0), 0);
+    const totalConfirmar = groups.reduce((acc, g) => acc + (g.__metrics?.confirmar || 0), 0);
+
+    XLSX.utils.sheet_add_aoa(wsResumo, [['Mapa executivo de candidatos por empregador']], { origin:'A1' });
+    XLSX.utils.sheet_add_aoa(wsResumo, [['Data base', todayStr]], { origin:'A2' });
+    XLSX.utils.sheet_add_aoa(wsResumo, [['Total mapeado','','','Entrevistados','','','Nova entrevista','','','Confirmar status']], { origin:'A4' });
+    XLSX.utils.sheet_add_aoa(wsResumo, [[totalMapeado,'','',totalEntrevistados,'','',totalNovaEnt,'','',totalConfirmar]], { origin:'A5' });
+    XLSX.utils.sheet_add_aoa(wsResumo, [['Empregador','Tipo','Total mapeado','Entrevistados','Nova entrevista','Confirmar status','O que o empregador busca']], { origin:'A8' });
+    if (summaryRows.length) XLSX.utils.sheet_add_aoa(wsResumo, summaryRows, { origin:'A9' });
+
+    wsResumo['!cols'] = [
+      {wch:20},{wch:16},{wch:14},{wch:13},{wch:16},{wch:16},{wch:46},
+      {wch:4},{wch:13},{wch:16},{wch:13}
+    ];
+    wsResumo['!merges'] = [
+      XLSX.utils.decode_range('A1:G1')
+    ];
+    wsResumo['!freeze'] = { xSplit:0, ySplit:8 };
+    XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+
+    // ── Abas 2..N: uma por empregador com candidatos ────────
+    groups
+      .filter(g => (g.__metrics?.total || 0) > 0)
+      .sort((a,b) => String(a.employer.nome || '').localeCompare(String(b.employer.nome || ''), 'pt-BR'))
+      .forEach(group => {
+        const employer = group.employer;
+        const rows = group.rows
+          .slice()
+          .sort((a,b) => {
+            const pa = Number(a.match?.prioridade || 999);
+            const pb = Number(b.match?.prioridade || 999);
+            return pa - pb;
+          })
+          .map(makeCandidateRow);
+
+        const dataRows = padRows(rows, 6);
+        const ws = XLSX.utils.aoa_to_sheet([]);
+
+        XLSX.utils.sheet_add_aoa(ws, [[`Mapeamento de candidatos | ${employer.nome || 'Sem nome'}`]], { origin:'A1' });
+        XLSX.utils.sheet_add_aoa(ws, [[
+          'Data base', todayStr, '',
+          'Tipo', (employer.tipo ? employer.tipo.charAt(0).toUpperCase() + employer.tipo.slice(1) : 'Empregador'), '',
+          'Status da aba', (employer.status || 'ativo'),
+          '', '', '',
+          'Total mapeado', '',
+          'Entrevistados', '',
+          'Pendências'
+        ]], { origin:'A2' });
+        XLSX.utils.sheet_add_aoa(ws, [[
+          '', '', '', '', '', '', '', '', '', '', '', '',
+          group.__metrics?.total || 0, '',
+          group.__metrics?.entrevistados || 0, '',
+          group.__metrics?.pendencias || 0
+        ]], { origin:'A3' });
+        XLSX.utils.sheet_add_aoa(ws, [EMPLOYER_XLSX_COLUMN_MAP.map(c => c.header)], { origin:'A4' });
+        XLSX.utils.sheet_add_aoa(ws, dataRows, { origin:'A5' });
+
+        ws['!cols'] = [
+          {wch:14},{wch:24},{wch:12},{wch:28},{wch:14},{wch:18},{wch:13},{wch:28},
+          {wch:28},{wch:32},{wch:11},{wch:26},{wch:24},{wch:14},{wch:44},{wch:36},{wch:34},{wch:42}
+        ];
+        ws['!merges'] = [ XLSX.utils.decode_range('A1:R1') ];
+        ws['!freeze'] = { xSplit:0, ySplit:4 };
+        XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(employer.nome || 'Empregador'));
+      });
+
+    const fileName = `mapeamento_candidatos_empregadores_${fileDate}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    toast(`✅ Exportado: ${fileName}`, 'ok', 4000);
+  } catch (e) {
+    toast('❌ Erro na exportação: ' + (e?.message || e), 'err', 6000);
+    console.error('[T4 Export]', e);
+  } finally {
+    if (btn) { btn.textContent = '📥 Exportar Excel'; btn.disabled = false; }
   }
 }
 function bindEmployerHubInteractions(root) {
@@ -5021,6 +5321,19 @@ function bindEmployerHubInteractions(root) {
     else if (action === 'open-filtered') goToCandidatesByEmployer(btn.dataset.employer || '');
     else if (action === 'open-candidate') openCand(btn.dataset.candidateId || '');
     else if (action === 'create-employer') await createEmployerHubEmployer();
+    else if (action === 'edit-employer') await editEmployerModal(btn.dataset.employerId || btn.dataset.employerName || '');
+    else if (action === 'link-employer') {
+      const cid = btn.dataset.candidateId || '';
+      openMatchModal(cid, null);
+    }
+    else if (action === 'edit-match') {
+      const matchId = btn.dataset.matchId || '';
+      const cid = btn.dataset.candidateId || '';
+      const match = (S.candidateMatches||[]).find(m => m.id === matchId);
+      openMatchModal(cid, match || null);
+    }
+    else if (action === 'export-xlsx') exportEmployerXLSX();
+    renderView();
   });
   hub.addEventListener('input', (ev) => {
     const inp = ev.target.closest('[data-emp-input]');
@@ -5033,45 +5346,125 @@ function bindEmployerHubInteractions(root) {
     setEmployerHubQuickFilter(sel.value || 'todos');
   });
 }
+
 function renderEmployerHub(el) {
   const base = getEmployerHubBase();
   const state = ensureEmployerHubState(base);
-  const { groups, visibleGroups, selectedGroup, selectedCandidateId, tab, unresolvedCount, filteredPool } = state;
-  if (!groups.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-title">Nenhum employer vinculado</div><div class="empty-sub">Ainda não há candidatos no pipeline de employer nem vínculos ativos reconhecidos.</div></div>`;
+  const { groups, visibleGroups, selectedGroup, selectedCandidateId, selectedEntry, tab, unresolvedCount, filteredEntries } = state;
+  if (!groups.length && !(S.employers||[]).length) {
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:48px 24px">
+        <div class="empty-state" style="max-width:480px">
+          <div class="empty-title">Nenhum employer vinculado</div>
+          <div class="empty-sub">Crie o primeiro empregador para começar o mapeamento.</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button class="emp-btn primary" onclick="createEmployerHubEmployer()">➕ Novo empregador</button>
+          <button class="emp-btn" id="btn-export-employer-xlsx" onclick="exportEmployerXLSX()">📥 Exportar Excel</button>
+        </div>
+      </div>`;
     return;
   }
-  const current = (filteredPool || []).find(c => String(c.ID||c.id||'') === String(selectedCandidateId||'')) || (filteredPool || [])[0] || selectedGroup?.items?.[0] || null;
-  const ops = current ? getOperationalSummary(current) : null;
-  const readiness = current ? getReadiness(current) : null;
-  const docLabel = current ? (isYes(fv(current,'Documentação completa','documentacao_completa')) ? 'Completa' : 'Pendente') : '—';
-  const resumoRh = current ? (fv(current,'resumo_rh_curto','Resumo RH curto','entrevista_preliminar_resumo_rh') || '—') : '—';
-  const motivacaoRh = current ? (fv(current,'motivacao_real','Motivação real') || '—') : '—';
-  const restricoesRh = current ? (fv(current,'restricoes_objetivas','Restrições objetivas') || '—') : '—';
-  const readinessIntl = current ? (fv(current,'readiness_internacional','Readiness internacional') || '—') : '—';
-  const prontoEmployer = current ? (fv(current,'pronto_para_employer','Pronto para employer') || '—') : '—';
+
+  const currentEntry = selectedEntry || (filteredEntries || [])[0] || null;
+  const current = currentEntry?.candidate || null;
+  const cid = current ? String(current.ID || current.id || '') : '';
+
+  // ── Dados operacionais do candidato atual ────────────────
+  const ops        = current ? getOperationalSummary(current) : null;
+  const readiness  = current ? getReadiness(current) : null;
+  const docLabel   = current ? (isYes(fv(current,'Documentação completa','documentacao_completa')) ? '✅ Completa' : '⚠️ Pendente') : '—';
+  const resumoRh   = current ? (fv(current,'resumo_rh_curto','Resumo RH curto','entrevista_preliminar_resumo_rh') || '') : '';
+  const motivacaoRh= current ? (fv(current,'motivacao_real','Motivação real','motivacao_vaga_especifica','porque_alemanha') || '') : '';
+  const restricoes = current ? (fv(current,'restricoes_objetivas','Restrições objetivas') || '') : '';
+  const prontoEmp  = current ? (fv(current,'pronto_para_employer','Pronto para employer') || '—') : '—';
+  const readIntl   = current ? (fv(current,'readiness_internacional','Readiness internacional') || '—') : '—';
+
+  // ── Dados entrevista / disponibilidade ───────────────────
+  const entData    = current ? (fv(current,'Data da Entrevista','data_da_entrevista','entrevista_preliminar_data') || '') : '';
+  const entAvaliador = current ? (fv(current,'Avaliador','avaliador','entrevista_preliminar_entrevistador') || '') : '';
+  const entEmpresa = current ? (fv(current,'empresa_cliente','Empresa / Cliente') || '') : '';
+  const entPosicao = current ? (fv(current,'posicao_vaga','Posição / Vaga') || '') : '';
+  const entEstCivil= current ? (fv(current,'Estado civil','estado_civil') || '') : '';
+  const entFilho   = current ? (fv(current,'Filho','filho') || '') : '';
+  const entTipo    = current ? (fv(current,'Tipo de candidato','tipo_de_candidato') || '') : '';
+  const entDiploma = current ? (fv(current,'Diploma','diploma','Curso de Graduação') || '') : '';
+  const entAlemao  = current ? (fv(current,'Nível de alemão','nivel_alemao','Nível alemão') || '') : '';
+  const entObs     = current ? (fv(current,'Observações internas','observacoes_internas','Observação') || '') : '';
+  const entConclusao = current ? (fv(current,'resultado_entrevista','Resultado entrevista') || '') : '';
+
+  // ── Campos derivados úteis ───────────────────────────────
+  const expPrincipal = current ? (fv(current,'experiencias_principais','Experiências principais','relato_sobre_a_experiencia_profissional') || '') : '';
+  const tempoExp = current ? (fv(current,'tempo_total_experiencia','Tempo total de experiência') || '') : '';
+  const projetoPreferido = current ? (fv(current,'projeto_ou_experiencia_preferida','Projeto ou experiência preferida') || '') : '';
+  const aderenciaTec = current ? (fv(current,'aderencia_tecnica_avaliada','Aderência técnica avaliada','aderencia_tecnica_vaga') || '') : '';
+  const pontosTec = current ? (fv(current,'pontos_tecnicos_fortes_fracos','Pontos técnicos mais fortes e mais fracos') || '') : '';
+
+  const trabalhoAtual = current ? (fv(current,'trabalho_atual','Trabalho atual') || '') : '';
+  const disponibilidadeMudanca = current ? (fv(current,'disponibilidade_mudanca','Disponibilidade para mudança') || '') : '';
+  const statusMigratorio = current ? (fv(current,'status_migratorio_atual','Status migratório','status_migratorio') || '') : '';
+  const prazoSaida = current ? (fv(current,'prazo_realista_saida','Prazo realista de saída') || '') : '';
+  const flexGeo = current ? (fv(current,'flexibilidade_geografica','Flexibilidade geográfica') || '') : '';
+  const expectativaSalarial = current ? (fv(current,'expectativa_salarial','remuneracao_expectativa') || '') : '';
+
+  const redeApoio = current ? (fv(current,'rede_apoio_europa','rede_apoio','Rede de apoio') || '') : '';
+  const mudancaFamilia = current ? (fv(current,'mudanca_sozinho_ou_familia','Mudança sozinho ou com família') || '') : '';
+  const expIntl = current ? (fv(current,'experiencia_internacional_previa','Experiência internacional prévia') || '') : '';
+  const adaptacaoCultural = current ? (fv(current,'adaptacao_cultural','Adaptação cultural') || '') : '';
+  const autonomiaPratica = current ? (fv(current,'autonomia_pratica','Autonomia prática') || '') : '';
+  const blueCardObs = [statusMigratorio, entConclusao].filter(v => /blue|unbefrist|contrato/i.test(String(v || ''))).join(' · ');
+
+  // ── Vínculos N:N ─────────────────────────────────────────
+  const candMatches = current ? getMatchesForCandidate(cid) : [];
+  const primaryMatch = candMatches.find(m => m.is_primary) || candMatches[0] || null;
+  const contextMatch = currentEntry?.match || primaryMatch || null;
+  const matchStatus = getEmployerLinkStatusFor(contextMatch, current);
+  const motEncaixe = contextMatch?.motivo_encaixe || primaryMatch?.motivo_encaixe || '';
+  const riscosMatch = contextMatch?.riscos_ressalvas || primaryMatch?.riscos_ressalvas || '';
+  const proxAcaoMatch = contextMatch?.proxima_acao || primaryMatch?.proxima_acao || ops?.acao || '';
+
+  // ── Tabs ──────────────────────────────────────────────────
   const tabs = selectedGroup ? [
     { key:'todos', label:'Todos', count:selectedGroup.total },
-    { key:'aguardando', label:'Aguardando retorno', count:selectedGroup.aguardando },
+    { key:'aguardando', label:'Aguardando', count:selectedGroup.aguardando },
     { key:'aprovados', label:'Aprovados', count:selectedGroup.aprovados },
     { key:'contratados', label:'Contratados', count:selectedGroup.contratados },
   ] : [];
+
+  // ── Helpers ───────────────────────────────────────────────
+  const box = (lbl, val, cls='') => val
+    ? `<div class="emp-box"><div class="emp-box-lbl">${lbl}</div><div class="emp-box-val ${cls}">${esc(String(val))}</div></div>`
+    : `<div class="emp-box"><div class="emp-box-lbl">${lbl}</div><div class="emp-box-val" style="color:var(--txt3)">—</div></div>`;
+
+  const txt = (lbl, val) => val
+    ? `<div class="emp-text"><div class="emp-text-lbl">${lbl}</div><div class="emp-text-val">${esc(String(val))}</div></div>`
+    : '';
+
+  const editEmpBtn = selectedGroup && selectedGroup.kind !== 'unassigned'
+    ? `<button type="button" class="emp-link" data-emp-action="edit-employer" data-employer-id="${esc(selectedGroup.employerId || '')}" data-employer-name="${esc(selectedGroup.name)}" title="Editar este empregador">✏️ Editar</button>`
+    : '';
+
   el.innerHTML = `
     <div class="emp-hub">
+
+      <!-- ── COLUNA 1: Lista de empregadores ── -->
       <section class="emp-pane">
         <div class="emp-pane-hd">
           <div>
             <div class="emp-pane-title">Empregadores</div>
-            <div class="emp-pane-sub">Aqui entram candidatos no pipeline de employer <strong>e também</strong> candidatos com employer já vinculado, mesmo que o status atual deles tenha mudado.</div>
+            <div class="emp-pane-sub">Pipeline ativo, mapeamento e cadastro comercial.</div>
           </div>
           <div class="emp-pane-actions">
             <span class="emp-count">${groups.length}</span>
-            <button type="button" class="emp-btn emp-create" data-emp-action="create-employer">+ Novo empregador</button>
+            <button type="button" class="emp-btn emp-create" data-emp-action="create-employer">+ Novo</button>
           </div>
         </div>
         <div class="emp-controls">
           <input class="emp-search" data-emp-input="employers" placeholder="Pesquisar empregador..." value="${esc(S.employerHub?.employerSearch || '')}">
-          <button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="__ALL_LINKED__">Abrir lista geral de employer</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="__ALL_LINKED__">Ver lista geral</button>
+            <button type="button" class="emp-btn" id="btn-export-employer-xlsx" data-emp-action="export-xlsx" style="padding:6px 10px;font-size:11px">📥 Exportar Excel</button>
+          </div>
         </div>
         <div class="emp-scroll"><div class="emp-list">
           ${visibleGroups.map(g => `
@@ -5084,23 +5477,25 @@ function renderEmployerHub(el) {
                 <span>${g.aguardando} aguardando</span>
                 <span>${g.aprovados} aprovados</span>
                 <span>${g.contratados} contratados</span>
-                ${g.semResp?`<span>${g.semResp} sem responsável</span>`:''}
+                ${g.semResp?`<span>${g.semResp} sem resp.</span>`:''}
               </div>
             </button>`).join('')}
-          ${!visibleGroups.length ? `<div class="emp-empty-note">Nenhum empregador encontrado para esta busca.</div>` : ''}
-          ${unresolvedCount ? `<div class="emp-empty-note"><strong>${unresolvedCount} candidato(s)</strong> estão sem employer definido. Agora eles aparecem numa coluna própria chamada <strong>Sem employer definido</strong>, e não ficam mais escondidos.</div>` : ''}
+          ${!visibleGroups.length ? `<div class="emp-empty-note">Nenhum empregador encontrado.</div>` : ''}
+          ${unresolvedCount ? `<div class="emp-empty-note"><strong>${unresolvedCount} candidato(s)</strong> sem employer definido.</div>` : ''}
         </div></div>
       </section>
 
+      <!-- ── COLUNA 2: Candidatos do empregador ── -->
       <section class="emp-pane">
         <div class="emp-main-top">
           <div class="emp-main-head">
             <div>
               <div class="emp-pane-title">${esc(selectedGroup?.name || 'Sem seleção')}</div>
-              <div class="emp-pane-sub">${selectedGroup?.kind==='unassigned' ? 'Casos no pipeline de employer que ainda não têm empresa definida.' : 'Candidatos vinculados a este empregador.'}</div>
+              <div class="emp-pane-sub">${selectedGroup?.kind==='unassigned' ? 'Candidatos sem empresa definida.' : 'Candidatos vinculados a este empregador.'}</div>
             </div>
             <div class="emp-pane-actions">
-              ${selectedGroup ? `<button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="${esc(selectedGroup.key)}">Abrir lista geral filtrada</button>` : ''}
+              ${editEmpBtn}
+              ${selectedGroup ? `<button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="${esc(selectedGroup.name)}">Lista filtrada</button>` : ''}
             </div>
           </div>
           ${selectedGroup ? `<div class="emp-main-stats">
@@ -5124,16 +5519,19 @@ function renderEmployerHub(el) {
           </div>
         </div>
         <div class="emp-scroll"><div class="emp-cands">
-          ${(filteredPool && filteredPool.length) ? filteredPool.map(c => {
+          ${(filteredEntries && filteredEntries.length) ? filteredEntries.map(entry => {
+            const c = entry.candidate;
+            const match = entry.match;
             const score = c._score || 0;
             const pf = fv(c,'Perfil','perfil') || '—';
             const al = fv(c,'Nível de alemão','Nível alemão') || '—';
             const prof = fv(c,'Profissão principal','Profissão') || '—';
             const resp = fv(c,'Avaliador','Responsável interno','responsavel_interno') || '—';
             const city = fv(c,'Cidade atual') || '—';
-            const linkStatus = getEmployerLinkStatus(c) || (selectedGroup?.kind==='unassigned' ? 'Sem employer definido' : '—');
-            const cid = String(c.ID||c.id||'');
-            return `<button type="button" class="emp-cand ${cid===String(current?.ID||current?.id||'')?'active':''}" data-emp-action="select-candidate" data-candidate-id="${esc(cid)}">
+            const thisCid = String(c.ID||c.id||'');
+            const linkStatus = getEmployerLinkStatusFor(match, c) || (selectedGroup?.kind==='unassigned' ? 'Sem employer' : '—');
+            const candMatchCount = getMatchesForCandidate(thisCid).length;
+            return `<button type="button" class="emp-cand ${thisCid===cid?'active':''}" data-emp-action="select-candidate" data-candidate-id="${esc(thisCid)}">
               <div class="emp-cand-top">
                 <div>
                   <div class="emp-cand-name">${esc(fv(c,'Nome completo')||'—')}</div>
@@ -5141,6 +5539,7 @@ function renderEmployerHub(el) {
                     <span>${esc(prof)}</span>
                     <span>${esc(al)}</span>
                     <span>${esc(pf)}</span>
+                    ${candMatchCount > 1 ? `<span style="color:var(--teal)">+${candMatchCount} employers</span>` : ''}
                   </div>
                 </div>
                 <span class="emp-count">${score}</span>
@@ -5154,48 +5553,138 @@ function renderEmployerHub(el) {
         </div></div>
       </section>
 
+      <!-- ── COLUNA 3: Painel operacional do candidato ── -->
       <section class="emp-pane">
         <div class="emp-pane-hd">
           <div>
-            <div class="emp-pane-title">Resumo do candidato</div>
-            <div class="emp-pane-sub">Visão rápida e legível. Clique no candidato ao centro para trocar a seleção.</div>
+            <div class="emp-pane-title">Resumo operacional</div>
+            <div class="emp-pane-sub">Clique em um candidato para visualizar.</div>
           </div>
         </div>
         <div class="emp-scroll">
           ${current ? `<div class="emp-summary">
+
             <div>
               <div class="emp-summary-name">${esc(fv(current,'Nome completo')||'—')}</div>
-              <div class="emp-summary-sub">
+              <div class="emp-summary-sub" style="margin-top:6px">
                 <span class="badge ${STATUS_BADGE[fv(current,'STATUS PIPELINE')]||'b-inativo'}">${esc(fv(current,'STATUS PIPELINE')||'—')}</span>
-                ${getEmployerLinkStatus(current)?`<span class="badge b-stage">${esc(getEmployerLinkStatus(current))}</span>`:''}
+                ${matchStatus?`<span class="badge b-stage">${esc(matchStatus)}</span>`:''}
                 ${fv(current,'Perfil','perfil')?`<span class="badge ${PERFIL_BADGE[fv(current,'Perfil','perfil')]||''}">${esc((fv(current,'Perfil','perfil')||'').replace('Candidato ',''))}</span>`:''}
+                ${fv(current,'ultima_atualizacao')?`<span style="font-size:10px;color:var(--txt3)">Atualizado ${new Date(fv(current,'ultima_atualizacao')).toLocaleDateString('pt-BR')}</span>`:''}
               </div>
             </div>
-            <div class="emp-summary-grid">
-              <div class="emp-box"><div class="emp-box-lbl">Employer</div><div class="emp-box-val">${esc(getEmployerDisplay(current)||'Sem employer definido')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Prontidão</div><div class="emp-box-val ${readiness?.cls||''}">${esc(readiness?.label||'—')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Alemão</div><div class="emp-box-val">${esc(fv(current,'Nível de alemão','Nível alemão')||'—')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Documentação</div><div class="emp-box-val">${esc(docLabel)}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Profissão</div><div class="emp-box-val">${esc(fv(current,'Profissão principal','Profissão')||'—')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Cidade</div><div class="emp-box-val">${esc(fv(current,'Cidade atual')||'—')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Responsável</div><div class="emp-box-val">${esc(fv(current,'Avaliador','Responsável interno','responsavel_interno')||'—')}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Score</div><div class="emp-box-val">${esc(String(current._score||0))}</div></div>
+
+            <div class="emp-summary-section">
+              <div class="emp-summary-section-title">🏢 Employers vinculados</div>
+              ${candMatches.length ? candMatches.map(m => {
+                const empNome = m.employers?.nome || m.empregador_id || '—';
+                return `<div class="emp-employer-pill ${m.is_primary?'primary':''}">
+                  <div>
+                    <div class="emp-employer-pill-name">${esc(empNome)}</div>
+                    ${m.status_vinculo?`<div style="font-size:10px;color:#7a8bab;margin-top:2px">${esc(m.status_vinculo)}</div>`:''}
+                  </div>
+                  ${m.match_strength?`<span class="emp-employer-pill-badge">${esc(m.match_strength)}</span>`:''}
+                  ${m.is_primary?`<span class="emp-employer-pill-badge" style="background:rgba(245,192,0,.18);color:#f5c000;border-color:rgba(245,192,0,.3)">Principal</span>`:''}
+                  <button type="button" class="emp-link" data-emp-action="edit-match" data-match-id="${esc(m.id)}" data-candidate-id="${esc(cid)}" style="margin-left:4px;font-size:10px" title="Editar vínculo">✏️</button>
+                </div>`;
+              }).join('') : `<div style="color:var(--txt3);font-size:11.5px">${esc(getEmployerDisplay(current)||'Nenhum employer vinculado via N:N')}</div>`}
+              <button type="button" class="emp-btn" data-emp-action="link-employer" data-candidate-id="${esc(cid)}" style="margin-top:6px;font-size:11px;padding:6px 10px">🔗 + Vincular empregador</button>
             </div>
-            <div class="emp-text"><div class="emp-text-lbl">Próxima ação</div><div class="emp-text-val">${esc(ops?.acao||'—')}</div></div>
-            <div class="emp-text"><div class="emp-text-lbl">Resumo RH</div><div class="emp-text-val">${esc(resumoRh)}</div></div>
-            <div class="emp-text"><div class="emp-text-lbl">Motivação real</div><div class="emp-text-val">${esc(motivacaoRh)}</div></div>
-            <div class="emp-text"><div class="emp-text-lbl">Restrições objetivas</div><div class="emp-text-val">${esc(restricoesRh)}</div></div>
-            <div class="emp-summary-grid" style="margin-top:12px">
-              <div class="emp-box"><div class="emp-box-lbl">Readiness internacional</div><div class="emp-box-val">${esc(readinessIntl)}</div></div>
-              <div class="emp-box"><div class="emp-box-lbl">Pronto para employer</div><div class="emp-box-val">${esc(prontoEmployer)}</div></div>
+
+            <div class="emp-summary-section">
+              <div class="emp-summary-section-title">👤 Dados do candidato</div>
+              <div class="emp-summary-grid">
+                ${box('Prontidão', readiness?.label, readiness?.cls||'')}
+                ${box('Alemão', fv(current,'Nível de alemão','Nível alemão'))}
+                ${box('Documentação', docLabel)}
+                ${box('Pronto para employer', prontoEmp)}
+                ${box('Profissão / Área-alvo', fv(current,'Profissão principal','Profissão'))}
+                ${box('Cidade atual', fv(current,'Cidade atual'))}
+                ${box('Responsável interno', fv(current,'Avaliador','Responsável interno','responsavel_interno'))}
+                ${box('Score', String(current._score||0))}
+              </div>
             </div>
+
+            ${(motEncaixe||riscosMatch||proxAcaoMatch) ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🎯 Matching — vínculo em foco</div>
+              ${txt('Motivo do encaixe', motEncaixe)}
+              ${txt('Riscos / Ressalvas', riscosMatch)}
+              ${txt('Próxima ação', proxAcaoMatch)}
+            </div>` : (ops?.acao ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🎯 Próxima ação</div>
+              ${txt('Ação', ops.acao)}
+            </div>` : '')}
+
+            ${(expPrincipal||tempoExp||aderenciaTec||pontosTec||projetoPreferido) ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🛠 Experiência e aderência</div>
+              <div class="emp-summary-grid">
+                ${box('Tempo total de experiência', tempoExp)}
+                ${box('Aderência técnica', aderenciaTec)}
+              </div>
+              ${txt('Experiências principais', expPrincipal)}
+              ${txt('Projeto / experiência preferida', projetoPreferido)}
+              ${txt('Pontos técnicos fortes e fracos', pontosTec)}
+            </div>` : ''}
+
+            ${(disponibilidadeMudanca||statusMigratorio||prazoSaida||flexGeo||trabalhoAtual||expectativaSalarial) ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🚚 Disponibilidade e mobilidade</div>
+              <div class="emp-summary-grid">
+                ${box('Disponibilidade para mudança', disponibilidadeMudanca)}
+                ${box('Status migratório', statusMigratorio)}
+                ${box('Prazo realista de saída', prazoSaida)}
+                ${box('Flexibilidade geográfica', flexGeo)}
+                ${box('Expectativa salarial', expectativaSalarial)}
+              </div>
+              ${txt('Trabalho atual', trabalhoAtual)}
+              ${blueCardObs ? txt('Blue Card / contrato', blueCardObs) : ''}
+            </div>` : ''}
+
+            ${(redeApoio||mudancaFamilia||expIntl||adaptacaoCultural||autonomiaPratica) ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🌍 Integração, família e adaptação</div>
+              <div class="emp-summary-grid">
+                ${box('Rede de apoio', redeApoio)}
+                ${box('Mudança sozinho ou com família', mudancaFamilia)}
+                ${box('Experiência internacional prévia', expIntl)}
+                ${box('Autonomia prática', autonomiaPratica)}
+              </div>
+              ${txt('Adaptação cultural', adaptacaoCultural)}
+            </div>` : ''}
+
+            ${(resumoRh||motivacaoRh||restricoes) ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🧠 Análise RH</div>
+              ${txt('Resumo RH', resumoRh)}
+              ${txt('Motivação real', motivacaoRh)}
+              ${txt('Restrições objetivas', restricoes)}
+              <div class="emp-summary-grid" style="margin-top:8px">
+                ${box('Readiness internacional', readIntl)}
+              </div>
+            </div>` : ''}
+
+            ${(entData||entAvaliador||entConclusao||entDiploma||entObs) ? `<div class="emp-summary-section">
+              <div class="emp-summary-section-title">🎙 Dados da entrevista</div>
+              <div class="emp-summary-grid">
+                ${entData ? box('Data da entrevista', new Date(entData).toLocaleDateString('pt-BR')) : ''}
+                ${entAvaliador ? box('Entrevistador(a)', entAvaliador) : ''}
+                ${entEmpresa ? box('Empresa / Cliente', entEmpresa) : ''}
+                ${entPosicao ? box('Posição / Vaga', entPosicao) : ''}
+                ${entTipo ? box('Tipo de vaga', entTipo) : ''}
+                ${entDiploma ? box('Diploma / Formação', entDiploma) : ''}
+                ${entAlemao ? box('Alemão (entrevista)', entAlemao) : ''}
+                ${(entEstCivil||entFilho) ? box('Estado civil / Filhos', [entEstCivil, entFilho].filter(Boolean).join(' · ')) : ''}
+              </div>
+              ${txt('Observação', entObs)}
+              ${txt('Conclusão da entrevista', entConclusao)}
+            </div>` : ''}
+
             <div class="emp-actions">
-              <button type="button" class="emp-btn primary" data-emp-action="open-candidate" data-candidate-id="${esc(String(current.ID||current.id||''))}">Abrir ficha completa</button>
-              <button type="button" class="emp-btn" data-emp-action="open-filtered" data-employer="${esc(getEmployerDisplay(current) ? getEmployerDisplay(current) : '__UNASSIGNED__')}">Ver todos deste grupo</button>
+              <button type="button" class="emp-btn primary" data-emp-action="open-candidate" data-candidate-id="${esc(cid)}">📂 Abrir ficha completa</button>
+              <button type="button" class="emp-btn" data-emp-action="open-filtered" data-employer="${esc(selectedGroup?.name || getEmployerDisplay(current) || '__UNASSIGNED__')}">Ver grupo</button>
             </div>
-          </div>` : `<div class="emp-empty-note" style="margin:16px">Selecione um candidato para ver o resumo rápido.</div>`}
+
+          </div>` : `<div class="emp-empty-note" style="margin:16px">Selecione um candidato para ver o resumo operacional completo.</div>`}
         </div>
       </section>
+
     </div>`;
   bindEmployerHubInteractions(el);
 }
@@ -6781,6 +7270,34 @@ const RH_DOC_SECTION_SPECS = [
   { code:'9.1.', key:'mensagem_final_candidato', group:'mensagem_final', label:'Mensagem final do candidato' },
 ];
 
+// ── Missing utility functions (rhCleanText + rhStripPlaceholders + rhNormLabel) ─
+function rhCleanText(s) {
+  return String(s || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function rhStripPlaceholders(s) {
+  return rhCleanText(
+    String(s || '')
+      .replace(/\[[\s_]+\]/g, '')           // empty checkbox-style brackets [ ]
+      .replace(/_{3,}/g, '')                // long underscores used as blanks
+      .replace(/\(preencher[^)]*\)/gi, '')  // "(preencher...)" hints
+      .replace(/\(preenchido[^)]*\)/gi, '') // "(preenchido...)" hints
+  );
+}
+
+// Normaliza um label/valor para comparação insensível a caso, acentos e espaços.
+// Usado em rhBuildDerivados e rhBuildInterviewConflicts para detectar divergências.
+function rhNormLabel(s) {
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+// ────────────────────────────────────────────────────────────────────────────────
+
 function rhDocRawTextFromHtml(html) {
   return rhCleanText(
     String(html || '')
@@ -7518,7 +8035,8 @@ async function handleCurriculumFile(input) {
     }
 
     const supa = await getSupa();
-    const { data: { session } } = await supa.auth.getSession();
+    const { data: sessionData2 } = await supa.auth.getSession();
+    const session = sessionData2?.session ?? null;
     if (!session?.access_token) throw new Error('Sessão expirada. Faça login novamente.');
 
     const res = await fetch(EXTRACT_CURRICULUM_FIELDS_URL, {
@@ -8486,7 +9004,8 @@ function toast(msg, type='ok', duration=3500) {
     // getSession() usa o refresh token automaticamente — sessão
     // se mantém mesmo após fechar e reabrir o browser.
     const supa = await getSupa();
-    const { data: { session: authSession } } = await supa.auth.getSession();
+    const { data: sessionData3 } = await supa.auth.getSession();
+    const authSession = sessionData3?.session ?? null;
 
     if (authSession) {
       // Auth válida — recupera perfil do sessionStorage ou reconstrói do banco
