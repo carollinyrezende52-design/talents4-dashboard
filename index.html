@@ -7320,6 +7320,26 @@ function rhCaptureBetween(text, startLabel, endLabel) {
   return rhStripPlaceholders(m?.[1] || '');
 }
 
+function rhCaptureFirst(text, labelPairs) {
+  for (const pair of (labelPairs || [])) {
+    const val = rhCaptureBetween(text, pair[0], pair[1]);
+    if (val) return val;
+  }
+  return '';
+}
+
+function rhNormalizePgDate(raw) {
+  const s = rhStripPlaceholders(raw || '');
+  if (!s) return null;
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/^(\d{2})[\/.\-](\d{2})[\/.\-](\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  const dt = new Date(s);
+  if (!Number.isNaN(dt.getTime())) return dt.toISOString().slice(0, 10);
+  return null;
+}
+
 function rhCaptureObservationBlock(text, code, nextCode) {
   const tail = nextCode ? '(?=\\n\\s*' + rhEscapeRegex(nextCode) + '|\\n\\s*10\\.\\s*Avalia|$)' : '(?=\\n\\s*10\\.\\s*Avalia|$)';
   const re = new RegExp('\\n?\\s*' + rhEscapeRegex(code) + '[\\s\\S]*?Observa(?:ç|c)ões?:\\s*([\\s\\S]*?)' + tail, 'i');
@@ -7477,13 +7497,26 @@ function rhBuildInterviewConflicts(parsed, cand) {
 function parseRhDocxHtml(html, cand) {
   const text = rhDocRawTextFromHtml(html);
   const meta = {
-    data_entrevista: rhCaptureBetween(text, 'Data da entrevista', 'Entrevistador(a)'),
-    entrevistador: rhCaptureBetween(text, 'Entrevistador(a)', 'Empresa / cliente'),
-    empresa_cliente: rhCaptureBetween(text, 'Empresa / cliente', 'Posição / vaga'),
-    posicao_vaga: rhCaptureBetween(text, 'Posição / vaga', 'Tipo de vaga'),
-    tipo_vaga: rhCaptureBetween(text, 'Tipo de vaga', 'Nível de alemão exigido'),
-    nivel_alemao_exigido: rhCaptureBetween(text, 'Nível de alemão exigido', 'Observação:'),
-    observacao_inicial: rhCaptureBetween(text, 'Observação:', '1. Dados básicos e identificação')
+    data_entrevista: rhCaptureFirst(text, [
+      ['Data da entrevista', 'Entrevistador(a)'],
+      ['Data da Entrevista', 'Entrevistador(a)']
+    ]),
+    entrevistador: rhCaptureFirst(text, [
+      ['Entrevistador(a)', 'Empresa / cliente'],
+      ['Entrevistador(a)', 'Empresa / Cliente']
+    ]),
+    empresa_cliente: rhCaptureFirst(text, [
+      ['Empresa / cliente', 'Posição / vaga'],
+      ['Empresa / Cliente', 'Posição / vaga']
+    ]),
+    posicao_vaga: rhCaptureBetween(text, 'Posição / vaga', 'Candidato') || rhCaptureBetween(text, 'Posição / vaga', 'Tipo de vaga'),
+    candidato_nome_docx: rhCaptureBetween(text, 'Candidato', 'Estado Civil / Filhos'),
+    estado_civil_filhos_docx: rhCaptureBetween(text, 'Estado Civil / Filhos', 'Tipo de vaga'),
+    tipo_vaga: rhCaptureBetween(text, 'Tipo de vaga', 'Diploma') || rhCaptureBetween(text, 'Tipo de vaga', 'Nível de alemão exigido'),
+    diploma_docx: rhCaptureBetween(text, 'Diploma', 'Nível de alemão') || rhCaptureBetween(text, 'Diploma', 'Observação:'),
+    nivel_alemao_exigido: rhCaptureBetween(text, 'Nível de alemão', 'Observação:') || rhCaptureBetween(text, 'Nível de alemão exigido', 'Observação:'),
+    observacao_inicial: rhCaptureBetween(text, 'Observação:', 'Conclusão da entrevista') || rhCaptureBetween(text, 'Observação:', '1. Dados básicos e identificação'),
+    conclusao_entrevista_docx: rhCaptureBetween(text, 'Conclusão da entrevista', '1. Dados básicos e identificação')
   };
 
   const respostas = {
@@ -7652,7 +7685,7 @@ async function saveRhInterviewDraft(candidateId, actor) {
     template_code: 'entrevista_preliminar_docx_v1',
     template_nome: 'Template de Entrevista Preliminar',
     fonte_tipo: 'docx',
-    data_entrevista: draft.meta?.data_entrevista || null,
+    data_entrevista: rhNormalizePgDate(draft.meta?.data_entrevista),
     entrevistador: draft.meta?.entrevistador || null,
     empresa_cliente: draft.meta?.empresa_cliente || null,
     posicao_vaga: draft.meta?.posicao_vaga || null,
