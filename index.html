@@ -1221,7 +1221,8 @@ a{color:inherit;text-decoration:none}
 .bi-mini .val { margin-top:8px; font-family:var(--mono); font-size:24px; color:var(--txt); }
 .bi-mini .sub { margin-top:6px; font-size:11px; color:var(--txt2); }
 
-.bi-action-list { display:flex; flex-direction:column; gap:10px; }
+.bi-action-list { display:flex; flex-direction:column; gap:10px; max-height:360px; overflow:auto; padding-right:4px; }
+.bi-summary-stack { display:flex; flex-direction:column; gap:10px; min-height:0; }
 .bi-action-row {
   display:grid;
   grid-template-columns:1fr auto auto;
@@ -1817,13 +1818,13 @@ details.bi-secondary {
 
 
 /* ───────── Employer Hub v3 ───────── */
-.emp-hub{display:grid;grid-template-columns:300px minmax(420px,1fr) 420px;gap:14px;min-height:calc(100vh - 180px)}
+.emp-hub{display:grid;grid-template-columns:300px minmax(420px,1fr) 420px;gap:14px;height:calc(100vh - 180px);max-height:calc(100vh - 180px);min-height:calc(100vh - 180px)}
 .emp-pane{background:linear-gradient(180deg,rgba(13,19,33,.98),rgba(10,15,27,.98));border:1px solid rgba(103,126,170,.18);border-radius:18px;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.28)}
 .emp-pane-hd{padding:16px 16px 12px;border-bottom:1px solid rgba(103,126,170,.16);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .emp-pane-title{font-size:15px;font-weight:900;color:#f4f7ff}
 .emp-pane-sub{font-size:11.5px;color:#97a7c6;margin-top:4px;line-height:1.45}
 .emp-pane-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.emp-scroll{overflow:auto;min-height:0}
+.emp-scroll{overflow:auto;min-height:0;flex:1}
 .emp-list{padding:10px;display:flex;flex-direction:column;gap:10px}
 .emp-controls{padding:0 10px 10px;display:flex;flex-direction:column;gap:10px}
 .emp-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -3692,6 +3693,7 @@ function nav(view) {
   renderView();
 }
 
+window.renderView = renderView;
 function renderView() {
   const el = document.getElementById('content');
   el.innerHTML = '';
@@ -3945,6 +3947,25 @@ function dashboardOpenEmployerGroup(groupKey) {
   S.employerHub.selectedEmployer = groupKey;
   _navSetupUI('employer');
   renderView();
+}
+
+
+function uiCurrentLang() {
+  try { return typeof window.t4GetLang === 'function' ? window.t4GetLang() : 'pt'; } catch(_) { return 'pt'; }
+}
+function uiTranslate(raw) {
+  try {
+    if (typeof window.t4TranslateUiString === 'function') return window.t4TranslateUiString(raw);
+  } catch(_) {}
+  return raw;
+}
+function uiFormatDate(value, options) {
+  if (!value) return '—';
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return String(value);
+  const lang = uiCurrentLang();
+  const locale = lang === 'de' ? 'de-DE' : 'pt-BR';
+  return dt.toLocaleDateString(locale, options || undefined);
 }
 
 function renderDashboard(el) {
@@ -4423,11 +4444,12 @@ function renderDashboard(el) {
     function hbar(id, data, colors, opts={}) {
       const ctx = destroyIfExists(id);
       if (!ctx || !data.length) return;
+      const displayLabels = data.map(d => uiTranslate(d.label));
       new Chart(ctx, {
         type: 'bar',
         plugins: window.ChartDataLabels ? [ChartDataLabels] : [],
         data: {
-          labels: data.map(d => d.label),
+          labels: displayLabels,
           datasets: [{
             data: data.map(d => d.count),
             backgroundColor: colors || data.map((_,i) => `hsla(${210+i*25},60%,55%,0.72)`),
@@ -4464,10 +4486,10 @@ function renderDashboard(el) {
               ticks: { color: '#aeb5d0', font: { family: "'Bricolage Grotesque', sans-serif", size: 11 } }
             }
           },
-          onClick: (_evt, els, chart) => {
+          onClick: (_evt, els) => {
             if (!els?.length || !opts.onClickLabel) return;
             const idx = els[0].index;
-            opts.onClickLabel(chart.data.labels[idx]);
+            opts.onClickLabel(data[idx]?.label ?? displayLabels[idx]);
           }
         }
       });
@@ -5710,7 +5732,7 @@ function renderEmployerHub(el) {
                 <span class="badge ${STATUS_BADGE[fv(current,'STATUS PIPELINE')]||'b-inativo'}">${esc(fv(current,'STATUS PIPELINE')||'—')}</span>
                 ${matchStatus?`<span class="badge b-stage">${esc(matchStatus)}</span>`:''}
                 ${fv(current,'Perfil','perfil')?`<span class="badge ${PERFIL_BADGE[fv(current,'Perfil','perfil')]||''}">${esc((fv(current,'Perfil','perfil')||'').replace('Candidato ',''))}</span>`:''}
-                ${fv(current,'ultima_atualizacao')?`<span style="font-size:10px;color:var(--txt3)">Atualizado ${new Date(fv(current,'ultima_atualizacao')).toLocaleDateString('pt-BR')}</span>`:''}
+                ${fv(current,'ultima_atualizacao')?`<span style="font-size:10px;color:var(--txt3)">Atualizado ${uiFormatDate(fv(current,'ultima_atualizacao'))}</span>`:''}
               </div>
             </div>
 
@@ -5804,7 +5826,7 @@ function renderEmployerHub(el) {
             ${(entData||entAvaliador||entConclusao||entDiploma||entObs) ? `<div class="emp-summary-section">
               <div class="emp-summary-section-title">🎙 Dados da entrevista</div>
               <div class="emp-summary-grid">
-                ${entData ? box('Data da entrevista', new Date(entData).toLocaleDateString('pt-BR')) : ''}
+                ${entData ? box('Data da entrevista', uiFormatDate(entData)) : ''}
                 ${entAvaliador ? box('Entrevistador(a)', entAvaliador) : ''}
                 ${entEmpresa ? box('Empresa / Cliente', entEmpresa) : ''}
                 ${entPosicao ? box('Posição / Vaga', entPosicao) : ''}
@@ -10502,7 +10524,60 @@ function agNav(dir) {
     'Disponibilidade e mobilidade':'Verfügbarkeit und Mobilität',
     'Dados do candidato':'Bewerberdaten',
     'Employers vinculados':'Verknüpfte Arbeitgeber',
-    'Matching — vínculo em foco':'Matching – Fokusverknüpfung'
+    'Matching — vínculo em foco':'Matching – Fokusverknüpfung',
+    'Empregadores':'Arbeitgeber',
+    'Pipeline ativo, mapeamento e cadastro comercial.':'Aktive Pipeline, Mapping und Vertriebsstammdaten.',
+    'Pesquisar empregador...':'Arbeitgeber suchen...',
+    'Ver lista geral':'Gesamtliste anzeigen',
+    'Exportar Excel':'Excel exportieren',
+    'Vinculados':'Zugeordnet',
+    'Aguardando':'Wartend',
+    'Aprovados':'Freigegeben',
+    'Contratados':'Eingestellt',
+    'Pesquisar candidato, profissão, cidade...':'Bewerber, Beruf, Stadt suchen...',
+    'Filtro rápido: todos':'Schnellfilter: alle',
+    'Documentação pendente':'Unterlagen ausstehend',
+    'Alemão B1+':'Deutsch B1+',
+    'Perfil forte':'Starkes Profil',
+    'Lista filtrada':'Gefilterte Liste',
+    'Todos':'Alle',
+    'Candidatos vinculados a este empregador.':'Mit diesem Arbeitgeber verknüpfte Bewerber.',
+    'Candidatos sem empresa definida.':'Bewerber ohne definiertes Unternehmen.',
+    'Nenhum empregador encontrado.':'Kein Arbeitgeber gefunden.',
+    'Nenhum candidato encontrado com os filtros atuais.':'Kein Bewerber mit den aktuellen Filtern gefunden.',
+    'Selecione um candidato para ver o resumo operacional completo.':'Wählen Sie einen Bewerber aus, um die vollständige operative Übersicht anzuzeigen.',
+    'Abrir ficha completa':'Vollständige Akte öffnen',
+    'Ver grupo':'Gruppe anzeigen',
+    'Principal':'Primär',
+    'Editar vínculo':'Verknüpfung bearbeiten',
+    '+ Vincular empregador':'+ Arbeitgeber verknüpfen',
+    'Nenhum employer vinculado via N:N':'Kein Arbeitgeber über N:N verknüpft',
+    'Profissão / Área-alvo':'Beruf / Zielbereich',
+    'Ação':'Aktion',
+    'Aderência técnica':'Technische Passung',
+    'Expectativa salarial':'Gehaltsvorstellung',
+    'Alemão (entrevista)':'Deutsch (Interview)',
+    'Entrevistador(a)':'Interviewer/in',
+    'Diploma / Formação':'Abschluss / Ausbildung',
+    'Observação':'Anmerkung',
+    'Em avaliação':'In Bewertung',
+    'Engenharia':'Ingenieurwesen',
+    'Enfermagem':'Pflege',
+    'Administração':'Verwaltung',
+    'Advogado / Jurista corporativo':'Unternehmensjurist / Jurist',
+    'Operador de Máquina CNC / Montagem':'CNC-Maschinenbedienung / Montage',
+    'Operador Logístico':'Logistikmitarbeiter',
+    'Logística':'Logistik',
+    'Assistente Administrativo':'Verwaltungsassistenz',
+    'Analista Financeiro':'Finanzanalyst',
+    'Téc. Enfermagem':'Pflegeassistenz',
+    'talento':'Talent',
+    'cobertura baixa':'Geringe Abdeckung',
+    'conversão':'Konversion',
+    'ativo':'aktiv',
+    'sem resp.':'ohne Zust.',
+    'Talentos priorizados por profissão':'Priorisierte Talente nach Beruf',
+    'A visão de talentos usa o critério de idioma já validado no produto.':'Die Talentansicht nutzt das im Produkt bereits validierte Sprachkriterium.'
   };
 
   const placeholderMap = {
@@ -10515,11 +10590,15 @@ function agNav(dir) {
     'Prioridade (todas)':'Priorität (alle)',
     'Alemão (todos)':'Deutsch (alle)',
     'Perfil (todos)':'Profil (alle)',
-    'Profissão (todas)':'Beruf (alle)'
+    'Profissão (todas)':'Beruf (alle)',
+    'Pesquisar empregador...':'Arbeitgeber suchen...',
+    'Pesquisar candidato, profissão, cidade...':'Bewerber, Beruf, Stadt suchen...'
   };
 
   const titleMap = {
-    'Preencher campos a partir de um PDF de currículo':'Felder anhand einer Lebenslauf-PDF ausfüllen'
+    'Preencher campos a partir de um PDF de currículo':'Felder anhand einer Lebenslauf-PDF ausfüllen',
+    'Editar este empregador':'Diesen Arbeitgeber bearbeiten',
+    'Editar vínculo':'Verknüpfung bearbeiten'
   };
 
   const reverseMap = Object.fromEntries(Object.entries(exactMap).map(([pt,de]) => [de, pt]));
@@ -10543,6 +10622,15 @@ function agNav(dir) {
       m = str.match(/^(\d+)\s+com cobertura baixa \(0–1 candidato\)$/i); if (m) return `${m[1]} mit geringer Abdeckung (0–1 Bewerber)`;
       m = str.match(/^(\d+)\s+com aprovados\s+·\s+(\d+)\s+com contratados$/i); if (m) return `${m[1]} mit Freigaben · ${m[2]} mit Einstellungen`;
       m = str.match(/^(\d+)\s+prontos sem employer$/i); if (m) return `${m[1]} bereit ohne Arbeitgeber`;
+      m = str.match(/^(\d+)\s+aguardando$/i); if (m) return `${m[1]} wartend`;
+      m = str.match(/^(\d+)\s+aprovados$/i); if (m) return `${m[1]} freigegeben`;
+      m = str.match(/^(\d+)\s+contratados$/i); if (m) return `${m[1]} eingestellt`;
+      m = str.match(/^(\d+)\s+sem resp\.$/i); if (m) return `${m[1]} ohne Zust.`;
+      m = str.match(/^Todos\s+·\s+(\d+)$/i); if (m) return `Alle · ${m[1]}`;
+      m = str.match(/^Aguardando\s+·\s+(\d+)$/i); if (m) return `Wartend · ${m[1]}`;
+      m = str.match(/^Aprovados\s+·\s+(\d+)$/i); if (m) return `Freigegeben · ${m[1]}`;
+      m = str.match(/^Contratados\s+·\s+(\d+)$/i); if (m) return `Eingestellt · ${m[1]}`;
+      m = str.match(/^(\d+)\s+vinculados\s+·\s+(\d+)\s+aguardando\s+·\s+(\d+)\s+aprovados\s+·\s+(\d+)\s+contratados$/i); if (m) return `${m[1]} zugeordnet · ${m[2]} wartend · ${m[3]} freigegeben · ${m[4]} eingestellt`;
       m = str.match(/^Status\s+\(todos\)$/i); if (m) return 'Status (alle)';
       m = str.match(/^Perfil\s+\(todos\)$/i); if (m) return 'Profil (alle)';
     } else {
@@ -10560,6 +10648,15 @@ function agNav(dir) {
       m = str.match(/^(\d+)\s+mit geringer Abdeckung \(0–1 Bewerber\)$/i); if (m) return `${m[1]} com cobertura baixa (0–1 candidato)`;
       m = str.match(/^(\d+)\s+mit Freigaben\s+·\s+(\d+)\s+mit Einstellungen$/i); if (m) return `${m[1]} com aprovados · ${m[2]} com contratados`;
       m = str.match(/^(\d+)\s+bereit ohne Arbeitgeber$/i); if (m) return `${m[1]} prontos sem employer`;
+      m = str.match(/^(\d+)\s+wartend$/i); if (m) return `${m[1]} aguardando`;
+      m = str.match(/^(\d+)\s+freigegeben$/i); if (m) return `${m[1]} aprovados`;
+      m = str.match(/^(\d+)\s+eingestellt$/i); if (m) return `${m[1]} contratados`;
+      m = str.match(/^(\d+)\s+ohne Zust\.$/i); if (m) return `${m[1]} sem resp.`;
+      m = str.match(/^Alle\s+·\s+(\d+)$/i); if (m) return `Todos · ${m[1]}`;
+      m = str.match(/^Wartend\s+·\s+(\d+)$/i); if (m) return `Aguardando · ${m[1]}`;
+      m = str.match(/^Freigegeben\s+·\s+(\d+)$/i); if (m) return `Aprovados · ${m[1]}`;
+      m = str.match(/^Eingestellt\s+·\s+(\d+)$/i); if (m) return `Contratados · ${m[1]}`;
+      m = str.match(/^(\d+)\s+zugeordnet\s+·\s+(\d+)\s+wartend\s+·\s+(\d+)\s+freigegeben\s+·\s+(\d+)\s+eingestellt$/i); if (m) return `${m[1]} vinculados · ${m[2]} aguardando · ${m[3]} aprovados · ${m[4]} contratados`;
       m = str.match(/^Status\s+\(alle\)$/i); if (m) return 'Status (todos)';
       m = str.match(/^Profil\s+\(alle\)$/i); if (m) return 'Perfil (todos)';
     }
@@ -10630,6 +10727,11 @@ function agNav(dir) {
     updateSwitchUI();
   }
 
+  window.t4GetLang = function(){ return currentLang; };
+  window.t4TranslateUiString = function(raw){
+    return translateString(raw, currentLang, exactMap, reverseMap);
+  };
+
   function injectSwitch(){
     const sidebarBottom = document.querySelector('.sidebar-bottom');
     if (!sidebarBottom || document.getElementById('t4-lang-box')) return;
@@ -10653,6 +10755,11 @@ function agNav(dir) {
       currentLang = next;
       localStorage.setItem(LANG_KEY, currentLang);
       applyLanguage(document.body);
+      if (typeof window.renderView === 'function') {
+        setTimeout(() => {
+          try { window.renderView(); } catch(_e) {}
+        }, 0);
+      }
     });
     updateSwitchUI();
   }
