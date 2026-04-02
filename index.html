@@ -25,7 +25,7 @@
   --teal:#2dd4bf;--teal-bg:rgba(45,212,191,.10);
   --r:6px;--r2:10px;--r3:14px;--r4:20px;
   --sh:0 8px 32px rgba(0,0,0,.6);--sh2:0 2px 8px rgba(0,0,0,.35);
-  --sidebar:224px;--topbar:52px;
+  --sidebar:280px;--topbar:52px;
   --font:'Bricolage Grotesque',sans-serif;--mono:'JetBrains Mono',monospace;
   /* German flag stripe vars */
   --de-black:#1a1a1a;--de-red:#c41e3a;--de-gold:#f5c000;
@@ -67,16 +67,16 @@ a{color:inherit;text-decoration:none}
 }
 .logo-text{font-size:15px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
 .logo-sub{font-size:10px;color:var(--txt3);letter-spacing:.04em;text-transform:uppercase}
-.nav-sec{padding:14px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);white-space:nowrap;overflow:hidden}
+.nav-sec{padding:14px 14px 6px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);white-space:nowrap;overflow:visible}
 .nav-item{
-  display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 6px;
+  display:flex;align-items:center;gap:8px;padding:8px 11px;margin:1px 6px;
   border-radius:var(--r);cursor:pointer;transition:all .12s;
-  font-size:13px;font-weight:500;color:var(--txt2);white-space:nowrap;overflow:hidden
+  font-size:12.75px;font-weight:500;color:var(--txt2);white-space:nowrap;overflow:hidden
 }
 .nav-item:hover{background:var(--bg3);color:var(--txt)}
 .nav-item.active{background:var(--accent-bg);color:var(--accent2);border-left:2px solid var(--accent)}
 .nav-item .ico{font-size:15px;width:20px;text-align:center;flex-shrink:0}
-.nav-badge{margin-left:auto;background:var(--bg4);border:1px solid var(--border2);color:var(--txt3);font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;min-width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--bg4);border:1px solid var(--border2);color:var(--txt3);font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;min-width:22px;text-align:center;flex-shrink:0}
 .nav-item.active .nav-badge{background:var(--accent);border-color:var(--accent);color:#fff}
 .sidebar-bottom{margin-top:auto;padding:10px;border-top:1px solid var(--border)}
 .user-pill{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border)}
@@ -6701,13 +6701,40 @@ function rhDeepGet(obj, path, fallback='') {
   return cur == null ? fallback : cur;
 }
 
+function rhPreviewText(raw, maxChars=180) {
+  const clean = String(raw || '').replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  if (clean.length <= maxChars) return clean;
+  const cut = clean.slice(0, maxChars);
+  return cut.replace(/\s+\S*$/, '').trim() + '…';
+}
+
 function rhStaticField(label, value, full=false) {
   const cls = full ? 'field-group fg-full' : 'field-group';
   const v = String(value || '').trim();
-  return `<div class="${cls}">
+  const preview = rhPreviewText(v, full ? 260 : 150);
+  const lineCount = (v.match(/\n/g) || []).length + 1;
+  const isLong = !!v && (v.length > (full ? 300 : 170) || lineCount > (full ? 7 : 4));
+  return `<div class="${cls}" ${isLong ? 'data-rh-collapsible="1" data-rh-expanded="0"' : ''} style="cursor:${isLong ? 'pointer' : 'default'}" ${isLong ? 'onclick="toggleRhValueCard(this,event)"' : ''}>
     <label class="field-lbl">${label}</label>
-    <div style="min-height:44px;padding:10px 12px;border:1px solid var(--border2);border-radius:12px;background:rgba(255,255,255,.03);color:${v ? 'var(--txt)' : 'var(--txt3)'};white-space:pre-wrap;line-height:1.45">${v ? esc(v) : 'Não preenchido'}</div>
+    <div data-rh-preview style="min-height:44px;padding:10px 12px;border:1px solid var(--border2);border-radius:12px;background:rgba(255,255,255,.03);color:${v ? 'var(--txt)' : 'var(--txt3)'};white-space:pre-wrap;line-height:1.45;${isLong ? 'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:' + (full ? '7' : '4') + ';overflow:hidden;' : ''}">${v ? esc(isLong ? preview : v) : 'Não preenchido'}</div>
+    ${isLong ? `<div data-rh-full hidden style="min-height:44px;padding:10px 12px;border:1px solid var(--border2);border-radius:12px;background:rgba(255,255,255,.03);color:var(--txt);white-space:pre-wrap;line-height:1.55">${esc(v)}</div>
+      <div data-rh-toggle style="margin-top:8px;font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.02em;text-transform:uppercase">Clique para expandir</div>` : ''}
   </div>`;
+}
+
+function toggleRhValueCard(container, ev) {
+  if (!container || container.dataset.rhCollapsible !== '1') return;
+  if (ev && ev.target && ev.target.closest && ev.target.closest('button,a,input,textarea,select,label')) return;
+  const expanded = container.dataset.rhExpanded === '1';
+  const preview = container.querySelector('[data-rh-preview]');
+  const full = container.querySelector('[data-rh-full]');
+  const toggle = container.querySelector('[data-rh-toggle]');
+  if (!preview || !full || !toggle) return;
+  container.dataset.rhExpanded = expanded ? '0' : '1';
+  preview.hidden = !expanded;
+  full.hidden = expanded;
+  toggle.textContent = expanded ? 'Clique para expandir' : 'Clique para recolher';
 }
 
 function rhSectionCard(title, body, subtitle='') {
@@ -7495,21 +7522,31 @@ function rhNormalizePgDate(raw) {
   return null;
 }
 
+function rhFindSectionCodeIndex(source, code, from=0) {
+  const hay = String(source || '');
+  if (!hay || !code) return -1;
+  let idx = hay.indexOf(code, Math.max(0, from));
+  while (idx !== -1) {
+    const prev = idx === 0 ? '\n' : hay[idx - 1];
+    const next = hay[idx + code.length] || '';
+    if (/\s/.test(prev) && (!next || /\s/.test(next) || /[A-Za-zÀ-ÿ0-9(]/.test(next))) return idx;
+    idx = hay.indexOf(code, idx + code.length);
+  }
+  return -1;
+}
+
 function rhSliceSection(text, code, nextCode) {
   const source = String(text || '');
-  const start = new RegExp('(?:^|\\n)\\s*' + rhEscapeRegex(code) + '(?:\\s|$)', 'i');
-  const startMatch = start.exec(source);
-  if (!startMatch) return '';
-  const from = startMatch.index;
+  const from = rhFindSectionCodeIndex(source, code, 0);
+  if (from < 0) return '';
   let to = source.length;
-  const tailSource = source.slice(from + startMatch[0].length);
+  const searchFrom = from + String(code || '').length;
   if (nextCode) {
-    const next = new RegExp('(?:^|\\n)\\s*' + rhEscapeRegex(nextCode) + '(?:\\s|$)', 'i');
-    const rel = next.exec(tailSource);
-    if (rel) to = from + startMatch[0].length + rel.index;
+    const nextIdx = rhFindSectionCodeIndex(source, nextCode, searchFrom);
+    if (nextIdx >= 0) to = nextIdx;
   } else {
-    const tail = /(?:^|\n)\s*10\.\s*Avalia/i.exec(tailSource);
-    if (tail) to = from + startMatch[0].length + tail.index;
+    const tail = source.slice(searchFrom).search(/(?:^|\s)10\.\s*Avalia/i);
+    if (tail >= 0) to = searchFrom + tail;
   }
   return source.slice(from, to).trim();
 }
@@ -7517,8 +7554,13 @@ function rhSliceSection(text, code, nextCode) {
 function rhCaptureObservationBlock(text, code, nextCode) {
   const chunk = rhSliceSection(text, code, nextCode);
   if (!chunk) return '';
-  const m = chunk.match(/Observa(?:ç|c)ões?:\s*([\s\S]*?)$/i);
-  return rhStripPlaceholders((m?.[1] || '').replace(/\n{3,}/g, '\n\n'));
+  const parts = chunk.split(/Observa(?:ç|c)ões?:/i);
+  if (parts.length < 2) return '';
+  let obs = parts.slice(1).join('Observações:').trim();
+  const hardStop = obs.search(/\n{1,}\s*(?=(?:[1-9]\.\d\.|10\.\s*Avalia))/i);
+  if (hardStop >= 0) obs = obs.slice(0, hardStop).trim();
+  obs = obs.replace(/^[:\-\s]+/, '').replace(/\n{3,}/g, '\n\n');
+  return rhStripPlaceholders(obs);
 }
 
 function rhParseNivelIdioma(raw) {
@@ -10031,10 +10073,10 @@ function agNav(dir) {
 </script>
 
 <style id="t4-i18n-style">
-.t4-lang-box{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,#0e1326,#0a0f1d)}
+.t4-lang-box{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 12px;padding:10px 10px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,#0e1326,#0a0f1d)}
 .t4-lang-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);font-weight:700}
 .t4-lang-toggle{display:inline-flex;align-items:center;background:#0a1020;border:1px solid var(--border);border-radius:999px;padding:3px;gap:4px}
-.t4-lang-btn{min-width:48px;height:30px;border:none;border-radius:999px;background:transparent;color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer;padding:0 12px}
+.t4-lang-btn{min-width:42px;width:42px;height:30px;border:none;border-radius:999px;background:transparent;color:var(--txt2);font-size:16px;font-weight:700;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .t4-lang-btn.active{background:linear-gradient(135deg,#4f78ff,#7a5cff);color:#fff;box-shadow:0 6px 18px rgba(79,120,255,.28)}
 </style>
 <script id="t4-i18n-script">
@@ -10183,7 +10225,63 @@ function agNav(dir) {
     'Curso de alemão':'Deutschkurs',
     'Não qualificado/ base de dados':'Nicht qualifiziert / Datenbank',
     'Desistiu':'Abgesagt',
-    'Inativo / Arquivado':'Inaktiv / Archiviert'
+    'Inativo / Arquivado':'Inaktiv / Archiviert',
+    'Visão geral':'Gesamtüberblick',
+    'Foco em talentos':'Fokus auf Talente',
+    'Base qualificada por idioma e prontidão.':'Qualifizierter Bestand nach Sprachniveau und Einsatzbereitschaft.',
+    'Foco em employers':'Fokus auf Arbeitgeber',
+    'Empresas, cobertura e retorno comercial.':'Unternehmen, Abdeckung und vertriebliche Rückmeldung.',
+    'Foco em curso de alemão':'Fokus auf Deutschkurs',
+    'Supply pipeline e evolução de idioma.':'Talentpipeline und sprachliche Entwicklung.',
+    'Foco em RH readiness':'Fokus auf HR-Bereitschaft',
+    'Entrevistas, decisão e risco operacional.':'Interviews, Entscheidung und operatives Risiko.',
+    'Dashboard BI — Supply, Employers e Conversão':'BI-Dashboard – Talentpool, Arbeitgeber und Konversion',
+    'Toda a operação ativa, com foco em supply e conversão.':'Gesamte aktive Pipeline mit Fokus auf Talentpool und Konversion.',
+    'A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.':'Die Startseite wurde neu ausgerichtet, um Arbeitgeber, Talente, Deutschkurs und HR-Bereitschaft zu priorisieren.',
+    'Toda a operação ativa, com foco em supply e conversão. A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.':'Gesamte aktive Pipeline mit Fokus auf Talentpool und Konversion. Die Startseite wurde neu ausgerichtet, um Arbeitgeber, Talente, Deutschkurs und HR-Bereitschaft zu priorisieren.',
+    'Base qualificada por idioma e prontidão. A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.':'Qualifizierter Bestand nach Sprachniveau und Einsatzbereitschaft. Die Startseite wurde neu ausgerichtet, um Arbeitgeber, Talente, Deutschkurs und HR-Bereitschaft zu priorisieren.',
+    'Empresas, cobertura e retorno comercial. A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.':'Unternehmen, Abdeckung und vertriebliche Rückmeldung. Die Startseite wurde neu ausgerichtet, um Arbeitgeber, Talente, Deutschkurs und HR-Bereitschaft zu priorisieren.',
+    'Supply pipeline e evolução de idioma. A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.':'Talentpipeline und sprachliche Entwicklung. Die Startseite wurde neu ausgerichtet, um Arbeitgeber, Talente, Deutschkurs und HR-Bereitschaft zu priorisieren.',
+    'Entrevistas, decisão e risco operacional. A home foi reposicionada para priorizar employers, talentos, curso de alemão e prontidão RH.':'Interviews, Entscheidung und operatives Risiko. Die Startseite wurde neu ausgerichtet, um Arbeitgeber, Talente, Deutschkurs und HR-Bereitschaft zu priorisieren.',
+    'Geral':'Gesamt',
+    'Talentos':'Talente',
+    'Employers':'Arbeitgeber',
+    'Talentos B1+':'Talente B1+',
+    'Talentos B2+':'Talente B2+',
+    'sem responsável':'ohne Zuständigkeit',
+    'com travas':'mit Blockern',
+    'em risco alto':'im hohen Risiko',
+    'Em curso de alemão':'Im Deutschkurs',
+    'próximos a B1':'nahe an B1',
+    'próximos a B2':'nahe an B2',
+    'Prontos para employer':'Bereit für Arbeitgeber',
+    'sem vínculo employer':'ohne Arbeitgeber-Zuordnung',
+    'Employers ativos':'Aktive Arbeitgeber',
+    'aguardando':'wartend',
+    'com contratação':'mit Einstellung',
+    'Employer intelligence':'Arbeitgeber-Insights',
+    'Cobertura por employer, retorno comercial e fila de conversão.':'Abdeckung pro Arbeitgeber, vertriebliche Rückmeldungen und Konversionspipeline.',
+    'Clique em um employer no ranking ou na lista para abrir a visão dedicada de Employer / Matching.':'Klicken Sie im Ranking oder in der Liste auf einen Arbeitgeber, um die dedizierte Arbeitgeber-/Matching-Ansicht zu öffnen.',
+    'Cobertura de employers':'Arbeitgeberabdeckung',
+    'com cobertura baixa (0–1 candidato)':'mit geringer Abdeckung (0–1 Bewerber)',
+    'Retorno employer':'Arbeitgeber-Rückmeldung',
+    'com aprovados':'mit Freigaben',
+    'com contratados':'mit Einstellungen',
+    'Gargalo de vinculação':'Zuordnungsengpass',
+    'prontos sem employer':'bereit ohne Arbeitgeber',
+    'Prioridades de ação':'Handlungsprioritäten',
+    'Ações imediatas para operação e employer conversion.':'Sofortmaßnahmen für den Betrieb und die Arbeitgeber-Konversion.',
+    'Prontos sem employer':'Bereit ohne Arbeitgeber',
+    'Talentos prontos sem vínculo':'Einsatzbereite Talente ohne Zuordnung',
+    'Sem employer definido':'Kein Arbeitgeber definiert',
+    'No pipeline employer sem empresa':'In der Arbeitgeber-Pipeline ohne Unternehmen',
+    'Talentos sem responsável':'Talente ohne Zuständigkeit',
+    'Sem dono claro na operação':'Ohne klare Zuständigkeit im Betrieb',
+    'Docs travando talentos':'Unterlagen blockieren Talente',
+    'Pendências críticas':'Kritische offene Punkte',
+    'RH readiness':'HR-Bereitschaft',
+    'Cobertura de employers':'Arbeitgeberabdeckung',
+    'Atualizado às':'Aktualisiert um'
   };
 
   const placeholderMap = {
@@ -10211,12 +10309,36 @@ function agNav(dir) {
     let m;
     if (lang === 'de') {
       m = str.match(/^(\d+)\s+candidatos?$/i); if (m) return `${m[1]} Bewerber`;
+      m = str.match(/^(\d+)\s+registros na visão$/i); if (m) return `${m[1]} Datensätze in Ansicht`;
       m = str.match(/^Atualizado em\s+(.+)\s+por\s+(.+)$/i); if (m) return `Aktualisiert am ${m[1]} von ${m[2]}`;
+      m = str.match(/^Atualizado às\s+(.+)$/i); if (m) return `Aktualisiert um ${m[1]}`;
+      m = str.match(/^(\d+)\s+sem responsável\s+·\s+(\d+)\s+com travas$/i); if (m) return `${m[1]} ohne Zuständigkeit · ${m[2]} mit Blockern`;
+      m = str.match(/^(\d+)\s+em risco alto$/i); if (m) return `${m[1]} im hohen Risiko`;
+      m = str.match(/^(\d+)\s+próximos a B1\s+·\s+(\d+)\s+próximos a B2$/i); if (m) return `${m[1]} nahe an B1 · ${m[2]} nahe an B2`;
+      m = str.match(/^(\d+)\s+sem vínculo employer$/i); if (m) return `${m[1]} ohne Arbeitgeber-Zuordnung`;
+      m = str.match(/^(\d+)\s+aguardando\s+·\s+(\d+)\s+com contratação$/i); if (m) return `${m[1]} wartend · ${m[2]} mit Einstellung`;
+      m = str.match(/^(\d+)\s+sem employer definido$/i); if (m) return `${m[1]} ohne definierten Arbeitgeber`;
+      m = str.match(/^(\d+)\s+vínculos\s+\/\s+pipeline$/i); if (m) return `${m[1]} Zuordnungen / Pipeline`;
+      m = str.match(/^(\d+)\s+com cobertura baixa \(0–1 candidato\)$/i); if (m) return `${m[1]} mit geringer Abdeckung (0–1 Bewerber)`;
+      m = str.match(/^(\d+)\s+com aprovados\s+·\s+(\d+)\s+com contratados$/i); if (m) return `${m[1]} mit Freigaben · ${m[2]} mit Einstellungen`;
+      m = str.match(/^(\d+)\s+prontos sem employer$/i); if (m) return `${m[1]} bereit ohne Arbeitgeber`;
       m = str.match(/^Status\s+\(todos\)$/i); if (m) return 'Status (alle)';
       m = str.match(/^Perfil\s+\(todos\)$/i); if (m) return 'Profil (alle)';
     } else {
       m = str.match(/^(\d+)\s+Bewerber$/i); if (m) return `${m[1]} candidatos`;
+      m = str.match(/^(\d+)\s+Datensätze in Ansicht$/i); if (m) return `${m[1]} registros na visão`;
       m = str.match(/^Aktualisiert am\s+(.+)\s+von\s+(.+)$/i); if (m) return `Atualizado em ${m[1]} por ${m[2]}`;
+      m = str.match(/^Aktualisiert um\s+(.+)$/i); if (m) return `Atualizado às ${m[1]}`;
+      m = str.match(/^(\d+)\s+ohne Zuständigkeit\s+·\s+(\d+)\s+mit Blockern$/i); if (m) return `${m[1]} sem responsável · ${m[2]} com travas`;
+      m = str.match(/^(\d+)\s+im hohen Risiko$/i); if (m) return `${m[1]} em risco alto`;
+      m = str.match(/^(\d+)\s+nahe an B1\s+·\s+(\d+)\s+nahe an B2$/i); if (m) return `${m[1]} próximos a B1 · ${m[2]} próximos a B2`;
+      m = str.match(/^(\d+)\s+ohne Arbeitgeber-Zuordnung$/i); if (m) return `${m[1]} sem vínculo employer`;
+      m = str.match(/^(\d+)\s+wartend\s+·\s+(\d+)\s+mit Einstellung$/i); if (m) return `${m[1]} aguardando · ${m[2]} com contratação`;
+      m = str.match(/^(\d+)\s+ohne definierten Arbeitgeber$/i); if (m) return `${m[1]} sem employer definido`;
+      m = str.match(/^(\d+)\s+Zuordnungen\s+\/\s+Pipeline$/i); if (m) return `${m[1]} vínculos / pipeline`;
+      m = str.match(/^(\d+)\s+mit geringer Abdeckung \(0–1 Bewerber\)$/i); if (m) return `${m[1]} com cobertura baixa (0–1 candidato)`;
+      m = str.match(/^(\d+)\s+mit Freigaben\s+·\s+(\d+)\s+mit Einstellungen$/i); if (m) return `${m[1]} com aprovados · ${m[2]} com contratados`;
+      m = str.match(/^(\d+)\s+bereit ohne Arbeitgeber$/i); if (m) return `${m[1]} prontos sem employer`;
       m = str.match(/^Status\s+\(alle\)$/i); if (m) return 'Status (todos)';
       m = str.match(/^Profil\s+\(alle\)$/i); if (m) return 'Perfil (todos)';
     }
@@ -10296,11 +10418,10 @@ function agNav(dir) {
     box.innerHTML = `
       <div>
         <div class="t4-lang-label">Sprache</div>
-        <div style="font-size:11px;color:var(--txt3);margin-top:2px">PT / Hochdeutsch</div>
       </div>
       <div class="t4-lang-toggle" role="tablist" aria-label="Sprachauswahl">
-        <button type="button" class="t4-lang-btn" data-lang="pt">PT</button>
-        <button type="button" class="t4-lang-btn" data-lang="de">DE</button>
+        <button type="button" class="t4-lang-btn" data-lang="pt" aria-label="Português" title="Português">🇧🇷</button>
+        <button type="button" class="t4-lang-btn" data-lang="de" aria-label="Deutsch" title="Deutsch">🇩🇪</button>
       </div>`;
     sidebarBottom.prepend(box);
     box.addEventListener('click', (ev) => {
