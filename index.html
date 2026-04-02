@@ -2919,7 +2919,15 @@ const INTERVIEW_META_EDIT_MAP = {
   'observacao_inicial': 'observacao_inicial',
   'estado_civil_filhos': 'estado_civil_filhos',
   'diploma': 'diploma',
-  'conclusao_da_entrevista': 'conclusao_da_entrevista'
+  'conclusao_da_entrevista': 'conclusao_da_entrevista',
+  'pre_entrevista_data': 'pre_entrevista_data',
+  'pre_entrevista_responsavel': 'pre_entrevista_responsavel',
+  'pre_entrevista_status': 'pre_entrevista_status',
+  'pre_entrevista_fit': 'pre_entrevista_fit',
+  'pre_entrevista_resumo': 'pre_entrevista_resumo',
+  'pre_entrevista_motivo': 'pre_entrevista_motivo',
+  'pre_entrevista_risco': 'pre_entrevista_risco',
+  'pre_entrevista_proxima_acao': 'pre_entrevista_proxima_acao'
 };
 
 function splitInterviewMetaEdits(fields) {
@@ -5530,7 +5538,10 @@ function renderEmployerHub(el) {
       <div class="emp-employer-brief-grid">
         ${mini('Perfis buscados', selectedEmployer.perfis_buscados || selectedEmployer.descricao_resumida || '—')}
         ${mini('Requisitos principais', selectedEmployer.requisitos_principais || selectedEmployer.subsetor || '—')}
-        ${mini('Descrição / observação', selectedEmployer.descricao_operacional || selectedEmployer.observacoes_internas || '—')}
+        ${mini('Resumo operacional', selectedEmployer.descricao_operacional || selectedEmployer.observacoes_internas || '—')}
+        ${mini('Responsável interno', selectedEmployer.responsavel_interno || '—')}
+        ${mini('Origem do lead', selectedEmployer.origem_lead || '—')}
+        ${mini('Tags', Array.isArray(selectedEmployer.tags) ? selectedEmployer.tags.join(', ') : (selectedEmployer.tags || '—'))}
       </div>
     </div>`;
   })() : '';
@@ -6814,11 +6825,59 @@ function buildPanel(tabId, c) {
     </div>`;
     case 't-entrevista': {
       const iv = getActiveInterviewRecord();
+      const preStatusOpts = ['Pendente','Seguir para entrevista','Talvez / revisar','Não seguir'];
+      const preFitOpts = ['Muito forte','Bom potencial','Regular','Fraco'];
+      const metaSource = (S.rhInterviewDraft?.meta || iv?.meta || {});
+      const metaVal = (field, fallback='') => {
+        if (Object.prototype.hasOwnProperty.call(S.pendingEdits, field)) return S.pendingEdits[field] ?? '';
+        const direct = metaSource?.[field];
+        if (String(direct || '').trim()) return direct;
+        return fallback;
+      };
+      const metaFld = (field, label, type='text', opts=[], fullWidth=false) => {
+        const cls = fullWidth ? 'field-group fg-full' : 'field-group';
+        const v = metaVal(field);
+        if (type === 'select') {
+          const options = opts.map(o => `<option value="${esc(o)}" ${String(v)===String(o)?'selected':''}>${esc(o)}</option>`).join('');
+          return `<div class="${cls}">
+            <label class="field-lbl">${label}</label>
+            <div class="field-select-wrap">
+              <select class="field-select" data-field="${esc(field)}" onchange="onEdit(this)">
+                <option value="">— Selecionar —</option>${options}
+              </select>
+            </div>
+          </div>`;
+        }
+        if (type === 'textarea') {
+          return `<div class="${cls}">
+            <label class="field-lbl">${label}</label>
+            <textarea class="field-textarea" data-field="${esc(field)}" oninput="onEdit(this)">${esc(v)}</textarea>
+          </div>`;
+        }
+        return `<div class="${cls}">
+          <label class="field-lbl">${label}</label>
+          <input class="field-input" type="text" data-field="${esc(field)}" value="${esc(v)}" oninput="onEdit(this)">
+        </div>`;
+      };
+      const preInterviewCard = rhSectionCard('Pré-entrevista rápida', `
+        <div class="field-grid">
+          ${metaFld('pre_entrevista_data','Data da pré-entrevista')}
+          ${metaFld('pre_entrevista_responsavel','Responsável da pré-entrevista')}
+          ${metaFld('pre_entrevista_status','Decisão inicial','select',preStatusOpts)}
+          ${metaFld('pre_entrevista_fit','Força do perfil','select',preFitOpts)}
+          ${metaFld('pre_entrevista_proxima_acao','Próxima ação')}
+          <div></div>
+          ${metaFld('pre_entrevista_resumo','Resumo curto da pré-entrevista','textarea',null,true)}
+          ${metaFld('pre_entrevista_motivo','Motivo para seguir / não seguir','textarea',null,true)}
+          ${metaFld('pre_entrevista_risco','Risco ou ressalva principal','textarea',null,true)}
+        </div>
+      `, 'Bloco curto para triagem inicial antes da entrevista completa. Esses dados ficam separados do documento estrutural.');
       if (!iv) {
         return `<div>
+          ${preInterviewCard}
           <div class="section-hdr">Entrevista preliminar</div>
           <div style="border:1px dashed var(--border2);border-radius:16px;padding:16px;background:rgba(255,255,255,.02);color:var(--txt2);line-height:1.55">
-            Nenhuma entrevista estruturada foi vinculada a este candidato ainda. Use o botão <b>Formulário RH</b> para importar o DOCX preenchido.
+            Nenhuma entrevista estruturada foi vinculada a este candidato ainda. Use o botão <b>Formulário RH</b> para importar o DOCX preenchido quando a etapa completa acontecer.
           </div>
           <div class="section-hdr" style="margin-top:14px">Metadados básicos</div>
           <div class="field-grid">
@@ -6834,9 +6893,10 @@ function buildPanel(tabId, c) {
       const m = iv.meta || {};
       const r = iv.respostas || {};
       return `<div>
+        ${preInterviewCard}
         <div class="section-hdr">Entrevista preliminar</div>
         <div style="margin-bottom:14px;color:var(--txt3);font-size:12px;line-height:1.55">
-          Esta aba mostra o conteúdo documental do formulário importado. Aqui deve aparecer o que foi respondido, sem misturar com julgamento interno do RH.
+          Esta aba mostra o conteúdo documental do formulário importado. A pré-entrevista acima serve como filtro rápido e o conteúdo abaixo preserva a entrevista estruturada completa.
         </div>
 
         ${rhSectionCard('Cabeçalho da entrevista', `
@@ -7794,11 +7854,12 @@ async function saveRhInterviewDraft(candidateId, actor) {
   if (!S.rhInterviewDraft || !candidateId) return null;
   const supa = await getSupa();
   const draft = S.rhInterviewDraft;
+  const isDocxDraft = !!(draft.fileName || (draft.respostas && Object.keys(draft.respostas).length));
   const payload = {
     candidate_id: candidateId,
-    template_code: 'entrevista_preliminar_docx_v1',
-    template_nome: 'Template de Entrevista Preliminar',
-    fonte_tipo: 'docx',
+    template_code: isDocxDraft ? 'entrevista_preliminar_docx_v1' : 'pre_entrevista_manual_v1',
+    template_nome: isDocxDraft ? 'Template de Entrevista Preliminar' : 'Pré-entrevista resumida',
+    fonte_tipo: isDocxDraft ? 'docx' : 'manual',
     data_entrevista: rhNormalizePgDate(draft.meta?.data_entrevista),
     entrevistador: draft.meta?.entrevistador || null,
     empresa_cliente: draft.meta?.empresa_cliente || null,
@@ -7814,7 +7875,7 @@ async function saveRhInterviewDraft(candidateId, actor) {
     decisao_operacional_rh: draft.derivados?.decisao_operacional_rh || null,
     proxima_acao: draft.derivados?.proxima_acao || null,
     observacao_interna_final: draft.derivados?.observacao_interna_final || null,
-    status_importacao: 'ok',
+    status_importacao: isDocxDraft ? 'ok' : 'manual',
     conflito_importacao: (draft.conflitos_detectados || []).length ? 'sim' : null,
     warnings_importacao: (draft.meta_warnings || []).join(' | ') || null,
     arquivo_origem_nome: draft.fileName || null,
@@ -8163,7 +8224,7 @@ function shouldIncludeCandidatePdfField(key, value, usedSet) {
   if (/^(id|_score|_rowkey|_idx|_dirty|active|ativo|entrevista_preliminar_id|historico_operacional|created_at|updated_at|ultima_atualizacao|atualizado por|folder_id|file_id|webviewlink|drive_|pdf_|arquivo_origem|campos_sincronizados|conflitos_detectados|raw_html|raw_text|html|json)$/i.test(k)) return false;
   if (/^(meta|respostas|avaliacao|derivados)$/i.test(k)) return false;
   if (/(^|_)(texto|raw|html|json|payload|snapshot|original|importado|debug)(_|$)/i.test(k)) return false;
-  if (/^(entrevista_preliminar_|rh_|dados_basicos_|experiencia_profissional_|situacao_atual_|idiomas_|motivacao_|preferencias_|integracao_|documentacao_|mensagem_final_)/i.test(k)) return false;
+  if (/^(entrevista_preliminar_|pre_entrevista_|rh_|dados_basicos_|experiencia_profissional_|situacao_atual_|idiomas_|motivacao_|preferencias_|integracao_|documentacao_|mensagem_final_)/i.test(k)) return false;
   return true;
 }
 
@@ -8172,7 +8233,9 @@ function buildCandidatePdfHtml(c, interview) {
   const status = fv(c,'STATUS PIPELINE') || '—';
   const perfil = fv(c,'Perfil','perfil') || '—';
   const profissao = fv(c,'Profissão principal','Profissão') || '—';
+  const area = fv(c,'Área profissional','area_profissional') || '—';
   const cidade = fv(c,'Cidade atual') || '—';
+  const pais = fv(c,'País de origem','pais_origem') || '—';
   const alemao = fv(c,'Nível de alemão','Nível alemão','nivel_alemao_declarado') || '—';
   const ingles = fv(c,'Nível de inglês','nivel_ingles_declarado') || '—';
   const docs = isYes(fv(c,'Documentação completa','documentacao_completa')) ? 'Completa' : 'Pendente';
@@ -8187,11 +8250,23 @@ function buildCandidatePdfHtml(c, interview) {
   const statusMigr = fv(c,'status_migratorio_atual','status_migratorio') || '';
   const workCurrent = fv(c,'trabalho_atual','Trabalho atual') || '';
   const restricoes = fv(c,'restricoes_objetivas','Restrições objetivas') || '';
-  const motivacao = fv(c,'motivacao_real','Motivação real','motivacao_vaga_especifica','porque_alemanha') || '';
-  const aderencia = fv(c,'aderencia_tecnica_avaliada','Aderência técnica avaliada','aderencia_tecnica_vaga') || '';
-  const expIntl = fv(c,'experiencia_internacional_previa','Experiência internacional prévia') || '';
-  const redeApoio = fv(c,'rede_apoio_europa','Rede de apoio','rede_apoio') || '';
-  const mudancaFamilia = fv(c,'mudanca_sozinho_ou_familia','Mudança sozinho ou com família') || '';
+  const telefone = fv(c,'Telefone','telefone') || '';
+  const email = fv(c,'E-mail','email') || '';
+  const idade = fv(c,'Idade','idade') || '';
+  const estadoCivil = fv(c,'Estado civil','estado_civil') || '';
+  const filhos = [fv(c,'Filho','Tem filhos?'), fv(c,'Idade filho','Idade filho(s)')].filter(Boolean).join(' | ');
+  const conjugue = fv(c,'Profissão do cônjuge','profissao_conjuge') || '';
+  const universidade = fv(c,'Universidade','universidade') || '';
+  const graduacao = fv(c,'Curso de Graduação','Diploma','diploma') || '';
+  const pos = fv(c,'Curso','Pós-graduação','pos_graduacao') || '';
+  const resumoProf = fv(c,'Resumo profissional','resumo_profissional') || '';
+  const idiomasAdicionais = fv(c,'Língua Estrangeira','idiomas_adicionais','idiomas') || '';
+  const resultadoProva = fv(c,'Resultado da prova','resultado_da_prova') || '';
+  const passaporte = fv(c,'Número do passaporte','numero_passaporte') || '';
+  const documentoProf = fv(c,'Documento profissional (COREN, CRM, CREA, outro)','documento_profissional') || '';
+  const pendenciaCritica = fv(c,'Pendência documental crítica','pendencia_documental_critica') || '';
+  const referencia = fv(c,'Referência','referencia') || '';
+  const arquivoInterno = fv(c,'CV/ ARQUIVO DOC','Arquivo / Fonte interna','cv_arquivo_doc') || '';
   const tags = [];
   tags.push(pdfBadge(status, 'blue'));
   if (perfil && perfil !== '—') tags.push(pdfBadge(perfil.replace('Candidato ','') || perfil, /forte/i.test(perfil) ? 'green' : /m[eé]dio/i.test(perfil) ? 'yellow' : 'red'));
@@ -8202,7 +8277,7 @@ function buildCandidatePdfHtml(c, interview) {
   const employerTags = matches.length
     ? matches.map(m => {
         const nome = m.employers?.nome || m.empregador_id || '—';
-        const extra = [m.status_vinculo, m.match_strength].filter(Boolean).join(' · ');
+        const extra = [m.status_vinculo, m.match_strength, m.is_primary ? 'Principal' : ''].filter(Boolean).join(' · ');
         return `<div style="padding:10px 12px;border:1px solid #dbe4f0;border-radius:12px;background:#fff">
           <div style="font-size:12px;font-weight:900;color:#0f172a">${esc(nome)}</div>
           <div style="font-size:11px;color:#64748b;margin-top:4px">${esc(extra || 'Vínculo ativo')}</div>
@@ -8211,93 +8286,70 @@ function buildCandidatePdfHtml(c, interview) {
     : `<div style="padding:10px 12px;border:1px dashed #cbd5e1;border-radius:12px;background:#fff;color:#64748b;font-size:12px">Nenhum employer N:N vinculado.</div>`;
 
   const interviewMeta = interview?.meta || {};
-  const interviewRes = interview?.respostas || {};
-  const interviewAva = interview?.avaliacao || {};
-  const interviewFields = [
+  const interviewSummaryFields = [
+    ['Status da pré-entrevista', interviewMeta.pre_entrevista_status],
+    ['Força do perfil', interviewMeta.pre_entrevista_fit],
+    ['Resumo da pré-entrevista', interviewMeta.pre_entrevista_resumo],
+    ['Motivo para seguir / não seguir', interviewMeta.pre_entrevista_motivo],
+    ['Risco principal', interviewMeta.pre_entrevista_risco],
+    ['Próxima ação da pré-entrevista', interviewMeta.pre_entrevista_proxima_acao],
     ['Data da entrevista', interviewMeta.data_entrevista || fv(c,'entrevista_preliminar_data','Data da Entrevista')],
     ['Entrevistador(a)', interviewMeta.entrevistador || fv(c,'entrevista_preliminar_entrevistador','Avaliador')],
-    ['Empresa / cliente', interviewMeta.empresa_cliente || fv(c,'empresa_cliente','Empresa / Cliente')],
-    ['Posição / vaga', interviewMeta.posicao_vaga || fv(c,'posicao_vaga','Posição / Vaga')],
-    ['Estado civil / filhos', interviewMeta.estado_civil_filhos_docx || fv(c,'estado_civil','Estado civil')],
-    ['Tipo de vaga', interviewMeta.tipo_vaga || fv(c,'tipo_vaga_preferido','Tipo de candidato')],
-    ['Diploma', interviewMeta.diploma_docx || fv(c,'diploma','Curso de Graduação')],
-    ['Nível de alemão', interviewMeta.nivel_alemao_exigido || fv(c,'nivel_alemao_declarado','Nível de alemão')],
-    ['Observação inicial', interviewMeta.observacao_inicial || fv(c,'Observação','observacoes_internas')],
-    ['Conclusão da entrevista', interviewMeta.conclusao_entrevista_docx || fv(c,'resultado_entrevista')]
-  ];
-
-  const detailedSections = [];
-  if (interviewRes && typeof interviewRes === 'object') {
-    const sectionMap = {
-      dados_basicos_identificacao: 'Dados básicos e identificação',
-      experiencia_profissional: 'Experiência profissional',
-      situacao_atual_disponibilidade: 'Situação atual e disponibilidade',
-      idiomas: 'Idiomas',
-      motivacao_objetivo_profissional: 'Motivação e objetivo profissional',
-      preferencias_profissionais: 'Preferências profissionais',
-      integracao_familia_adaptacao: 'Integração cultural, familiar e adaptação',
-      documentacao_riscos_viabilidade: 'Documentação, riscos e viabilidade',
-      mensagem_final: 'Mensagem final'
-    };
-    Object.entries(sectionMap).forEach(([groupKey, label]) => {
-      const group = interviewRes[groupKey];
-      if (!group || typeof group !== 'object') return;
-      const cards = Object.entries(group)
-        .filter(([,v]) => String(v || '').trim())
-        .map(([k,v]) => pdfField(rhFieldDisplayName(k), v))
-        .join('');
-      if (cards) detailedSections.push(pdfSection(label, cards));
-    });
-  }
-
-  const avaliacaoCards = Object.entries({
-    'Clareza na comunicação': interviewAva.clareza_na_comunicacao,
-    'Nível de alemão percebido': interviewAva.nivel_alemao_percebido,
-    'Aderência técnica à vaga': interviewAva.aderencia_tecnica_a_vaga,
-    'Maturidade profissional': interviewAva.maturidade_profissional,
-    'Motivação real para a Alemanha': interviewAva.motivacao_real_para_alemanha,
-    'Flexibilidade e adaptação': interviewAva.flexibilidade_e_adaptacao,
-    'Risco de desistência': interviewAva.risco_de_desistencia
-  }).filter(([,v]) => String(v || '').trim()).map(([k,v]) => pdfField(k, v)).join('');
+    ['Empresa / cliente', interviewMeta.empresa_cliente || fv(c,'entrevista_preliminar_empresa_cliente','Empresa / Cliente')],
+    ['Posição / vaga', interviewMeta.posicao_vaga || fv(c,'entrevista_preliminar_posicao_vaga','posicao_vaga')],
+    ['Conclusão da entrevista', interviewMeta.conclusao_da_entrevista || interviewMeta.conclusao_entrevista_docx || fv(c,'resultado_entrevista')],
+    ['Resumo RH curto', resumoRh]
+  ].filter(([,v]) => String(v || '').trim());
 
   const used = new Set([
-    'nome completo','status pipeline','perfil','profissao principal','profissão','cidade atual','nível de alemão','nível alemão','nível de inglês',
-    'documentação completa','resumo rh curto','responsável interno','avaliador','expectativa salarial','status migratório','status migratorio atual',
-    'disponibilidade para mudança','restrições objetivas','motivação real','aderência técnica avaliada','experiência internacional prévia',
-    'rede de apoio','mudança sozinho ou com família','pronto para employer','trabalho atual','readiness internacional',
-    'risco de desistência','maturidade profissional','flexibilidade e adaptação','autonomia prática','faixa de atuação aceitável',
-    'data da entrevista','entrevistador(a)','empresa / cliente','posição / vaga','estado civil / filhos','tipo de vaga','diploma','observação inicial','conclusão da entrevista'
+    'nome completo','status pipeline','perfil','profissao principal','profissão','área profissional','cidade atual','país de origem',
+    'nível de alemão','nível alemão','nível de inglês','documentação completa','responsável interno','avaliador','telefone','e-mail','idade',
+    'estado civil','filho','idade filho','profissão do cônjuge','curso de graduação','diploma','universidade','curso','pós-graduação',
+    'resumo profissional','língua estrangeira','idiomas','resultado da prova','disponibilidade para mudança','status migratório','status migratorio atual',
+    'trabalho atual','expectativa salarial','número do passaporte','documento profissional','pendência documental crítica','referência','arquivo / fonte interna',
+    'cv/ arquivo doc','resumo rh curto','pronto para employer'
   ].map(rhNormLabel));
 
-  const complementaryFields = [
-    ['Telefone', fv(c,'Telefone','telefone')],
-    ['E-mail', fv(c,'E-mail','email')],
-    ['Idade', fv(c,'Idade','idade')],
-    ['País de origem', fv(c,'País de origem','pais_origem')],
-    ['Formação principal', fv(c,'Curso de Graduação','Diploma','diploma')],
-    ['Curso / pós-graduação', fv(c,'Curso','Pós-graduação','pos_graduacao')],
-    ['Universidade', fv(c,'Universidade','universidade')],
-    ['Idiomas adicionais', fv(c,'Língua Estrangeira','idiomas_adicionais','idiomas')],
-    ['Passaporte', fv(c,'Número do passaporte','numero_passaporte')],
-    ['Documento profissional', fv(c,'Documento profissional (COREN, CRM, CREA, outro)','documento_profissional')],
-    ['Pendência documental crítica', fv(c,'Pendência documental crítica','pendencia_documental_critica')],
-    ['Resumo profissional', fv(c,'Resumo profissional','resumo_profissional')],
-    ['Referência', fv(c,'Referência','referencia')],
-    ['Arquivo / Fonte interna', fv(c,'CV/ Arquivo DOC','Arquivo / Fonte interna','cv_arquivo_doc')]
-  ];
-  const complementarySeen = new Set();
-  const complementaryCards = complementaryFields
-    .filter(([label, value]) => {
-      const val = pdfTrimValue(value, 900);
-      if (!val) return false;
-      const norm = rhNormLabel(label);
-      if (complementarySeen.has(norm)) return false;
-      complementarySeen.add(norm);
-      used.add(norm);
-      return true;
-    })
-    .map(([label, value]) => pdfField(label, value))
-    .join('');
+  const personalCards = [
+    pdfField('Nome completo', name),
+    pdfField('Telefone', telefone),
+    pdfField('E-mail', email),
+    pdfField('Idade', idade),
+    pdfField('País de origem', pais),
+    pdfField('Cidade atual', cidade),
+    pdfField('Estado civil', estadoCivil),
+    pdfField('Filhos', filhos),
+    pdfField('Profissão do cônjuge', conjugue)
+  ].join('');
+
+  const professionalCards = [
+    pdfField('Profissão principal', profissao),
+    pdfField('Área profissional', area),
+    pdfField('Curso de graduação / diploma', graduacao),
+    pdfField('Universidade', universidade),
+    pdfField('Curso / pós-graduação', pos),
+    pdfField('Resumo profissional', resumoProf),
+    pdfField('Alemão', alemao),
+    pdfField('Inglês', ingles),
+    pdfField('Idiomas adicionais', idiomasAdicionais),
+    pdfField('Resultado da prova', resultadoProva)
+  ].join('');
+
+  const opsCards = [
+    pdfField('Documentação', docs),
+    pdfField('Pendência documental crítica', pendenciaCritica),
+    pdfField('Passaporte', passaporte),
+    pdfField('Documento profissional', documentoProf),
+    pdfField('Prontidão', prontidao),
+    pdfField('Responsável interno', responsavel),
+    pdfField('Disponibilidade para mudança', disponibilidade),
+    pdfField('Trabalho atual', workCurrent),
+    pdfField('Status migratório', statusMigr),
+    pdfField('Expectativa salarial', expectativa),
+    pdfField('Próxima ação', ops?.acao || ''),
+    pdfField('Referência', referencia),
+    pdfField('Arquivo / Fonte interna', arquivoInterno)
+  ].join('');
 
   const extraSeen = new Set();
   const extraRows = Object.entries(c || {})
@@ -8311,7 +8363,7 @@ function buildCandidatePdfHtml(c, interview) {
       used.add(displayNorm);
       return true;
     })
-    .slice(0, 16)
+    .slice(0, 36)
     .map(([k,v]) => pdfField(rhFieldDisplayName(k), v))
     .join('');
 
@@ -8321,7 +8373,7 @@ function buildCandidatePdfHtml(c, interview) {
       <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start">
         <div>
           <div style="font-size:28px;font-weight:900;line-height:1.1">${esc(name)}</div>
-          <div style="font-size:14px;color:#d7e2f5;margin-top:8px">${esc(profissao)}</div>
+          <div style="font-size:14px;color:#d7e2f5;margin-top:8px">${esc([profissao, area !== '—' ? area : ''].filter(Boolean).join(' · '))}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">${tags.join('')}</div>
         </div>
         <div style="min-width:180px;text-align:right">
@@ -8332,50 +8384,17 @@ function buildCandidatePdfHtml(c, interview) {
       </div>
     </div>
 
-    ${pdfSection('Resumo executivo', [
-      pdfField('Cidade atual', cidade),
-      pdfField('Alemão', alemao),
-      pdfField('Inglês', ingles),
-      pdfField('Documentação', docs),
-      pdfField('Prontidão', prontidao),
-      pdfField('Responsável interno', responsavel),
-      pdfField('Próxima ação', ops?.acao || ''),
-      pdfField('Resumo RH', resumoRh || '')
-    ].join(''))}
+    ${pdfSection('Dados pessoais e contato', personalCards, 'Informações principais do candidato primeiro, em formato direto para consulta.')}
 
-    ${pdfSection('Disponibilidade, mobilidade e viabilidade', [
-      pdfField('Disponibilidade para mudança', disponibilidade),
-      pdfField('Trabalho atual', workCurrent),
-      pdfField('Status migratório', statusMigr),
-      pdfField('Expectativa salarial', expectativa),
-      pdfField('Rede de apoio', redeApoio),
-      pdfField('Mudança sozinho ou com família', mudancaFamilia),
-      pdfField('Experiência internacional prévia', expIntl),
-      pdfField('Restrições objetivas', restricoes)
-    ].join(''))}
+    ${pdfSection('Perfil profissional e idiomas', professionalCards)}
 
-    ${pdfSection('Fit técnico e motivação', [
-      pdfField('Aderência técnica', aderencia),
-      pdfField('Motivação', motivacao),
-      pdfField('Readiness internacional', fv(c,'readiness_internacional') || ''),
-      pdfField('Risco de desistência', fv(c,'risco_desistencia') || ''),
-      pdfField('Maturidade profissional', fv(c,'maturidade_profissional_avaliada') || ''),
-      pdfField('Flexibilidade e adaptação', fv(c,'flexibilidade_adaptacao_avaliada') || ''),
-      pdfField('Autonomia prática', fv(c,'autonomia_pratica') || ''),
-      pdfField('Faixa de atuação aceitável', fv(c,'faixa_atuacao_aceitavel') || '')
-    ].join(''))}
+    ${pdfSection('Situação atual, documentação e operação', opsCards)}
 
     ${pdfSection('Employers vinculados', employerTags, 'Vínculos N:N e empregador principal, quando existirem.')}
 
-    ${pdfSection('Entrevista estruturada — cabeçalho', interviewFields.filter(([,v]) => String(v || '').trim()).map(([k,v]) => pdfField(k, v)).join('') || pdfField('Entrevista', 'Nenhum registro estruturado encontrado.'))}
+    ${interviewSummaryFields.length ? pdfSection('Resumo curto de entrevista e RH', interviewSummaryFields.map(([k,v]) => pdfField(k, v)).join(''), 'Somente o mínimo necessário. O conteúdo completo segue no documento estruturado do Drive.') : ''}
 
-    ${detailedSections.join('')}
-
-    ${avaliacaoCards ? pdfSection('Avaliação interna do entrevistador', avaliacaoCards) : ''}
-
-    ${complementaryCards ? pdfSection('Informações complementares do cadastro', complementaryCards, 'Campos relevantes do cadastro principal, sem repetição desnecessária.') : ''}
-
-    ${extraRows ? pdfSection('Campos adicionais relevantes', extraRows, 'Seleção automática e deduplicada de campos extras não vazios.') : ''}
+    ${extraRows ? pdfSection('Outros dados relevantes do cadastro', extraRows, 'Campos adicionais do cadastro principal, sem incluir blocos longos de entrevista ou análise RH.') : ''}
   </div>`;
 }
 
@@ -10010,5 +10029,321 @@ function agNav(dir) {
   renderView();
 }
 </script>
+
+<style id="t4-i18n-style">
+.t4-lang-box{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,#0e1326,#0a0f1d)}
+.t4-lang-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+.t4-lang-toggle{display:inline-flex;align-items:center;background:#0a1020;border:1px solid var(--border);border-radius:999px;padding:3px;gap:4px}
+.t4-lang-btn{min-width:48px;height:30px;border:none;border-radius:999px;background:transparent;color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer;padding:0 12px}
+.t4-lang-btn.active{background:linear-gradient(135deg,#4f78ff,#7a5cff);color:#fff;box-shadow:0 6px 18px rgba(79,120,255,.28)}
+</style>
+<script id="t4-i18n-script">
+(function(){
+  const LANG_KEY = 't4_lang';
+  let currentLang = localStorage.getItem(LANG_KEY) || 'pt';
+
+  const exactMap = {
+    'Principal':'Hauptbereich',
+    'Pipeline':'Pipeline',
+    'Base de talentos':'Talentpool',
+    'Sistema':'System',
+    'Dashboard BI':'BI-Dashboard',
+    'Kanban Pipeline':'Kanban-Pipeline',
+    'Talentos Prioritários':'Priorisierte Talente',
+    'Triagem':'Erstsichtung',
+    'Entrevistas':'Interviews',
+    'Análise RH':'HR-Analyse',
+    'Curso de Alemão':'Deutschkurs',
+    'Documentação':'Unterlagen',
+    'Employer / Matching':'Arbeitgeber / Matching',
+    'Agenda / Entrevistas':'Termine / Interviews',
+    'Candidatos':'Bewerber',
+    'Inativos':'Inaktive',
+    'Configurações':'Einstellungen',
+    'Novo Candidato':'Neuer Bewerber',
+    'Novo candidato':'Neuer Bewerber',
+    'Somente o nome é necessário':'Es wird nur der Name benötigt',
+    'Currículo PDF':'Lebenslauf-PDF',
+    'Nome completo':'Vollständiger Name',
+    'E-mail':'E-Mail',
+    'Telefone':'Telefon',
+    'Cidade atual':'Aktueller Wohnort',
+    'Salvar':'Speichern',
+    'Fechar':'Schließen',
+    'Formulário RH':'HR-Formular',
+    'Pessoal':'Persönlich',
+    'Profissional':'Beruflich',
+    'Entrevista':'Interview',
+    'Pré-entrevista rápida':'Kurzvorprüfung',
+    'Status atual':'Aktueller Status',
+    'Próxima ação':'Nächster Schritt',
+    'Idioma':'Sprache',
+    'Employer':'Arbeitgeber',
+    'Prontidão':'Einsatzbereitschaft',
+    'Documento':'Dokument',
+    'Campos preparados':'Vorbereitete Felder',
+    'Preservados':'Beibehalten',
+    'Conflitos':'Konflikte',
+    'Importação da entrevista':'Interviewimport',
+    'Conflitos detectados':'Erkannte Konflikte',
+    'Campos preservados':'Beibehaltene Felder',
+    'Resumo operacional':'Operative Zusammenfassung',
+    'Histórico de alterações':'Änderungsverlauf',
+    'Metadados básicos':'Grundlegende Metadaten',
+    'Data da entrevista':'Interviewdatum',
+    'Avaliador responsável':'Zuständige Beurteilung',
+    'Empresa / cliente':'Unternehmen / Kunde',
+    'Posição / vaga':'Position / Stelle',
+    'Tipo de vaga':'Stellenart',
+    'Nível de alemão exigido':'Erforderliches Deutschniveau',
+    'Candidato':'Bewerber',
+    'Estado Civil / Filhos':'Familienstand / Kinder',
+    'Diploma':'Abschluss',
+    'Nível de alemão':'Deutschkenntnisse',
+    'Observação:':'Anmerkung:',
+    'Conclusão da entrevista':'Interviewfazit',
+    'Sem responsável':'Ohne Zuständigkeit',
+    'Pendência crítica':'Kritischer offener Punkt',
+    'Doc. incompleta':'Unterlagen unvollständig',
+    'Idioma insuficiente':'Sprachniveau unzureichend',
+    'Parado +30d':'Stillstand >30 Tage',
+    'Pronto para employer':'Bereit für Arbeitgeber',
+    'Curso sem previsão':'Kurs ohne Termin',
+    'Todos os status':'Alle Status',
+    'Substatus (todos)':'Unterstatus (alle)',
+    'Prioridade (todas)':'Priorität (alle)',
+    'Alemão (todos)':'Deutsch (alle)',
+    'Perfil (todos)':'Profil (alle)',
+    'Profissão (todas)':'Beruf (alle)',
+    'Nome':'Name',
+    'Alemão':'Deutsch',
+    'Profissão':'Beruf',
+    'Cidade':'Stadt',
+    'Disponibilidade':'Verfügbarkeit',
+    'Novo candidato':'Neuer Bewerber',
+    'Pendente':'Ausstehend',
+    'Aguardando retorno':'Warten auf Rückmeldung',
+    'Pronto para entrevista':'Bereit für Interview',
+    'Employer vinculado':'Zugeordneter Arbeitgeber',
+    'Status do vínculo':'Status der Zuordnung',
+    'Elegível para employer?':'Für Arbeitgeber geeignet?',
+    'Status employer':'Arbeitgeberstatus',
+    'Data envio employer':'Versanddatum an Arbeitgeber',
+    'Retorno employer':'Rückmeldung des Arbeitgebers',
+    'Nenhuma entrevista estruturada foi vinculada a este candidato ainda. Use o botão Formulário RH para importar o DOCX preenchido.':'Diesem Bewerber wurde noch kein strukturiertes Interview zugeordnet. Verwenden Sie die Schaltfläche „HR-Formular“, um das ausgefüllte DOCX zu importieren.',
+    'Nenhum employer vinculado':'Kein Arbeitgeber zugeordnet',
+    'Crie o primeiro empregador para começar o mapeamento.':'Legen Sie den ersten Arbeitgeber an, um das Matching zu starten.',
+    'Próximas entrevistas':'Nächste Interviews',
+    'Legenda':'Legende',
+    'Hoje':'Heute',
+    'Mês':'Monat',
+    'Semana':'Woche',
+    '+ Agendar':'+ Termin',
+    'Configurações':'Einstellungen',
+    'Sem resultados':'Keine Ergebnisse',
+    'Nenhum resultado':'Kein Ergebnis',
+    'Ativo':'Aktiv',
+    'Inativo':'Inaktiv',
+    'ativo':'aktiv',
+    'inativo':'inaktiv',
+    'pausado':'pausiert',
+    'empregador':'Arbeitgeber',
+    'canal regional':'Regionalpartner',
+    'parceiro':'Partner',
+    'outro':'Sonstiges',
+    'Área de atuação':'Tätigkeitsbereich',
+    'Subsetor / especialidade':'Teilbereich / Spezialisierung',
+    'Descrição resumida':'Kurzbeschreibung',
+    'Descrição operacional interna':'Interne operative Beschreibung',
+    'País':'Land',
+    'Região / estado':'Region / Bundesland',
+    'Site':'Website',
+    'Contato principal':'Hauptansprechpartner',
+    'E-mail principal':'Haupt-E-Mail',
+    'Idioma exigido':'Erforderliche Sprache',
+    'Nível mínimo de alemão':'Mindestniveau Deutsch',
+    'Vagas em aberto':'Offene Stellen',
+    'Perfis buscados':'Gesuchte Profile',
+    'Requisitos principais':'Wichtigste Anforderungen',
+    'Diferenciais desejáveis':'Wünschenswerte Pluspunkte',
+    'Observações internas':'Interne Hinweise',
+    'Prioridade comercial':'Vertriebspriorität',
+    'Origem do lead':'Lead-Quelle',
+    'Data do último contato':'Datum des letzten Kontakts',
+    'Responsável interno':'Interne Zuständigkeit',
+    'Tags':'Tags',
+    'PDF':'PDF',
+    'Saída':'Austritt',
+    'Jurídico':'Recht',
+    'Aprovado / Pronto':'Freigegeben / Bereit',
+    'Contratado':'Eingestellt',
+    'Pré-seleção':'Vorauswahl',
+    'Novo candidato':'Neuer Bewerber',
+    'Matching Instituição':'Institutions-Matching',
+    'Curso de alemão':'Deutschkurs',
+    'Não qualificado/ base de dados':'Nicht qualifiziert / Datenbank',
+    'Desistiu':'Abgesagt',
+    'Inativo / Arquivado':'Inaktiv / Archiviert'
+  };
+
+  const placeholderMap = {
+    'Nome completo':'Vollständiger Name',
+    'email@exemplo.com':'beispiel@firma.de',
+    'Telefone':'Telefon',
+    'Cidade atual':'Aktueller Wohnort',
+    'Todos os status':'Alle Status',
+    'Substatus (todos)':'Unterstatus (alle)',
+    'Prioridade (todas)':'Priorität (alle)',
+    'Alemão (todos)':'Deutsch (alle)',
+    'Perfil (todos)':'Profil (alle)',
+    'Profissão (todas)':'Beruf (alle)'
+  };
+
+  const titleMap = {
+    'Preencher campos a partir de um PDF de currículo':'Felder anhand einer Lebenslauf-PDF ausfüllen'
+  };
+
+  const reverseMap = Object.fromEntries(Object.entries(exactMap).map(([pt,de]) => [de, pt]));
+  const reversePlaceholderMap = Object.fromEntries(Object.entries(placeholderMap).map(([pt,de]) => [de, pt]));
+  const reverseTitleMap = Object.fromEntries(Object.entries(titleMap).map(([pt,de]) => [de, pt]));
+
+  function regexTranslate(str, lang){
+    let m;
+    if (lang === 'de') {
+      m = str.match(/^(\d+)\s+candidatos?$/i); if (m) return `${m[1]} Bewerber`;
+      m = str.match(/^Atualizado em\s+(.+)\s+por\s+(.+)$/i); if (m) return `Aktualisiert am ${m[1]} von ${m[2]}`;
+      m = str.match(/^Status\s+\(todos\)$/i); if (m) return 'Status (alle)';
+      m = str.match(/^Perfil\s+\(todos\)$/i); if (m) return 'Profil (alle)';
+    } else {
+      m = str.match(/^(\d+)\s+Bewerber$/i); if (m) return `${m[1]} candidatos`;
+      m = str.match(/^Aktualisiert am\s+(.+)\s+von\s+(.+)$/i); if (m) return `Atualizado em ${m[1]} por ${m[2]}`;
+      m = str.match(/^Status\s+\(alle\)$/i); if (m) return 'Status (todos)';
+      m = str.match(/^Profil\s+\(alle\)$/i); if (m) return 'Perfil (todos)';
+    }
+    return null;
+  }
+
+  function translateString(raw, lang, map, reverse){
+    if (typeof raw !== 'string') return raw;
+    const trimmed = raw.trim();
+    if (!trimmed) return raw;
+    const replacement = (lang === 'de' ? (map[trimmed] || regexTranslate(trimmed, 'de')) : (reverse[trimmed] || regexTranslate(trimmed, 'pt')));
+    if (!replacement || replacement === trimmed) return raw;
+    const start = raw.indexOf(trimmed);
+    return raw.slice(0, start) + replacement + raw.slice(start + trimmed.length);
+  }
+
+  function processTextNodes(root){
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        if (!node.parentElement) return NodeFilter.FILTER_REJECT;
+        const tag = node.parentElement.tagName;
+        if (['SCRIPT','STYLE','TEXTAREA','CODE','PRE'].includes(tag)) return NodeFilter.FILTER_REJECT;
+        if (node.parentElement.closest('#t4-lang-box')) return NodeFilter.FILTER_REJECT;
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_SKIP;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const list = [];
+    while (walker.nextNode()) list.push(walker.currentNode);
+    for (const node of list) {
+      const translated = translateString(node.nodeValue, currentLang, exactMap, reverseMap);
+      if (translated !== node.nodeValue) node.nodeValue = translated;
+    }
+  }
+
+  function processAttributes(root){
+    (root.querySelectorAll ? root.querySelectorAll('[placeholder],[title],[aria-label]') : []).forEach(el => {
+      if (el.hasAttribute('placeholder')) {
+        const oldVal = el.getAttribute('placeholder') || '';
+        const newVal = translateString(oldVal, currentLang, placeholderMap, reversePlaceholderMap);
+        if (newVal !== oldVal) el.setAttribute('placeholder', newVal);
+      }
+      if (el.hasAttribute('title')) {
+        const oldVal = el.getAttribute('title') || '';
+        const newVal = translateString(oldVal, currentLang, titleMap, reverseTitleMap);
+        if (newVal !== oldVal) el.setAttribute('title', newVal);
+      }
+      if (el.hasAttribute('aria-label')) {
+        const oldVal = el.getAttribute('aria-label') || '';
+        const newVal = translateString(oldVal, currentLang, exactMap, reverseMap);
+        if (newVal !== oldVal) el.setAttribute('aria-label', newVal);
+      }
+    });
+    (root.querySelectorAll ? root.querySelectorAll('option') : []).forEach(opt => {
+      const txt = opt.textContent || '';
+      const translated = translateString(txt, currentLang, exactMap, reverseMap);
+      if (translated !== txt) opt.textContent = translated;
+    });
+  }
+
+  function applyLanguage(root){
+    if (!document.body) return;
+    const scope = root && root.nodeType === 1 ? root : document.body;
+    processTextNodes(scope);
+    processAttributes(scope);
+    document.documentElement.lang = currentLang === 'de' ? 'de' : 'pt-BR';
+    document.title = currentLang === 'de' ? 'T4 Operations — CRM Enterprise' : 'T4 Operations — CRM Enterprise';
+    updateSwitchUI();
+  }
+
+  function injectSwitch(){
+    const sidebarBottom = document.querySelector('.sidebar-bottom');
+    if (!sidebarBottom || document.getElementById('t4-lang-box')) return;
+    const box = document.createElement('div');
+    box.id = 't4-lang-box';
+    box.className = 't4-lang-box';
+    box.innerHTML = `
+      <div>
+        <div class="t4-lang-label">Sprache</div>
+        <div style="font-size:11px;color:var(--txt3);margin-top:2px">PT / Hochdeutsch</div>
+      </div>
+      <div class="t4-lang-toggle" role="tablist" aria-label="Sprachauswahl">
+        <button type="button" class="t4-lang-btn" data-lang="pt">PT</button>
+        <button type="button" class="t4-lang-btn" data-lang="de">DE</button>
+      </div>`;
+    sidebarBottom.prepend(box);
+    box.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.t4-lang-btn');
+      if (!btn) return;
+      const next = btn.dataset.lang || 'pt';
+      if (next === currentLang) return;
+      currentLang = next;
+      localStorage.setItem(LANG_KEY, currentLang);
+      applyLanguage(document.body);
+    });
+    updateSwitchUI();
+  }
+
+  function updateSwitchUI(){
+    const box = document.getElementById('t4-lang-box');
+    if (!box) return;
+    box.querySelectorAll('.t4-lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
+  }
+
+  let timer = null;
+  function scheduleApply(target){
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      injectSwitch();
+      applyLanguage(document.body);
+    }, 80);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    injectSwitch();
+    applyLanguage(document.body);
+    const mo = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.target && m.target.id === 't4-lang-box') continue;
+        if ([...m.addedNodes].some(n => n.id === 't4-lang-box')) continue;
+      }
+      scheduleApply(document.body);
+    });
+    mo.observe(document.body, { childList:true, subtree:true });
+  });
+})();
+</script>
+
 </body>
 </html>
