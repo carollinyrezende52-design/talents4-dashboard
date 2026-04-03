@@ -2634,7 +2634,7 @@ async function handleMfaPrimaryAction() {
   setMfaError('');
   const btn = document.getElementById('mfa-primary-btn');
   const original = btn?.textContent || 'Continuar';
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Processando...'; }
+  if (btn) { btn.disabled = true; btn.textContent = `⏳ ${_parserTranslate('Processando...')}`; }
   try {
     if (S.mfaDialog.mode === 'setup') await verifyAdminMfaEnrollment();
     else if (S.mfaDialog.mode === 'verify') await verifyAdminMfaChallenge();
@@ -9486,6 +9486,30 @@ function triggerCurriculumImport() {
   document.getElementById('n-pdf-input').click();
 }
 
+function _parserTranslate(raw) {
+  try { return uiTranslate(raw); } catch(_) { return String(raw || ''); }
+}
+function _parserTranslateList(items) {
+  return (Array.isArray(items) ? items : []).map(item => _parserTranslate(String(item || '')));
+}
+function _parserBackendMetaSummary(meta = {}) {
+  const warnings = Array.isArray(meta?.warnings) ? meta.warnings : [];
+  const missing = Array.isArray(meta?.missing_fields) ? meta.missing_fields : [];
+  const engineRaw = String(meta?.engine || '').toLowerCase();
+  const engineLabel = engineRaw === 'openai'
+    ? _parserTranslate('Parser externo')
+    : _parserTranslate('Fallback determinístico');
+  const modelLabel = meta?.model ? String(meta.model) : '—';
+  return {
+    engineLabel,
+    modelLabel,
+    warnings: _parserTranslateList(warnings),
+    missing: _parserTranslateList(missing),
+    requestId: meta?.request_id ? String(meta.request_id) : '—',
+    usedExternal: !!meta?.used_external_parser,
+  };
+}
+
 // Referência ao arquivo PDF pendente de upload (mantido até o candidato ser salvo)
 let _pendingCurriculumFile = null;
 
@@ -9495,7 +9519,7 @@ async function handleCurriculumFile(input) {
   if (!file) return;
 
   if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-    toast('⚠ Apenas arquivos PDF são aceitos neste fluxo.', 'warn', 5000);
+    toast(`⚠ ${_parserTranslate('Apenas arquivos PDF são aceitos neste fluxo.')}`, 'warn', 5000);
     return;
   }
 
@@ -9503,15 +9527,15 @@ async function handleCurriculumFile(input) {
   const btn      = document.getElementById('n-cv-btn');
 
   statusEl.style.display = 'block';
-  statusEl.innerHTML = `<div class="doc-parse-bar"><span class="doc-ico">⏳</span><span class="doc-msg">Processando currículo, preservando layout e identificando campos do cadastro...</span></div>`;
+  statusEl.innerHTML = `<div class="doc-parse-bar"><span class="doc-ico">⏳</span><span class="doc-msg">${esc(_parserTranslate('Processando currículo, preservando layout e identificando campos do cadastro...'))}</span></div>`;
   btn.disabled = true;
-  btn.textContent = '⏳ Processando...';
+  btn.textContent = `⏳ ${_parserTranslate('Processando...')}`;
 
   try {
     const pdfPayload = await extractCurriculumTextFromPdf(file);
     const textContent = pdfPayload?.text || '';
     if (!textContent || textContent.trim().length < 40) {
-      throw new Error('Não foi possível extrair texto suficiente do PDF. Faça o cadastro manualmente.');
+      throw new Error(_parserTranslate('Não foi possível extrair texto suficiente do PDF. Faça o cadastro manualmente.'));
     }
     const deterministicHints = extractCurriculumDeterministicHints(pdfPayload);
 
@@ -9547,7 +9571,7 @@ async function handleCurriculumFile(input) {
 
       rawResponse = await res.text();
       try { data = rawResponse ? JSON.parse(rawResponse) : null; }
-      catch { throw new Error('A função de currículo retornou uma resposta inválida.'); }
+      catch { throw new Error(_parserTranslate('A função de currículo retornou uma resposta inválida.')); }
 
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || `Erro ao processar o currículo (${res.status}).`);
@@ -9566,7 +9590,7 @@ async function handleCurriculumFile(input) {
       <span class="doc-ico">❌</span><span class="doc-msg">${esc(e.message)}</span></div>`;
   } finally {
     btn.disabled = false;
-    btn.textContent = '📎 Currículo PDF';
+    btn.textContent = `📎 ${_parserTranslate('Currículo PDF')}`;
   }
 }
 
@@ -9658,73 +9682,94 @@ function _fillNewFormFromCurriculum(fields, fileName) {
   const skippedClean = [...new Set(skipped.filter(Boolean))];
   const quality = fields._quality || {};
   const confidence = fields._confidence || {};
-  const criticalMissing = _parserCriticalMissingFields(fields);
+  const criticalMissing = _parserTranslateList(_parserCriticalMissingFields(fields));
   const duplicateSignals = detectCurriculumDuplicates(fields);
+  const backendMeta = _parserBackendMetaSummary(fields._backend || {});
   const confidenceLabelMap = {
-    nome_completo:'Nome',
-    email:'E-mail',
-    telefone:'Telefone',
+    nome_completo:_parserTranslate('Nome'),
+    email:_parserTranslate('E-mail'),
+    telefone:_parserTranslate('Telefone'),
     linkedin:'LinkedIn',
-    data_nascimento:'Nascimento',
-    nivel_alemao:'Alemão',
-    profissao_principal:'Profissão',
-    cidade_atual:'Cidade',
-    pais_de_origem:'País'
+    data_nascimento:_parserTranslate('Nascimento'),
+    nivel_alemao:_parserTranslate('Alemão'),
+    profissao_principal:_parserTranslate('Profissão'),
+    cidade_atual:_parserTranslate('Cidade'),
+    pais_de_origem:_parserTranslate('País')
   };
-  const confidenceTier = score => score >= 0.86 ? 'Alta' : score >= 0.65 ? 'Média' : 'Baixa';
+  const confidenceTier = score => score >= 0.86 ? _parserTranslate('Alta') : score >= 0.65 ? _parserTranslate('Média') : _parserTranslate('Baixa');
   const confidenceColor = score => score >= 0.86 ? 'var(--green)' : score >= 0.65 ? 'var(--de-gold)' : 'var(--red)';
   const confidenceRows = Object.entries(confidence)
     .filter(([,score]) => typeof score === 'number')
     .sort((a,b) => (b[1] || 0) - (a[1] || 0))
     .slice(0, 6)
-    .map(([key, score]) => `<div style="display:flex;justify-content:space-between;gap:8px;color:var(--txt2)"><span>${esc(confidenceLabelMap[key] || key)}</span><span style="color:${confidenceColor(score)}">${confidenceTier(score)} · ${Math.round(score * 100)}%</span></div>`)
+    .map(([key, score]) => `<div style="display:flex;justify-content:space-between;gap:8px;color:var(--txt2)"><span>${esc(confidenceLabelMap[key] || _parserTranslate(key))}</span><span style="color:${confidenceColor(score)}">${esc(confidenceTier(score))} · ${Math.round(score * 100)}%</span></div>`)
     .join('');
   const duplicateHtml = duplicateSignals.length
-    ? duplicateSignals.map(item => `<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div style="min-width:0"><div style="color:var(--txt2);font-weight:600">${esc(item.name)}</div><div style="color:var(--txt3)">${esc(item.stage)} · ${esc(item.reasons.join(' + '))}</div></div><button type="button" class="btn btn-xs btn-ghost" onclick="openDuplicateCandidate('${String(item.id).replace(/'/g, "\'")}')">Abrir</button></div>`).join('')
-    : '<div style="color:var(--txt3)">nenhum sinal forte</div>';
+    ? duplicateSignals.map(item => `<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div style="min-width:0"><div style="color:var(--txt2);font-weight:600">${esc(item.name)}</div><div style="color:var(--txt3)">${esc(_parserTranslate(item.stage))} · ${esc(_parserTranslateList(item.reasons).join(' + '))}</div></div><button type="button" class="btn btn-xs btn-ghost" onclick="openDuplicateCandidate('${String(item.id).replace(/'/g, "\'")}')">${esc(_parserTranslate('Abrir'))}</button></div>`).join('')
+    : `<div style="color:var(--txt3)">${esc(_parserTranslate('nenhum sinal forte'))}</div>`;
   const criticalMissingHtml = criticalMissing.length
     ? criticalMissing.map(label => `<div style="color:var(--txt3)">· ${esc(label)}</div>`).join('')
-    : '<div style="color:var(--green)">nenhum campo crítico ausente</div>';
+    : `<div style="color:var(--green)">${esc(_parserTranslate('nenhum campo crítico ausente'))}</div>`;
+  const backendWarningsHtml = backendMeta.warnings.length
+    ? backendMeta.warnings.map(msg => `<div style="color:var(--txt3)">· ${esc(msg)}</div>`).join('')
+    : `<div style="color:var(--txt3)">${esc(_parserTranslate('sem avisos relevantes'))}</div>`;
+  const backendMissingHtml = backendMeta.missing.length
+    ? backendMeta.missing.map(msg => `<div style="color:var(--txt3)">· ${esc(msg)}</div>`).join('')
+    : `<div style="color:var(--txt3)">—</div>`;
 
   statusEl.innerHTML = `<div class="doc-parse-bar" style="flex-direction:column;align-items:flex-start;gap:8px">
     <div style="display:flex;align-items:center;gap:8px;width:100%">
       <span class="doc-ico">📎</span>
       <span class="doc-msg" style="flex:1">
-        <strong>Currículo processado:</strong> <em>${esc(fileName)}</em>
-        ${lowData ? '<span style="color:var(--red);font-size:10.5px"> ⚠ Poucos campos identificados. Revise o preenchimento.</span>' : ''}
+        <strong>${esc(_parserTranslate('Currículo processado:'))}</strong> <em>${esc(fileName)}</em>
+        ${lowData ? `<span style="color:var(--red);font-size:10.5px"> ⚠ ${esc(_parserTranslate('Poucos campos identificados. Revise o preenchimento.'))}</span>` : ''}
       </span>
-      <button class="btn btn-xs btn-ghost" onclick="clearCurriculumFill()" style="flex-shrink:0">Limpar</button>
+      <button class="btn btn-xs btn-ghost" onclick="clearCurriculumFill()" style="flex-shrink:0">${esc(_parserTranslate('Limpar'))}</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:11px;width:100%;padding-left:28px">
       <div>
-        <div style="color:var(--green);font-weight:600;margin-bottom:2px">✓ Preenchidos (${filled.length})</div>
-        ${filled.length ? filled.map(f=>`<div style="color:var(--txt2)">· ${esc(f)}</div>`).join('') : '<div style="color:var(--txt3)">nenhum</div>'}
+        <div style="color:var(--green);font-weight:600;margin-bottom:2px">✓ ${esc(_parserTranslate('Preenchidos'))} (${filled.length})</div>
+        ${filled.length ? filled.map(f=>`<div style="color:var(--txt2)">· ${esc(_parserTranslate(f))}</div>`).join('') : `<div style="color:var(--txt3)">${esc(_parserTranslate('nenhum'))}</div>`}
       </div>
       <div>
-        <div style="color:var(--txt3);font-weight:600;margin-bottom:2px">— Não preenchidos</div>
-        ${skippedClean.length ? skippedClean.map(f=>`<div style="color:var(--txt3)">· ${esc(f)}</div>`).join('') : '<div style="color:var(--txt3)">—</div>'}
+        <div style="color:var(--txt3);font-weight:600;margin-bottom:2px">— ${esc(_parserTranslate('Não preenchidos'))}</div>
+        ${skippedClean.length ? skippedClean.map(f=>`<div style="color:var(--txt3)">· ${esc(_parserTranslate(f))}</div>`).join('') : '<div style="color:var(--txt3)">—</div>'}
       </div>
       <div>
-        <div style="color:var(--de-gold);font-weight:600;margin-bottom:2px">⚠ Campos críticos ausentes</div>
+        <div style="color:var(--de-gold);font-weight:600;margin-bottom:2px">⚠ ${esc(_parserTranslate('Campos críticos ausentes'))}</div>
         ${criticalMissingHtml}
       </div>
       <div>
-        <div style="color:var(--blue);font-weight:600;margin-bottom:2px">ℹ Qualidade do PDF</div>
-        <div style="color:var(--txt2)">· páginas: ${esc(String(fields._layout_pages || quality.page_count || '—'))}</div>
-        <div style="color:var(--txt2)">· linhas/página: ${esc(String(quality.avg_lines_per_page || '—'))}</div>
-        <div style="color:var(--txt2)">· chars/página: ${esc(String(quality.avg_chars_per_page || '—'))}</div>
+        <div style="color:var(--blue);font-weight:600;margin-bottom:2px">ℹ ${esc(_parserTranslate('Qualidade do PDF'))}</div>
+        <div style="color:var(--txt2)">· ${esc(_parserTranslate('páginas'))}: ${esc(String(fields._layout_pages || quality.page_count || '—'))}</div>
+        <div style="color:var(--txt2)">· ${esc(_parserTranslate('linhas/página'))}: ${esc(String(quality.avg_lines_per_page || '—'))}</div>
+        <div style="color:var(--txt2)">· ${esc(_parserTranslate('chars/página'))}: ${esc(String(quality.avg_chars_per_page || '—'))}</div>
       </div>
       <div>
-        <div style="color:var(--teal);font-weight:600;margin-bottom:2px">⟐ Confiança por campo</div>
-        ${confidenceRows || '<div style="color:var(--txt3)">sem score</div>'}
+        <div style="color:var(--teal);font-weight:600;margin-bottom:2px">⟐ ${esc(_parserTranslate('Confiança por campo'))}</div>
+        ${confidenceRows || `<div style="color:var(--txt3)">${esc(_parserTranslate('sem score'))}</div>`}
       </div>
       <div>
-        <div style="color:#f0a3ff;font-weight:600;margin-bottom:2px">≋ Possíveis duplicidades</div>
+        <div style="color:#f0a3ff;font-weight:600;margin-bottom:2px">≋ ${esc(_parserTranslate('Possíveis duplicidades'))}</div>
         ${duplicateHtml}
       </div>
+      <div>
+        <div style="color:var(--blue);font-weight:600;margin-bottom:2px">⚙ ${esc(_parserTranslate('Motor do parser'))}</div>
+        <div style="color:var(--txt2)">· ${esc(_parserTranslate('Engine'))}: ${esc(backendMeta.engineLabel)}</div>
+        <div style="color:var(--txt2)">· ${esc(_parserTranslate('Modelo'))}: ${esc(backendMeta.modelLabel)}</div>
+        <div style="color:var(--txt2)">· ${esc(_parserTranslate('request_id'))}: ${esc(backendMeta.requestId)}</div>
+      </div>
+      <div>
+        <div style="color:var(--de-gold);font-weight:600;margin-bottom:2px">⚠ ${esc(_parserTranslate('Avisos do parser'))}</div>
+        ${backendWarningsHtml}
+      </div>
+      <div>
+        <div style="color:var(--txt2);font-weight:600;margin-bottom:2px">↳ ${esc(_parserTranslate('Campos críticos retornados pelo backend'))}</div>
+        ${backendMissingHtml}
+      </div>
     </div>
-    ${quality.likely_scanned ? `<div style="font-size:11px;color:var(--red);padding-left:28px">⚠ PDF com baixa densidade textual. Se o currículo for imagem/scan, revise tudo manualmente.</div>` : ''}
-    ${_pendingCurriculumFile ? `<div style="font-size:11px;color:var(--blue);padding-left:28px">📎 PDF retido — será enviado ao Drive ao criar o candidato.</div>` : ''}
+    ${quality.likely_scanned ? `<div style="font-size:11px;color:var(--red);padding-left:28px">⚠ ${esc(_parserTranslate('PDF com baixa densidade textual. Se o currículo for imagem/scan, revise tudo manualmente.'))}</div>` : ''}
+    ${_pendingCurriculumFile ? `<div style="font-size:11px;color:var(--blue);padding-left:28px">📎 ${esc(_parserTranslate('PDF retido — será enviado ao Drive ao criar o candidato.'))}</div>` : ''}
   </div>`;
 }
 
@@ -11358,6 +11403,17 @@ function agNav(dir) {
     'Base A2 prestes a virar talento':'A2-Basis kurz vor Talentstatus',
     'Base B1 em evolução':'B1-Basis in Entwicklung',
     'Sem previsão':'Ohne Prognose',
+    'Currículo PDF':'Lebenslauf-PDF',
+    'Currículo processado':'Lebenslauf verarbeitet',
+    'Triagem':'Erstsichtung',
+    'Entrevista':'Interview',
+    'Análise RH':'HR-Analyse',
+    'Documentação':'Unterlagen',
+    'Igual e-mail':'Gleiche E-Mail',
+    'Igual telefone':'Gleiche Telefonnummer',
+    'Nome muito parecido':'Name sehr ähnlich',
+    'Cidade igual':'Gleiche Stadt',
+    'Mesma cidade':'Gleiche Stadt',
     'Necessita governança de cronograma':'Benötigt Steuerung des Zeitplans',
     'Talento já qualificado':'Talent bereits qualifiziert',
     'Em curso e já B1+':'Im Kurs und bereits B1+',
@@ -11552,6 +11608,42 @@ function agNav(dir) {
     'Extração com layout preservado e validação determinística.':'Extraktion mit Layout-Erhalt und deterministischer Validierung.',
     'Profissão provável:':'Wahrscheinlicher Beruf:',
     'Alemão detectado:':'Erkanntes Deutschniveau:',
+    'Apenas arquivos PDF são aceitos neste fluxo.':'In diesem Ablauf sind nur PDF-Dateien zulässig.',
+    'Processando currículo, preservando layout e identificando campos do cadastro...':'Lebenslauf wird verarbeitet, Layout wird erhalten und Formularfelder werden erkannt...',
+    'Processando...':'Wird verarbeitet...',
+    'Não foi possível extrair texto suficiente do PDF. Faça o cadastro manualmente.':'Aus dem PDF konnte nicht genug Text extrahiert werden. Bitte erfassen Sie den Bewerber manuell.',
+    'A função de currículo retornou uma resposta inválida.':'Die Lebenslauf-Funktion hat eine ungültige Antwort zurückgegeben.',
+    'Currículo processado:':'Lebenslauf verarbeitet:',
+    'Poucos campos identificados. Revise o preenchimento.':'Nur wenige Felder erkannt. Bitte prüfen Sie die Übernahme.',
+    'Limpar':'Leeren',
+    'Preenchidos':'Ausgefüllt',
+    'Não preenchidos':'Nicht ausgefüllt',
+    'nenhum':'keine',
+    'Campos críticos ausentes':'Kritische fehlende Felder',
+    'nenhum campo crítico ausente':'Keine kritischen Felder fehlen',
+    'Qualidade do PDF':'PDF-Qualität',
+    'páginas':'Seiten',
+    'linhas/página':'Zeilen/Seite',
+    'chars/página':'Zeichen/Seite',
+    'Confiança por campo':'Feldsicherheit',
+    'sem score':'ohne Score',
+    'Possíveis duplicidades':'Mögliche Duplikate',
+    'nenhum sinal forte':'kein starkes Signal',
+    'Motor do parser':'Parser-Engine',
+    'Engine':'Engine',
+    'Modelo':'Modell',
+    'request_id':'Request-ID',
+    'Avisos do parser':'Parser-Hinweise',
+    'Campos críticos retornados pelo backend':'Vom Backend gemeldete kritische Felder',
+    'sem avisos relevantes':'keine relevanten Hinweise',
+    'PDF com baixa densidade textual. Se o currículo for imagem/scan, revise tudo manualmente.':'PDF mit geringer Textdichte. Wenn der Lebenslauf ein Bild/Scan ist, bitte alles manuell prüfen.',
+    'PDF retido — será enviado ao Drive ao criar o candidato.':'PDF zurückgehalten – wird beim Anlegen des Bewerbers in Drive hochgeladen.',
+    'Fallback determinístico':'Deterministischer Fallback',
+    'Parser externo':'Externer Parser',
+    'Alta':'Hoch',
+    'Média':'Mittel',
+    'Baixa':'Niedrig',
+    'Nascimento':'Geburtsdatum',
     'Cidade provável:':'Wahrscheinliche Stadt:',
     'Status inicial':'Startstatus',
     'Referência / Origem':'Referenz / Herkunft',
