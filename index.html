@@ -1967,10 +1967,8 @@ details.bi-secondary {
 .emp-create{white-space:nowrap;padding:4px 8px;font-size:10px;min-height:28px;min-width:auto;max-width:64px}
 @media (max-width: 1480px){.emp-hub{grid-template-columns:minmax(248px,268px) minmax(0,1fr);grid-template-rows:minmax(400px,1fr)}}
 @media (max-width: 1120px){.emp-hub{grid-template-columns:1fr;grid-template-areas:'left' 'main';grid-template-rows:auto auto;height:auto;max-height:none;min-height:0}.emp-pane{min-height:auto}.emp-scroll{max-height:none;height:auto}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.emp-employer-brief-grid{grid-template-columns:1fr}.emp-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width: 1120px){.emp-hub-light .emp-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width: 820px){.field-grid,.field-grid.g3{grid-template-columns:1fr}.modal-footer{flex-wrap:wrap}.modal-footer .btn{flex:1 1 auto}.detail-tabs{margin:12px 14px 0}.detail-panel{padding:14px 14px 18px}.modal-hdr,.modal-footer{padding-left:14px;padding-right:14px}}
 @media (max-width: 720px){.emp-employer-brief-grid{grid-template-columns:1fr}.emp-summary-grid{grid-template-columns:1fr}}
-@media (max-width: 720px){.emp-hub-light .emp-summary-grid{grid-template-columns:1fr}}
 
 /* ───────── Employer Modal ───────── */
 .emp-modal-overlay{position:fixed;inset:0;background:rgba(4,6,14,.82);backdrop-filter:blur(4px);z-index:9000;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow:auto}
@@ -2003,27 +2001,6 @@ details.bi-secondary {
 /* ───────── Summary enriched cards ───────── */
 .emp-summary-section{background:#0d1526;border:1px solid rgba(103,126,170,.16);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .emp-summary-section-title{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#5a6e94;margin-bottom:2px}
-.emp-hub-light .emp-main-top{gap:10px}
-.emp-hub-light .emp-main-stats{gap:8px}
-.emp-hub-light .emp-stat{padding:9px 10px;border-radius:12px}
-.emp-hub-light .emp-cand{padding:11px 12px}
-.emp-hub-light .emp-cand-meta{margin-top:4px;gap:5px}
-.emp-hub-light .emp-cand-meta span,.emp-chip-soft{font-size:10px;color:#d1dcf2;padding:2px 7px;border-radius:999px;background:#10192d;border:1px solid rgba(103,126,170,.16)}
-.emp-accordion-lite{border:1px solid rgba(103,126,170,.16);border-radius:14px;background:#0d1526;overflow:hidden}
-.emp-accordion-lite + .emp-accordion-lite{margin-top:10px}
-.emp-accordion-lite-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:11px 13px;background:rgba(255,255,255,.02)}
-.emp-accordion-lite-summary::-webkit-details-marker{display:none}
-.emp-accordion-lite-title{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#d9e6ff}
-.emp-accordion-lite-badge{margin-left:auto;font-size:10px;color:#8fa5c8;background:#10192d;border:1px solid rgba(103,126,170,.16);border-radius:999px;padding:2px 7px}
-.emp-accordion-lite-icon{font-size:12px;color:#7eb5ff;transition:transform .15s ease}
-.emp-accordion-lite[open] .emp-accordion-lite-icon{transform:rotate(180deg)}
-.emp-accordion-lite-body{padding:0 13px 13px}
-.emp-hub-light .emp-summary-section{padding:0;background:transparent;border:none}
-.emp-hub-light .emp-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.emp-hub-light .emp-text,.emp-hub-light .emp-box{padding:10px 11px;border-radius:12px}
-.emp-hub-light .emp-inline-detail .emp-summary{gap:10px}
-.emp-brief-lite .emp-employer-brief{margin:0;border:none;background:transparent;padding:0}
-.emp-brief-lite .emp-accordion-lite-body{padding-top:10px}
 .emp-employer-pill{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#0f172a;border:1px solid rgba(103,126,170,.2)}
 .emp-employer-pill.primary{border-color:rgba(96,165,250,.4);background:rgba(59,130,246,.08)}
 .emp-employer-pill-name{font-size:12.5px;font-weight:800;color:#e8f0ff}
@@ -6379,65 +6356,6 @@ async function exportEmployerXLSX() {
     if (btn) { btn.textContent = '📥 Exportar Excel'; btn.disabled = false; }
   }
 }
-function lightenEmployerHub(root) {
-  const hub = root.querySelector('.emp-hub');
-  if (!hub) return;
-  hub.classList.add('emp-hub-light');
-
-  const brief = hub.querySelector('.emp-main-top > .emp-employer-brief');
-  if (brief && !brief.closest('.emp-brief-lite')) {
-    const wrapper = document.createElement('details');
-    wrapper.className = 'emp-accordion-lite emp-brief-lite';
-    wrapper.innerHTML = `<summary class="emp-accordion-lite-summary">
-      <span class="emp-accordion-lite-title">${esc(uiTranslate('Resumo do empregador'))}</span>
-      <span class="emp-accordion-lite-badge">${esc(uiTranslate('manter detalhes'))}</span>
-      <span class="emp-accordion-lite-icon">▾</span>
-    </summary><div class="emp-accordion-lite-body"></div>`;
-    brief.parentNode.insertBefore(wrapper, brief);
-    wrapper.querySelector('.emp-accordion-lite-body').appendChild(brief);
-  }
-
-  hub.querySelectorAll('.emp-inline-detail .emp-summary-section').forEach((section, idx) => {
-    if (section.dataset.lightened === '1') return;
-    section.dataset.lightened = '1';
-    const titleEl = section.querySelector('.emp-summary-section-title');
-    const title = (titleEl?.textContent || '').trim() || `Seção ${idx + 1}`;
-    if (titleEl) titleEl.remove();
-
-    const body = document.createElement('div');
-    body.className = 'emp-accordion-lite-body';
-    while (section.firstChild) body.appendChild(section.firstChild);
-
-    const metricCount = body.querySelectorAll('.emp-box, .emp-text, .emp-employer-pill').length;
-    const details = document.createElement('details');
-    details.className = 'emp-accordion-lite';
-    if (idx < 2 || /Matching|Próxima ação/i.test(title)) details.open = true;
-    details.innerHTML = `<summary class="emp-accordion-lite-summary">
-      <span class="emp-accordion-lite-title">${esc(title)}</span>
-      ${metricCount ? `<span class="emp-accordion-lite-badge">${metricCount} ${esc(uiTranslate('itens'))}</span>` : `<span class="emp-accordion-lite-badge">${esc(uiTranslate('detalhes'))}</span>`}
-      <span class="emp-accordion-lite-icon">▾</span>
-    </summary>`;
-    details.appendChild(body);
-    section.appendChild(details);
-  });
-
-  hub.querySelectorAll('.emp-cand').forEach(card => {
-    if (card.dataset.noteChip === '1') return;
-    const note = card.querySelector('.emp-cand-note');
-    const meta = card.querySelector('.emp-cand-meta');
-    if (!note || !meta) return;
-    const raw = (note.textContent || '').replace(/^\s*Tipo de vaga\s*:\s*/i, '').trim();
-    if (raw) {
-      const chip = document.createElement('span');
-      chip.className = 'emp-chip-soft';
-      chip.textContent = `Vaga: ${raw}`;
-      meta.appendChild(chip);
-    }
-    note.remove();
-    card.dataset.noteChip = '1';
-  });
-}
-
 function bindEmployerHubInteractions(root) {
   const hub = root.querySelector('.emp-hub');
   if (!hub) return;
@@ -6889,7 +6807,6 @@ function renderEmployerHub(el) {
       </section>
 
     </div>`;
-  lightenEmployerHub(el);
   bindEmployerHubInteractions(el);
   restoreEmployerHubScrollState();
 }
@@ -16477,39 +16394,15 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   if (prevRenderDashboard) {
     window.renderDashboard = function(el){
       const S = Sref();
-      if (!S.v57FlowAnalyticsAttempted && !S.v56AllFlowAnalyticsLoading) {
-        S.v57FlowAnalyticsAttempted = true;
+      if (!S.v56AllFlowAnalyticsLoaded && !S.v56AllFlowAnalyticsLoading) {
         S.v56AllFlowAnalyticsLoading = true;
-        loadAllFlowAnalyticsCache()
-          .then(() => { S.v56AllFlowAnalyticsLoaded = true; S.v57FlowAnalyticsError = null; })
-          .catch(err => {
-            console.warn('[v57] all flow analytics disabled', err);
-            S.v56AllFlowAnalyticsLoaded = true;
-            S.v57FlowAnalyticsError = String(err?.message || err || 'flow analytics unavailable');
-            S.v56AllFlowAnalyticsCache = S.v56AllFlowAnalyticsCache instanceof Map ? S.v56AllFlowAnalyticsCache : new Map();
-          })
-          .finally(() => {
-            S.v56AllFlowAnalyticsLoading = false;
-            try { if (typeof renderView === 'function') setTimeout(() => renderView(), 0); } catch(_) {}
-          });
+        loadAllFlowAnalyticsCache().then(() => { S.v56AllFlowAnalyticsLoaded = true; }).catch(err => console.warn('[v56] all flow analytics', err)).finally(() => {
+          S.v56AllFlowAnalyticsLoading = false;
+          try { if (typeof renderView === 'function') renderView(); } catch(_) {}
+        });
       }
       const out = prevRenderDashboard(el);
-      setTimeout(() => {
-        try {
-          if (S.v57FlowAnalyticsError) {
-            const holder = el && el.querySelector ? el : document;
-            const grid = holder.querySelector('.bi-grid');
-            if (grid && !holder.querySelector('#v57-bi-warning')) {
-              const warn = document.createElement('section');
-              warn.className = 'bi-card';
-              warn.id = 'v57-bi-warning';
-              warn.innerHTML = `<div class="bi-card-head"><div><div class="bi-card-title">BI parcial</div><div class="bi-card-sub">A leitura avançada de fluxos foi desativada nesta sessão para não travar a tela. O restante do CRM continua operacional.</div></div><span class="bi-card-badge">modo seguro</span></div>`;
-              grid.prepend(warn);
-            }
-          }
-          injectMultiFlowInsights(el);
-        } catch(err) { console.warn('[v57] BI inject', err); }
-      }, 30);
+      setTimeout(() => { try { injectMultiFlowInsights(el); } catch(err) { console.warn('[v56] BI inject', err); } }, 30);
       return out;
     };
     try { renderDashboard = window.renderDashboard; } catch(_) {}
@@ -16637,29 +16530,11 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try { _fillNewFormFromCurriculum = window._fillNewFormFromCurriculum; } catch(_) {}
   }
 
-  let v57EnhanceQueued = false;
-  function scheduleEnhanceCatalogButtons(){
-    if (v57EnhanceQueued) return;
-    v57EnhanceQueued = true;
-    setTimeout(() => {
-      v57EnhanceQueued = false;
-      try {
-        const relevant = document.querySelector('input[id^="candidate-v53-area-"], input[id^="new-v53-area-"], input[id^="candidate-v53-profession-"], input[id^="new-v53-profession-"], input[id^="candidate-v53-specialty-"], input[id^="new-v53-specialty-"], .pf-v53-card');
-        if (relevant) enhanceCatalogButtons();
-      } catch(_) {}
-    }, 120);
-  }
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations || []) {
-      const nodes = [...(m.addedNodes || []), ...(m.removedNodes || [])];
-      if (nodes.some(node => node && node.nodeType === 1 && ((node.matches && (node.matches('.pf-v53-card,[id^="candidate-v53-"],[id^="new-v53-"],.modal,.cm-modal') || node.querySelector?.('input[id^="candidate-v53-"],input[id^="new-v53-"],.pf-v53-card')))))) {
-        scheduleEnhanceCatalogButtons();
-        break;
-      }
-    }
+  const observer = new MutationObserver(() => {
+    try { enhanceCatalogButtons(); } catch(_) {}
   });
   if (document.body) observer.observe(document.body, { childList:true, subtree:true });
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleEnhanceCatalogButtons); else setTimeout(scheduleEnhanceCatalogButtons, 80);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhanceCatalogButtons); else setTimeout(enhanceCatalogButtons, 80);
 })();
 </script>
 
