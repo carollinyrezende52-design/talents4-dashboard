@@ -1962,6 +1962,17 @@ details.bi-secondary {
 .emp-btn.primary{background:#2457d6;border-color:#2457d6;color:white}
 .emp-link{background:none;border:none;color:#7eb5ff;cursor:pointer;padding:0;font-size:11.5px;font-weight:800}
 .emp-link:hover{text-decoration:underline}
+.emp-accordion{border:1px solid rgba(103,126,170,.16);border-radius:14px;background:#0d1526;overflow:hidden}
+.emp-accordion + .emp-accordion{margin-top:10px}
+.emp-accordion>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;font-size:12px;font-weight:900;color:#eef4ff;background:linear-gradient(180deg,#10192d,#0d1526)}
+.emp-accordion>summary::-webkit-details-marker{display:none}
+.emp-accordion>summary .emp-accordion-sub{display:block;margin-top:3px;font-size:10.5px;font-weight:500;color:#8fa1bf}
+.emp-accordion>summary .emp-accordion-caret{font-size:12px;color:#8fa1bf;transition:transform .14s ease}
+.emp-accordion[open]>summary .emp-accordion-caret{transform:rotate(90deg);color:#eef4ff}
+.emp-accordion-body{padding:12px 14px 14px;border-top:1px solid rgba(103,126,170,.12)}
+.emp-chip-muted{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#cdd8ee;background:#10192d;border:1px solid rgba(103,126,170,.16);border-radius:999px;padding:3px 8px}
+.emp-chip-muted strong{color:#f4f7ff;font-weight:800}
+.emp-card-inline{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
 .emp-muted{color:#9baccc}
 .emp-section-note{font-size:11px;color:#8fa1bf}
 .emp-create{white-space:nowrap;padding:4px 8px;font-size:10px;min-height:28px;min-width:auto;max-width:64px}
@@ -6512,6 +6523,16 @@ function renderEmployerHub(el) {
   const txt = (lbl, val) => val
     ? `<div class="emp-text"><div class="emp-text-lbl">${lbl}</div>${empExpandableValue(val, 'text')}</div>`
     : '';
+  const section = (title, body, { open=false, subtitle='' } = {}) => {
+    if (!body || !String(body).trim()) return '';
+    return `<details class="emp-accordion"${open ? ' open' : ''}>
+      <summary>
+        <div><div>${title}</div>${subtitle ? `<span class="emp-accordion-sub">${subtitle}</span>` : ''}</div>
+        <span class="emp-accordion-caret">›</span>
+      </summary>
+      <div class="emp-accordion-body">${body}</div>
+    </details>`;
+  };
 
   const editEmpBtn = selectedGroup && selectedGroup.kind !== 'unassigned'
     ? `<button type="button" class="emp-link" data-emp-action="edit-employer" data-employer-id="${esc(selectedGroup.employerId || '')}" data-employer-name="${esc(selectedGroup.name)}" title="${esc(uiTranslate('Editar este empregador'))}">${esc(uiTranslate('✏️ Editar'))}</button>`
@@ -6539,24 +6560,35 @@ function renderEmployerHub(el) {
       const preview = empPreview(normalized, 96);
       return `<div class="emp-employer-mini"><details class="emp-mini-expand"><summary><div class="emp-mini-card-head"><div class="emp-employer-mini-lbl">${esc(lbl)}</div><div class="emp-mini-card-toggle">${esc(uiTranslate('Expandir'))}</div></div><div class="emp-mini-card-preview" title="${esc(raw)}">${esc(preview)}</div></summary><div class="emp-employer-mini-val">${esc(raw)}</div></details></div>`;
     };
-    return `<div class="emp-employer-brief">
-      <div class="emp-employer-brief-top">
+    return `<details class="emp-accordion" style="margin-top:2px">
+      <summary>
         <div>
-          <div class="emp-employer-brief-title">${esc(uiTranslate('Resumo rápido do empregador'))}</div>
-          <div class="emp-employer-brief-sub">${esc(uiTranslate('Principais dados operacionais visíveis sem abrir a edição.'))}</div>
+          <div>${esc(uiTranslate('Resumo rápido do empregador'))}</div>
+          <span class="emp-accordion-sub">${esc(uiTranslate('Dados comerciais e operacionais mantidos, mas recolhidos por padrão para reduzir peso visual.'))}</span>
         </div>
-        ${selectedEmployer.contato_principal || selectedEmployer.email_principal ? `<div class="emp-employer-brief-sub" style="text-align:right">${esc([selectedEmployer.contato_principal, selectedEmployer.email_principal].filter(Boolean).join(' · '))}</div>` : ''}
+        <span class="emp-accordion-caret">›</span>
+      </summary>
+      <div class="emp-accordion-body">
+        <div class="emp-employer-brief" style="padding:0;border:none;background:none">
+          <div class="emp-employer-brief-top">
+            <div>
+              <div class="emp-employer-brief-title">${esc(uiTranslate('Resumo rápido do empregador'))}</div>
+              <div class="emp-employer-brief-sub">${esc(uiTranslate('Principais dados operacionais visíveis sem abrir a edição.'))}</div>
+            </div>
+            ${selectedEmployer.contato_principal || selectedEmployer.email_principal ? `<div class="emp-employer-brief-sub" style="text-align:right">${esc([selectedEmployer.contato_principal, selectedEmployer.email_principal].filter(Boolean).join(' · '))}</div>` : ''}
+          </div>
+          ${chips.length ? `<div class="emp-employer-chips">${chips.map(c => `<span class="emp-employer-chip">${esc(c)}</span>`).join('')}</div>` : ''}
+          <div class="emp-employer-brief-grid">
+            ${mini(uiTranslate('Perfis buscados'), selectedEmployer.perfis_buscados || selectedEmployer.descricao_resumida || '—')}
+            ${mini(uiTranslate('Requisitos principais'), selectedEmployer.requisitos_principais || selectedEmployer.subsetor || '—')}
+            ${mini(uiTranslate('Resumo operacional'), selectedEmployer.descricao_operacional || selectedEmployer.observacoes_internas || '—')}
+            ${mini(uiTranslate('Responsável interno'), selectedEmployer.responsavel_interno || '—')}
+            ${mini(uiTranslate('Origem do lead'), selectedEmployer.origem_lead || '—')}
+            ${mini(uiTranslate('Tags'), Array.isArray(selectedEmployer.tags) ? selectedEmployer.tags.join(', ') : (selectedEmployer.tags || '—'))}
+          </div>
+        </div>
       </div>
-      ${chips.length ? `<div class="emp-employer-chips">${chips.map(c => `<span class="emp-employer-chip">${esc(c)}</span>`).join('')}</div>` : ''}
-      <div class="emp-employer-brief-grid">
-        ${mini(uiTranslate('Perfis buscados'), selectedEmployer.perfis_buscados || selectedEmployer.descricao_resumida || '—')}
-        ${mini(uiTranslate('Requisitos principais'), selectedEmployer.requisitos_principais || selectedEmployer.subsetor || '—')}
-        ${mini(uiTranslate('Resumo operacional'), selectedEmployer.descricao_operacional || selectedEmployer.observacoes_internas || '—')}
-        ${mini(uiTranslate('Responsável interno'), selectedEmployer.responsavel_interno || '—')}
-        ${mini(uiTranslate('Origem do lead'), selectedEmployer.origem_lead || '—')}
-        ${mini(uiTranslate('Tags'), Array.isArray(selectedEmployer.tags) ? selectedEmployer.tags.join(', ') : (selectedEmployer.tags || '—'))}
-      </div>
-    </div>`;
+    </details>`;
   })() : '';
 
   const currentDetailPanel = current ? `<div class="emp-inline-detail">
@@ -6595,8 +6627,7 @@ function renderEmployerHub(el) {
         <button type="button" class="emp-btn" data-emp-action="link-employer" data-candidate-id="${esc(cid)}" style="margin-top:6px;font-size:11px;padding:6px 10px">🔗 + Vincular empregador</button>
       </div>
 
-      <div class="emp-summary-section">
-        <div class="emp-summary-section-title">👤 Dados do candidato</div>
+      ${section('👤 Dados do candidato', `
         <div class="emp-summary-grid">
           ${box('Prontidão', readiness?.label, readiness?.cls||'')}
           ${box('Alemão', fv(current,'Nível de alemão','Nível alemão'))}
@@ -6608,20 +6639,17 @@ function renderEmployerHub(el) {
           ${box('Responsável interno', fv(current,'Avaliador','Responsável interno','responsavel_interno'))}
           ${box('Score', String(current._score||0))}
         </div>
-      </div>
+      `, { open:true, subtitle:'Resumo operacional imediato para decisão e follow-up.' })}
 
-      ${(motEncaixe||riscosMatch||proxAcaoMatch) ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🎯 Matching — vínculo em foco</div>
+      ${(motEncaixe||riscosMatch||proxAcaoMatch) ? section('🎯 Matching — vínculo em foco', `
         ${txt('Motivo do encaixe', motEncaixe)}
         ${txt('Riscos / Ressalvas', riscosMatch)}
         ${txt('Próxima ação', proxAcaoMatch)}
-      </div>` : (ops?.acao ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🎯 Próxima ação</div>
+      `, { open:true, subtitle:'Mantém o racional do match sem ocupar a tela inteira.' }) : (ops?.acao ? section('🎯 Próxima ação', `
         ${txt('Ação', ops.acao)}
-      </div>` : '')}
+      `, { open:true, subtitle:'Próximo passo operacional em destaque.' }) : '')}
 
-      ${(expPrincipal||tempoExp||aderenciaTec||pontosTec||projetoPreferido) ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🛠 Experiência e aderência</div>
+      ${(expPrincipal||tempoExp||aderenciaTec||pontosTec||projetoPreferido) ? section('🛠 Experiência e aderência', `
         <div class="emp-summary-grid">
           ${box('Tempo total de experiência', tempoExp)}
           ${box('Aderência técnica', aderenciaTec)}
@@ -6629,10 +6657,9 @@ function renderEmployerHub(el) {
         ${txt('Experiências principais', expPrincipal)}
         ${txt('Projeto / experiência preferida', projetoPreferido)}
         ${txt('Pontos técnicos fortes e fracos', pontosTec)}
-      </div>` : ''}
+      `, { subtitle:'Fechado por padrão para reduzir densidade visual.' }) : ''}
 
-      ${(disponibilidadeMudanca||statusMigratorio||prazoSaida||flexGeo||trabalhoAtual||expectativaSalarial) ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🚚 Disponibilidade e mobilidade</div>
+      ${(disponibilidadeMudanca||statusMigratorio||prazoSaida||flexGeo||trabalhoAtual||expectativaSalarial) ? section('🚚 Disponibilidade e mobilidade', `
         <div class="emp-summary-grid">
           ${box('Disponibilidade para mudança', disponibilidadeMudanca)}
           ${box('Status migratório', statusMigratorio)}
@@ -6642,10 +6669,9 @@ function renderEmployerHub(el) {
         </div>
         ${txt('Trabalho atual', trabalhoAtual)}
         ${blueCardObs ? txt('Blue Card / contrato', blueCardObs) : ''}
-      </div>` : ''}
+      `, { subtitle:'Abra quando precisar validar mobilidade, visto e timing.' }) : ''}
 
-      ${(redeApoio||mudancaFamilia||expIntl||adaptacaoCultural||autonomiaPratica) ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🌍 Integração, família e adaptação</div>
+      ${(redeApoio||mudancaFamilia||expIntl||adaptacaoCultural||autonomiaPratica) ? section('🌍 Integração, família e adaptação', `
         <div class="emp-summary-grid">
           ${box('Rede de apoio', redeApoio)}
           ${box('Mudança sozinho ou com família', mudancaFamilia)}
@@ -6653,20 +6679,18 @@ function renderEmployerHub(el) {
           ${box('Autonomia prática', autonomiaPratica)}
         </div>
         ${txt('Adaptação cultural', adaptacaoCultural)}
-      </div>` : ''}
+      `, { subtitle:'Informação mantida, mas recolhida por padrão.' }) : ''}
 
-      ${(resumoRh||motivacaoRh||restricoes) ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🧠 Análise RH</div>
+      ${(resumoRh||motivacaoRh||restricoes) ? section('🧠 Análise RH', `
         ${txt('Resumo RH', resumoRh)}
         ${txt('Motivação real', motivacaoRh)}
         ${txt('Restrições objetivas', restricoes)}
         <div class="emp-summary-grid" style="margin-top:8px">
           ${box('Readiness internacional', readIntl)}
         </div>
-      </div>` : ''}
+      `, { subtitle:'Avaliação qualitativa disponível sem poluir a visão principal.' }) : ''}
 
-      ${(entData||entAvaliador||entConclusao||entDiploma||entObs) ? `<div class="emp-summary-section">
-        <div class="emp-summary-section-title">🎙 Dados da entrevista</div>
+      ${(entData||entAvaliador||entConclusao||entDiploma||entObs) ? section('🎙 Dados da entrevista', `
         <div class="emp-summary-grid">
           ${entData ? box('Data da entrevista', uiFormatDate(entData)) : ''}
           ${entAvaliador ? box('Entrevistador(a)', entAvaliador) : ''}
@@ -6679,7 +6703,7 @@ function renderEmployerHub(el) {
         </div>
         ${txt('Observação', entObs)}
         ${txt('Conclusão da entrevista', entConclusao)}
-      </div>` : ''}
+      `, { subtitle:'Disponível sob demanda para evitar excesso de blocos abertos.' }) : ''}
 
       <div class="emp-actions">
         <button type="button" class="emp-btn primary" data-emp-action="open-candidate" data-candidate-id="${esc(cid)}">📂 Abrir ficha completa</button>
@@ -6798,7 +6822,7 @@ function renderEmployerHub(el) {
                   <span>${esc(linkStatus)}</span>
                   <span>${esc(city)} · ${esc(resp)}</span>
                 </div>
-                ${cardTipoVaga ? `<div class="emp-cand-note"><strong>${esc(uiTranslate('Tipo de vaga'))}:</strong> ${esc(cardTipoVaga)}</div>` : ''}
+                ${cardTipoVaga ? `<div class="emp-card-inline"><span class="emp-chip-muted"><strong>${esc(uiTranslate('Tipo de vaga'))}:</strong> ${esc(cardTipoVaga)}</span></div>` : ''}
               </button>
               ${thisCid===cid ? currentDetailPanel : ''}
             </div>`;
