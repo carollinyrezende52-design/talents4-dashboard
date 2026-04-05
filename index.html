@@ -13944,6 +13944,16 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
 .pf-chip-label{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pf-section-note{font-size:12px;color:var(--txt3);padding:10px 12px;border:1px dashed var(--border2);border-radius:12px;background:rgba(255,255,255,.02)}
 .pf-empty{padding:10px 12px;border:1px dashed var(--border2);border-radius:12px;color:var(--txt3);font-size:12px;background:rgba(255,255,255,.015)}
+.pf-suggest-wrap{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pf-suggest-row{display:flex;flex-wrap:wrap;gap:6px}
+.pf-suggest-btn{height:30px;padding:0 10px;border-radius:999px;border:1px solid rgba(96,165,250,.24);background:rgba(96,165,250,.08);color:#dbeafe;font-size:11.5px;font-weight:700;cursor:pointer;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-suggest-btn:hover{border-color:rgba(96,165,250,.42);background:rgba(96,165,250,.12)}
+.pf-suggest-meta{font-size:11px;color:var(--txt3)}
+.pf-field-shell{display:flex;flex-direction:column;gap:6px}
+.pf-path{font-size:11px;color:var(--txt2);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pf-path strong{color:var(--txt1)}
+.pf-card.flow-card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.018));border-color:rgba(96,165,250,.18)}
+.pf-card.flow-card .pf-card-head{padding-bottom:4px;border-bottom:1px solid rgba(96,165,250,.12)}
 .pf-mount{grid-column:1/-1}
 .pf-hidden-legacy{display:none !important}
 @media (max-width:1100px){.pf-grid,.pf-grid-2{grid-template-columns:1fr}}
@@ -13979,9 +13989,12 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (f.specialties.length) f.specialties = f.specialties.map((s,i)=>({ ...s, is_primary: i===0 }));
     return f;
   }
-  function normalizeStateForSave(raw){
+  function normalizeStateForSave(raw, opts={}){
     const state = deepClone(raw || { flows:[], trainings:[], primaryTrainingId:'' });
-    let flows = (Array.isArray(state.flows) ? state.flows : []).map(cleanFlow).filter(flowHasData);
+    const keepEmpty = !!opts.preserveEmptyFlows;
+    let flows = (Array.isArray(state.flows) ? state.flows : []).map(cleanFlow);
+    if (!keepEmpty) flows = flows.filter(flowHasData);
+    if (keepEmpty && !flows.length) flows = [blankFlow(true)];
     let primaryIdx = flows.findIndex(f => f.is_primary);
     if (primaryIdx < 0 && flows.length) primaryIdx = 0;
     flows = flows.map((f,i)=>({ ...f, is_primary: i===primaryIdx, sort_order: i }));
@@ -13993,7 +14006,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const st = pfState();
     if (!st.pending) st.pending = deepClone(st.current || { flows:[], trainings:[], primaryTrainingId:'' });
     mutator(st.pending);
-    st.pending = normalizeStateForSave(st.pending);
+    st.pending = normalizeStateForSave(st.pending, { preserveEmptyFlows:true });
     st.dirty = !eqJson(st.current || { flows:[], trainings:[], primaryTrainingId:'' }, st.pending);
     updateProfessionalSaveUi();
     rerenderProfessionalTabSafe();
@@ -14001,7 +14014,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   function setNewState(mutator){
     const st = getNewState();
     mutator(st);
-    window.NEWCAND_PROF_STATE = normalizeStateForSave(st);
+    window.NEWCAND_PROF_STATE = normalizeStateForSave(st, { preserveEmptyFlows:true });
     renderNewProfessionalUi();
   }
   function rerenderProfessionalTabSafe(){
@@ -14040,6 +14053,29 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   }
   function trainingRows(){ return Array.isArray(S.trainingCatalog?.rows) ? S.trainingCatalog.rows : trainingSeed(); }
   function trainingById(id){ return trainingRows().find(r => String(r.id) === String(id)); }
+  function isBroadTrainingCategory(row){
+    const key = norm(labelOf(row) || row?.code || '');
+    return ['ensino medio','curso tecnico','tecnologo','bacharelado','licenciatura','pos graduacao especializacao','mestrado','doutorado','curso livre certificacao'].includes(key) || ['ensino_medio','curso_tecnico','tecnologo','bacharelado','licenciatura','pos_graduacao','mestrado','doutorado','curso_livre'].includes(String(row?.code || ''));
+  }
+  function primaryTrainingRows(){
+    const broad = trainingRows().filter(isBroadTrainingCategory);
+    return broad.length ? broad : trainingSeed();
+  }
+  function suggestRows(rows, query, limit=8){
+    const q = norm(query);
+    const source = Array.isArray(rows) ? rows.filter(Boolean) : [];
+    const scored = source.map((row, idx) => {
+      const name = labelOf(row);
+      const key = norm(name);
+      let score = 0;
+      if (!q) score = 200 - idx;
+      else if (key === q) score = 1000 - idx;
+      else if (key.startsWith(q)) score = 800 - idx;
+      else if (key.includes(q)) score = 500 - idx;
+      return { row, score };
+    }).filter(x => x.score > 0).sort((a,b) => b.score - a.score).slice(0, limit);
+    return scored.map(x => x.row);
+  }
 
   async function loadFlowCatalogV48(){
     const fallbackAreaProf = (S.taxonomy?.professions || []).filter(Boolean).map(r => ({ area_id:r.area_id, profession_id:r.id, sort_order:r.sort_order || 0, active:true }));
@@ -14176,34 +14212,43 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const rows = Array.isArray(opts) ? opts : (enums[field] || []);
     return `<div class="field-group ${full?'fg-full':''}"><label class="field-lbl">${escHtml(label)}</label><div class="field-select-wrap"><select class="field-select" data-field="${escHtml(field)}" onchange="onEdit(this)"><option value="">— Selecionar —</option>${rows.map(o => `<option value="${escHtml(o)}" ${current===String(o)?'selected':''}>${escHtml(o)}</option>`).join('')}</select><button type="button" class="field-select-add" onclick="quickAddEnum('${escHtml(field)}',this)" title="Adicionar nova opção">+</button></div></div>`;
   }
+  function renderTrainingHintsHtml(scope, query=''){
+    const data = scope === 'candidate' ? currentEditorData() : getNewState();
+    const blocked = new Set([String(data.primaryTrainingId || ''), ...(data.trainings || []).map(v => String(v))].filter(Boolean));
+    const rows = suggestRows(trainingRows().filter(r => !blocked.has(String(r.id))), query, 8);
+    if (!rows.length) return `<div class="pf-suggest-meta">Nenhuma sugestão encontrada. Digite o nome exato e clique em adicionar.</div>`;
+    return `<div class="pf-suggest-row">${rows.map(r => `<button type="button" class="pf-suggest-btn" onclick="pfQuickAddTraining('${scope}','${escHtml(String(r.id))}')">${escHtml(labelOf(r))}</button>`).join('')}</div><div class="pf-suggest-meta">Sugestões oficiais limitadas para não poluir a interface.</div>`;
+  }
   function renderTrainingManager(scope){
     const data = scope === 'candidate' ? currentEditorData() : getNewState();
     const primaryId = String(data.primaryTrainingId || '');
-    const addId = `${scope}-training-add-list`;
-    const primaryOpts = trainingRows().map(r => `<option value="${escHtml(String(r.id))}" ${String(r.id)===primaryId?'selected':''}>${escHtml(labelOf(r))}</option>`).join('');
+    const primaryOpts = primaryTrainingRows().map(r => `<option value="${escHtml(String(r.id))}" ${String(r.id)===primaryId?'selected':''}>${escHtml(labelOf(r))}</option>`).join('');
     const chips = data.trainings.length ? data.trainings.map(id => {
       const row = trainingById(id);
       return `<div class="pf-chip"><span class="pf-chip-label">${escHtml(labelOf(row) || id)}</span><button type="button" class="pf-btn small ghost" onclick="pfRemoveTraining('${scope}','${escHtml(id)}')">Remover</button></div>`;
     }).join('') : `<div class="pf-empty">Sem formações adicionais por enquanto.</div>`;
-    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Formação principal e formações adicionais</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="pfSetPrimaryTraining('${scope}',this.value)"><option value="">— Selecionar —</option>${primaryOpts}</select><div class="pf-hint">Usada como formação principal no BI e no matching.</div></div><div class="field-group fg-full"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input class="field-input" id="${scope}-training-input" list="${addId}" placeholder="Adicionar formação oficial ou digite para buscar"><button type="button" class="pf-btn" onclick="pfAddTraining('${scope}')">Adicionar</button></div>${renderTrainingDatalist(addId)}<div class="pf-chip-row" style="margin-top:10px">${chips}</div></div></div></div>`;
+    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Formação principal e formações adicionais</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="pfSetPrimaryTraining('${scope}',this.value)"><option value="">— Selecionar —</option>${primaryOpts}</select><div class="pf-hint">Aqui entram só categorias amplas. Cursos específicos ficam nas formações adicionais.</div></div><div class="field-group fg-full"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input class="field-input" id="${scope}-training-input" placeholder="Buscar formação oficial" autocomplete="off" oninput="pfRenderTrainingHints('${scope}')"><button type="button" class="pf-btn" onclick="pfAddTraining('${scope}')">Adicionar</button></div><div class="pf-suggest-wrap" id="${scope}-training-hints">${renderTrainingHintsHtml(scope, '')}</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div></div></div>`;
+  }
+  function renderFieldHintsHtml(scope, flow, kind, query=''){
+    const pool = kind === 'area' ? areaRows() : (kind === 'profession' ? professionFieldOptions(flow) : specialtyFieldOptions(flow));
+    const rows = suggestRows(pool, query, 8);
+    if (!rows.length) return `<div class="pf-suggest-meta">Nenhuma sugestão oficial. Você pode manter texto livre e salvar como pendente.</div>`;
+    return `<div class="pf-suggest-row">${rows.map(r => `<button type="button" class="pf-suggest-btn" onclick="pfPickField('${scope}','${flow.uid}','${kind}','${escHtml(String(r.id))}')">${escHtml(labelOf(r))}</button>`).join('')}</div><div class="pf-suggest-meta">Sugestões oficiais filtradas. Clique para selecionar.</div>`;
   }
   function renderSpecialties(scope, flow){
-    const listId = `${scope}-spec-list-${flow.uid}`;
-    const rows = specialtyFieldOptions(flow);
     const chips = (flow.specialties || []).length ? flow.specialties.map((s, idx) => `<div class="pf-chip ${(s.source_type!=='official' && !s.specialty_id)?'pending':''} ${idx===0?'primary':''}"><span class="pf-chip-label">${escHtml(s.specialty_label || (findSpecialty(s.specialty_id) ? labelOf(findSpecialty(s.specialty_id)) : 'Especialidade'))}</span>${idx===0?'<span class="pf-pill primary">Principal</span>':`<button type="button" class="pf-btn small ghost" onclick="pfSetPrimarySpecialty('${scope}','${flow.uid}','${s.uid}')">Tornar principal</button>`}<button type="button" class="pf-btn small ghost" onclick="pfRemoveSpecialty('${scope}','${flow.uid}','${s.uid}')">Remover</button></div>`).join('') : `<div class="pf-empty">Sem especialidades vinculadas neste fluxo.</div>`;
-    return `<div class="field-group fg-full"><label class="field-lbl">Especialidades</label><div class="pf-toolbar"><input class="field-input" id="${scope}-spec-input-${flow.uid}" list="${listId}" placeholder="Digite uma especialidade oficial ou registre uma pendente"><button type="button" class="pf-btn" onclick="pfAddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div>${renderDatalist(listId, rows)}<div class="pf-meta">Você pode selecionar várias especialidades. Se não houver opção oficial, o sistema grava como pendente para revisão.</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div>`;
+    return `<div class="field-group fg-full"><label class="field-lbl">Especialidades</label><div class="pf-field-shell"><div class="pf-toolbar"><input class="field-input" id="${scope}-spec-input-${flow.uid}" placeholder="Buscar especialidade oficial ou registrar pendente" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','specialty')" onblur="pfRenderFieldHints('${scope}','${flow.uid}','specialty')" onkeydown="if(event.key==='Enter'){event.preventDefault();pfAddSpecialty('${scope}','${flow.uid}')}"><button type="button" class="pf-btn" onclick="pfAddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div><div class="pf-suggest-wrap" id="${scope}-specialty-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'specialty', '')}</div></div><div class="pf-meta">Várias especialidades são permitidas. Sem opção oficial, salva como pendente.</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div>`;
   }
   function renderFlowCard(scope, flow, idx, total){
-    const areaList = `${scope}-area-list-${flow.uid}`;
-    const profList = `${scope}-prof-list-${flow.uid}`;
     const areaStatus = flow.area_id ? `<span class="pf-status-official">Oficial</span>` : (flow.area_label ? `<span class="pf-status-pending">Pendente</span>` : '');
     const profStatus = flow.profession_id ? `<span class="pf-status-official">Oficial</span>` : (flow.profession_label ? `<span class="pf-status-pending">Pendente</span>` : '');
-    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Fluxo profissional ${idx+1}</div><div class="pf-actions">${flow.is_primary?'<span class="pf-pill primary">Fluxo principal</span>':`<button type="button" class="pf-btn small" onclick="pfSetPrimaryFlow('${scope}','${flow.uid}')">Tornar principal</button>`}${total>1?`<button type="button" class="pf-btn small danger" onclick="pfRemoveFlow('${scope}','${flow.uid}')">Remover fluxo</button>`:''}</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Área</label><input class="field-input" list="${areaList}" value="${escHtml(flow.area_label)}" oninput="pfHandleField('${scope}','${flow.uid}','area',this.value)">${renderDatalist(areaList, areaRows())}<div class="pf-meta">${areaStatus || 'Digite para buscar no catálogo oficial. Sem match oficial, fica pendente.'}</div></div><div class="field-group"><label class="field-lbl">Profissão</label><input class="field-input" list="${profList}" value="${escHtml(flow.profession_label)}" oninput="pfHandleField('${scope}','${flow.uid}','profession',this.value)">${renderDatalist(profList, professionFieldOptions(flow))}<div class="pf-meta">${profStatus || 'A profissão é filtrada pela área quando houver área oficial.'}</div></div><div class="field-group"><label class="field-lbl">Observação do fluxo</label><div class="pf-section-note">Estrutura correta: Área → Profissão → Especialidades. Um candidato pode ter vários fluxos sem misturar trilhas.</div></div>${renderSpecialties(scope, flow)}</div></div>`;
+    const pathBits = [flow.area_label || 'Área', flow.profession_label || 'Profissão', (flow.specialties || []).map(s => s.specialty_label).filter(Boolean).join(' + ') || 'Especialidades'];
+    return `<div class="pf-card flow-card"><div class="pf-card-head"><div><div class="pf-card-title">Fluxo profissional ${idx+1}</div><div class="pf-path"><strong>${escHtml(pathBits[0])}</strong><span>→</span><strong>${escHtml(pathBits[1])}</strong><span>→</span><span>${escHtml(pathBits[2])}</span></div></div><div class="pf-actions">${flow.is_primary?'<span class="pf-pill primary">Fluxo principal</span>':`<button type="button" class="pf-btn small" onclick="pfSetPrimaryFlow('${scope}','${flow.uid}')">Tornar principal</button>`}${total>1?`<button type="button" class="pf-btn small danger" onclick="pfRemoveFlow('${scope}','${flow.uid}')">Remover fluxo</button>`:''}</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Área</label><div class="pf-field-shell"><input class="field-input" id="${scope}-area-input-${flow.uid}" value="${escHtml(flow.area_label)}" placeholder="Digite ou selecione uma área" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','area')" onchange="pfHandleField('${scope}','${flow.uid}','area',this.value)" onblur="pfHandleField('${scope}','${flow.uid}','area',this.value)"><div class="pf-suggest-wrap" id="${scope}-area-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'area', flow.area_label || '')}</div></div><div class="pf-meta">${areaStatus || 'Área oficial ou pendente. Nada de lista gigante fixa.'}</div></div><div class="field-group"><label class="field-lbl">Profissão</label><div class="pf-field-shell"><input class="field-input" id="${scope}-profession-input-${flow.uid}" value="${escHtml(flow.profession_label)}" placeholder="Digite ou selecione uma profissão" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','profession')" onchange="pfHandleField('${scope}','${flow.uid}','profession',this.value)" onblur="pfHandleField('${scope}','${flow.uid}','profession',this.value)"><div class="pf-suggest-wrap" id="${scope}-profession-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'profession', flow.profession_label || '')}</div></div><div class="pf-meta">${profStatus || 'Profissão filtrada pela área quando existir vínculo oficial.'}</div></div><div class="field-group"><label class="field-lbl">Como usar</label><div class="pf-section-note">1. Escolha a área. 2. Escolha a profissão. 3. Adicione uma ou mais especialidades. 4. Crie outro fluxo só quando a trilha for realmente diferente.</div></div>${renderSpecialties(scope, flow)}</div></div>`;
   }
   function renderFlowManager(scope){
     const data = scope === 'candidate' ? currentEditorData() : getNewState();
     const flows = (data.flows || []).length ? data.flows : [blankFlow(true)];
-    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Fluxos profissionais</div><div class="pf-actions"><button type="button" class="pf-btn" onclick="pfAddFlow('${scope}')">+ Adicionar novo fluxo</button></div></div><div class="pf-section-note">Use um painel por trilha profissional. Exemplo: Saúde → Médico → Ortopedia + Traumatologia. Se a opção não existir no catálogo, digite o texto e o sistema salva como pendente.</div><div class="pf-root" style="margin-top:12px">${flows.map((flow, idx) => renderFlowCard(scope, flow, idx, flows.length)).join('')}</div></div>`;
+    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Fluxos profissionais</div><div class="pf-actions"><button type="button" class="pf-btn" onclick="pfAddFlow('${scope}')">+ Adicionar novo fluxo</button></div></div><div class="pf-section-note">Cada fluxo representa uma trilha real. Exemplo: Saúde → Médico → Ortopedia + Traumatologia. O botão acima agora cria um novo painel vazio de verdade.</div><div class="pf-root" style="margin-top:12px">${flows.map((flow, idx) => renderFlowCard(scope, flow, idx, flows.length)).join('')}</div></div>`;
   }
   function renderProfessionalTab(c){
     return `<div class="pf-root"><div class="section-hdr">Formação & Carreira</div>${renderTrainingManager('candidate')}${renderFlowManager('candidate')}<div class="pf-grid">${renderStdInput(c,'Universidade','Universidade / Formação')}${renderStdInput(c,'Curso de Graduação','Curso de Graduação')}${renderStdSelect(c,'Anabin','Classificação Anabin')}${renderStdSelect(c,'Pós-graduação','Pós-graduação?')}${renderStdInput(c,'Experiência Profissional (tempo)','Exp. profissional (tempo)')}${renderStdInput(c,'Referência','Referência / Origem')}${renderStdInput(c,'Data da Candidatura','Data candidatura')}${renderStdInput(c,'CV/ ARQUIVO DOC','Link CV')}</div><div class="section-hdr">Idiomas</div><div class="pf-grid">${renderStdSelect(c,'Nível alemão','Nível de alemão')}${renderStdSelect(c,'Em curso de alemão','Cursando alemão?')}${renderStdInput(c,'Língua Estrangeira','Língua estrangeira')}${renderStdInput(c,'Nível Língua Estrangeira','Nível língua estrangeira')}${renderStdSelect(c,'Resultado da prova','Resultado de prova')}<div></div></div><div class="section-hdr">Resumo</div><div class="pf-grid">${renderStdTextarea(c,'Resumo profissional','Resumo profissional',true)}</div></div>`;
@@ -14217,6 +14262,53 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (scope === 'candidate') return setEditorPending(mutator);
     return setNewState(mutator);
   }
+  function getFlowByUid(scope, flowUid){ return (getScopeState(scope).flows || []).find(f => f.uid === flowUid) || blankFlow(false); }
+  window.pfRenderTrainingHints = function(scope){
+    const box = document.getElementById(`${scope}-training-hints`);
+    if (!box) return;
+    const query = document.getElementById(`${scope}-training-input`)?.value || '';
+    box.innerHTML = renderTrainingHintsHtml(scope, query);
+  };
+  window.pfQuickAddTraining = function(scope, trainingId){
+    const row = trainingById(trainingId);
+    if (!row) return;
+    setScopeState(scope, st => { st.trainings = [...new Set([...(st.trainings || []), String(row.id)])].filter(v => String(v) !== String(st.primaryTrainingId || '')); });
+    const input = document.getElementById(`${scope}-training-input`); if (input) input.value = '';
+  };
+  window.pfRenderFieldHints = function(scope, flowUid, kind){
+    const flow = getFlowByUid(scope, flowUid);
+    const inputId = kind === 'area' ? `${scope}-area-input-${flowUid}` : (kind === 'profession' ? `${scope}-profession-input-${flowUid}` : `${scope}-spec-input-${flowUid}`);
+    const boxId = kind === 'area' ? `${scope}-area-hints-${flowUid}` : (kind === 'profession' ? `${scope}-profession-hints-${flowUid}` : `${scope}-specialty-hints-${flowUid}`);
+    const box = document.getElementById(boxId);
+    if (!box) return;
+    const query = document.getElementById(inputId)?.value || '';
+    box.innerHTML = renderFieldHintsHtml(scope, flow, kind, query);
+  };
+  window.pfPickField = function(scope, flowUid, kind, id){
+    const row = kind === 'area' ? findArea(id) : (kind === 'profession' ? findProfession(id) : findSpecialty(id));
+    if (!row) return;
+    if (kind === 'specialty') {
+      const input = document.getElementById(`${scope}-spec-input-${flowUid}`);
+      if (input) input.value = labelOf(row);
+      return window.pfAddSpecialty(scope, flowUid);
+    }
+    setScopeState(scope, st => {
+      st.flows = (st.flows || []).map(flow => {
+        if (flow.uid !== flowUid) return flow;
+        const next = cleanFlow(flow);
+        if (kind === 'area') {
+          next.area_id = String(row.id); next.area_label = labelOf(row); next.source_type = 'official';
+          if (next.profession_id && !professionsForArea(next.area_id).some(r => String(r.id) === String(next.profession_id))) { next.profession_id=''; next.profession_label=''; next.profession_source_type='pending'; next.specialties=[]; }
+        }
+        if (kind === 'profession') {
+          next.profession_id = String(row.id); next.profession_label = labelOf(row); next.profession_source_type = 'official';
+          const ar = areaForProfession(row.id); if (ar) { next.area_id = String(ar.id); next.area_label = labelOf(ar); next.source_type='official'; }
+          next.specialties = (next.specialties || []).filter(s => !s.specialty_id || specialtiesForProfession(row.id).some(r => String(r.id) === String(s.specialty_id)) || s.source_type !== 'official');
+        }
+        return next;
+      });
+    });
+  };
   window.pfAddFlow = function(scope){ setScopeState(scope, st => { st.flows = Array.isArray(st.flows) ? st.flows : []; st.flows.push(blankFlow(!(st.flows.length))); }); };
   window.pfRemoveFlow = function(scope, flowUid){ setScopeState(scope, st => { st.flows = (st.flows || []).filter(f => f.uid !== flowUid); if (!st.flows.length) { st.flows = [blankFlow(true)]; return; } if (!st.flows.some(f => f.is_primary)) st.flows[0].is_primary = true; st.flows = st.flows.map((f,i)=>({ ...f, is_primary: !!f.is_primary && !(i>0 && st.flows.some((x,xi)=>xi<i && x.is_primary)) })); if (!st.flows.some(f => f.is_primary)) st.flows[0].is_primary = true; }); };
   window.pfSetPrimaryFlow = function(scope, flowUid){ setScopeState(scope, st => { st.flows = (st.flows || []).map(f => ({ ...f, is_primary: f.uid === flowUid })); }); };
