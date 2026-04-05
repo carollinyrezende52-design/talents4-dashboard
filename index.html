@@ -25,7 +25,7 @@
   --teal:#2dd4bf;--teal-bg:rgba(45,212,191,.10);
   --r:6px;--r2:10px;--r3:14px;--r4:20px;
   --sh:0 8px 32px rgba(0,0,0,.6);--sh2:0 2px 8px rgba(0,0,0,.35);
-  --sidebar:280px;--topbar:52px;
+  --sidebar:228px;--topbar:52px;
   --font:'Bricolage Grotesque',sans-serif;--mono:'JetBrains Mono',monospace;
   /* German flag stripe vars */
   --de-black:#1a1a1a;--de-red:#c41e3a;--de-gold:#f5c000;
@@ -91,7 +91,7 @@ a{color:inherit;text-decoration:none}
 }
 .tb-title{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .tb-space{flex:1}
-.search-wrap{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:6px 11px;width:220px;transition:border-color .15s}
+.search-wrap{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:6px 11px;width:208px;transition:border-color .15s}
 .search-wrap:focus-within{border-color:var(--accent)}
 .search-wrap input{flex:1;font-size:12.5px}
 .search-wrap input::placeholder{color:var(--txt3)}
@@ -259,20 +259,20 @@ a{color:inherit;text-decoration:none}
 .score-fill-mini{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--gold))}
 
 /* ══════════════════════════════════ TABLE ══════════════════════════════════ */
-.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r2)}
+.tbl-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--r2);background:var(--bg2);max-height:calc(100vh - 226px);scrollbar-gutter:stable both-edges}
 .data-tbl{width:100%;border-collapse:separate;border-spacing:0}
 .data-tbl th{
   text-align:left;padding:9px 13px;font-size:10.5px;font-weight:700;
   letter-spacing:.05em;text-transform:uppercase;color:var(--txt3);
   background:var(--bg2);border-bottom:1px solid var(--border);
-  white-space:nowrap;position:sticky;top:0;z-index:2
+  white-space:nowrap;position:sticky;top:0;z-index:2;backdrop-filter:blur(8px)
 }
-.data-tbl td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px;color:var(--txt2)}
+.data-tbl td{padding:8px 13px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px;color:var(--txt2)}
 .data-tbl tr:last-child td{border-bottom:none}
-.data-tbl tr{transition:background .1s;cursor:pointer}
+.data-tbl tr{transition:background .1s;cursor:pointer}.data-tbl tbody tr:nth-child(2n) td{background:color-mix(in srgb,var(--bg2) 90%, var(--bg3))}
 .data-tbl tr:hover td{background:var(--bg3)}
-.data-tbl td.td-name{color:var(--txt);font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.data-tbl td.td-id{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+.data-tbl td.td-name{color:var(--txt);font-weight:600;max-width:260px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;line-height:1.35}
+.data-tbl td.td-id{font-family:var(--mono);font-size:11px;color:var(--txt3);white-space:nowrap}
 .data-tbl td.td-center{text-align:center}
 .th-sort{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;padding:0}
 .th-sort .th-arrow{font-size:11px;color:var(--txt3)}
@@ -310,9 +310,9 @@ a{color:inherit;text-decoration:none}
 .modal-meta-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .modal-close{width:30px;height:30px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--txt2);flex-shrink:0;cursor:pointer}
 .modal-close:hover{background:var(--red-bg);color:var(--red)}
-.modal-body{flex:1;overflow-y:auto}
+.modal-body{flex:1;overflow-y:auto;scrollbar-gutter:stable both-edges}
 .modal-footer{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;background:var(--bg2);flex-shrink:0}
-.detail-tabs{display:flex;gap:1px;background:var(--bg3);padding:4px;border-radius:var(--r);margin:16px 22px 0;flex-shrink:0}
+.detail-tabs{display:flex;gap:1px;background:var(--bg3);padding:4px;border-radius:var(--r);margin:16px 22px 0;flex-shrink:0;overflow:auto;scrollbar-width:thin}
 
 /* ── Processamento de currículo (cadastro) ── */
 .doc-parse-bar {
@@ -423,7 +423,7 @@ a{color:inherit;text-decoration:none}
 /* ── Resumo Operacional (sprint 1 + 12.1) ── */
 .ops-summary {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6ª célula = Prontidão */
+  grid-template-columns: repeat(6, minmax(120px,1fr)); /* 6ª célula = Prontidão */
   gap: 0;
   margin: 10px 22px 0;
   border: 1px solid var(--border);
@@ -508,7 +508,7 @@ a{color:inherit;text-decoration:none}
 .pt-node.current{background:var(--gold);border-color:var(--gold);color:#111;box-shadow:0 0 10px rgba(245,192,0,.4)}
 .pt-line{height:2px;width:20px;background:var(--border2);flex-shrink:0;transition:background .2s}
 .pt-line.done{background:var(--accent)}
-.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .field-grid.g3{grid-template-columns:1fr 1fr 1fr}
 .field-grid.g1{grid-template-columns:1fr}
 .fg-full{grid-column:1/-1}
@@ -527,7 +527,7 @@ a{color:inherit;text-decoration:none}
 .score-wrap{margin-top:4px}
 .score-track{height:5px;background:var(--bg4);border-radius:99px;overflow:hidden;margin-top:4px}
 .score-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .6s}
-.filters-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filters-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:0;z-index:6;padding:10px 0 12px;background:linear-gradient(180deg,rgba(7,10,18,.98),rgba(7,10,18,.92) 78%,rgba(7,10,18,0));backdrop-filter:blur(6px)}
 .filter-chip{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px;font-size:12px;color:var(--txt2);cursor:pointer;transition:all .12s}
 .filter-chip:hover{border-color:var(--border2);color:var(--txt)}
 .filter-chip.active{border-color:var(--accent);color:var(--accent2);background:var(--accent-bg)}
@@ -1246,9 +1246,9 @@ a{color:inherit;text-decoration:none}
 .bi-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--txt3);font-weight:700;margin-bottom:8px}
 .bi-empty-soft{padding:10px 12px;border-radius:14px;border:1px dashed var(--border2);color:var(--txt3);font-size:11px;background:rgba(255,255,255,.02)}
 .emp-employer-mini summary{display:block}
-.emp-mini-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.emp-mini-card-preview{font-size:11.5px;color:#d5def0;line-height:1.45;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.emp-mini-card-toggle{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#7eb5ff;flex-shrink:0}
+.emp-mini-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.emp-mini-card-preview{font-size:11.5px;color:#d5def0;line-height:1.58;margin-top:6px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+.emp-mini-card-toggle{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#7eb5ff;flex-shrink:0;white-space:nowrap}
 .is-scope-hidden{display:none !important}
 .bi-summary-stack { display:flex; flex-direction:column; gap:10px; min-height:0; }
 .bi-action-row {
@@ -1846,7 +1846,7 @@ details.bi-secondary {
 
 
 /* ───────── Employer Hub v3 ───────── */
-.emp-hub{display:grid;grid-template-columns:300px minmax(420px,1fr) 420px;gap:14px;height:calc(100vh - 180px);max-height:calc(100vh - 180px);min-height:calc(100vh - 180px);align-items:stretch;overflow:hidden}
+.emp-hub{display:grid;grid-template-columns:186px minmax(760px,1.65fr) 364px;gap:14px;height:calc(100vh - 180px);max-height:calc(100vh - 180px);min-height:calc(100vh - 180px);align-items:stretch;overflow:hidden}
 .emp-pane{background:linear-gradient(180deg,rgba(13,19,33,.98),rgba(10,15,27,.98));border:1px solid rgba(103,126,170,.18);border-radius:18px;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.28)}
 .emp-pane-hd{padding:16px 16px 12px;border-bottom:1px solid rgba(103,126,170,.16);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .emp-pane-title{font-size:15px;font-weight:900;color:#f4f7ff}
@@ -1881,11 +1881,11 @@ details.bi-secondary {
 .emp-employer-brief-sub{font-size:10.5px;color:#8fa1bf;margin-top:3px;line-height:1.45}
 .emp-employer-chips{display:flex;flex-wrap:wrap;gap:6px}
 .emp-employer-chip{font-size:10.5px;color:#d1dcf2;padding:3px 8px;border-radius:999px;background:#10192d;border:1px solid rgba(103,126,170,.16)}
-.emp-employer-brief-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.emp-employer-brief-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .emp-employer-mini{padding:10px 11px;border-radius:12px;background:#10192d;border:1px solid rgba(103,126,170,.14)}
-.emp-employer-mini-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#90a3c6}
-.emp-employer-mini-val{font-size:12px;color:#eef4ff;font-weight:700;margin-top:5px;line-height:1.5;white-space:pre-wrap}
-.emp-employer-mini .emp-mini-preview,.emp-employer-mini .emp-mini-full{font-size:12px;color:#eef4ff;font-weight:700;line-height:1.5;white-space:pre-wrap}
+.emp-employer-mini-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#90a3c6;overflow-wrap:anywhere;word-break:break-word}
+.emp-employer-mini-val{font-size:12px;color:#eef4ff;font-weight:700;margin-top:8px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;display:none}
+.emp-employer-mini .emp-mini-preview,.emp-employer-mini .emp-mini-full{font-size:12px;color:#eef4ff;font-weight:700;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
 .emp-employer-mini .emp-mini-toggle{margin-top:6px}
 .emp-stat-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#92a3c2}
 .emp-stat-val{font-size:20px;font-weight:900;color:#f4f7ff;margin-top:4px}
@@ -1919,6 +1919,9 @@ details.bi-secondary {
 .emp-mini-expand>summary::-webkit-details-marker{display:none}
 .emp-mini-preview{font-size:12.5px;color:#d9e4f6;line-height:1.55;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .emp-mini-expand[open] .emp-mini-preview{display:none}
+.emp-mini-expand[open] .emp-mini-card-preview{display:none}
+.emp-mini-expand[open] .emp-mini-card-toggle{display:none}
+.emp-mini-expand[open] .emp-employer-mini-val{display:block}
 .emp-mini-full{font-size:12.5px;color:#d9e4f6;line-height:1.6;white-space:pre-wrap;margin-top:4px}
 .emp-mini-toggle{margin-top:7px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#7eb5ff}
 .emp-box .emp-mini-preview,.emp-box .emp-mini-full{font-size:13px;font-weight:800;color:#f1f6ff}
@@ -1931,9 +1934,10 @@ details.bi-secondary {
 .emp-link:hover{text-decoration:underline}
 .emp-muted{color:#9baccc}
 .emp-section-note{font-size:11px;color:#8fa1bf}
-.emp-create{white-space:nowrap}
-@media (max-width: 1480px){.emp-hub{grid-template-columns:280px minmax(360px,1fr) 360px}}
-@media (max-width: 1120px){.emp-hub{grid-template-columns:1fr}.emp-pane{min-height:auto}.emp-scroll{max-height:none}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.emp-employer-brief-grid{grid-template-columns:1fr 1fr}}
+.emp-create{white-space:nowrap;padding:6px 8px;font-size:10px;min-height:30px;min-width:auto;max-width:74px}
+@media (max-width: 1480px){.emp-hub{grid-template-columns:178px minmax(540px,1fr) 338px}}
+@media (max-width: 1120px){.emp-hub{grid-template-columns:1fr}.emp-pane{min-height:auto}.emp-scroll{max-height:none}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.emp-employer-brief-grid{grid-template-columns:1fr}}
+@media (max-width: 820px){.field-grid,.field-grid.g3{grid-template-columns:1fr}.modal-footer{flex-wrap:wrap}.modal-footer .btn{flex:1 1 auto}.detail-tabs{margin:12px 14px 0}.detail-panel{padding:14px 14px 18px}.modal-hdr,.modal-footer{padding-left:14px;padding-right:14px}}
 @media (max-width: 720px){.emp-employer-brief-grid{grid-template-columns:1fr}}
 
 /* ───────── Employer Modal ───────── */
@@ -2035,7 +2039,7 @@ details.bi-secondary {
     <div class="nav-sec">Sistema</div>
     <div class="nav-item" onclick="nav('settings')" data-v="settings"><span class="ico">⚙️</span>Configurações</div>
     <div class="sidebar-bottom">
-      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="openNewCandidate()">+ Novo Candidato</button>
+      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;padding:9px 12px;font-size:12px" onclick="openNewCandidate()">+ Novo Candidato</button>
       <div class="user-pill">
         <div class="user-av" id="user-av">?</div>
         <div style="flex:1;min-width:0"><div class="user-name" id="user-name">—</div><div class="user-role" id="user-role">—</div></div>
@@ -2075,7 +2079,7 @@ details.bi-secondary {
 
 <!-- ════════ CANDIDATE MODAL ════════ -->
 <div class="overlay" id="cand-overlay" onclick="closeCandOverlay(event)">
-  <div class="modal" id="cand-modal" style="width:min(920px,96vw);max-height:90vh">
+  <div class="modal" id="cand-modal" style="width:min(980px,96vw);max-height:92vh">
     <div class="modal-hdr">
       <div class="modal-av" id="cm-av">?</div>
       <div style="flex:1">
@@ -2109,7 +2113,7 @@ details.bi-secondary {
 
 <!-- ════════ NEW CANDIDATE MODAL ════════ -->
 <div class="overlay" id="new-overlay" onclick="closeNewOverlay(event)">
-  <div class="modal" style="width:min(560px,96vw);max-height:92vh">
+  <div class="modal" style="width:min(680px,96vw);max-height:92vh">
     <div class="modal-hdr">
       <div class="modal-av" style="background:var(--green-bg);color:var(--green)">+</div>
       <div style="flex:1"><div class="modal-title">Novo Candidato</div><div style="font-size:12px;color:var(--txt3)">Somente o nome é necessário</div></div>
@@ -2354,6 +2358,18 @@ function saveUsers(_)  { /* usuários gerenciados pelo Supabase Auth */ }
 function getSession()  { try { return JSON.parse(sessionStorage.getItem('t4_session') || 'null'); } catch { return null; } }
 function setSession(u) { try { sessionStorage.setItem('t4_session', JSON.stringify(u)); } catch(_) {} }
 function clearSession(){ try { sessionStorage.removeItem('t4_session'); } catch(_) {} }
+const VIEW_KEY = 't4_last_view';
+const DASHBOARD_SCOPE_KEY = 't4_dashboard_scope';
+const EMPLOYER_HUB_KEY = 't4_employer_hub';
+function persistUiState(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch(_) {} }
+function readUiState(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch(_) {
+    return fallback;
+  }
+}
 
 function getMfaState() { return S.mfa || { loaded:false, currentLevel:'aal1', nextLevel:'aal1', factors:[], verifiedFactors:[] }; }
 function hasAdminMfaVerified() {
@@ -2777,6 +2793,8 @@ const S = {
   sort: { view:'', key:'', dir:'' },
   syncTimer: null,
   lastSync: null,
+  parserAuditLogs: [],
+  parserAuditError: '',
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -3608,7 +3626,7 @@ async function initApp() {
     await refreshAdminMfaState();
     agLoad().catch(e => console.warn('[Agenda] Load falhou na init:', e.message));
     startRealtime().catch(e => console.warn('[Realtime]', e));
-    nav('dashboard');
+    nav(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
     startAutoSync();
     applyViewerRestrictions();
     const sess = getSession();
@@ -3619,7 +3637,7 @@ async function initApp() {
   } catch(e) {
     setSyncStatus('err');
     toast('⚠ Erro ao carregar dados: ' + e.message, 'err');
-    nav('dashboard');
+    nav(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
   }
 }
 
@@ -3649,6 +3667,21 @@ async function loadAll() {
 
     // Load N:N matches
     await loadAllMatches();
+
+    // Optional: parser audit logs for BI governance
+    try {
+      const { data: parserAuditData, error: parserAuditErr } = await supa
+        .from('parser_audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(120);
+      if (parserAuditErr) throw parserAuditErr;
+      S.parserAuditLogs = parserAuditData || [];
+      S.parserAuditError = '';
+    } catch (e) {
+      S.parserAuditLogs = [];
+      S.parserAuditError = e?.message || 'parser_audit_logs indisponível';
+    }
 
     S.lastSync   = new Date();
     updateBadges();
@@ -3701,6 +3734,7 @@ function setSyncStatus(state) {
 // Usado por filterByMetric para navegar sem disparar clearFilters.
 function _navSetupUI(view) {
   S.view = view; S.page = 1;
+  persistUiState(VIEW_KEY, view);
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.v === view));
   const titles = {
     dashboard:'Dashboard BI', kanban:'Kanban — Pipeline', candidates:'Candidatos',
@@ -3866,13 +3900,14 @@ function agingBands(list) {
 }
 
 function dashboardEnsureState() {
-  if (!S.dashboardUi) S.dashboardUi = { scope:'all' };
+  if (!S.dashboardUi) S.dashboardUi = readUiState(DASHBOARD_SCOPE_KEY, { scope:'all' }) || { scope:'all' };
   if (!['all','talents','employers','course','rh'].includes(S.dashboardUi.scope)) S.dashboardUi.scope = 'all';
   return S.dashboardUi;
 }
 function dashboardSetScope(scope) {
   dashboardEnsureState();
   S.dashboardUi.scope = scope;
+  persistUiState(DASHBOARD_SCOPE_KEY, S.dashboardUi);
   renderView();
   requestAnimationFrame(() => {
     const wrap = document.querySelector('.content');
@@ -3971,6 +4006,26 @@ function dashboardDrill(key, extra='') {
       _navSetupUI('alemao');
       S.filter._customFn = c => isCourseCandidate(c) && !fv(c,'Previsão de término','previsao_termino_alemao');
       break;
+    case 'stage_triagem_novo':
+      _navSetupUI('triagem');
+      S.filter._customFn = c => ['Triagem','Novo candidato'].includes(fv(c,'STATUS PIPELINE','status_pipeline'));
+      break;
+    case 'stage_rh':
+      _navSetupUI('analise');
+      S.filter._customFn = c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Análise RH';
+      break;
+    case 'stage_course':
+      _navSetupUI('alemao');
+      S.filter._customFn = c => isCourseCandidate(c);
+      break;
+    case 'stage_docs':
+      _navSetupUI('documentacao');
+      S.filter._customFn = c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Documentação';
+      break;
+    case 'stage_employer':
+      _navSetupUI('employer');
+      S.filter._customFn = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline'));
+      break;
     case 'rh_pending':
       _navSetupUI('analise');
       S.filter._customFn = c => hasInterviewData(c) && !fv(c,'decisao_operacional_rh','Decisão operacional RH');
@@ -4018,6 +4073,34 @@ function dashboardDrill(key, extra='') {
     case 'freshness_recent_3':
       _navSetupUI('candidates');
       S.filter._customFn = c => { const dt = fv(c,'Última atualização','updated_at','Data entrada etapa atual','created_at'); const days = daysSince(dt); return days !== null && days <= 3; };
+      break;
+    case 'history_stage_7':
+      _navSetupUI('candidates');
+      S.filter._customFn = c => dashboardCandidateHistoryMatches(c, { days:7, type:'stage' });
+      break;
+    case 'history_stage_30':
+      _navSetupUI('candidates');
+      S.filter._customFn = c => dashboardCandidateHistoryMatches(c, { days:30, type:'stage' });
+      break;
+    case 'history_german_30':
+      _navSetupUI('candidates');
+      S.filter._customFn = c => dashboardCandidateHistoryMatches(c, { days:30, type:'german' });
+      break;
+    case 'history_docs_30':
+      _navSetupUI('documentacao');
+      S.filter._customFn = c => dashboardCandidateHistoryMatches(c, { days:30, type:'docs' });
+      break;
+    case 'history_employer_30':
+      _navSetupUI('employer');
+      S.filter._customFn = c => dashboardCandidateHistoryMatches(c, { days:30, type:'employer' });
+      break;
+    case 'history_stale_no_recent':
+      _navSetupUI('candidates');
+      S.filter._customFn = c => {
+        const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+        const days = daysSince(dt);
+        return days !== null && days > 21 && !dashboardCandidateHistoryMatches(c, { days:30, type:'any' });
+      };
       break;
     case 'source_bucket':
       _navSetupUI('candidates');
@@ -4079,6 +4162,19 @@ function uiPercent(part, total) {
   if (!total) return 0;
   return Math.round((Number(part || 0) / Number(total || 1)) * 100);
 }
+function dashboardBucketLabel(raw, kind='generic') {
+  let s = String(raw || '').replace(/\s+/g,' ').trim();
+  if (!s || /^[-–—]+$/.test(s) || /^(n\/?a|na|null|undefined)$/i.test(s)) {
+    return kind === 'city' ? 'Não informado' : 'Não definido';
+  }
+  if (kind === 'priority') {
+    if (/^alta$/i.test(s)) return 'Alta';
+    if (/^m[ée]dia$/i.test(s)) return 'Média';
+    if (/^baixa$/i.test(s)) return 'Baixa';
+  }
+  if (kind === 'substatus' && /^sem substatus$/i.test(s)) return 'Sem substatus';
+  return s;
+}
 function averageDaysInCurrentStage(list) {
   const vals = (list || []).map(c => {
     const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
@@ -4090,6 +4186,30 @@ function averageDaysInCurrentStage(list) {
 function formatDaysCompact(days) {
   if (!Number.isFinite(days)) return '—';
   return `${days}d`;
+}
+function dashboardHistoryEntries(c, maxDays=null) {
+  const entries = typeof histRead === 'function' ? histRead(c) : [];
+  if (!Array.isArray(entries)) return [];
+  return entries.filter(e => {
+    if (!e || !e.ts) return false;
+    if (maxDays === null) return true;
+    const d = daysSince(e.ts);
+    return d !== null && d <= maxDays;
+  });
+}
+function dashboardCandidateHistoryMatches(c, opts={}) {
+  const days = Object.prototype.hasOwnProperty.call(opts, 'days') ? opts.days : null;
+  const type = opts.type || 'any';
+  const entries = dashboardHistoryEntries(c, days);
+  if (!entries.length) return false;
+  return entries.some(e => {
+    const campo = normalizeUpper(String(e?.campo || ''));
+    if (type === 'stage') return campo === 'STATUS PIPELINE' || campo === 'STATUS';
+    if (type === 'german') return campo.includes('ALEM') || campo.includes('IDIOMA');
+    if (type === 'docs') return campo.includes('DOCUMENT');
+    if (type === 'employer') return campo.includes('EMPLOYER') || campo.includes('HOSPITAL');
+    return true;
+  });
 }
 
 function renderDashboard(el) {
@@ -4109,6 +4229,10 @@ function renderDashboard(el) {
   const rhPool = ativos.filter(c => hasInterviewData(c) || fv(c,'decisao_operacional_rh','Decisão operacional RH') || fv(c,'resumo_rh_curto','Resumo RH curto'));
   const employerBase = getEmployerHubBase();
   const employerPipeline = ativos.filter(c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline')));
+  const triageNovoPool = ativos.filter(c => ['Triagem','Novo candidato'].includes(fv(c,'STATUS PIPELINE','status_pipeline')));
+  const rhStagePool = ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Análise RH');
+  const docsPool = ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Documentação');
+  const contractedPool = ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Contratado' || getEmployerLinkBucket(c) === 'contratados');
   const criticalPool = ativos.filter(c => hasCriticalDashboardIssue(c));
   const employers = [...new Set(employerBase.map(c => getEmployerDisplay(c).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const employerGroups = employers.map(name => {
@@ -4224,17 +4348,21 @@ function renderDashboard(el) {
 
   const genAt = S.lastSync ? new Date(S.lastSync).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '—';
 
-  const funnelData = PIPELINE_STAGES
-    .map(stage => ({ stage, count: ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === stage).length }))
-    .filter(r => r.count > 0);
+  const funnelData = [
+    { label:'Triagem / Novo', drill:'stage_triagem_novo', count: ativos.filter(c => ['Triagem','Novo candidato'].includes(fv(c,'STATUS PIPELINE','status_pipeline'))).length },
+    { label:'Análise RH', drill:'stage_rh', count: ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Análise RH').length },
+    { label:'Curso de Alemão', drill:'stage_course', count: coursePool.length },
+    { label:'Documentação', drill:'stage_docs', count: ativos.filter(c => fv(c,'STATUS PIPELINE','status_pipeline') === 'Documentação').length },
+    { label:'Employer / Matching', drill:'stage_employer', count: employerPipeline.length },
+  ].filter(r => r.count > 0);
   const maxFunnel = Math.max(...funnelData.map(r => r.count), 1);
-  const funnelColors = ['#38bdf8','#818cf8','#c084fc','#a78bfa','#f5c84a','#ff8c42','#1de99b','#fb923c','#2dd4bf','#06b6d4','#f5c000','#10b981'];
+  const funnelColors = ['#38bdf8','#818cf8','#c084fc','#a78bfa','#f5c84a','#ff8c42','#1de99b'];
   const funnelHtml = funnelData.map((row, idx) => {
-    const pct = Math.max(9, Math.round((row.count / maxFunnel) * 100));
+    const pct = Math.max(11, Math.round((row.count / maxFunnel) * 100));
     const col = funnelColors[idx % funnelColors.length];
-    return `<div class="bi-funnel-mini-row" onclick="filterByMetric('${row.stage.replace(/'/g, "\\'")}')">
+    return `<div class="bi-funnel-mini-row" onclick="dashboardDrill('${row.drill}')">
       <div class="bi-funnel-mini-fill" style="width:${pct}%;background:${col}"></div>
-      <div class="bi-funnel-mini-label">${esc(row.stage)}</div>
+      <div class="bi-funnel-mini-label">${esc(uiTranslate(row.label))}</div>
       <div class="bi-funnel-mini-count">${row.count}</div>
     </div>`;
   }).join('');
@@ -4290,6 +4418,23 @@ function renderDashboard(el) {
     </div>
   `).join('') || `<div class="bi-data-note">Sem gargalos críticos destacados agora.</div>`;
 
+  const executiveRadarRowsHtml = [
+    { key:'ready_without_employer', label:'Ready sem employer', sub:`${readyWithoutEmployer.length} ${uiTranslate('prontos sem employer para abordagem')}`, value: readyWithoutEmployer.length, tag:'warn' },
+    { key:'freshness_stale_21', label:'Fila +21 dias', sub:`${stalled21.length} ${uiTranslate('registros sem avanço real')}`, value: stalled21.length, tag:'risk' },
+    { key:'missing_owner', label:'Sem responsável', sub:`${missingOwner.length} ${uiTranslate('sem dono operacional')}`, value: missingOwner.length, tag:'risk' },
+    { key:'employer_unassigned', label:'Employer sem empresa', sub:`${employerUnassigned.length} ${uiTranslate('no pipeline employer sem conta')}`, value: employerUnassigned.length, tag:'warn' },
+    { key:'critical', label:'Docs travando talentos', sub:`${docsBlockingTalents.length} ${uiTranslate('prontos bloqueados por documentação')}`, value: docsBlockingTalents.length, tag:'risk' },
+  ].filter(row => row.value > 0).sort((a,b) => b.value - a.value).slice(0,4).map(row => `
+    <div class="bi-action-row" onclick="dashboardDrill('${row.key}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(uiTranslate(row.label))}</div>
+        <div class="bi-action-sub">${esc(row.sub)}</div>
+      </div>
+      <span class="bi-tag ${row.tag}">${row.tag === 'risk' ? uiTranslate('crítico') : uiTranslate('atenção')}</span>
+      <div class="bi-action-meta">${row.value}</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">${esc(uiTranslate('Sem alertas executivos acima do limiar agora.'))}</div>`;
+
   const dataQualityRows = [
     { key:'missing_email', label:'Sem e-mail', sub:'Cadastro sem contato de retorno', value: missingEmail.length, tag:'warn' },
     { key:'missing_phone', label:'Sem telefone', sub:'Contato direto ausente', value: missingPhone.length, tag:'warn' },
@@ -4317,6 +4462,108 @@ function renderDashboard(el) {
       <div class="bi-action-meta">${row.count}</div>
     </div>
   `).join('') || `<div class="bi-data-note">Sem responsáveis mapeados.</div>`;
+
+
+  const employerConversionRowsHtml = employerGroups.map(g => {
+    const positive = g.aprovados + g.contratados;
+    const conversionPct = uiPercent(positive, g.total || 1);
+    const hiredPct = uiPercent(g.contratados, g.total || 1);
+    const agingAvg = averageDaysInCurrentStage(g.items);
+    const stalled = g.items.filter(c => {
+      const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+      const days = daysSince(dt);
+      return days !== null && days > 21;
+    }).length;
+    const tag = g.contratados > 0 ? 'good' : conversionPct >= 35 ? 'info' : stalled > 0 ? 'warn' : 'risk';
+    return { ...g, positive, conversionPct, hiredPct, agingAvg, stalled, tag };
+  }).sort((a,b) => b.conversionPct - a.conversionPct || b.contratados - a.contratados || b.total - a.total).slice(0,6).map(g => `
+    <div class="bi-action-row" onclick="dashboardOpenEmployerGroup('${g.key.replace(/'/g,"\'")}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(g.name)}</div>
+        <div class="bi-action-sub">${g.positive}/${g.total} com retorno positivo · ${g.stalled} parados +21d · aging ${formatDaysCompact(g.agingAvg)}</div>
+      </div>
+      <span class="bi-tag ${g.tag}">${g.contratados > 0 ? 'hire' : g.conversionPct >= 35 ? 'boa taxa' : g.stalled > 0 ? 'aging' : 'baixo retorno'}</span>
+      <div class="bi-action-meta">${g.conversionPct}%</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem employers suficientes para medir conversão.</div>`;
+
+  const employerSlaRowsHtml = employerGroups.map(g => {
+    const late14 = g.items.filter(c => {
+      const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+      const days = daysSince(dt);
+      return days !== null && days > 14;
+    }).length;
+    const late30 = g.items.filter(c => {
+      const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+      const days = daysSince(dt);
+      return days !== null && days > 30;
+    }).length;
+    const agingAvg = averageDaysInCurrentStage(g.items);
+    const tag = late30 > 0 ? 'risk' : late14 > 0 ? 'warn' : 'good';
+    return { ...g, late14, late30, agingAvg, tag };
+  }).sort((a,b) => b.late30 - a.late30 || b.late14 - a.late14 || (b.agingAvg || 0) - (a.agingAvg || 0) || b.total - a.total).slice(0,6).map(g => `
+    <div class="bi-action-row" onclick="dashboardOpenEmployerGroup('${g.key.replace(/'/g,"\'")}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(g.name)}</div>
+        <div class="bi-action-sub">${uiTranslate('aging')} ${formatDaysCompact(g.agingAvg)} · ${g.late14} ${uiTranslate('fora do SLA 14d')} · ${g.late30} ${uiTranslate('críticos +30d')}</div>
+      </div>
+      <span class="bi-tag ${g.tag}">${g.late30 > 0 ? uiTranslate('fora do SLA') : g.late14 > 0 ? uiTranslate('atenção SLA') : uiTranslate('SLA ok')}</span>
+      <div class="bi-action-meta">${g.late14}/${g.total}</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem employers suficientes para medir SLA.</div>`;
+
+  const funnelQualityStages = [
+    { key:'stage_triagem_novo', label:'Triagem / Novo', list: triageNovoPool, nextLabel:'Análise RH', nextList: rhStagePool },
+    { key:'stage_rh', label:'Análise RH', list: rhStagePool, nextLabel:'Curso de Alemão', nextList: coursePool },
+    { key:'stage_course', label:'Curso de Alemão', list: coursePool, nextLabel:'Documentação', nextList: docsPool },
+    { key:'stage_docs', label:'Documentação', list: docsPool, nextLabel:'Employer / Matching', nextList: employerPipeline },
+    { key:'stage_employer', label:'Employer / Matching', list: employerPipeline, nextLabel:'Contratado', nextList: contractedPool },
+  ];
+
+  const funnelQualityRowsHtml = funnelQualityStages.filter(stage => stage.list.length > 0).map(stage => {
+    const nextCount = stage.nextList.length;
+    const gap = Math.max(stage.list.length - nextCount, 0);
+    const stalled = stage.list.filter(c => {
+      const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+      const days = daysSince(dt);
+      return days !== null && days > 15;
+    }).length;
+    const advancePct = uiPercent(nextCount, stage.list.length || nextCount);
+    const tag = stalled > Math.max(1, Math.round(stage.list.length * 0.35)) ? 'risk' : gap > Math.max(1, Math.round(stage.list.length * 0.5)) ? 'warn' : 'good';
+    return { ...stage, nextCount, gap, stalled, advancePct, tag };
+  }).map(stage => `
+    <div class="bi-action-row" onclick="dashboardDrill('${stage.key}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(uiTranslate(stage.label))}</div>
+        <div class="bi-action-sub">${stage.nextCount} ${uiTranslate('na próxima etapa')} (${uiTranslate(stage.nextLabel)}) · ${uiTranslate('gap atual')} ${stage.gap} · ${uiTranslate('fila crítica')} ${stage.stalled}</div>
+      </div>
+      <span class="bi-tag ${stage.tag}">${stage.tag === 'risk' ? uiTranslate('gargalo') : stage.tag === 'warn' ? uiTranslate('atenção') : uiTranslate('fluxo')}</span>
+      <div class="bi-action-meta">${stage.advancePct}%</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem etapas suficientes para medir qualidade do funil.</div>`;
+
+  const ownerPerformanceRowsHtml = ownerActionRows.map(row => {
+    const list = ativos.filter(c => (fv(c,'Responsável interno','responsavel_interno','Avaliador') || 'Sem responsável') === row.label);
+    const recent = list.filter(c => {
+      const dt = fv(c,'Última atualização','updated_at','Data entrada etapa atual','created_at');
+      const days = daysSince(dt);
+      return days !== null && days <= 7;
+    }).length;
+    const ready = list.filter(c => isEmployerReadyDashboard(c)).length;
+    const positive = list.filter(c => ['aprovados','contratados'].includes(getEmployerLinkBucket(c))).length;
+    const outputPct = uiPercent(positive + ready, row.count || 1);
+    const tag = row.label === 'Sem responsável' ? 'risk' : row.stalled > recent ? 'warn' : outputPct >= 45 ? 'good' : 'info';
+    return { ...row, recent, ready, positive, outputPct, tag };
+  }).sort((a,b) => (b.ready + b.positive) - (a.ready + a.positive) || a.stalled - b.stalled || b.count - a.count).slice(0,6).map(row => `
+    <div class="bi-action-row" onclick="dashboardDrill('owner_bucket','${row.label.replace(/'/g,"\'")}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(row.label)}</div>
+        <div class="bi-action-sub">${row.ready} ready · ${row.positive} com retorno employer · ${row.recent} atualizados em 7d</div>
+      </div>
+      <span class="bi-tag ${row.tag}">${row.label === 'Sem responsável' ? 'sem dono' : row.stalled > row.recent ? 'fila fria' : row.outputPct >= 45 ? 'produtivo' : 'tracking'}</span>
+      <div class="bi-action-meta">${row.count}</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem responsáveis suficientes para medir produtividade.</div>`;
 
   const todayActionRowsHtml = [
     { key:'ready_without_employer', label:'Acionar employers para ready pool', sub:`${readyWithoutEmployer.length} prontos sem employer`, value: readyWithoutEmployer.length, tag:'warn' },
@@ -4376,9 +4623,77 @@ function renderDashboard(el) {
     </div>
   `).join('') || `<div class="bi-empty-soft">Sem origem consolidada.</div>`;
 
-  const cities = dashboardGroupCount(scopePool, c => fv(c,'Cidade atual','cidade_atual') || 'N/A').slice(0,6);
-  const substatus = dashboardGroupCount(scopePool, c => fv(c,'Substatus','substatus') || 'Sem substatus').slice(0,8);
-  const priorities = dashboardGroupCount(scopePool, c => fv(c,'Prioridade comercial','prioridade_comercial') || 'Não definida').slice(0,5);
+  const historyEntries30 = ativos.flatMap(c => dashboardHistoryEntries(c, 30).map(e => ({ ...e, candidate: c, candidateId: candidateIdOf(c) })));
+  const historyEntries7 = historyEntries30.filter(e => { const d = daysSince(e?.ts); return d !== null && d <= 7; });
+  const stageHistory30 = historyEntries30.filter(e => dashboardCandidateHistoryMatches(e.candidate, { days:30, type:'stage' }) && (normalizeUpper(String(e?.campo || '')) === 'STATUS PIPELINE' || normalizeUpper(String(e?.campo || '')) === 'STATUS'));
+  const stageHistory7 = historyEntries7.filter(e => normalizeUpper(String(e?.campo || '')) === 'STATUS PIPELINE' || normalizeUpper(String(e?.campo || '')) === 'STATUS');
+  const germanHistory30 = ativos.filter(c => dashboardCandidateHistoryMatches(c, { days:30, type:'german' }));
+  const docsHistory30 = ativos.filter(c => dashboardCandidateHistoryMatches(c, { days:30, type:'docs' }));
+  const employerHistory30 = ativos.filter(c => dashboardCandidateHistoryMatches(c, { days:30, type:'employer' }));
+  const anyHistory30 = ativos.filter(c => dashboardCandidateHistoryMatches(c, { days:30, type:'any' }));
+  const staleWithoutRecentHistory = ativos.filter(c => {
+    const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+    const days = daysSince(dt);
+    return days !== null && days > 21 && !dashboardCandidateHistoryMatches(c, { days:30, type:'any' });
+  });
+  const transitionBuckets = dashboardGroupCount(stageHistory30, row => `${row.de || '—'} → ${row.para || '—'}`).slice(0,4);
+  const topTransition = transitionBuckets[0] || null;
+  const historyMovementRowsHtml = [
+    { key:'history_stage_7', label:'Mudanças de etapa em 7 dias', sub:`${new Set(stageHistory7.map(e => e.candidateId)).size} candidatos com mudança real de etapa`, value:new Set(stageHistory7.map(e => e.candidateId)).size, tag:'good' },
+    { key:'history_stage_30', label:'Mudanças de etapa em 30 dias', sub:`${new Set(stageHistory30.map(e => e.candidateId)).size} candidatos com mudança real de etapa`, value:new Set(stageHistory30.map(e => e.candidateId)).size, tag:'info' },
+    { key:'history_german_30', label:'Atualizações de alemão 30d', sub:`${germanHistory30.length} ajustes de nível ou idioma no período`, value:germanHistory30.length, tag:'warn' },
+    { key:'history_docs_30', label:'Atualizações documentais 30d', sub:`${docsHistory30.length} campos documentais alterados no período`, value:docsHistory30.length, tag:'warn' },
+    { key:'history_employer_30', label:'Atualizações employer 30d', sub:`${employerHistory30.length} mudanças ligadas a employer ou hospital alvo`, value:employerHistory30.length, tag:'info' },
+    { key:'history_stale_no_recent', label:'Sem rastreabilidade recente', sub:'+21d sem histórico recente e sem avanço claro', value:staleWithoutRecentHistory.length, tag:'risk' },
+  ].filter(row => row.value > 0).map(row => `
+    <div class="bi-action-row" onclick="dashboardDrill('${row.key}')">
+      <div class="bi-action-main">
+        <div class="bi-action-name">${esc(row.label)}</div>
+        <div class="bi-action-sub">${esc(row.sub)}</div>
+      </div>
+      <span class="bi-tag ${row.tag}">${row.tag === 'good' ? 'movendo' : row.tag === 'risk' ? 'atenção' : 'tracking'}</span>
+      <div class="bi-action-meta">${row.value}</div>
+    </div>
+  `).join('') || `<div class="bi-data-note">Sem histórico operacional suficiente ainda.</div>`;
+  const historyInsightsHtml = `
+    <div class="bi-note-list">
+      <div class="bi-note-item">
+        <div class="bi-note-main"><div class="bi-note-title">Eventos rastreados 30d</div><div class="bi-note-sub">mudanças críticas já salvas dentro do cadastro</div></div>
+        <div class="bi-note-value">${historyEntries30.length}</div>
+      </div>
+      <div class="bi-note-item">
+        <div class="bi-note-main"><div class="bi-note-title">Candidatos com movimento</div><div class="bi-note-sub">registros com qualquer alteração relevante em 30 dias</div></div>
+        <div class="bi-note-value" style="color:var(--green)">${anyHistory30.length}</div>
+      </div>
+      <div class="bi-note-item">
+        <div class="bi-note-main"><div class="bi-note-title">Transição mais comum</div><div class="bi-note-sub">${esc(topTransition ? topTransition.label : 'Sem histórico')}</div></div>
+        <div class="bi-note-value">${topTransition ? topTransition.count : '—'}</div>
+      </div>
+      <div class="bi-note-item">
+        <div class="bi-note-main"><div class="bi-note-title">Distribuição real</div><div class="bi-note-sub">${transitionBuckets.map(t => `${t.label} (${t.count})`).join(' · ') || 'Sem histórico operacional suficiente ainda.'}</div></div>
+        <div class="bi-note-value">${transitionBuckets.length}</div>
+      </div>
+    </div>`;
+
+  const rawCities = dashboardGroupCount(scopePool, c => dashboardBucketLabel(fv(c,'Cidade atual','cidade_atual'),'city'));
+  const knownCities = rawCities.filter(row => row.label !== 'Não informado');
+  const cities = (knownCities.length >= 3 ? knownCities : rawCities).slice(0,6);
+  const rawSubstatus = dashboardGroupCount(scopePool, c => dashboardBucketLabel(fv(c,'Substatus','substatus'),'substatus'));
+  const substatus = rawSubstatus.filter(row => row.label !== 'Não definido').slice(0,8);
+  const priorities = dashboardGroupCount(scopePool, c => dashboardBucketLabel(fv(c,'Prioridade comercial','prioridade_comercial'),'priority')).slice(0,5);
+
+  const parserLogs = Array.isArray(S.parserAuditLogs) ? S.parserAuditLogs : [];
+  const parserLogs30 = parserLogs.filter(l => { const d = daysSince(l?.created_at); return d !== null && d <= 30; });
+  const parserWarnLogs = parserLogs30.filter(l => Array.isArray(l?.warnings) && l.warnings.length > 0);
+  const parserLowDensityLogs = parserLogs30.filter(l => { const q = (l?.quality_metrics && typeof l.quality_metrics === 'object') ? l.quality_metrics : {}; return !!q.likely_scanned || Number(q.text_density || 0) < 18 || Number(q.chars_per_page || 0) < 700; });
+  const parserCriticalMissingLogs = parserLogs30.filter(l => { const miss = Array.isArray(l?.missing_fields) ? l.missing_fields : []; return ['nome_completo','email','telefone','profissao_principal'].some(k => miss.includes(k)); });
+  const parserExternalCount = parserLogs30.filter(l => !!l?.used_external_parser).length;
+  const parserFallbackCount = Math.max(0, parserLogs30.length - parserExternalCount);
+  const parserAvgMs = parserLogs30.length ? Math.round(parserLogs30.reduce((acc, cur) => acc + (Number(cur?.duration_ms) || 0), 0) / parserLogs30.length) : 0;
+  const parserLastAt = parserLogs30[0]?.created_at ? uiFormatDate(parserLogs30[0].created_at) : '—';
+  const parserAuditNote = parserLogs30.length
+    ? ''
+    : (S.parserAuditError ? uiTranslate('Parser audit indisponível no dashboard.') : uiTranslate('Sem logs de auditoria disponíveis ainda.'));
 
   el.innerHTML = `
     <div class="bi-premium">
@@ -4490,6 +4805,19 @@ function renderDashboard(el) {
           </div>
         </section>
 
+        <section class="bi-card span-4 ${scopeClass('employers','talents','rh')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Radar executivo</div>
+              <div class="bi-card-sub">Leitura curta das urgências que mais pressionam a operação.</div>
+            </div>
+            <span class="bi-card-badge">executivo</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-action-list show-3 tight">${executiveRadarRowsHtml}</div>
+          </div>
+        </section>
+
         <section class="bi-card span-4 ${scopeClass('employers','talents','course','rh')}">
           <div class="bi-card-head">
             <div>
@@ -4577,6 +4905,80 @@ function renderDashboard(el) {
           </div>
         </section>
 
+        <section class="bi-card span-6 ${scopeClass('employers','rh')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Conversão por employer</div>
+              <div class="bi-card-sub">Taxa de resposta, aging e contratação por employer-chave.</div>
+            </div>
+            <span class="bi-card-badge">account view</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-action-list show-3 tight">${employerConversionRowsHtml}</div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6 ${scopeClass('employers','rh')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">SLA comercial por employer</div>
+              <div class="bi-card-sub">Aging médio, itens fora de 14d e críticos acima de 30d por conta.</div>
+            </div>
+            <span class="bi-card-badge">SLA comercial</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-action-list show-3 tight">${employerSlaRowsHtml}</div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6 ${scopeClass('talents','employers','course','rh')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Qualidade do funil por etapa</div>
+              <div class="bi-card-sub">Leitura snapshot do avanço, gap atual e fila crítica por etapa.</div>
+            </div>
+            <span class="bi-card-badge">snapshot</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-action-list show-3 tight">${funnelQualityRowsHtml}</div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6 ${scopeClass('talents','employers','course','rh')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Movimentação recente do funil</div>
+              <div class="bi-card-sub">Usa histórico operacional já salvo no candidato para medir mudanças reais.</div>
+            </div>
+            <span class="bi-card-badge">${historyEntries30.length ? `${historyEntries30.length} eventos / 30d` : 'sem histórico'}</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-stack-grid">
+              <div>
+                <div class="bi-section-title">Ações rastreadas</div>
+                <div class="bi-action-list show-3 tight">${historyMovementRowsHtml}</div>
+              </div>
+              <div>
+                <div class="bi-section-title">Leitura do movimento</div>
+                ${historyInsightsHtml}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6 ${scopeClass('talents','employers','rh')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Produtividade por responsável</div>
+              <div class="bi-card-sub">Combina cadência, ready pool, resposta employer e backlog por owner.</div>
+            </div>
+            <span class="bi-card-badge">owner ops</span>
+          </div>
+          <div class="bi-card-body">
+            <div class="bi-action-list show-3 tight">${ownerPerformanceRowsHtml}</div>
+          </div>
+        </section>
+
         <section class="bi-card span-6 ${scopeClass('talents','employers','course','rh')}">
           <div class="bi-card-head">
             <div>
@@ -4618,6 +5020,57 @@ function renderDashboard(el) {
                   <div class="bi-summary-box" onclick="dashboardDrill('source_bucket','Currículo PDF')" style="cursor:pointer">
                     <div class="top"><div class="name">Dependência de PDF</div><div class="num">${uiPercent((sourceBuckets.find(x => x.label === 'Currículo PDF') || {count:0}).count, ativos.length)}%</div></div>
                     <div class="line">quanto da base ativa entrou por currículo PDF</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bi-card span-6 ${scopeClass('talents','employers','rh','course')}">
+          <div class="bi-card-head">
+            <div>
+              <div class="bi-card-title">Qualidade do parsing</div>
+              <div class="bi-card-sub">Leitura auditável do parser no Supabase: motor, warnings e densidade do PDF.</div>
+            </div>
+            <span class="bi-card-badge">${parserLogs30.length ? `${parserLogs30.length} logs / 30d` : 'sem logs'}</span>
+          </div>
+          <div class="bi-card-body">
+            ${parserAuditNote ? `<div class="bi-data-note">${esc(parserAuditNote)}</div>` : ``}
+            <div class="bi-stack-grid">
+              <div>
+                <div class="bi-summary-stack">
+                  <div class="bi-summary-box">
+                    <div class="top"><div class="name">Motor externo</div><div class="num">${parserExternalCount}</div></div>
+                    <div class="line"><strong>${uiPercent(parserExternalCount, parserLogs30.length || parserExternalCount)}</strong>% dos parses recentes usaram parser externo</div>
+                  </div>
+                  <div class="bi-summary-box">
+                    <div class="top"><div class="name">Fallback ativo</div><div class="num">${parserFallbackCount}</div></div>
+                    <div class="line">parses concluídos sem engine externa disponível</div>
+                  </div>
+                  <div class="bi-summary-box">
+                    <div class="top"><div class="name">Baixa densidade textual</div><div class="num">${parserLowDensityLogs.length}</div></div>
+                    <div class="line">PDFs com sinal de scan ruim ou texto insuficiente</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="bi-note-list">
+                  <div class="bi-note-item">
+                    <div class="bi-note-main"><div class="bi-note-title">Campos críticos faltando</div><div class="bi-note-sub">nome, contato ou profissão ausentes no retorno do parser</div></div>
+                    <div class="bi-note-value" style="color:#ff6b81">${parserCriticalMissingLogs.length}</div>
+                  </div>
+                  <div class="bi-note-item">
+                    <div class="bi-note-main"><div class="bi-note-title">Warnings emitidos</div><div class="bi-note-sub">parses com avisos de qualidade ou revisão manual</div></div>
+                    <div class="bi-note-value" style="color:var(--de-gold)">${parserWarnLogs.length}</div>
+                  </div>
+                  <div class="bi-note-item">
+                    <div class="bi-note-main"><div class="bi-note-title">Tempo médio por parse</div><div class="bi-note-sub">média dos últimos logs auditáveis</div></div>
+                    <div class="bi-note-value">${parserAvgMs ? `${parserAvgMs}ms` : '—'}</div>
+                  </div>
+                  <div class="bi-note-item">
+                    <div class="bi-note-main"><div class="bi-note-title">Último parse</div><div class="bi-note-sub">último registro recebido pelo dashboard</div></div>
+                    <div class="bi-note-value">${parserLastAt}</div>
                   </div>
                 </div>
               </div>
@@ -4940,6 +5393,7 @@ function getEmployerHubBase() {
   });
 }
 function ensureEmployerHubState(base) {
+  if (!S.employerHub) S.employerHub = readUiState(EMPLOYER_HUB_KEY, null);
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   const inEmployerPipeline = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE'));
   const employersById = new Map((S.employers || []).map(e => [String(e.id || ''), e]));
@@ -5082,6 +5536,7 @@ function ensureEmployerHubState(base) {
     S.employerHub.selectedCandidateId = entries[0]?.candidate?.ID || entries[0]?.candidate?.id || selectedGroup?.entries?.[0]?.candidate?.ID || selectedGroup?.entries?.[0]?.candidate?.id || '';
   }
   const selectedEntry = entries.find(e => String(e.candidate.ID || e.candidate.id || '') === String(S.employerHub.selectedCandidateId || '')) || entries[0] || null;
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
 
   return { groups, visibleGroups, selectedGroup, selectedCandidateId:S.employerHub.selectedCandidateId, selectedEntry, tab, unresolvedCount: unresolved.length, filteredEntries: entries };
 }
@@ -5089,17 +5544,20 @@ function setEmployerHubEmployer(key) {
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   S.employerHub.selectedEmployer = key || '';
   S.employerHub.selectedCandidateId = '';
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
   renderView();
 }
 function setEmployerHubCandidate(id) {
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   S.employerHub.selectedCandidateId = id || '';
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
   renderView();
 }
 function setEmployerHubTab(tab) {
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   S.employerHub.tab = tab || 'todos';
   S.employerHub.selectedCandidateId = '';
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
   renderView();
 }
 function setEmployerHubSearch(kind, value) {
@@ -5111,12 +5569,14 @@ function setEmployerHubSearch(kind, value) {
     S.employerHub.candidateSearch = value || '';
     S.employerHub.selectedCandidateId = '';
   }
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
   renderView();
 }
 function setEmployerHubQuickFilter(value) {
   S.employerHub = Object.assign({ selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' }, S.employerHub || {});
   S.employerHub.quickFilter = value || 'todos';
   S.employerHub.selectedCandidateId = '';
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
   renderView();
 }
 function goToCandidatesByEmployer(employer) {
@@ -5365,7 +5825,7 @@ function openMatchModal(candidatoId, matchData = null) {
 
   const html = `
   <div class="match-modal-overlay" id="match-modal-overlay" onclick="if(event.target===this)closeMatchModal()">
-    <div class="match-modal emp-modal">
+    <div class="match-modal emp-modal" style="width:min(720px,96vw)">
       <div class="emp-modal-hd">
         <div class="emp-modal-title">${isEdit ? '✏️ Editar vínculo' : '🔗 Vincular empregador'}</div>
         <button type="button" class="emp-modal-close" onclick="closeMatchModal()">✕</button>
@@ -5904,7 +6364,18 @@ function renderEmployerHub(el) {
       selectedEmployer.nivel_alemao_minimo ? `Alemão mín.: ${selectedEmployer.nivel_alemao_minimo}` : '',
       Number.isFinite(Number(selectedEmployer.vagas_abertas)) ? `Vagas: ${Number(selectedEmployer.vagas_abertas)}` : ''
     ].filter(Boolean);
-    const mini = (lbl, val) => { const raw = String(val || '').trim(); const preview = raw ? empPreview(raw.replace(/\s+/g,' ').trim(), 96) : '—'; return `<div class="emp-employer-mini"><details class="emp-mini-expand"><summary><div class="emp-mini-card-head"><div class="emp-employer-mini-lbl">${esc(lbl)}</div><div class="emp-mini-card-toggle">${esc(uiTranslate('Clique para expandir'))}</div></div><div class="emp-mini-card-preview">${esc(preview)}</div></summary><div class="emp-employer-mini-val">${raw ? esc(raw) : '—'}</div></details></div>`; };
+    const mini = (lbl, val) => {
+      const raw = String(val || '').trim();
+      if (!raw) return `<div class="emp-employer-mini"><div class="emp-employer-mini-lbl">${esc(lbl)}</div><div class="emp-mini-card-preview">—</div></div>`;
+      const normalized = raw.replace(/\s+/g,' ').trim();
+      const wordCount = normalized ? normalized.split(/\s+/).length : 0;
+      const shouldCollapse = normalized.length > 92 || wordCount > 14 || (raw.match(/\n/g) || []).length > 1;
+      if (!shouldCollapse) {
+        return `<div class="emp-employer-mini"><div class="emp-employer-mini-lbl">${esc(lbl)}</div><div class="emp-mini-card-preview" style="display:block;-webkit-line-clamp:unset;overflow:visible">${esc(raw)}</div></div>`;
+      }
+      const preview = empPreview(normalized, 96);
+      return `<div class="emp-employer-mini"><details class="emp-mini-expand"><summary><div class="emp-mini-card-head"><div class="emp-employer-mini-lbl">${esc(lbl)}</div><div class="emp-mini-card-toggle">${esc(uiTranslate('Expandir'))}</div></div><div class="emp-mini-card-preview" title="${esc(raw)}">${esc(preview)}</div></summary><div class="emp-employer-mini-val">${esc(raw)}</div></details></div>`;
+    };
     return `<div class="emp-employer-brief">
       <div class="emp-employer-brief-top">
         <div>
@@ -5915,12 +6386,12 @@ function renderEmployerHub(el) {
       </div>
       ${chips.length ? `<div class="emp-employer-chips">${chips.map(c => `<span class="emp-employer-chip">${esc(c)}</span>`).join('')}</div>` : ''}
       <div class="emp-employer-brief-grid">
-        ${mini('Perfis buscados', selectedEmployer.perfis_buscados || selectedEmployer.descricao_resumida || '—')}
-        ${mini('Requisitos principais', selectedEmployer.requisitos_principais || selectedEmployer.subsetor || '—')}
-        ${mini('Resumo operacional', selectedEmployer.descricao_operacional || selectedEmployer.observacoes_internas || '—')}
-        ${mini('Responsável interno', selectedEmployer.responsavel_interno || '—')}
-        ${mini('Origem do lead', selectedEmployer.origem_lead || '—')}
-        ${mini('Tags', Array.isArray(selectedEmployer.tags) ? selectedEmployer.tags.join(', ') : (selectedEmployer.tags || '—'))}
+        ${mini(uiTranslate('Perfis buscados'), selectedEmployer.perfis_buscados || selectedEmployer.descricao_resumida || '—')}
+        ${mini(uiTranslate('Requisitos principais'), selectedEmployer.requisitos_principais || selectedEmployer.subsetor || '—')}
+        ${mini(uiTranslate('Resumo operacional'), selectedEmployer.descricao_operacional || selectedEmployer.observacoes_internas || '—')}
+        ${mini(uiTranslate('Responsável interno'), selectedEmployer.responsavel_interno || '—')}
+        ${mini(uiTranslate('Origem do lead'), selectedEmployer.origem_lead || '—')}
+        ${mini(uiTranslate('Tags'), Array.isArray(selectedEmployer.tags) ? selectedEmployer.tags.join(', ') : (selectedEmployer.tags || '—'))}
       </div>
     </div>`;
   })() : '';
@@ -6323,7 +6794,7 @@ function renderTable(el, filterStatus) {
       const empresa = fv(c,'entrevista_preliminar_empresa_cliente')||'—';
       const vaga = fv(c,'entrevista_preliminar_posicao_vaga','posicao_vaga')||'—';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${dtFmt}</td>
         <td>${esc(entrevistador)}</td>
@@ -6357,7 +6828,7 @@ function renderTable(el, filterStatus) {
       const alc  = ALEMAO_COLORS[al]||'var(--txt3)';
       const truncate = (s,n) => s.length > n ? s.substring(0,n)+'…' : s;
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td style="font-size:11.5px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(truncate(String(resumo),80))}</td>
         <td><span class="badge ${normalizeUpper(risco).includes('ALTO')?'b-fraco':normalizeUpper(risco).includes('MEDIO')?'b-mediano':'b-bom'}">${esc(risco)}</span></td>
@@ -6388,7 +6859,7 @@ function renderTable(el, filterStatus) {
       const alc = ALEMAO_COLORS[al]||'var(--txt3)';
       const pronto = fv(c,'pronto_para_employer') || '—';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
         <td>${al?`<span style="font-weight:700;color:${alc};font-size:12px">${al}</span>`:'—'}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td><span class="badge ${normalizeUpper(pronto).includes('SIM')?'b-aprovado':normalizeUpper(pronto).includes('PARCIAL')?'b-mediano':'b-fraco'}">${esc(pronto)}</span></td>
@@ -6455,7 +6926,7 @@ function renderTable(el, filterStatus) {
         : `<span style="color:var(--txt3)">—</span>`;
       const stepper = levelStepper(ini, al, alvo);
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
         <td style="font-size:11.5px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(inst)}</td>
         <td>${stepper}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${dtIni}</td>
@@ -6493,7 +6964,7 @@ function renderTable(el, filterStatus) {
         ? '<span class="badge b-aprovado">✓ Completa</span>'
         : '<span class="badge b-fraco">Pendente</span>';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td>${docStatusBadge(pass)}</td>
         <td>${docStatusBadge(dipl)}</td>
@@ -6517,7 +6988,7 @@ function renderTable(el, filterStatus) {
       const al=fv(c,'Nível de alemão','Nível alemão')||'';
       const alc=ALEMAO_COLORS[al]||'var(--txt3)';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11.5px;color:var(--txt)">${esc(emp||'—')}</span>${empStatus?`<span style="font-size:10px;color:var(--txt3)">${esc(empStatus)}</span>`:''}</div></td>
         <td>${pf?`<span class="badge ${pfc}">${esc(pf.replace('Candidato ',''))}</span>`:'—'}</td>
@@ -6579,7 +7050,7 @@ function renderInativo(el) {
   const total = list.length;
   const rows = list.map(c => `
     <tr onclick="openCand('${esc(c.ID)}')">
-      <td class="td-name">${esc(c['Nome completo']||'—')}</td>
+      <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
       <td><span class="badge b-inativo">${esc(c['STATUS PIPELINE']||'—')}</span></td>
       <td>${esc(c['Motivo inativação']||'—')}</td>
       <td>${esc(c['Etapa de saída']||'—')}</td>
@@ -11333,8 +11804,20 @@ function agNav(dir) {
     'com contratados':'mit Einstellungen',
     'Gargalo de vinculação':'Zuordnungsengpass',
     'prontos sem employer':'bereit ohne Arbeitgeber',
+    'Radar executivo':'Management-Radar',
+    'Leitura curta das urgências que mais pressionam a operação.':'Kompakte Sicht auf die dringendsten Punkte mit dem größten Druck auf den Betrieb.',
+    'Ready sem employer':'Bereit ohne Arbeitgeber',
+    'prontos sem employer para abordagem':'bereite Profile ohne Arbeitgeber für die Ansprache',
+    'Fila +21 dias':'Warteschlange +21 Tage',
+    'registros sem avanço real':'Datensätze ohne echten Fortschritt',
+    'sem dono operacional':'ohne operative Zuständigkeit',
+    'Employer sem empresa':'Arbeitgeber-Schritt ohne Unternehmen',
+    'no pipeline employer sem conta':'in der Arbeitgeber-Pipeline ohne Konto',
+    'prontos bloqueados por documentação':'bereite Profile, die durch Unterlagen blockiert sind',
+    'Sem alertas executivos acima do limiar agora.':'Derzeit keine Management-Warnungen oberhalb des Schwellenwerts.',
     'Prioridades de ação':'Handlungsprioritäten',
     'Ações imediatas para operação e employer conversion.':'Sofortmaßnahmen für den Betrieb und die Arbeitgeber-Konversion.',
+    'executivo':'Management',
     'Prontos sem employer':'Bereit ohne Arbeitgeber',
     'Talentos prontos sem vínculo':'Einsatzbereite Talente ohne Zuordnung',
     'Sem employer definido':'Kein Arbeitgeber definiert',
@@ -11650,6 +12133,91 @@ function agNav(dir) {
     'Responsável':'Verantwortlich',
     'Observação':'Anmerkung'
   });
+
+  Object.assign(exactMap, {
+    'Não informado':'Nicht angegeben',
+    'Não definido':'Nicht definiert',
+    'Qualidade do parsing':'Parsing-Qualität',
+    'Leitura auditável do parser no Supabase: motor, warnings e densidade do PDF.':'Prüfbare Parser-Auswertung in Supabase: Engine, Warnungen und PDF-Dichte.',
+    'sem logs':'ohne Logs',
+    'logs / 30d':'Logs / 30T',
+    'Sem logs de auditoria disponíveis ainda.':'Noch keine Audit-Logs verfügbar.',
+    'Parser audit indisponível no dashboard.':'Parser-Audit im Dashboard nicht verfügbar.',
+    'Motor externo':'Externe Engine',
+    'dos parses recentes usaram parser externo':'der jüngsten Parses nutzten eine externe Engine',
+    'Fallback ativo':'Fallback aktiv',
+    'parses concluídos sem engine externa disponível':'Parses wurden ohne verfügbare externe Engine abgeschlossen',
+    'Baixa densidade textual':'Geringe Textdichte',
+    'PDFs com sinal de scan ruim ou texto insuficiente':'PDFs mit Hinweis auf schlechten Scan oder zu wenig Text',
+    'Campos críticos faltando':'Kritische Felder fehlen',
+    'nome, contato ou profissão ausentes no retorno do parser':'Name, Kontakt oder Beruf fehlen im Parser-Rücklauf',
+    'Warnings emitidos':'Ausgegebene Warnungen',
+    'parses com avisos de qualidade ou revisão manual':'Parses mit Qualitätshinweisen oder manuellem Prüfbedarf',
+    'Tempo médio por parse':'Durchschnittszeit pro Parse',
+    'média dos últimos logs auditáveis':'Durchschnitt der letzten prüfbaren Logs',
+    'Último parse':'Letzter Parse',
+    'último registro recebido pelo dashboard':'letzter vom Dashboard empfangener Eintrag',
+    'Triagem / Novo':'Erstsichtung / Neu',
+    'Expandir':'Erweitern',
+    'Conversão por employer':'Konversion nach Arbeitgeber',
+    'Taxa de resposta, aging e contratação por employer-chave.':'Antwortquote, Aging und Einstellung pro Schlüssel-Arbeitgeber.',
+    'SLA comercial por employer':'Vertriebs-SLA pro Arbeitgeber',
+    'Aging médio, itens fora de 14d e críticos acima de 30d por conta.':'Durchschnittliches Aging, Fälle außerhalb von 14 Tagen und kritische Fälle über 30 Tage pro Account.',
+    'SLA comercial':'Vertriebs-SLA',
+    'Qualidade do funil por etapa':'Trichterqualität pro Phase',
+    'Leitura snapshot do avanço, gap atual e fila crítica por etapa.':'Snapshot-Lesart von Fortschritt, aktuellem Gap und kritischer Warteschlange pro Phase.',
+    'snapshot':'Snapshot',
+    'Produtividade por responsável':'Produktivität pro Verantwortlichem',
+    'Combina cadência, ready pool, resposta employer e backlog por owner.':'Kombiniert Taktung, Ready-Pool, Arbeitgeber-Feedback und Backlog pro Owner.',
+    'account view':'Account-Sicht',
+    'owner ops':'Owner-Ops',
+    'boa taxa':'gute Quote',
+    'baixo retorno':'geringe Rückmeldung',
+    'fila fria':'kalte Pipeline',
+    'produtivo':'produktiv',
+    'Taxa de resposta e aging por employer-chave.':'Antwortquote und Aging pro Schlüssel-Arbeitgeber.',
+    'SLA ok':'SLA ok',
+    'atenção SLA':'SLA Achtung',
+    'fora do SLA':'außerhalb des SLA',
+    'fora do SLA 14d':'außerhalb SLA 14T',
+    'críticos +30d':'kritisch +30T',
+    'na próxima etapa':'in der nächsten Phase',
+    'gap atual':'aktuelles Gap',
+    'fila crítica':'kritische Warteschlange',
+    'gargalo':'Engpass',
+    'atenção':'Achtung',
+    'fluxo':'Fluss',
+    'Sem employers suficientes para medir SLA.':'Nicht genügend Arbeitgeber, um das SLA zu messen.',
+    'Sem etapas suficientes para medir qualidade do funil.':'Nicht genügend Phasen, um die Trichterqualität zu messen.',
+    'Movimentação recente do funil':'Letzte Trichterbewegung',
+    'Usa histórico operacional já salvo no candidato para medir mudanças reais.':'Nutzen Sie die bereits im Kandidaten gespeicherte Betriebshistorie, um reale Veränderungen zu messen.',
+    'sem histórico':'ohne Historie',
+    'eventos / 30d':'Ereignisse / 30T',
+    'Ações rastreadas':'Nachverfolgte Aktionen',
+    'Leitura do movimento':'Bewegungsanalyse',
+    'Mudanças de etapa em 7 dias':'Phasenwechsel in 7 Tagen',
+    'Mudanças de etapa em 30 dias':'Phasenwechsel in 30 Tagen',
+    'Atualizações de alemão 30d':'Deutsch-Updates 30T',
+    'Atualizações documentais 30d':'Dokumenten-Updates 30T',
+    'Atualizações employer 30d':'Arbeitgeber-Updates 30T',
+    'Sem rastreabilidade recente':'Keine aktuelle Rückverfolgbarkeit',
+    'Sem histórico operacional suficiente ainda.':'Noch nicht genügend Betriebshistorie vorhanden.',
+    'Eventos rastreados 30d':'Nachverfolgte Ereignisse 30T',
+    'mudanças críticas já salvas dentro do cadastro':'kritische Änderungen bereits im Datensatz gespeichert',
+    'Candidatos com movimento':'Bewerber mit Bewegung',
+    'registros com qualquer alteração relevante em 30 dias':'Datensätze mit relevanter Änderung in 30 Tagen',
+    'Transição mais comum':'Häufigster Übergang',
+    'Sem histórico':'Ohne Historie',
+    'Distribuição real':'Reale Verteilung',
+    'movendo':'in Bewegung',
+    'tracking':'Tracking',
+    'Sem employers suficientes para medir SLA.':'Nicht genügend Arbeitgeber, um das SLA zu messen.',
+    'aging':'Aging',
+    'Ready pool':'Ready-Pool',
+    'com retorno positivo':'mit positiver Rückmeldung',
+    'parados +21d':'Stillstand +21T',
+    'atualizados em 7d':'in 7T aktualisiert'
+  });
   const reverseMap = Object.fromEntries(Object.entries(exactMap).map(([pt,de]) => [de, pt]));
   const reversePlaceholderMap = Object.fromEntries(Object.entries(placeholderMap).map(([pt,de]) => [de, pt]));
   const reverseTitleMap = Object.fromEntries(Object.entries(titleMap).map(([pt,de]) => [de, pt]));
@@ -11676,10 +12244,17 @@ function agNav(dir) {
       m = str.match(/^(\d+)\s+contratados$/i); if (m) return `${m[1]} eingestellt`;
       m = str.match(/^(\d+)\s+sem resp\.$/i); if (m) return `${m[1]} ohne Zust.`;
       m = str.match(/^Todos\s+·\s+(\d+)$/i); if (m) return `Alle · ${m[1]}`;
+      m = str.match(/^(\d+)\/(\d+)\s+com retorno positivo\s+·\s+(\d+)\s+parados \+21d\s+·\s+aging\s+(.+)$/i); if (m) return `${m[1]}/${m[2]} mit positiver Rückmeldung · ${m[3]} Stillstand +21T · Aging ${m[4]}`;
+      m = str.match(/^(\d+)\s+ready\s+·\s+(\d+)\s+com retorno employer\s+·\s+(\d+)\s+atualizados em 7d$/i); if (m) return `${m[1]} ready · ${m[2]} mit Arbeitgeber-Rückmeldung · ${m[3]} in 7T aktualisiert`;
       m = str.match(/^Aguardando\s+·\s+(\d+)$/i); if (m) return `Wartend · ${m[1]}`;
       m = str.match(/^Aprovados\s+·\s+(\d+)$/i); if (m) return `Freigegeben · ${m[1]}`;
       m = str.match(/^Contratados\s+·\s+(\d+)$/i); if (m) return `Eingestellt · ${m[1]}`;
       m = str.match(/^(\d+)\s+vinculados\s+·\s+(\d+)\s+aguardando\s+·\s+(\d+)\s+aprovados\s+·\s+(\d+)\s+contratados$/i); if (m) return `${m[1]} zugeordnet · ${m[2]} wartend · ${m[3]} freigegeben · ${m[4]} eingestellt`;
+      m = str.match(/^(\d+)\s+candidatos com mudança real de etapa$/i); if (m) return `${m[1]} Bewerber mit realem Phasenwechsel`;
+      m = str.match(/^(\d+)\s+ajustes de nível ou idioma no período$/i); if (m) return `${m[1]} Sprach- oder Niveauanpassungen im Zeitraum`;
+      m = str.match(/^(\d+)\s+campos documentais alterados no período$/i); if (m) return `${m[1]} Dokumentfelder im Zeitraum geändert`;
+      m = str.match(/^(\d+)\s+mudanças ligadas a employer ou hospital alvo$/i); if (m) return `${m[1]} Änderungen bezogen auf Arbeitgeber oder Zielkrankenhaus`;
+      m = str.match(/^\+21d sem histórico recente e sem avanço claro$/i); if (m) return '+21T ohne aktuelle Historie und ohne klaren Fortschritt';
       m = str.match(/^Status\s+\(todos\)$/i); if (m) return 'Status (alle)';
       m = str.match(/^Perfil\s+\(todos\)$/i); if (m) return 'Profil (alle)';
     } else {
@@ -11843,6 +12418,583 @@ function agNav(dir) {
       scheduleApply(document.body);
     });
     mo.observe(document.body, { childList:true, subtree:true });
+  });
+})();
+</script>
+
+
+<style id="v32-ops-perf-style">
+body.crm-busy, body.crm-busy * { cursor: progress !important; }
+#topbar { position: sticky; top: 0; z-index: 40; }
+.search-wrap input.is-hotkey-focus,
+.emp-search.is-hotkey-focus {
+  border-color: rgba(96,165,250,.7) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.12) !important;
+}
+</style>
+<script id="v32-ops-perf-script">
+(function(){
+  const debounce = (fn, wait=160) => {
+    let t = null;
+    return function(...args){
+      const ctx = this;
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(ctx, args), wait);
+    };
+  };
+
+  function markHotkeyFocus(el){
+    if (!el) return;
+    el.classList.add('is-hotkey-focus');
+    setTimeout(() => el.classList.remove('is-hotkey-focus'), 900);
+  }
+
+  function focusBestSearch(){
+    const candidates = [
+      document.querySelector('#match-root .emp-toolbar .emp-search'),
+      document.querySelector('#match-root .emp-controls .emp-search'),
+      document.getElementById('nlp-search-input'),
+      document.getElementById('global-search'),
+    ].filter(Boolean).filter(el => {
+      const cs = window.getComputedStyle(el.closest('.search-wrap') || el);
+      return cs.display !== 'none' && cs.visibility !== 'hidden';
+    });
+    const el = candidates[0] || null;
+    if (!el) return false;
+    try {
+      el.focus();
+      if (typeof el.select === 'function') el.select();
+      markHotkeyFocus(el);
+      return true;
+    } catch(_e) {
+      return false;
+    }
+  }
+
+  function patchFn(name, factory){
+    if (typeof window[name] !== 'function') return;
+    const original = window[name];
+    if (original.__v32patched) return;
+    const patched = factory(original);
+    patched.__v32patched = true;
+    window[name] = patched;
+  }
+
+  patchFn('onSearch', (original) => debounce(function(q){ original.call(this, q); }, 150));
+  patchFn('applyNlpSearch', (original) => debounce(function(q){ original.call(this, q); }, 220));
+  patchFn('setEmployerHubSearch', (original) => {
+    const debounced = {};
+    return function(kind, value){
+      if (!debounced[kind]) debounced[kind] = debounce((v) => original.call(this, kind, v), 160);
+      debounced[kind](value);
+    };
+  });
+
+  function wrapAsyncOnce(name){
+    if (typeof window[name] !== 'function') return;
+    const original = window[name];
+    if (original.__v32wrapped) return;
+    let busy = false;
+    const wrapped = async function(...args){
+      if (busy) return;
+      busy = true;
+      document.body.classList.add('crm-busy');
+      try {
+        return await original.apply(this, args);
+      } finally {
+        setTimeout(() => {
+          busy = false;
+          document.body.classList.remove('crm-busy');
+        }, 180);
+      }
+    };
+    wrapped.__v32wrapped = true;
+    window[name] = wrapped;
+  }
+
+  ['submitNew','saveCandidate','saveMatchModal','saveEmployerModal'].forEach(wrapAsyncOnce);
+
+  document.addEventListener('keydown', (ev) => {
+    const key = (ev.key || '').toLowerCase();
+    const tag = (document.activeElement?.tagName || '').toLowerCase();
+    const typing = ['input','textarea','select'].includes(tag) || document.activeElement?.isContentEditable;
+
+    if ((ev.ctrlKey || ev.metaKey) && key === 'k') {
+      ev.preventDefault();
+      focusBestSearch();
+      return;
+    }
+
+    if (key !== 'escape') return;
+    const match = document.getElementById('match-modal-root');
+    if (match) { ev.preventDefault(); try { closeMatchModal(); } catch(_e) {} return; }
+    const employer = document.getElementById('employer-modal-root');
+    if (employer) { ev.preventDefault(); try { closeEmployerModal(); } catch(_e) {} return; }
+    const cand = document.getElementById('cand-overlay');
+    if (cand?.classList.contains('open')) { ev.preventDefault(); try { closeCand(); } catch(_e) {} return; }
+    const fresh = document.getElementById('new-overlay');
+    if (fresh?.classList.contains('open')) { ev.preventDefault(); try { closeNew(); } catch(_e) {} return; }
+    if (!typing && ['dashboard','candidates','prioritarios','triagem','entrevistas','analise','alemao','docs','match'].includes(window.S?.view)) {
+      focusBestSearch();
+    }
+  }, true);
+})();
+</script>
+
+
+<style id="v33-governance-style">
+.bi-card.v33-ops-card{background:linear-gradient(180deg,rgba(17,24,39,.92),rgba(9,13,24,.96));border:1px solid rgba(126,200,255,.14)}
+.bi-v33-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bi-v33-metric{padding:12px 12px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.03);cursor:pointer;min-width:0}
+.bi-v33-metric:hover{border-color:rgba(126,200,255,.3);transform:translateY(-1px)}
+.bi-v33-lbl{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+.bi-v33-num{font-size:22px;font-weight:800;line-height:1.1;margin-top:4px}
+.bi-v33-sub{font-size:11px;color:var(--txt3);margin-top:4px}
+@media (max-width:1200px){.bi-v33-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.bi-v33-grid{grid-template-columns:1fr}}
+</style>
+<script id="v33-governance-script">
+(function(){
+  const EXTRA_PT_DE = {
+    'Governança e histórico':'Governance und Verlauf',
+    'Leitura histórica real do funil e das edições críticas.':'Echte historische Sicht auf Pipeline und kritische Änderungen.',
+    'Movimentação 30d':'Bewegungen 30 Tage',
+    'eventos recentes do funil':'aktuelle Pipeline-Ereignisse',
+    'Entradas em employer':'Eintritte in Arbeitgeber-Stufe',
+    'mudanças para employer pipeline':'Wechsel in Arbeitgeber-Pipeline',
+    'Contratações 30d':'Einstellungen 30 Tage',
+    'transições registradas para contratado':'registrierte Übergänge zu eingestellt',
+    'Edições críticas 30d':'Kritische Änderungen 30 Tage',
+    'salvamentos auditados e rastreáveis':'auditierte und nachvollziehbare Änderungen',
+    'Leitura histórica disponível quando as tabelas opcionais do Supabase estiverem publicadas.':'Historische Sicht verfügbar, wenn die optionalen Supabase-Tabellen veröffentlicht wurden.',
+    'Histórico do funil indisponível':'Pipeline-Historie nicht verfügbar',
+    'Sem eventos históricos ainda':'Noch keine historischen Ereignisse',
+    'Histórico real do funil':'Echte Pipeline-Historie',
+    'Últimos 30 dias':'Letzte 30 Tage',
+    'sem sinais fortes':'keine starken Signale',
+    'nenhum campo crítico ausente':'kein kritisches Feld fehlt',
+    'sem avisos relevantes':'keine relevanten Hinweise',
+    'PDF com baixa densidade textual. Se o currículo for imagem/scan, revise tudo manualmente.':'PDF mit geringer Textdichte. Wenn der Lebenslauf ein Scan/Bild ist, alles manuell prüfen.',
+    'PDF retido — será enviado ao Drive ao criar o candidato.':'PDF vorgemerkt – wird beim Erstellen des Bewerbers an Drive gesendet.',
+    'Poucos campos identificados. Revise o preenchimento.':'Wenige Felder erkannt. Eingaben prüfen.',
+    'Processando currículo, preservando layout e identificando campos do cadastro...':'Lebenslauf wird verarbeitet, Layout bleibt erhalten und Formulardaten werden erkannt...',
+    'Campos críticos ausentes':'Fehlende kritische Felder',
+    'Campos críticos retornados pelo backend':'Kritische Felder aus dem Backend',
+    'Possíveis duplicidades':'Mögliche Duplikate',
+    'Qualidade do PDF':'PDF-Qualität',
+    'Confiança por campo':'Feldvertrauen',
+    'Avisos do parser':'Parser-Hinweise',
+    'Motor do parser':'Parser-Engine',
+    'Parser externo':'Externer Parser',
+    'Fallback determinístico':'Deterministischer Fallback',
+    'linhas/página':'Zeilen/Seite',
+    'chars/página':'Zeichen/Seite',
+    'páginas':'Seiten',
+    'Apenas arquivos PDF são aceitos neste fluxo.':'In diesem Ablauf werden nur PDF-Dateien akzeptiert.',
+    'A função de currículo retornou uma resposta inválida.':'Die Lebenslauf-Funktion hat eine ungültige Antwort geliefert.',
+    'Não foi possível extrair texto suficiente do PDF. Faça o cadastro manualmente.':'Aus dem PDF konnte nicht genug Text extrahiert werden. Bitte manuell anlegen.',
+    'Regras do funil':'Funnel-Regeln',
+    'Corrija os pontos críticos antes de salvar.':'Kritische Punkte vor dem Speichern korrigieren.',
+    'Ajustes recomendados antes de seguir.':'Empfohlene Anpassungen vor dem Fortfahren.',
+    'Contratado exige employer definido.':'Status Eingestellt erfordert einen definierten Arbeitgeber.',
+    'Retorno employer exige employer definido.':'Arbeitgeber-Rückmeldung erfordert einen definierten Arbeitgeber.',
+    'Documentação completa não pode coexistir com pendência documental crítica.':'Vollständige Unterlagen dürfen nicht zusammen mit kritischer Dokumentenlücke bestehen.',
+    'Curso de alemão sem marcação de curso ativo.':'Deutschkurs ohne Kennzeichnung als aktiver Kurs.',
+    'Status employer preenchido fora do pipeline employer.':'Arbeitgeberstatus außerhalb der Arbeitgeber-Pipeline ausgefüllt.',
+    'Data de envio employer preenchida fora do pipeline employer.':'Versanddatum an Arbeitgeber außerhalb der Arbeitgeber-Pipeline ausgefüllt.',
+    'Histórico do funil':'Pipeline-Historie',
+    'Eventos críticos':'Kritische Ereignisse',
+    'Cache operacional':'Operativer Cache'
+  };
+  const EXTRA_DE_PT = Object.fromEntries(Object.entries(EXTRA_PT_DE).map(([pt,de]) => [de,pt]));
+  const translateFn = window.t4TranslateUiString;
+  window.t4TranslateUiString = function(raw){
+    const base = typeof translateFn === 'function' ? translateFn(raw) : raw;
+    const lang = (typeof window.t4GetLang === 'function' ? window.t4GetLang() : 'pt');
+    if (base !== raw) return base;
+    if (typeof raw !== 'string') return raw;
+    return lang === 'de' ? (EXTRA_PT_DE[raw] || raw) : (EXTRA_DE_PT[raw] || raw);
+  };
+
+  function currentActor(){
+    try { return window.getSession ? (window.getSession() || {}) : {}; } catch(_) { return {}; }
+  }
+  function yesLike(v){
+    const s = String(v ?? '').trim().toLowerCase();
+    return ['sim','yes','true','1','ok','completo','vollständig','vollstaendig','ja'].includes(s);
+  }
+  function candidateIdOf(c){
+    try { return String(window.fv(c,'ID','id') || c?.ID || c?.id || ''); } catch(_) { return String(c?.ID || c?.id || ''); }
+  }
+  function compactFn(fn){
+    try { return fn ? String(fn).replace(/\s+/g,' ').slice(0,180) : ''; } catch(_) { return ''; }
+  }
+  function getPerf(){
+    if (!window.S) return { version:0, memo:new Map() };
+    if (!S.__perf) S.__perf = { version:0, memo:new Map(), auditReady:false };
+    return S.__perf;
+  }
+  function invalidatePerf(){
+    const perf = getPerf();
+    perf.version += 1;
+    perf.memo = new Map();
+  }
+
+  const originalLoadAll = window.loadAll;
+  if (typeof originalLoadAll === 'function') {
+    window.loadAll = async function(...args){
+      const result = await originalLoadAll.apply(this, args);
+      try {
+        const supa = await window.getSupa();
+        const [eventsResp, auditResp] = await Promise.all([
+          supa.from('pipeline_events').select('*').order('created_at', { ascending:false }).limit(400).then(r => r).catch(e => ({ data:[], error:e })),
+          supa.from('crm_audit_logs').select('*').order('created_at', { ascending:false }).limit(400).then(r => r).catch(e => ({ data:[], error:e })),
+        ]);
+        S.pipelineEvents = eventsResp?.data || [];
+        S.pipelineEventsError = eventsResp?.error?.message || '';
+        S.crmAuditLogs = auditResp?.data || [];
+        S.crmAuditLogsError = auditResp?.error?.message || '';
+      } catch(e) {
+        S.pipelineEvents = [];
+        S.crmAuditLogs = [];
+        S.pipelineEventsError = e?.message || '';
+        S.crmAuditLogsError = e?.message || '';
+      }
+      invalidatePerf();
+      return result;
+    };
+  }
+
+  if (typeof window.filterCands === 'function') {
+    const originalFilterCands = window.filterCands;
+    filterCands = function(list, includeInactive=false){
+      const perf = getPerf();
+      const isPrimary = list === S.candidates;
+      if (!isPrimary) return originalFilterCands.call(this, list, includeInactive);
+      const sigObj = {
+        version: perf.version,
+        includeInactive: !!includeInactive,
+        status: S.filter?.status || '',
+        q: S.filter?.q || '',
+        perfil: S.filter?.perfil || '',
+        alemao: S.filter?.alemao || '',
+        profissao: S.filter?.profissao || '',
+        empregador: S.filter?.empregador || '',
+        substatus: S.filter?.substatus || '',
+        prioridade: S.filter?.prioridade || '',
+        nlpProfissao: S.filter?._nlpProfissao || '',
+        nlpAlemao: S.filter?._nlpAlemao || '',
+        nlpCidade: S.filter?._nlpCidade || '',
+        nlpIdadeMax: S.filter?._nlpIdadeMax ?? '',
+        nlpIdadeMin: S.filter?._nlpIdadeMin ?? '',
+        custom: compactFn(S.filter?._customFn),
+      };
+      const key = 'filter:' + JSON.stringify(sigObj);
+      if (perf.memo.has(key)) return perf.memo.get(key);
+      const out = originalFilterCands.call(this, list, includeInactive);
+      if (perf.memo.size > 60) perf.memo.clear();
+      perf.memo.set(key, out);
+      return out;
+    };
+    window.filterCands = filterCands;
+  }
+
+  function buildValidationSnapshot(current, pending){
+    return { ...(current || {}), ...(pending || {}) };
+  }
+  function validatePipelineDraft(draft){
+    const fv = window.fv;
+    const stage = String(fv(draft,'STATUS PIPELINE','status_pipeline') || '').trim();
+    const employer = String((window.getEmployerDisplay ? window.getEmployerDisplay(draft) : (fv(draft,'Hospital alvo','hospital_alvo','Employer nome','employer_nome') || '')) || '').trim();
+    const retornoEmployer = String(fv(draft,'Retorno employer','retorno_employer') || '').trim();
+    const statusEmployer = String(fv(draft,'Status employer','status_employer') || '').trim();
+    const dataEnvioEmployer = String(fv(draft,'Data envio employer','data_envio_employer') || '').trim();
+    const docCompleta = yesLike(fv(draft,'Documentação completa','documentacao_completa'));
+    const pendenciaCritica = String(fv(draft,'Pendência documental crítica','pendencia_documental_critica') || '').trim();
+    const cursoAtivo = yesLike(fv(draft,'Em curso de alemão','em_curso_de_alemao'));
+    const errors = [];
+    const warnings = [];
+    if (stage === 'Contratado' && !employer) errors.push('Contratado exige employer definido.');
+    if ((retornoEmployer || statusEmployer || dataEnvioEmployer) && !employer) errors.push('Retorno employer exige employer definido.');
+    if (docCompleta && pendenciaCritica) errors.push('Documentação completa não pode coexistir com pendência documental crítica.');
+    if (stage === 'Curso de alemão' && !cursoAtivo) warnings.push('Curso de alemão sem marcação de curso ativo.');
+    if (!['Employer / Matching','Matching Instituição','Contratado'].includes(stage) && statusEmployer) warnings.push('Status employer preenchido fora do pipeline employer.');
+    if (!['Employer / Matching','Matching Instituição','Contratado'].includes(stage) && dataEnvioEmployer) warnings.push('Data de envio employer preenchida fora do pipeline employer.');
+    return { errors, warnings };
+  }
+  function notifyValidation(summary){
+    const errors = Array.isArray(summary?.errors) ? summary.errors : [];
+    const warnings = Array.isArray(summary?.warnings) ? summary.warnings : [];
+    if (errors.length) {
+      const msg = `${window.uiTranslate('Regras do funil')}: ${errors.map(e => window.uiTranslate(e)).join(' · ')}`;
+      window.toast(`❌ ${msg}`, 'err', 7000);
+      return false;
+    }
+    if (warnings.length && !window.confirm(`${window.uiTranslate('Ajustes recomendados antes de seguir.')}\n\n- ${warnings.map(e => window.uiTranslate(e)).join('\n- ')}`)) {
+      return false;
+    }
+    return true;
+  }
+
+  async function safeInsertOptional(table, rows){
+    if (!rows || !rows.length) return;
+    try {
+      const supa = await window.getSupa();
+      await supa.from(table).insert(rows);
+    } catch(e) {
+      console.warn(`[v33] ${table} insert skipped`, e?.message || e);
+    }
+  }
+
+  function buildPipelineEvents(before, after){
+    const actor = currentActor();
+    const actorName = actor?.nome || 'web';
+    const actorEmail = actor?.email || null;
+    const id = candidateIdOf(after || before || {});
+    const name = String(window.fv(after || before || {},'Nome completo','nome_completo') || '').trim() || null;
+    const now = new Date().toISOString();
+    const rows = [];
+    const beforeStage = String(window.fv(before || {},'STATUS PIPELINE','status_pipeline') || '').trim();
+    const afterStage = String(window.fv(after || {},'STATUS PIPELINE','status_pipeline') || '').trim();
+    if (id && beforeStage !== afterStage && afterStage) {
+      rows.push({
+        candidate_id: id,
+        candidate_name: name,
+        event_type: 'stage_transition',
+        field_name: 'status_pipeline',
+        stage_from: beforeStage || null,
+        stage_to: afterStage,
+        actor_name: actorName,
+        actor_email: actorEmail,
+        payload: { before_stage: beforeStage || null, after_stage: afterStage, source: 'crm_web' },
+        created_at: now
+      });
+    }
+    const tracked = [
+      ['Nível de alemão','nivel_alemao','german_update'],
+      ['Documentação completa','documentacao_completa','docs_update'],
+      ['Pendência documental crítica','pendencia_documental_critica','docs_update'],
+      ['Hospital alvo','hospital_alvo','employer_update'],
+      ['Employer nome','employer_nome','employer_update'],
+      ['Status employer','status_employer','employer_update'],
+    ];
+    for (const [label, snake, type] of tracked) {
+      const prev = String(window.fv(before || {},label,snake) || '').trim();
+      const next = String(window.fv(after || {},label,snake) || '').trim();
+      if (prev === next || (!prev && !next) || !id) continue;
+      rows.push({
+        candidate_id: id,
+        candidate_name: name,
+        event_type: type,
+        field_name: snake,
+        stage_from: beforeStage || null,
+        stage_to: afterStage || null,
+        actor_name: actorName,
+        actor_email: actorEmail,
+        payload: { field_label: label, before: prev || null, after: next || null, source: 'crm_web' },
+        created_at: now
+      });
+    }
+    return rows;
+  }
+
+  function buildAuditRows(action, entityType, entityId, summary, payload){
+    const actor = currentActor();
+    return [{
+      action,
+      entity_type: entityType,
+      entity_id: String(entityId || ''),
+      actor_name: actor?.nome || 'web',
+      actor_email: actor?.email || null,
+      summary,
+      payload: payload || {},
+      created_at: new Date().toISOString()
+    }];
+  }
+
+  const originalSaveCandidate = window.saveCandidate;
+  if (typeof originalSaveCandidate === 'function') {
+    window.saveCandidate = async function(...args){
+      const before = window.S?.currentCand ? JSON.parse(JSON.stringify(window.S.currentCand)) : null;
+      const pending = window.S?.pendingEdits ? JSON.parse(JSON.stringify(window.S.pendingEdits)) : {};
+      const draft = buildValidationSnapshot(before, pending);
+      const validation = validatePipelineDraft(draft);
+      if (!notifyValidation(validation)) return;
+      await originalSaveCandidate.apply(this, args);
+      const after = window.S?.currentCand ? JSON.parse(JSON.stringify(window.S.currentCand)) : null;
+      if (!after || !before) return;
+      const changedRows = buildPipelineEvents(before, after);
+      if (changedRows.length) await safeInsertOptional('pipeline_events', changedRows);
+      const changedKeys = Object.keys(pending || {}).filter(k => String((before || {})[k] ?? '') !== String((after || {})[k] ?? ''));
+      if (changedKeys.length) {
+        await safeInsertOptional('crm_audit_logs', buildAuditRows(
+          'candidate_update',
+          'candidate',
+          candidateIdOf(after),
+          `Atualização de candidato: ${changedKeys.slice(0,4).join(', ')}${changedKeys.length > 4 ? ` +${changedKeys.length - 4}` : ''}`,
+          { changed_fields: changedKeys, before_stage: window.fv(before,'STATUS PIPELINE','status_pipeline') || null, after_stage: window.fv(after,'STATUS PIPELINE','status_pipeline') || null }
+        ));
+      }
+      invalidatePerf();
+    };
+  }
+
+  const originalSubmitNew = window.submitNew;
+  if (typeof originalSubmitNew === 'function') {
+    window.submitNew = async function(...args){
+      const existingIds = new Set((S.candidates || []).map(candidateIdOf).filter(Boolean));
+      const stage = document.getElementById('n-status')?.value || 'Novo candidato';
+      const employer = '';
+      const draft = { 'STATUS PIPELINE': stage, 'Hospital alvo': employer, 'Documentação completa':'', 'Pendência documental crítica':'' };
+      const validation = validatePipelineDraft(draft);
+      if (!notifyValidation({ errors: validation.errors, warnings: validation.warnings.filter(Boolean) })) return;
+      await originalSubmitNew.apply(this, args);
+      const created = (S.candidates || []).find(c => !existingIds.has(candidateIdOf(c)));
+      if (created) {
+        const cid = candidateIdOf(created);
+        await safeInsertOptional('pipeline_events', [{
+          candidate_id: cid,
+          candidate_name: String(window.fv(created,'Nome completo','nome_completo') || '').trim() || null,
+          event_type: 'candidate_created',
+          field_name: null,
+          stage_from: null,
+          stage_to: String(window.fv(created,'STATUS PIPELINE','status_pipeline') || '').trim() || null,
+          actor_name: currentActor()?.nome || 'web',
+          actor_email: currentActor()?.email || null,
+          payload: { source: 'crm_web' },
+          created_at: new Date().toISOString()
+        }]);
+        await safeInsertOptional('crm_audit_logs', buildAuditRows(
+          'candidate_created',
+          'candidate',
+          cid,
+          'Novo candidato criado pelo fluxo operacional',
+          { stage: window.fv(created,'STATUS PIPELINE','status_pipeline') || null }
+        ));
+      }
+      invalidatePerf();
+    };
+  }
+
+  function recentWithin(list, days){
+    const limit = Date.now() - (days * 86400000);
+    return (Array.isArray(list) ? list : []).filter(row => {
+      const dt = new Date(row?.created_at || row?.ts || row?.timestamp || 0).getTime();
+      return Number.isFinite(dt) && dt >= limit;
+    });
+  }
+  function eventCandidateSet(events, predicate){
+    const ids = new Set();
+    (events || []).forEach(ev => {
+      if (predicate(ev)) ids.add(String(ev.candidate_id || ev.entity_id || '').trim());
+    });
+    ids.delete('');
+    return ids;
+  }
+  window.dashboardOpenHistoricalList = function(kind){
+    const events = Array.isArray(S.pipelineEvents) ? S.pipelineEvents : [];
+    const audit = Array.isArray(S.crmAuditLogs) ? S.crmAuditLogs : [];
+    let ids = new Set();
+    if (kind === 'stage30') ids = eventCandidateSet(recentWithin(events, 30), ev => ev.event_type === 'stage_transition');
+    if (kind === 'employer30') ids = eventCandidateSet(recentWithin(events, 30), ev => ev.event_type === 'employer_update' || ['Employer / Matching','Matching Instituição'].includes(String(ev.stage_to || '')));
+    if (kind === 'hired30') ids = eventCandidateSet(recentWithin(events, 30), ev => String(ev.stage_to || '').trim() === 'Contratado');
+    if (kind === 'audit30') ids = eventCandidateSet(recentWithin(audit, 30), ev => ev.entity_type === 'candidate');
+    if (!ids.size) {
+      window.toast(`⚠ ${window.uiTranslate('Sem eventos históricos ainda')}`, 'warn');
+      return;
+    }
+    if (typeof window.clearFilters === 'function') window.clearFilters();
+    S.view = 'candidates';
+    S.page = 1;
+    S.filter._customFn = c => ids.has(candidateIdOf(c));
+    if (typeof window.renderView === 'function') window.renderView();
+  };
+
+  function governanceSummary(){
+    const events30 = recentWithin(S.pipelineEvents || [], 30);
+    const audit30 = recentWithin(S.crmAuditLogs || [], 30);
+    const stage30 = events30.filter(ev => ev.event_type === 'stage_transition');
+    const employer30 = events30.filter(ev => ev.event_type === 'employer_update' || ['Employer / Matching','Matching Instituição'].includes(String(ev.stage_to || '')));
+    const hired30 = events30.filter(ev => String(ev.stage_to || '').trim() === 'Contratado');
+    return {
+      enabled: Array.isArray(S.pipelineEvents) && Array.isArray(S.crmAuditLogs) && !(S.pipelineEventsError && S.crmAuditLogsError),
+      stage30, employer30, hired30, audit30
+    };
+  }
+
+  function injectGovernanceCard(el){
+    const grid = el?.querySelector?.('.bi-grid');
+    if (!grid || grid.querySelector('#v33-governance-card')) return;
+    const summary = governanceSummary();
+    const card = document.createElement('section');
+    card.className = 'bi-card span-12 v33-ops-card';
+    card.id = 'v33-governance-card';
+    if (!summary.enabled) {
+      card.innerHTML = `
+        <div class="bi-card-head">
+          <div>
+            <div class="bi-card-title">${window.uiTranslate('Governança e histórico')}</div>
+            <div class="bi-card-sub">${window.uiTranslate('Leitura histórica real do funil e das edições críticas.')}</div>
+          </div>
+          <span class="bi-card-badge">${window.uiTranslate('Histórico do funil indisponível')}</span>
+        </div>
+        <div class="bi-card-body">
+          <div class="bi-data-note">${window.uiTranslate('Leitura histórica disponível quando as tabelas opcionais do Supabase estiverem publicadas.')}</div>
+        </div>`;
+      grid.prepend(card);
+      try { window.t4ApplyLanguageNow(card); } catch(_) {}
+      return;
+    }
+    card.innerHTML = `
+      <div class="bi-card-head">
+        <div>
+          <div class="bi-card-title">${window.uiTranslate('Governança e histórico')}</div>
+          <div class="bi-card-sub">${window.uiTranslate('Leitura histórica real do funil e das edições críticas.')}</div>
+        </div>
+        <span class="bi-card-badge">${window.uiTranslate('Últimos 30 dias')}</span>
+      </div>
+      <div class="bi-card-body">
+        <div class="bi-v33-grid">
+          <div class="bi-v33-metric" onclick="dashboardOpenHistoricalList('stage30')">
+            <div class="bi-v33-lbl">${window.uiTranslate('Movimentação 30d')}</div>
+            <div class="bi-v33-num">${summary.stage30.length}</div>
+            <div class="bi-v33-sub">${window.uiTranslate('eventos recentes do funil')}</div>
+          </div>
+          <div class="bi-v33-metric" onclick="dashboardOpenHistoricalList('employer30')">
+            <div class="bi-v33-lbl">${window.uiTranslate('Entradas em employer')}</div>
+            <div class="bi-v33-num">${summary.employer30.length}</div>
+            <div class="bi-v33-sub">${window.uiTranslate('mudanças para employer pipeline')}</div>
+          </div>
+          <div class="bi-v33-metric" onclick="dashboardOpenHistoricalList('hired30')">
+            <div class="bi-v33-lbl">${window.uiTranslate('Contratações 30d')}</div>
+            <div class="bi-v33-num">${summary.hired30.length}</div>
+            <div class="bi-v33-sub">${window.uiTranslate('transições registradas para contratado')}</div>
+          </div>
+          <div class="bi-v33-metric" onclick="dashboardOpenHistoricalList('audit30')">
+            <div class="bi-v33-lbl">${window.uiTranslate('Edições críticas 30d')}</div>
+            <div class="bi-v33-num">${summary.audit30.length}</div>
+            <div class="bi-v33-sub">${window.uiTranslate('salvamentos auditados e rastreáveis')}</div>
+          </div>
+        </div>
+      </div>`;
+    grid.prepend(card);
+    try { window.t4ApplyLanguageNow(card); } catch(_) {}
+  }
+
+  if (typeof renderDashboard === 'function') {
+    const originalRenderDashboard = renderDashboard;
+    renderDashboard = function(el){
+      originalRenderDashboard.call(this, el);
+      try { injectGovernanceCard(el); } catch(e) { console.warn('[v33] governance card failed', e); }
+      try { window.t4ApplyLanguageNow(el); } catch(_) {}
+    };
+    window.renderDashboard = renderDashboard;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      try { window.t4ApplyLanguageNow(document.body); } catch(_) {}
+    }, 180);
   });
 })();
 </script>
