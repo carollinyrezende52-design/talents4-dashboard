@@ -9980,37 +9980,47 @@ function onCandidateTaxonomyFieldChange(kind, selectEl) {
   const value = String(selectEl?.value || '').trim();
   const source = kind === 'area' ? (S.taxonomy.areas || []) : kind === 'profession' ? (S.taxonomy.professions || []) : (S.taxonomy.subareas || []);
   const row = taxonomyFindById(source, value);
-  const persistId = isPersistableTaxonomyId(value) ? value : null;
-  const label = row ? row.label_pt : '';
+  const persistId = row && isPersistableTaxonomyId(value) ? String(value) : null;
+  const uiId = row ? String(value) : '';
+  const label = row ? taxonomyDisplay(row) : '';
   if (kind === 'area') {
+    S.pendingEdits['__tax_area_ui_id'] = uiId || null;
     S.pendingEdits['area_id'] = persistId;
     S.pendingEdits['Área profissional'] = label || '';
+    S.pendingEdits['__tax_profession_ui_id'] = null;
     S.pendingEdits['profession_id'] = null;
     S.pendingEdits['Profissão principal'] = '';
+    S.pendingEdits['__tax_subarea_ui_id'] = null;
     S.pendingEdits['subarea_id'] = null;
     S.pendingEdits['subarea_label'] = '';
   } else if (kind === 'profession') {
+    S.pendingEdits['__tax_profession_ui_id'] = uiId || null;
     S.pendingEdits['profession_id'] = persistId;
     S.pendingEdits['Profissão principal'] = label || '';
     if (row?.area_id) {
       const areaRow = taxonomyFindById(S.taxonomy.areas || [], row.area_id);
-      S.pendingEdits['area_id'] = isPersistableTaxonomyId(row.area_id) ? String(row.area_id) : null;
-      S.pendingEdits['Área profissional'] = areaRow?.label_pt || S.pendingEdits['Área profissional'] || '';
+      S.pendingEdits['__tax_area_ui_id'] = areaRow ? String(areaRow.id) : (S.pendingEdits['__tax_area_ui_id'] || null);
+      S.pendingEdits['area_id'] = areaRow && isPersistableTaxonomyId(areaRow.id) ? String(areaRow.id) : null;
+      S.pendingEdits['Área profissional'] = areaRow ? taxonomyDisplay(areaRow) : (S.pendingEdits['Área profissional'] || '');
     }
+    S.pendingEdits['__tax_subarea_ui_id'] = null;
     S.pendingEdits['subarea_id'] = null;
     S.pendingEdits['subarea_label'] = '';
   } else {
+    S.pendingEdits['__tax_subarea_ui_id'] = uiId || null;
     S.pendingEdits['subarea_id'] = persistId;
     S.pendingEdits['subarea_label'] = label || '';
     if (row?.profession_id) {
       const profRow = taxonomyFindById(S.taxonomy.professions || [], row.profession_id);
       if (profRow) {
+        S.pendingEdits['__tax_profession_ui_id'] = String(profRow.id);
         S.pendingEdits['profession_id'] = isPersistableTaxonomyId(profRow.id) ? String(profRow.id) : null;
-        S.pendingEdits['Profissão principal'] = profRow.label_pt || S.pendingEdits['Profissão principal'] || '';
+        S.pendingEdits['Profissão principal'] = taxonomyDisplay(profRow) || S.pendingEdits['Profissão principal'] || '';
         const areaRow = taxonomyFindById(S.taxonomy.areas || [], profRow.area_id);
         if (areaRow) {
+          S.pendingEdits['__tax_area_ui_id'] = String(areaRow.id);
           S.pendingEdits['area_id'] = isPersistableTaxonomyId(areaRow.id) ? String(areaRow.id) : null;
-          S.pendingEdits['Área profissional'] = areaRow.label_pt || S.pendingEdits['Área profissional'] || '';
+          S.pendingEdits['Área profissional'] = taxonomyDisplay(areaRow) || S.pendingEdits['Área profissional'] || '';
         }
       }
     }
