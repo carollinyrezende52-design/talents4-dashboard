@@ -13913,5 +13913,744 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
 
 </script>
 
+
+<script>
+(function(){
+  if (window.__t4FlowHierarchyFixV46) return;
+  window.__t4FlowHierarchyFixV46 = true;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .t4-flow-stack{display:grid;gap:14px;margin-top:10px}
+    .t4-flow-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .t4-flow-title{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--txt2)}
+    .t4-flow-sub{font-size:11px;color:var(--txt3)}
+    .t4-flow-addbtn,.t4-flow-removebtn{
+      border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--txt2);
+      cursor:pointer;font-weight:700;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center
+    }
+    .t4-flow-addbtn{padding:9px 12px;gap:6px}
+    .t4-flow-removebtn{min-width:32px;height:32px}
+    .t4-flow-addbtn:hover,.t4-flow-removebtn:hover{border-color:var(--accent);color:var(--txt)}
+    .t4-flow-card{
+      border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      padding:14px;display:grid;gap:12px
+    }
+    .t4-flow-card.primary{border-color:rgba(126,181,255,.32);box-shadow:0 0 0 1px rgba(126,181,255,.08) inset}
+    .t4-flow-cardhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .t4-flow-cardtitle{font-size:12px;font-weight:800;color:var(--txt2);letter-spacing:.06em;text-transform:uppercase}
+    .t4-flow-cardmeta{font-size:11px;color:var(--txt3)}
+    .t4-flow-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .t4-flow-field{display:grid;gap:6px}
+    .t4-flow-field label{font-size:11px;color:var(--txt3);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+    .t4-flow-empty{padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--txt3);font-size:12px}
+    .t4-flow-trainings{display:grid;gap:8px}
+    .t4-flow-hiddenlegacy{display:none !important}
+    @media (max-width: 900px){
+      .t4-flow-grid{grid-template-columns:1fr}
+      .t4-flow-toolbar{align-items:flex-start}
+    }
+  `;
+  document.head.appendChild(style);
+
+  const oldBuildPanel = window.buildPanel;
+  const oldOpenCand = window.openCand;
+  const oldCloseCand = window.closeCand;
+  const oldOpenNewCandidate = window.openNewCandidate;
+  const oldCloseNew = window.closeNew;
+  const oldPopulateNewForm = window.populateNewForm;
+  const oldOnNewCandidateAreaChange = window.onNewCandidateAreaChange;
+  const oldOnNewCandidateProfessionChange = window.onNewCandidateProfessionChange;
+
+  const safeArr = v => Array.isArray(v) ? v : [];
+  const uniq = arr => [...new Set(safeArr(arr).map(v => String(v || '').trim()).filter(Boolean))];
+  const clone = v => JSON.parse(JSON.stringify(v));
+  const rowLabel = row => String((window.taxonomyDisplay ? taxonomyDisplay(row) : (row?.label_pt || row?.label_de || row?.code || '')) || '').trim();
+  const emptyFlow = () => ({ areaId:'', professionId:'', specialtyIds:[] });
+  const getAreas = () => safeArr(S?.taxonomy?.areas);
+  const getProfessions = () => safeArr(S?.taxonomy?.professions);
+  const getSpecialties = () => safeArr(S?.taxonomy?.subareas);
+  const getTrainings = () => safeArr(S?.relationCatalog?.trainings);
+
+  function normalizeFlow(flow){
+    const out = {
+      areaId: String(flow?.areaId || ''),
+      professionId: String(flow?.professionId || ''),
+      specialtyIds: uniq(flow?.specialtyIds || [])
+    };
+    const profRow = out.professionId ? taxonomyFindById(getProfessions(), out.professionId) : null;
+    if (profRow?.area_id) out.areaId = String(profRow.area_id);
+    out.specialtyIds = out.specialtyIds.filter(id => {
+      const row = taxonomyFindById(getSpecialties(), id);
+      return !!row && (!out.professionId || String(row.profession_id) === String(out.professionId));
+    });
+    return out;
+  }
+
+  function normalizeFlows(flows){
+    let out = safeArr(flows).map(normalizeFlow);
+    if (!out.length) out = [emptyFlow()];
+    const seen = new Set();
+    out = out.filter(flow => {
+      if (!flow.professionId) return true;
+      const key = String(flow.professionId);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    if (!out.length) out = [emptyFlow()];
+    return out;
+  }
+
+  function candidateFlowState(){
+    if (Array.isArray(S.pendingProfessionalFlows)) return normalizeFlows(clone(S.pendingProfessionalFlows));
+    const c = S.currentCand || {};
+    const primaryAreaId = String((Object.prototype.hasOwnProperty.call(S.pendingEdits || {}, 'area_id') ? S.pendingEdits.area_id : (fv(c,'area_id') || c?.area_id || '')) || '');
+    const primaryProfId = String((Object.prototype.hasOwnProperty.call(S.pendingEdits || {}, 'profession_id') ? S.pendingEdits.profession_id : (fv(c,'profession_id') || c?.profession_id || '')) || '');
+    const primarySpecId = String((Object.prototype.hasOwnProperty.call(S.pendingEdits || {}, 'subarea_id') ? S.pendingEdits.subarea_id : (fv(c,'subarea_id') || c?.subarea_id || '')) || '');
+    const relProfs = Array.isArray(S.pendingRelationEdits?.professions) ? S.pendingRelationEdits.professions : safeArr(S.currentCandRelations?.professions);
+    const relSpecs = Array.isArray(S.pendingRelationEdits?.specialties) ? S.pendingRelationEdits.specialties : safeArr(S.currentCandRelations?.specialties);
+
+    const flows = [];
+    const primary = normalizeFlow({ areaId: primaryAreaId, professionId: primaryProfId, specialtyIds: primarySpecId ? [primarySpecId] : [] });
+    flows.push(primary.professionId || primary.areaId || primary.specialtyIds.length ? primary : emptyFlow());
+
+    const byProfession = new Map();
+    uniq(relProfs).forEach(id => {
+      const profRow = taxonomyFindById(getProfessions(), id);
+      byProfession.set(String(id), normalizeFlow({ areaId: String(profRow?.area_id || ''), professionId: String(id), specialtyIds: [] }));
+    });
+    uniq(relSpecs).forEach(id => {
+      const specRow = taxonomyFindById(getSpecialties(), id);
+      const professionId = String(specRow?.profession_id || '');
+      if (!professionId) return;
+      if (professionId === String(primary.professionId || '')) {
+        flows[0].specialtyIds = uniq([...(flows[0].specialtyIds || []), String(id)]);
+        return;
+      }
+      const profRow = taxonomyFindById(getProfessions(), professionId);
+      const existing = byProfession.get(professionId) || normalizeFlow({ areaId: String(profRow?.area_id || ''), professionId, specialtyIds: [] });
+      existing.specialtyIds = uniq([...(existing.specialtyIds || []), String(id)]);
+      byProfession.set(professionId, existing);
+    });
+
+    [...byProfession.values()]
+      .sort((a,b) => {
+        const al = rowLabel(taxonomyFindById(getProfessions(), a.professionId));
+        const bl = rowLabel(taxonomyFindById(getProfessions(), b.professionId));
+        return al.localeCompare(bl, 'pt-BR');
+      })
+      .forEach(flow => flows.push(flow));
+
+    S.pendingProfessionalFlows = normalizeFlows(flows);
+    return clone(S.pendingProfessionalFlows);
+  }
+
+  function applyCandidateFlows(flows){
+    const normalized = normalizeFlows(flows);
+    S.pendingProfessionalFlows = clone(normalized);
+    const primary = normalized[0] || emptyFlow();
+
+    const areaRow = primary.areaId ? taxonomyFindById(getAreas(), primary.areaId) : null;
+    const profRow = primary.professionId ? taxonomyFindById(getProfessions(), primary.professionId) : null;
+    const primarySpecId = String(primary.specialtyIds?.[0] || '');
+    const specRow = primarySpecId ? taxonomyFindById(getSpecialties(), primarySpecId) : null;
+
+    S.pendingEdits['__tax_area_ui_id'] = areaRow ? String(areaRow.id) : null;
+    S.pendingEdits['area_id'] = areaRow && isPersistableTaxonomyId(areaRow.id) ? String(areaRow.id) : null;
+    S.pendingEdits['Área profissional'] = areaRow ? rowLabel(areaRow) : '';
+
+    S.pendingEdits['__tax_profession_ui_id'] = profRow ? String(profRow.id) : null;
+    S.pendingEdits['profession_id'] = profRow && isPersistableTaxonomyId(profRow.id) ? String(profRow.id) : null;
+    S.pendingEdits['Profissão principal'] = profRow ? rowLabel(profRow) : '';
+
+    S.pendingEdits['__tax_subarea_ui_id'] = specRow ? String(specRow.id) : null;
+    S.pendingEdits['subarea_id'] = specRow && isPersistableTaxonomyId(specRow.id) ? String(specRow.id) : null;
+    S.pendingEdits['subarea_label'] = specRow ? rowLabel(specRow) : '';
+
+    if (areaRow || profRow || specRow) {
+      S.pendingEdits['taxonomy_status'] = (S.pendingEdits['area_id'] || S.pendingEdits['profession_id'] || S.pendingEdits['subarea_id']) ? 'mapped' : 'seed_selected';
+      S.pendingEdits['taxonomy_confidence'] = (S.pendingEdits['area_id'] || S.pendingEdits['profession_id'] || S.pendingEdits['subarea_id']) ? 1 : 0.78;
+    } else {
+      S.pendingEdits['taxonomy_status'] = null;
+      S.pendingEdits['taxonomy_confidence'] = null;
+    }
+
+    const additionalProfs = uniq(normalized.slice(1).map(flow => flow.professionId).filter(Boolean));
+    const additionalSpecs = uniq(normalized.flatMap((flow, idx) => safeArr(flow.specialtyIds).filter((id, specIdx) => !(idx === 0 && specIdx === 0))));
+
+    S.pendingRelationEdits = S.pendingRelationEdits || { professions:null, trainings:null, specialties:null };
+    S.pendingRelationEdits.professions = additionalProfs;
+    S.pendingRelationEdits.specialties = additionalSpecs;
+    updateCandidateSaveUi();
+  }
+
+  function currentTrainingState(){
+    const primary = String((Object.prototype.hasOwnProperty.call(S.pendingEdits || {}, 'primary_training_id') ? S.pendingEdits.primary_training_id : (fv(S.currentCand || {}, 'primary_training_id') || S.currentCand?.primary_training_id || '')) || '');
+    const additional = Array.isArray(S.pendingRelationEdits?.trainings) ? uniq(S.pendingRelationEdits.trainings) : uniq(S.currentCandRelations?.trainings || []);
+    return { primary, additional: additional.filter(id => String(id) !== primary) };
+  }
+
+  function setCandidatePrimaryTraining(id){
+    const value = String(id || '');
+    S.pendingEdits['primary_training_id'] = value || null;
+    S.pendingRelationEdits = S.pendingRelationEdits || { professions:null, trainings:null, specialties:null };
+    S.pendingRelationEdits.trainings = uniq((S.pendingRelationEdits.trainings || S.currentCandRelations?.trainings || []).filter(v => String(v) !== value));
+    updateCandidateSaveUi();
+    refreshCandidateProfessionalTab();
+  }
+
+  function addCandidateTraining(){
+    const input = document.querySelector('#t-profissional [data-cand-training-input]');
+    if (!input) return;
+    const q = String(input.value || '').trim();
+    if (!q) return;
+    const rows = getTrainings();
+    const resolved = rows.find(r => [rowLabel(r), r?.label_de, r?.code].some(v => String(v || '').trim().toLowerCase() === q.toLowerCase()))
+      || rows.find(r => [rowLabel(r), r?.label_de, r?.code].some(v => String(v || '').trim().toLowerCase().startsWith(q.toLowerCase())))
+      || rows.find(r => [rowLabel(r), r?.label_de, r?.code].some(v => String(v || '').trim().toLowerCase().includes(q.toLowerCase())));
+    if (!resolved) { toast('Selecione uma formação oficial da lista.', 'warn'); return; }
+    const state = currentTrainingState();
+    const resolvedId = String(resolved.id);
+    if (resolvedId === state.primary || state.additional.includes(resolvedId)) { input.value = ''; return; }
+    S.pendingRelationEdits = S.pendingRelationEdits || { professions:null, trainings:null, specialties:null };
+    S.pendingRelationEdits.trainings = uniq([...(state.additional || []), resolvedId]);
+    input.value = '';
+    updateCandidateSaveUi();
+    refreshCandidateProfessionalTab();
+  }
+
+  function removeCandidateTraining(id){
+    const state = currentTrainingState();
+    S.pendingRelationEdits = S.pendingRelationEdits || { professions:null, trainings:null, specialties:null };
+    S.pendingRelationEdits.trainings = uniq((state.additional || []).filter(v => String(v) !== String(id)));
+    updateCandidateSaveUi();
+    refreshCandidateProfessionalTab();
+  }
+
+  function newFlowStateFromHidden(){
+    if (Array.isArray(window.NEWCAND_FLOW_STATE?.flows)) return normalizeFlows(clone(window.NEWCAND_FLOW_STATE.flows));
+    const primary = normalizeFlow({
+      areaId: document.getElementById('n-area')?.value || '',
+      professionId: document.getElementById('n-prof')?.value || '',
+      specialtyIds: (document.getElementById('n-subarea')?.value || '') ? [document.getElementById('n-subarea').value] : []
+    });
+    const flows = [primary.professionId || primary.areaId || primary.specialtyIds.length ? primary : emptyFlow()];
+    const profs = uniq(window.NEWCAND_MULTI?.professions || []);
+    const specs = uniq(window.NEWCAND_MULTI?.specialties || []);
+    const byProfession = new Map();
+    profs.forEach(id => {
+      const profRow = taxonomyFindById(getProfessions(), id);
+      byProfession.set(String(id), normalizeFlow({ areaId: String(profRow?.area_id || ''), professionId: String(id), specialtyIds: [] }));
+    });
+    specs.forEach(id => {
+      const specRow = taxonomyFindById(getSpecialties(), id);
+      const professionId = String(specRow?.profession_id || '');
+      if (!professionId) return;
+      if (professionId === String(primary.professionId || '')) {
+        flows[0].specialtyIds = uniq([...(flows[0].specialtyIds || []), String(id)]);
+        return;
+      }
+      const profRow = taxonomyFindById(getProfessions(), professionId);
+      const existing = byProfession.get(professionId) || normalizeFlow({ areaId: String(profRow?.area_id || ''), professionId, specialtyIds: [] });
+      existing.specialtyIds = uniq([...(existing.specialtyIds || []), String(id)]);
+      byProfession.set(professionId, existing);
+    });
+    [...byProfession.values()].forEach(flow => flows.push(flow));
+    window.NEWCAND_FLOW_STATE = { flows: normalizeFlows(flows) };
+    return clone(window.NEWCAND_FLOW_STATE.flows);
+  }
+
+  function syncNewFlowsToUnderlying(flows){
+    const normalized = normalizeFlows(flows);
+    window.NEWCAND_FLOW_STATE = { flows: clone(normalized) };
+    const primary = normalized[0] || emptyFlow();
+    const primarySpecId = String(primary.specialtyIds?.[0] || '');
+    window.__t4SuppressNewFlowBackSync = true;
+    try {
+      const areaEl = document.getElementById('n-area');
+      const profEl = document.getElementById('n-prof');
+      const subEl = document.getElementById('n-subarea');
+      if (areaEl) areaEl.value = primary.areaId || '';
+      if (typeof oldOnNewCandidateAreaChange === 'function') oldOnNewCandidateAreaChange();
+      if (profEl) profEl.value = primary.professionId || '';
+      if (typeof oldOnNewCandidateProfessionChange === 'function') oldOnNewCandidateProfessionChange();
+      if (subEl) subEl.value = primarySpecId || '';
+    } finally {
+      window.__t4SuppressNewFlowBackSync = false;
+    }
+    window.NEWCAND_MULTI = window.NEWCAND_MULTI || { professions: [], trainings: [], specialties: [], primaryTrainingId: '' };
+    window.NEWCAND_MULTI.professions = uniq(normalized.slice(1).map(flow => flow.professionId).filter(Boolean));
+    window.NEWCAND_MULTI.specialties = uniq(normalized.flatMap((flow, idx) => safeArr(flow.specialtyIds).filter((id, specIdx) => !(idx === 0 && specIdx === 0))));
+  }
+
+  function setNewPrimaryTraining(id){
+    window.NEWCAND_MULTI = window.NEWCAND_MULTI || { professions: [], trainings: [], specialties: [], primaryTrainingId: '' };
+    const value = String(id || '');
+    window.NEWCAND_MULTI.primaryTrainingId = value;
+    window.NEWCAND_MULTI.trainings = uniq((window.NEWCAND_MULTI.trainings || []).filter(v => String(v) !== value));
+    refreshNewFlowUi();
+  }
+
+  function addNewTraining(){
+    const input = document.querySelector('#new-multiskill-box [data-new-training-input]');
+    if (!input) return;
+    const q = String(input.value || '').trim();
+    if (!q) return;
+    const rows = getTrainings();
+    const resolved = rows.find(r => [rowLabel(r), r?.label_de, r?.code].some(v => String(v || '').trim().toLowerCase() === q.toLowerCase()))
+      || rows.find(r => [rowLabel(r), r?.label_de, r?.code].some(v => String(v || '').trim().toLowerCase().startsWith(q.toLowerCase())))
+      || rows.find(r => [rowLabel(r), r?.label_de, r?.code].some(v => String(v || '').trim().toLowerCase().includes(q.toLowerCase())));
+    if (!resolved) { toast('Selecione uma formação oficial da lista.', 'warn'); return; }
+    window.NEWCAND_MULTI = window.NEWCAND_MULTI || { professions: [], trainings: [], specialties: [], primaryTrainingId: '' };
+    const resolvedId = String(resolved.id);
+    if (resolvedId === String(window.NEWCAND_MULTI.primaryTrainingId || '')) { input.value = ''; return; }
+    window.NEWCAND_MULTI.trainings = uniq([...(window.NEWCAND_MULTI.trainings || []), resolvedId]);
+    input.value = '';
+    refreshNewFlowUi();
+  }
+
+  function removeNewTraining(id){
+    window.NEWCAND_MULTI = window.NEWCAND_MULTI || { professions: [], trainings: [], specialties: [], primaryTrainingId: '' };
+    window.NEWCAND_MULTI.trainings = uniq((window.NEWCAND_MULTI.trainings || []).filter(v => String(v) !== String(id)));
+    refreshNewFlowUi();
+  }
+
+  function legacyNewFields(){
+    return ['n-area','n-prof','n-subarea']
+      .map(id => document.getElementById(id)?.closest('.field-group'))
+      .filter(Boolean);
+  }
+
+  function hideLegacyNewFields(){
+    legacyNewFields().forEach(el => el.classList.add('t4-flow-hiddenlegacy'));
+  }
+
+  function ensureNewFlowMount(){
+    let box = document.getElementById('new-multiskill-box');
+    if (box) return box;
+    const anchor = document.getElementById('n-subarea')?.closest('.field-group');
+    if (!anchor || !anchor.parentNode) return null;
+    box = document.createElement('div');
+    box.id = 'new-multiskill-box';
+    box.className = 'field-group fg-full';
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    return box;
+  }
+
+  function flowOptionsHtml(rows, selected, placeholder){
+    return `<option value="">${esc(placeholder || 'Selecionar')}</option>` + safeArr(rows).map(row => `<option value="${esc(String(row.id))}" ${String(selected || '') === String(row.id) ? 'selected' : ''}>${esc(rowLabel(row))}</option>`).join('');
+  }
+
+  function specialtyChipsHtml(flow, index, scope){
+    const rows = getSpecialties();
+    const removeFn = scope === 'candidate' ? 't4RemoveCandidateFlowSpecialty' : 't4RemoveNewFlowSpecialty';
+    const chips = uniq(flow.specialtyIds || []).map(id => {
+      const row = taxonomyFindById(rows, id);
+      if (!row) return '';
+      return `<span class="ms-chip">${esc(rowLabel(row))}<button type="button" onclick="${removeFn}(${index},'${esc(String(id))}')">×</button></span>`;
+    }).join('');
+    return chips || `<div class="t4-flow-empty">Nenhuma especialidade adicional informada.</div>`;
+  }
+
+  function trainingChipsHtml(ids, scope){
+    const rows = getTrainings();
+    const removeFn = scope === 'candidate' ? 't4RemoveCandidateTraining' : 't4RemoveNewTraining';
+    const chips = uniq(ids).map(id => {
+      const row = taxonomyFindById(rows, id);
+      if (!row) return '';
+      return `<span class="ms-chip">${esc(rowLabel(row))}<button type="button" onclick="${removeFn}('${esc(String(id))}')">×</button></span>`;
+    }).join('');
+    return chips || `<div class="t4-flow-empty">Sem formações complementares por enquanto.</div>`;
+  }
+
+  function renderFlowCard(flow, index, scope){
+    const isCandidate = scope === 'candidate';
+    const areaRows = getAreas();
+    const profRows = flow.areaId ? getProfessions().filter(row => String(row.area_id) === String(flow.areaId)) : [];
+    const specRows = flow.professionId ? getSpecialties().filter(row => String(row.profession_id) === String(flow.professionId)) : [];
+    const setAreaFn = isCandidate ? 't4SetCandidateFlowArea' : 't4SetNewFlowArea';
+    const setProfFn = isCandidate ? 't4SetCandidateFlowProfession' : 't4SetNewFlowProfession';
+    const addSpecFn = isCandidate ? 't4AddCandidateFlowSpecialty' : 't4AddNewFlowSpecialty';
+    const removeFlowFn = isCandidate ? 't4RemoveCandidateFlow' : 't4RemoveNewFlow';
+    const flowTitle = index === 0 ? 'Fluxo principal' : `Fluxo adicional ${index}`;
+    const flowMeta = index === 0 ? 'Define o match principal no CRM.' : 'Agrupa profissão e especialidades do mesmo eixo.';
+    const datalistId = `${scope}-flow-specialties-${index}`;
+    return `
+      <div class="t4-flow-card ${index === 0 ? 'primary' : ''}">
+        <div class="t4-flow-cardhead">
+          <div>
+            <div class="t4-flow-cardtitle">${esc(flowTitle)}</div>
+            <div class="t4-flow-cardmeta">${esc(flowMeta)}</div>
+          </div>
+          ${index === 0 ? '' : `<button type="button" class="t4-flow-removebtn" onclick="${removeFlowFn}(${index})" title="Remover fluxo">×</button>`}
+        </div>
+        <div class="t4-flow-grid">
+          <div class="t4-flow-field">
+            <label>Área</label>
+            <div class="field-select-wrap">
+              <select class="field-select" onchange="${setAreaFn}(${index}, this.value)">
+                ${flowOptionsHtml(areaRows, flow.areaId, 'Selecionar área')}
+              </select>
+            </div>
+          </div>
+          <div class="t4-flow-field">
+            <label>Profissão</label>
+            <div class="field-select-wrap">
+              <select class="field-select" onchange="${setProfFn}(${index}, this.value)" ${flow.areaId ? '' : 'disabled'}>
+                ${flowOptionsHtml(profRows, flow.professionId, flow.areaId ? 'Selecionar profissão' : 'Selecione a área primeiro')}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="ms-block field-group fg-full">
+          <label class="field-lbl">Especialidades</label>
+          <div class="ms-toolbar">
+            <input class="field-input ms-input" ${isCandidate ? `data-cand-flow-specialty-input="${index}"` : `data-new-flow-specialty-input="${index}"`} list="${datalistId}" placeholder="Adicionar especialidade oficial" ${flow.professionId ? '' : 'disabled'}>
+            <button type="button" class="ms-add" onclick="${addSpecFn}(${index})" ${flow.professionId ? '' : 'disabled'}>Adicionar</button>
+          </div>
+          <datalist id="${datalistId}">
+            ${specRows.map(row => `<option value="${esc(rowLabel(row))}"></option>`).join('')}
+          </datalist>
+          <div class="ms-chips">${specialtyChipsHtml(flow, index, scope)}</div>
+          <div class="field-taxonomy-hint">${index === 0 ? 'A primeira especialidade fica como principal no CRM e no matching.' : 'Você pode informar várias especialidades dentro do mesmo fluxo.'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildCandidateFlowManager(){
+    const flows = candidateFlowState();
+    return `
+      <div class="t4-flow-stack">
+        <div class="t4-flow-toolbar">
+          <div>
+            <div class="t4-flow-title">Fluxos profissionais</div>
+            <div class="t4-flow-sub">Hierarquia correta: área, profissão e especialidades do mesmo fluxo. Novos fluxos ficam em painéis separados.</div>
+          </div>
+          <button type="button" class="t4-flow-addbtn" onclick="t4AddCandidateFlow()">＋ Novo fluxo</button>
+        </div>
+        ${flows.map((flow, index) => renderFlowCard(flow, index, 'candidate')).join('')}
+      </div>
+    `;
+  }
+
+  function buildCandidateTrainingManager(){
+    const trainingState = currentTrainingState();
+    const trainingOptions = getTrainings().map(row => `<option value="${esc(rowLabel(row))}"></option>`).join('');
+    return `
+      <div class="t4-flow-trainings">
+        <div class="field-group fg-full">
+          <label class="field-lbl">Formação principal</label>
+          <select class="field-select" onchange="t4SetCandidatePrimaryTraining(this.value)">
+            <option value="">Selecionar</option>
+            ${getTrainings().map(row => `<option value="${esc(String(row.id))}" ${String(trainingState.primary || '') === String(row.id) ? 'selected' : ''}>${esc(rowLabel(row))}</option>`).join('')}
+          </select>
+          <div class="field-taxonomy-hint">Usada como formação principal no BI e no matching.</div>
+        </div>
+        <div class="ms-block field-group fg-full">
+          <label class="field-lbl">Formações adicionais</label>
+          <div class="ms-toolbar">
+            <input class="field-input ms-input" data-cand-training-input list="cand-training-list" placeholder="Adicionar formação adicional oficial">
+            <button type="button" class="ms-add" onclick="t4AddCandidateTraining()">Adicionar</button>
+          </div>
+          <datalist id="cand-training-list">${trainingOptions}</datalist>
+          <div class="ms-chips">${trainingChipsHtml(trainingState.additional, 'candidate')}</div>
+          <div class="field-taxonomy-hint">Sem duplicar a formação principal.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildNewFlowManager(){
+    const flows = newFlowStateFromHidden();
+    const trainingOptions = getTrainings().map(row => `<option value="${esc(rowLabel(row))}"></option>`).join('');
+    const primaryTrainingId = String(window.NEWCAND_MULTI?.primaryTrainingId || '');
+    const additionalTrainings = uniq((window.NEWCAND_MULTI?.trainings || []).filter(id => String(id) !== primaryTrainingId));
+    return `
+      <div class="t4-flow-stack">
+        <div class="t4-flow-toolbar">
+          <div>
+            <div class="t4-flow-title">Fluxos profissionais</div>
+            <div class="t4-flow-sub">Cadastre cada eixo profissional em um painel separado. Exemplo: Saúde, Médico, Ortopedia.</div>
+          </div>
+          <button type="button" class="t4-flow-addbtn" onclick="t4AddNewFlow()">＋ Novo fluxo</button>
+        </div>
+        ${flows.map((flow, index) => renderFlowCard(flow, index, 'new')).join('')}
+        <div class="section-hdr">Formação complementar</div>
+        <div class="t4-flow-trainings">
+          <div class="field-group fg-full">
+            <label class="field-lbl">Formação principal</label>
+            <select class="field-select" onchange="t4SetNewPrimaryTraining(this.value)">
+              <option value="">Selecionar</option>
+              ${getTrainings().map(row => `<option value="${esc(String(row.id))}" ${primaryTrainingId === String(row.id) ? 'selected' : ''}>${esc(rowLabel(row))}</option>`).join('')}
+            </select>
+            <div class="field-taxonomy-hint">Usada como formação principal no BI e no matching.</div>
+          </div>
+          <div class="ms-block field-group fg-full">
+            <label class="field-lbl">Formações adicionais</label>
+            <div class="ms-toolbar">
+              <input class="field-input ms-input" data-new-training-input list="new-training-list" placeholder="Adicionar formação adicional oficial">
+              <button type="button" class="ms-add" onclick="t4AddNewTraining()">Adicionar</button>
+            </div>
+            <datalist id="new-training-list">${trainingOptions}</datalist>
+            <div class="ms-chips">${trainingChipsHtml(additionalTrainings, 'new')}</div>
+            <div class="field-taxonomy-hint">Sem duplicar a formação principal.</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildProfessionalTab(c){
+    return `<div>
+      <div class="section-hdr">Formação & Carreira</div>
+      ${buildCandidateFlowManager(c)}
+      <div class="section-hdr" style="margin-top:14px">Dados acadêmicos e carreira</div>
+      <div class="field-grid">
+        ${fld('Universidade','Universidade / Formação')}
+        ${fld('Curso de Graduação','Curso de Graduação')}
+        ${fld('Anabin','Classificação Anabin','select')}
+        ${fld('Pós-graduação','Pós-graduação?','select')}
+        ${fld('Experiência Profissional (tempo)','Exp. profissional (tempo)')}
+        ${fld('Referência','Referência / Origem')}
+        ${fld('Data da Candidatura','Data candidatura')}
+        ${fld('CV/ ARQUIVO DOC','Link CV')}
+      </div>
+      <div class="section-hdr" style="margin-top:14px">Formação complementar</div>
+      ${buildCandidateTrainingManager()}
+      <div class="section-hdr" style="margin-top:14px">Idiomas</div>
+      <div class="field-grid">
+        ${fld('Nível alemão','Nível de alemão','select')}
+        ${fld('Em curso de alemão','Cursando alemão?','select')}
+        ${fld('Língua Estrangeira','Língua estrangeira')}
+        ${fld('Nível Língua Estrangeira','Nível língua estrangeira')}
+        ${fld('Resultado da prova','Resultado de prova','select')}
+        <div></div>
+      </div>
+      <div class="section-hdr" style="margin-top:14px">Resumo</div>
+      <div class="field-grid g1">${fld('Resumo profissional','Resumo profissional','textarea',null,true)}</div>
+    </div>`;
+  }
+
+  function refreshCandidateProfessionalTab(){
+    const panel = document.getElementById('t-profissional');
+    if (!panel || !S.currentCand) return;
+    panel.innerHTML = window.buildPanel('t-profissional', S.currentCand);
+    try { window.t4ApplyLanguageNow(panel); } catch(_) {}
+  }
+
+  function refreshNewFlowUi(){
+    hideLegacyNewFields();
+    const box = ensureNewFlowMount();
+    if (!box) return;
+    box.innerHTML = buildNewFlowManager();
+    try { window.t4ApplyLanguageNow(box); } catch(_) {}
+  }
+
+  function resolveSpecialtyByInput(raw, professionId){
+    const q = String(raw || '').trim().toLowerCase();
+    if (!q || !professionId) return null;
+    const rows = getSpecialties().filter(row => String(row.profession_id) === String(professionId));
+    return rows.find(row => [rowLabel(row), row?.label_de, row?.code].some(v => String(v || '').trim().toLowerCase() === q))
+      || rows.find(row => [rowLabel(row), row?.label_de, row?.code].some(v => String(v || '').trim().toLowerCase().startsWith(q)))
+      || rows.find(row => [rowLabel(row), row?.label_de, row?.code].some(v => String(v || '').trim().toLowerCase().includes(q)));
+  }
+
+  function updateFlowArea(flows, index, value){
+    const list = normalizeFlows(flows);
+    if (!list[index]) return list;
+    list[index].areaId = String(value || '');
+    list[index].professionId = '';
+    list[index].specialtyIds = [];
+    return normalizeFlows(list);
+  }
+
+  function updateFlowProfession(flows, index, value){
+    const list = normalizeFlows(flows);
+    if (!list[index]) return list;
+    const professionId = String(value || '');
+    const profRow = professionId ? taxonomyFindById(getProfessions(), professionId) : null;
+    if (professionId && list.some((flow, idx) => idx !== index && String(flow.professionId) === professionId)) {
+      toast('Essa profissão já está em outro fluxo. Use um único painel por profissão.', 'warn');
+      return list;
+    }
+    list[index].professionId = professionId;
+    list[index].areaId = professionId ? String(profRow?.area_id || list[index].areaId || '') : String(list[index].areaId || '');
+    list[index].specialtyIds = [];
+    return normalizeFlows(list);
+  }
+
+  window.t4AddCandidateFlow = function(){
+    const flows = normalizeFlows([...candidateFlowState(), emptyFlow()]);
+    S.pendingProfessionalFlows = clone(flows);
+    updateCandidateSaveUi();
+    refreshCandidateProfessionalTab();
+  };
+  window.t4RemoveCandidateFlow = function(index){
+    const flows = candidateFlowState();
+    if (index <= 0 || index >= flows.length) return;
+    flows.splice(index, 1);
+    applyCandidateFlows(flows);
+    refreshCandidateProfessionalTab();
+  };
+  window.t4SetCandidateFlowArea = function(index, value){
+    const flows = updateFlowArea(candidateFlowState(), index, value);
+    applyCandidateFlows(flows);
+    refreshCandidateProfessionalTab();
+  };
+  window.t4SetCandidateFlowProfession = function(index, value){
+    const flows = updateFlowProfession(candidateFlowState(), index, value);
+    applyCandidateFlows(flows);
+    refreshCandidateProfessionalTab();
+  };
+  window.t4AddCandidateFlowSpecialty = function(index){
+    const input = document.querySelector(`#t-profissional [data-cand-flow-specialty-input="${index}"]`);
+    const flows = candidateFlowState();
+    const flow = flows[index];
+    if (!input || !flow?.professionId) return;
+    const resolved = resolveSpecialtyByInput(input.value, flow.professionId);
+    if (!resolved) { toast('Selecione uma especialidade oficial da lista.', 'warn'); return; }
+    flow.specialtyIds = uniq([...(flow.specialtyIds || []), String(resolved.id)]);
+    input.value = '';
+    applyCandidateFlows(flows);
+    refreshCandidateProfessionalTab();
+  };
+  window.t4RemoveCandidateFlowSpecialty = function(index, id){
+    const flows = candidateFlowState();
+    const flow = flows[index];
+    if (!flow) return;
+    flow.specialtyIds = uniq((flow.specialtyIds || []).filter(v => String(v) !== String(id)));
+    applyCandidateFlows(flows);
+    refreshCandidateProfessionalTab();
+  };
+  window.t4SetCandidatePrimaryTraining = setCandidatePrimaryTraining;
+  window.t4AddCandidateTraining = addCandidateTraining;
+  window.t4RemoveCandidateTraining = removeCandidateTraining;
+
+  window.t4AddNewFlow = function(){
+    const flows = normalizeFlows([...newFlowStateFromHidden(), emptyFlow()]);
+    syncNewFlowsToUnderlying(flows);
+    refreshNewFlowUi();
+  };
+  window.t4RemoveNewFlow = function(index){
+    const flows = newFlowStateFromHidden();
+    if (index <= 0 || index >= flows.length) return;
+    flows.splice(index, 1);
+    syncNewFlowsToUnderlying(flows);
+    refreshNewFlowUi();
+  };
+  window.t4SetNewFlowArea = function(index, value){
+    const flows = updateFlowArea(newFlowStateFromHidden(), index, value);
+    syncNewFlowsToUnderlying(flows);
+    refreshNewFlowUi();
+  };
+  window.t4SetNewFlowProfession = function(index, value){
+    const flows = updateFlowProfession(newFlowStateFromHidden(), index, value);
+    syncNewFlowsToUnderlying(flows);
+    refreshNewFlowUi();
+  };
+  window.t4AddNewFlowSpecialty = function(index){
+    const input = document.querySelector(`#new-multiskill-box [data-new-flow-specialty-input="${index}"]`);
+    const flows = newFlowStateFromHidden();
+    const flow = flows[index];
+    if (!input || !flow?.professionId) return;
+    const resolved = resolveSpecialtyByInput(input.value, flow.professionId);
+    if (!resolved) { toast('Selecione uma especialidade oficial da lista.', 'warn'); return; }
+    flow.specialtyIds = uniq([...(flow.specialtyIds || []), String(resolved.id)]);
+    input.value = '';
+    syncNewFlowsToUnderlying(flows);
+    refreshNewFlowUi();
+  };
+  window.t4RemoveNewFlowSpecialty = function(index, id){
+    const flows = newFlowStateFromHidden();
+    const flow = flows[index];
+    if (!flow) return;
+    flow.specialtyIds = uniq((flow.specialtyIds || []).filter(v => String(v) !== String(id)));
+    syncNewFlowsToUnderlying(flows);
+    refreshNewFlowUi();
+  };
+  window.t4SetNewPrimaryTraining = setNewPrimaryTraining;
+  window.t4AddNewTraining = addNewTraining;
+  window.t4RemoveNewTraining = removeNewTraining;
+
+  window.buildPanel = function(tabId, c){
+    if (tabId === 't-profissional') return buildProfessionalTab(c);
+    return oldBuildPanel.call(this, tabId, c);
+  };
+
+  window.openCand = async function(){
+    S.pendingProfessionalFlows = null;
+    await oldOpenCand.apply(this, arguments);
+    refreshCandidateProfessionalTab();
+  };
+  window.closeCand = function(){
+    S.pendingProfessionalFlows = null;
+    oldCloseCand.apply(this, arguments);
+  };
+
+  window.populateNewForm = function(){
+    oldPopulateNewForm.apply(this, arguments);
+    window.NEWCAND_FLOW_STATE = null;
+    setTimeout(() => {
+      hideLegacyNewFields();
+      syncNewFlowsToUnderlying(newFlowStateFromHidden());
+      refreshNewFlowUi();
+    }, 0);
+  };
+
+  window.openNewCandidate = function(){
+    window.NEWCAND_FLOW_STATE = null;
+    oldOpenNewCandidate.apply(this, arguments);
+    setTimeout(() => {
+      hideLegacyNewFields();
+      syncNewFlowsToUnderlying(newFlowStateFromHidden());
+      refreshNewFlowUi();
+    }, 0);
+  };
+
+  window.closeNew = function(){
+    window.NEWCAND_FLOW_STATE = null;
+    oldCloseNew.apply(this, arguments);
+  };
+
+  window.onNewCandidateAreaChange = function(){
+    const out = oldOnNewCandidateAreaChange.apply(this, arguments);
+    if (!window.__t4SuppressNewFlowBackSync) {
+      const flows = newFlowStateFromHidden();
+      const primary = flows[0] || emptyFlow();
+      primary.areaId = document.getElementById('n-area')?.value || '';
+      primary.professionId = document.getElementById('n-prof')?.value || '';
+      primary.specialtyIds = (document.getElementById('n-subarea')?.value || '') ? [document.getElementById('n-subarea').value] : [];
+      syncNewFlowsToUnderlying(flows);
+      refreshNewFlowUi();
+    }
+    return out;
+  };
+
+  window.onNewCandidateProfessionChange = function(){
+    const out = oldOnNewCandidateProfessionChange.apply(this, arguments);
+    if (!window.__t4SuppressNewFlowBackSync) {
+      const flows = newFlowStateFromHidden();
+      const primary = flows[0] || emptyFlow();
+      primary.areaId = document.getElementById('n-area')?.value || '';
+      primary.professionId = document.getElementById('n-prof')?.value || '';
+      primary.specialtyIds = (document.getElementById('n-subarea')?.value || '') ? [document.getElementById('n-subarea').value] : [];
+      syncNewFlowsToUnderlying(flows);
+      refreshNewFlowUi();
+    }
+    return out;
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('new-overlay')?.classList.contains('open')) {
+      hideLegacyNewFields();
+      syncNewFlowsToUnderlying(newFlowStateFromHidden());
+      refreshNewFlowUi();
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
