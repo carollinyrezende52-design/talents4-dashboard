@@ -271,7 +271,7 @@ a{color:inherit;text-decoration:none}
 .data-tbl tr:last-child td{border-bottom:none}
 .data-tbl tr{transition:background .1s;cursor:pointer}.data-tbl tbody tr:nth-child(2n) td{background:color-mix(in srgb,var(--bg2) 90%, var(--bg3))}
 .data-tbl tr:hover td{background:var(--bg3)}
-.data-tbl td.td-name{color:var(--txt);font-weight:600;min-width:210px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:table-cell;line-height:1.25}
+.data-tbl td.td-name{color:var(--txt);font-weight:600;min-width:240px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:table-cell;line-height:1.25}
 .data-tbl td.td-id{font-family:var(--mono);font-size:11px;color:var(--txt3);white-space:nowrap}
 .data-tbl td.td-center{text-align:center}
 .th-sort{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;padding:0}
@@ -533,8 +533,8 @@ a{color:inherit;text-decoration:none}
 .filter-chip.active{border-color:var(--accent);color:var(--accent2);background:var(--accent-bg)}
 .filter-select{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px;font-size:12px;color:var(--txt2);cursor:pointer}
 .filter-select option{background:var(--bg2)}
-.field-select-wrap{display:flex;gap:8px;align-items:center}.field-select-wrap .field-select{flex:1}.field-select-add{min-width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:18px;line-height:1}.field-select-add:hover{border-color:var(--accent);color:var(--txt)}
-.field-taxonomy{display:grid;gap:6px}.field-taxonomy-hint{font-size:10.5px;color:var(--txt3);line-height:1.35}.field-taxonomy-search{padding:8px 10px}.field-taxonomy-search::placeholder{color:var(--txt3)}
+.field-select-wrap{display:flex;gap:8px;align-items:center}.field-select-wrap .field-select{flex:1}.field-select-add,.field-select-searchbtn{min-width:34px;height:34px;border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--txt2);cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center}.field-select-add:hover,.field-select-searchbtn:hover,.field-taxonomy.search-open .field-select-searchbtn{border-color:var(--accent);color:var(--txt)}
+.field-taxonomy{display:grid;gap:6px}.field-taxonomy-hint{font-size:10.5px;color:var(--txt3);line-height:1.35}.field-taxonomy-search-wrap{display:none}.field-taxonomy.search-open .field-taxonomy-search-wrap{display:block}.field-taxonomy-search{padding:8px 10px}.field-taxonomy-search::placeholder{color:var(--txt3)}
 .pagination{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 0 0}
 .pg-btn{width:30px;height:30px;border-radius:var(--r);background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--txt2);transition:all .12s;cursor:pointer}
 .pg-btn:hover{border-color:var(--accent);color:var(--accent2)}
@@ -1922,7 +1922,7 @@ details.bi-secondary {
 .emp-cand:hover{background:#15203a;border-color:rgba(116,165,255,.34)}
 .emp-cand.active{border-color:rgba(96,165,250,.58);background:linear-gradient(180deg,rgba(59,130,246,.16),rgba(59,130,246,.08))}
 .emp-cand-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.emp-cand-name{font-size:14px;font-weight:900;color:#f4f7ff;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.emp-cand-name{font-size:14px;font-weight:900;color:#f4f7ff;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:break-word;word-break:normal}
 .emp-cand-meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
 .emp-cand-meta span{font-size:10.5px;color:#d1dcf2;padding:2px 7px;border-radius:999px;background:#10192d;border:1px solid rgba(103,126,170,.16)}
 .emp-cand-foot{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.2px;color:#b4c0d8}
@@ -2161,9 +2161,9 @@ details.bi-secondary {
         <div class="field-group"><label class="field-lbl">Telefone</label><input class="field-input" id="n-tel" placeholder="+55 11 99999-9999" autocomplete="off"></div>
         <div class="field-group"><label class="field-lbl">País de origem</label><input class="field-input" id="n-pais" placeholder="Brasil" value="BRASIL" autocomplete="off"></div>
         <div class="field-group"><label class="field-lbl">Cidade atual</label><input class="field-input" id="n-cidade" placeholder="São Paulo - SP" autocomplete="off"></div>
-        <div class="field-group"><label class="field-lbl">Área profissional</label><div class="field-taxonomy"><input class="field-input field-taxonomy-search" id="n-area-search" placeholder="Digite para filtrar áreas" oninput="filterNewTaxonomySelect('area')"><div class="field-select-wrap"><select class="field-select" id="n-area" onchange="markNewTaxonomySelection('area')"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="requestTaxonomyOption('area')" title="Adicionar nova área">+</button></div><div class="field-taxonomy-hint">Selecione uma área oficial. Se não existir, clique em + para sugerir nova.</div></div></div>
-        <div class="field-group"><label class="field-lbl">Profissão</label><div class="field-taxonomy"><input class="field-input field-taxonomy-search" id="n-prof-search" placeholder="Digite para filtrar profissões" oninput="filterNewTaxonomySelect('profession')"><div class="field-select-wrap"><select class="field-select" id="n-prof" onchange="markNewTaxonomySelection('profession')"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="requestTaxonomyOption('profession')" title="Adicionar nova profissão">+</button></div><div class="field-taxonomy-hint">Filtrada pela área escolhida. Use a busca para localizar mais rápido.</div></div></div>
-        <div class="field-group"><label class="field-lbl">Subárea</label><div class="field-taxonomy"><input class="field-input field-taxonomy-search" id="n-subarea-search" placeholder="Digite para filtrar subáreas" oninput="filterNewTaxonomySelect('subarea')"><div class="field-select-wrap"><select class="field-select" id="n-subarea" onchange="markNewTaxonomySelection('subarea')"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="requestTaxonomyOption('subarea')" title="Adicionar nova subárea">+</button></div><div class="field-taxonomy-hint">Opcional. A lista acompanha a profissão selecionada.</div></div></div>
+        <div class="field-group"><label class="field-lbl">Área profissional</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-area" onchange="markNewTaxonomySelection('area')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','area',this)" title="Buscar área">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('area')" title="Adicionar nova área">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" id="n-area-search" placeholder="Digite para filtrar áreas" oninput="filterNewTaxonomySelect('area')"></div><div class="field-taxonomy-hint">Selecione uma área oficial. Se não existir, clique em + para sugerir nova.</div></div></div>
+        <div class="field-group"><label class="field-lbl">Profissão</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-prof" onchange="markNewTaxonomySelection('profession')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','profession',this)" title="Buscar profissão">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('profession')" title="Adicionar nova profissão">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" id="n-prof-search" placeholder="Digite para filtrar profissões" oninput="filterNewTaxonomySelect('profession')"></div><div class="field-taxonomy-hint">Filtrada pela área escolhida. Use a busca para localizar mais rápido.</div></div></div>
+        <div class="field-group"><label class="field-lbl">Subárea</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-subarea" onchange="markNewTaxonomySelection('subarea')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','subarea',this)" title="Buscar subárea">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('subarea')" title="Adicionar nova subárea">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" id="n-subarea-search" placeholder="Digite para filtrar subáreas" oninput="filterNewTaxonomySelect('subarea')"></div><div class="field-taxonomy-hint">Opcional. A lista acompanha a profissão selecionada.</div></div></div>
         <div class="field-group"><label class="field-lbl">Nível de alemão</label><div class="field-select-wrap"><select class="field-select" id="n-alemao"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="quickAddEnum('Nível de alemão',this,'n-alemao')">+</button></div></div>
         <div class="field-group"><label class="field-lbl">Status inicial</label><div class="field-select-wrap"><select class="field-select" id="n-status"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="quickAddEnum('STATUS PIPELINE',this,'n-status')">+</button></div></div>
         <div class="field-group"><label class="field-lbl">Referência / Origem</label><input class="field-input" id="n-origem" placeholder="Instagram, Indicação..."></div>
@@ -6784,7 +6784,7 @@ function renderEmployerHub(el) {
               <button type="button" class="emp-cand ${thisCid===cid?'active':''}" data-emp-action="select-candidate" data-candidate-id="${esc(thisCid)}">
                 <div class="emp-cand-top">
                   <div>
-                    <div class="emp-cand-name">${esc(fv(c,'Nome completo')||'—')}</div>
+                    <div class="emp-cand-name">${esc(displayCandidateName(c))}</div>
                     <div class="emp-cand-meta">
                       <span>${esc(prof)}</span>
                       <span>${esc(al)}</span>
@@ -6959,7 +6959,7 @@ function renderTable(el, filterStatus) {
       const empresa = fv(c,'entrevista_preliminar_empresa_cliente')||'—';
       const vaga = fv(c,'entrevista_preliminar_posicao_vaga','posicao_vaga')||'—';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${dtFmt}</td>
         <td>${esc(entrevistador)}</td>
@@ -6993,7 +6993,7 @@ function renderTable(el, filterStatus) {
       const alc  = ALEMAO_COLORS[al]||'var(--txt3)';
       const truncate = (s,n) => s.length > n ? s.substring(0,n)+'…' : s;
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td style="font-size:11.5px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(truncate(String(resumo),80))}</td>
         <td><span class="badge ${normalizeUpper(risco).includes('ALTO')?'b-fraco':normalizeUpper(risco).includes('MEDIO')?'b-mediano':'b-bom'}">${esc(risco)}</span></td>
@@ -7024,7 +7024,7 @@ function renderTable(el, filterStatus) {
       const alc = ALEMAO_COLORS[al]||'var(--txt3)';
       const pronto = fv(c,'pronto_para_employer') || '—';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
         <td>${al?`<span style="font-weight:700;color:${alc};font-size:12px">${al}</span>`:'—'}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td><span class="badge ${normalizeUpper(pronto).includes('SIM')?'b-aprovado':normalizeUpper(pronto).includes('PARCIAL')?'b-mediano':'b-fraco'}">${esc(pronto)}</span></td>
@@ -7091,7 +7091,7 @@ function renderTable(el, filterStatus) {
         : `<span style="color:var(--txt3)">—</span>`;
       const stepper = levelStepper(ini, al, alvo);
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
         <td style="font-size:11.5px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(inst)}</td>
         <td>${stepper}</td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--txt3)">${dtIni}</td>
@@ -7129,7 +7129,7 @@ function renderTable(el, filterStatus) {
         ? '<span class="badge b-aprovado">✓ Completa</span>'
         : '<span class="badge b-fraco">Pendente</span>';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td>${docStatusBadge(pass)}</td>
         <td>${docStatusBadge(dipl)}</td>
@@ -7153,7 +7153,7 @@ function renderTable(el, filterStatus) {
       const al=fv(c,'Nível de alemão','Nível alemão')||'';
       const alc=ALEMAO_COLORS[al]||'var(--txt3)';
       return `<tr onclick="openCand('${esc(c.ID)}')">
-        <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+        <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
         <td>${st?`<span class="badge ${sc}">${esc(st)}</span>`:'—'}</td>
         <td><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11.5px;color:var(--txt)">${esc(emp||'—')}</span>${empStatus?`<span style="font-size:10px;color:var(--txt3)">${esc(empStatus)}</span>`:''}</div></td>
         <td>${pf?`<span class="badge ${pfc}">${esc(pf.replace('Candidato ',''))}</span>`:'—'}</td>
@@ -7215,7 +7215,7 @@ function renderInativo(el) {
   const total = list.length;
   const rows = list.map(c => `
     <tr onclick="openCand('${esc(c.ID)}')">
-      <td class="td-name" title="${esc(c['Nome completo']||'—')}">${esc(c['Nome completo']||'—')}</td>
+      <td class="td-name" title="${esc(displayCandidateName(c))}">${esc(displayCandidateName(c))}</td>
       <td><span class="badge b-inativo">${esc(c['STATUS PIPELINE']||'—')}</span></td>
       <td>${esc(c['Motivo inativação']||'—')}</td>
       <td>${esc(c['Etapa de saída']||'—')}</td>
@@ -9734,6 +9734,24 @@ function candidateSubareaLabel(c) {
   const sub = taxonomyFindById(S?.taxonomy?.subareas || [], subareaId);
   return sub ? taxonomyDisplay(sub) : (fv(c,'subarea_label','subarea_nome','subarea') || '');
 }
+function displayCandidateName(c) {
+  const raw = fv(c,'Nome completo','nome_completo') || c?.nome_completo || c?.['Nome completo'] || '';
+  const clean = String(raw || '').replace(/\s+/g, ' ').trim();
+  return clean || '—';
+}
+function toggleTaxonomySearch(scope, kind, btn) {
+  const wrap = btn?.closest('.field-taxonomy');
+  if (!wrap) return;
+  wrap.classList.toggle('search-open');
+  const input = wrap.querySelector('.field-taxonomy-search');
+  if (wrap.classList.contains('search-open') && input) input.focus();
+  if (!wrap.classList.contains('search-open') && input) input.value = '';
+  if (scope === 'new') {
+    filterNewTaxonomySelect(kind);
+  } else {
+    filterCandidateTaxonomySelect(kind, input);
+  }
+}
 function loadTaxonomySelect(selectEl, rows, selectedValue='') {
   if (!selectEl) return;
   const opts = (Array.isArray(rows) ? rows : []).map(row => `<option value="${esc(String(row.id))}">${esc(taxonomyDisplay(row))}</option>`).join('');
@@ -9943,7 +9961,7 @@ function renderCandidateTaxonomyField(c, kind, label) {
   const selectPlaceholder = disabled
     ? uiTranslate('Selecione a etapa anterior primeiro')
     : uiTranslate('Selecionar');
-  return `<div class="field-group"><label class="field-lbl">${esc(label)}</label><div class="field-taxonomy"><input class="field-input field-taxonomy-search" type="text" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" value="" placeholder="${esc(searchPlaceholder)}" oninput="filterCandidateTaxonomySelect('${esc(kind)}', this)"><div class="field-select-wrap"><select class="field-select" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" onchange="onCandidateTaxonomyFieldChange('${esc(kind)}', this)" ${disabled ? 'disabled' : ''}><option value="">— ${esc(selectPlaceholder)} —</option>${options}</select><button type="button" class="field-select-add" onclick="requestTaxonomyOption('${esc(kind)}')" title="${esc(uiTranslate('Sugerir nova opção'))}">+</button></div><div class="field-taxonomy-hint">${esc(hint)}${state.label ? ' ' + esc(uiTranslate('Atual:')) + ' <strong style="color:var(--txt2)">' + esc(state.label) + '</strong>' : ''}</div></div></div>`;
+  return `<div class="field-group"><label class="field-lbl">${esc(label)}</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" onchange="onCandidateTaxonomyFieldChange('${esc(kind)}', this)" ${disabled ? 'disabled' : ''}><option value="">— ${esc(selectPlaceholder)} —</option>${options}</select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('candidate','${esc(kind)}',this)" title="${esc(searchPlaceholder)}">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('${esc(kind)}')" title="${esc(uiTranslate('Sugerir nova opção'))}">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" type="text" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" value="" placeholder="${esc(searchPlaceholder)}" oninput="filterCandidateTaxonomySelect('${esc(kind)}', this)"></div><div class="field-taxonomy-hint">${esc(hint)}${state.label ? ' ' + esc(uiTranslate('Atual:')) + ' <strong style="color:var(--txt2)">' + esc(state.label) + '</strong>' : ''}</div></div></div>`;
 }
 function filterCandidateTaxonomySelect(kind, inputEl) {
   const wrap = inputEl?.closest('.field-taxonomy');
@@ -13603,6 +13621,296 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     }, 180);
   });
 })();
+
+(function(){
+  const EXTRA_TX = {
+    'Multicargo & formação':'Mehrfachberuf & Ausbildung',
+    'Formação principal':'Hauptausbildung',
+    'Profissões adicionais':'Zusätzliche Berufe',
+    'Formações adicionais':'Zusätzliche Ausbildungen',
+    'Especialidades adicionais':'Zusätzliche Spezialisierungen',
+    'Usada como formação principal no BI e matching.':'Wird als Hauptausbildung in BI und Matching verwendet.',
+    'Sem duplicar a principal. Pode ter quantas forem necessárias.':'Ohne die Hauptoption zu duplizieren. Es können beliebig viele hinterlegt werden.',
+    'Sem duplicar a especialidade principal.':'Ohne die Hauptspezialisierung zu duplizieren.',
+    'Adicionar':'Hinzufügen',
+    'Adicionar formação adicional oficial':'Zusätzliche offizielle Ausbildung hinzufügen',
+    'Adicionar profissão adicional oficial':'Zusätzlichen offiziellen Beruf hinzufügen',
+    'Adicionar especialidade adicional oficial':'Zusätzliche offizielle Spezialisierung hinzufügen',
+    'Escolha a formação principal e cadastre competências complementares sem limite artificial.':'Wählen Sie die Hauptausbildung und erfassen Sie ergänzende Kompetenzen ohne künstliche Begrenzung.',
+    'Selecione uma opção oficial da lista.':'Wählen Sie eine offizielle Option aus der Liste.',
+    'Relações complementares salvas.':'Ergänzende Verknüpfungen gespeichert.',
+    'Falhou ao salvar relações adicionais:':'Fehler beim Speichern zusätzlicher Verknüpfungen:',
+    'Sem itens adicionais por enquanto.':'Noch keine zusätzlichen Einträge.',
+    'Múltiplas formações e competências':'Mehrfachausbildungen und Kompetenzen',
+    'Adicionar nova profissão':'Neue Berufsoption vorschlagen',
+    'Adicionar nova formação':'Neue Ausbildungsoption vorschlagen',
+    'Adicionar nova especialidade':'Neue Spezialisierung vorschlagen'
+  };
+  try {
+    const prevTranslate = window.t4TranslateUiString;
+    if (typeof prevTranslate === 'function') {
+      window.t4TranslateUiString = function(raw){
+        const base = prevTranslate(raw);
+        if (base !== raw) return base;
+        const lang = (window.t4GetLang && window.t4GetLang()) === 'de' ? 'de' : 'pt';
+        return lang === 'de' ? (EXTRA_TX[raw] || raw) : raw;
+      };
+    }
+  } catch(_) {}
+
+  const style = document.createElement('style');
+  style.textContent = `
+  .ms-grid{display:grid;gap:12px;margin-top:14px}
+  .ms-block{display:grid;gap:8px}
+  .ms-toolbar{display:flex;gap:8px;align-items:center}
+  .ms-input{flex:1;min-width:0}
+  .ms-add{padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer}
+  .ms-add:hover{border-color:var(--accent);color:var(--txt)}
+  .ms-chips{display:flex;flex-wrap:wrap;gap:8px;min-height:10px}
+  .ms-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(126,181,255,.08);border:1px solid rgba(126,181,255,.24);color:var(--txt2);font-size:11.5px;font-weight:700;line-height:1}
+  .ms-chip button{border:none;background:none;color:var(--txt3);cursor:pointer;font-size:14px;line-height:1;padding:0}
+  .ms-chip button:hover{color:var(--red)}
+  .ms-empty{font-size:11px;color:var(--txt3)}
+  .ms-select{min-width:0}
+  #new-multiskill-box{grid-column:1/-1}
+  `;
+  document.head.appendChild(style);
+
+  const TRAINING_SEED = [
+    { id:'seed:training:ensino_medio', code:'ensino_medio', label_pt:'Ensino Médio', label_de:'Schulabschluss', sort_order:10, seed:true },
+    { id:'seed:training:curso_tecnico', code:'curso_tecnico', label_pt:'Curso Técnico', label_de:'Technische Ausbildung', sort_order:20, seed:true },
+    { id:'seed:training:tecnico_enfermagem', code:'tecnico_enfermagem', label_pt:'Técnico em Enfermagem', label_de:'Pflegeassistenz-Ausbildung', sort_order:21, seed:true },
+    { id:'seed:training:tecnico_mecanica', code:'tecnico_mecanica', label_pt:'Técnico em Mecânica', label_de:'Ausbildung Mechanik', sort_order:22, seed:true },
+    { id:'seed:training:tecnico_eletrotecnica', code:'tecnico_eletrotecnica', label_pt:'Técnico em Eletrotécnica', label_de:'Ausbildung Elektrotechnik', sort_order:23, seed:true },
+    { id:'seed:training:tecnico_automacao', code:'tecnico_automacao', label_pt:'Técnico em Automação', label_de:'Ausbildung Automatisierung', sort_order:24, seed:true },
+    { id:'seed:training:tecnico_logistica', code:'tecnico_logistica', label_pt:'Técnico em Logística', label_de:'Ausbildung Logistik', sort_order:25, seed:true },
+    { id:'seed:training:tecnico_informatica', code:'tecnico_informatica', label_pt:'Técnico em Informática', label_de:'IT-Ausbildung', sort_order:26, seed:true },
+    { id:'seed:training:tecnologo', code:'tecnologo', label_pt:'Tecnólogo', label_de:'Technologiestudium', sort_order:30, seed:true },
+    { id:'seed:training:tecnologo_redes', code:'tecnologo_redes', label_pt:'Tecnólogo em Redes', label_de:'Netzwerk-Technologiestudium', sort_order:31, seed:true },
+    { id:'seed:training:tecnologo_estetica', code:'tecnologo_estetica', label_pt:'Tecnólogo em Estética', label_de:'Technologiestudium Ästhetik', sort_order:32, seed:true },
+    { id:'seed:training:bacharelado', code:'bacharelado', label_pt:'Bacharelado', label_de:'Bachelor', sort_order:40, seed:true },
+    { id:'seed:training:bacharel_enfermagem', code:'bacharel_enfermagem', label_pt:'Bacharel em Enfermagem', label_de:'Bachelor Pflege', sort_order:41, seed:true },
+    { id:'seed:training:bacharel_administracao', code:'bacharel_administracao', label_pt:'Bacharel em Administração', label_de:'Bachelor Betriebswirtschaft', sort_order:42, seed:true },
+    { id:'seed:training:bacharel_ti', code:'bacharel_ti', label_pt:'Bacharel em TI / Sistemas', label_de:'Bachelor IT / Systeme', sort_order:43, seed:true },
+    { id:'seed:training:bacharel_direito', code:'bacharel_direito', label_pt:'Bacharel em Direito', label_de:'Bachelor Jura', sort_order:44, seed:true },
+    { id:'seed:training:bacharel_medicina', code:'bacharel_medicina', label_pt:'Graduação em Medicina', label_de:'Medizinstudium', sort_order:45, seed:true },
+    { id:'seed:training:licenciatura', code:'licenciatura', label_pt:'Licenciatura', label_de:'Lehramtsstudium', sort_order:50, seed:true },
+    { id:'seed:training:pos_graduacao', code:'pos_graduacao', label_pt:'Pós-graduação / Especialização', label_de:'Postgraduiert / Spezialisierung', sort_order:60, seed:true },
+    { id:'seed:training:pos_uti', code:'pos_uti', label_pt:'Pós em UTI / Terapia Intensiva', label_de:'Postgraduiert Intensivpflege', sort_order:61, seed:true },
+    { id:'seed:training:mestrado', code:'mestrado', label_pt:'Mestrado', label_de:'Master', sort_order:70, seed:true },
+    { id:'seed:training:doutorado', code:'doutorado', label_pt:'Doutorado', label_de:'Doktorat', sort_order:80, seed:true },
+    { id:'seed:training:curso_senai_soldagem', code:'curso_senai_soldagem', label_pt:'Curso SENAI em Soldagem', label_de:'SENAI-Kurs Schweißen', sort_order:90, seed:true },
+    { id:'seed:training:curso_senai_cnc', code:'curso_senai_cnc', label_pt:'Curso SENAI em CNC / Usinagem', label_de:'SENAI-Kurs CNC / Zerspanung', sort_order:91, seed:true },
+    { id:'seed:training:curso_senai_eletrica', code:'curso_senai_eletrica', label_pt:'Curso SENAI em Elétrica', label_de:'SENAI-Kurs Elektrik', sort_order:92, seed:true },
+    { id:'seed:training:curso_senai_mecanica', code:'curso_senai_mecanica', label_pt:'Curso SENAI em Mecânica', label_de:'SENAI-Kurs Mechanik', sort_order:93, seed:true },
+    { id:'seed:training:certificacao_empilhadeira', code:'certificacao_empilhadeira', label_pt:'Certificação de Empilhadeira', label_de:'Staplerschein', sort_order:100, seed:true },
+    { id:'seed:training:certificacao_nr10', code:'certificacao_nr10', label_pt:'Certificação NR-10', label_de:'Zertifizierung NR-10', sort_order:101, seed:true },
+    { id:'seed:training:certificacao_nr35', code:'certificacao_nr35', label_pt:'Certificação NR-35', label_de:'Zertifizierung NR-35', sort_order:102, seed:true },
+    { id:'seed:training:curso_livre', code:'curso_livre', label_pt:'Curso Livre / Certificação', label_de:'Freikurs / Zertifizierung', sort_order:110, seed:true }
+  ];
+
+  S.relationCatalog = S.relationCatalog || { trainings: [], loaded: false, hasDbCatalog: false };
+  S.currentCandRelations = S.currentCandRelations || { loaded: false, professions: [], trainings: [], specialties: [] };
+  S.pendingRelationEdits = S.pendingRelationEdits || { professions: null, trainings: null, specialties: null };
+  window.NEWCAND_MULTI = window.NEWCAND_MULTI || { professions: [], trainings: [], specialties: [], primaryTrainingId: '' };
+
+  function relNorm(v){ return normalizeUpper(v).replace(/[^A-Z0-9+]+/g,' ').trim(); }
+  function relLabel(row){ return String(row?.label_pt || row?.label_de || row?.code || '').trim(); }
+  function relDedupe(arr){ return [...new Set((arr || []).map(v => String(v || '').trim()).filter(Boolean))]; }
+  function trainingSeedClone(){ return JSON.parse(JSON.stringify(TRAINING_SEED)); }
+  function getCurrentPrimaryProfessionId(c){ return String(getTaxonomyFieldState(c || S.currentCand, 'profession').id || ''); }
+  function getCurrentPrimarySpecialtyId(c){ return String(getTaxonomyFieldState(c || S.currentCand, 'subarea').id || ''); }
+  function getCurrentPrimaryTrainingId(c){
+    const pending = Object.prototype.hasOwnProperty.call(S.pendingEdits || {}, 'primary_training_id') ? S.pendingEdits['primary_training_id'] : undefined;
+    const raw = pending !== undefined ? pending : (fv(c || S.currentCand,'primary_training_id') || (c || S.currentCand || {}).primary_training_id || '');
+    return raw ? String(raw) : '';
+  }
+  function getTrainingRows(){ return Array.isArray(S.relationCatalog?.trainings) ? S.relationCatalog.trainings : []; }
+  function currentRelationIds(kind){
+    const pending = S.pendingRelationEdits?.[kind];
+    if (Array.isArray(pending)) return relDedupe(pending);
+    return relDedupe(S.currentCandRelations?.[kind] || []);
+  }
+  function relationOptions(kind, ctx){
+    const c = ctx || S.currentCand || {};
+    if (kind === 'professions') {
+      const primary = getCurrentPrimaryProfessionId(c);
+      const areaId = String(getTaxonomyFieldState(c, 'area').id || '');
+      return [...(S.taxonomy?.professions || [])].filter(r => String(r.id) !== String(primary)).sort((a,b)=>{
+        const aBoost = areaId && String(a.area_id) === areaId ? 0 : 1;
+        const bBoost = areaId && String(b.area_id) === areaId ? 0 : 1;
+        if (aBoost !== bBoost) return aBoost - bBoost;
+        return relLabel(a).localeCompare(relLabel(b), 'pt-BR');
+      });
+    }
+    if (kind === 'specialties') {
+      const primary = getCurrentPrimarySpecialtyId(c);
+      const profId = getCurrentPrimaryProfessionId(c);
+      return [...(S.taxonomy?.subareas || [])].filter(r => String(r.id) !== String(primary)).sort((a,b)=>{
+        const aBoost = profId && String(a.profession_id) === profId ? 0 : 1;
+        const bBoost = profId && String(b.profession_id) === profId ? 0 : 1;
+        if (aBoost !== bBoost) return aBoost - bBoost;
+        return relLabel(a).localeCompare(relLabel(b), 'pt-BR');
+      });
+    }
+    return [...getTrainingRows()].sort((a,b)=>relLabel(a).localeCompare(relLabel(b), 'pt-BR'));
+  }
+  function relationResolve(kind, raw, ctx){
+    const q = relNorm(raw); if (!q) return null;
+    const rows = relationOptions(kind, ctx);
+    const exact = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v) === q));
+    if (exact.length === 1) return exact[0];
+    const prefix = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v).startsWith(q)));
+    if (prefix.length === 1) return prefix[0];
+    const contains = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v).includes(q)));
+    return contains.length === 1 ? contains[0] : null;
+  }
+  async function loadTrainingCatalogSafe(){
+    const seed = trainingSeedClone();
+    try {
+      const supa = await getSupa();
+      const { data, error } = await supa.from('trainings_master').select('*').eq('active', true).order('sort_order').order('label_pt');
+      if (error) throw error;
+      const byCode = new Map(seed.map(r => [String(r.code), r]));
+      (data || []).forEach(r => byCode.set(String(r.code || r.id), r));
+      S.relationCatalog = { trainings: Array.from(byCode.values()), loaded: true, hasDbCatalog: !!(data || []).length };
+    } catch(_) {
+      S.relationCatalog = { trainings: seed, loaded: true, hasDbCatalog: false };
+    }
+  }
+  async function loadCandidateRelationsSafe(candidateId){
+    const empty = { loaded: false, professions: [], trainings: [], specialties: [] };
+    try {
+      const supa = await getSupa();
+      const [{ data: profs, error: profErr }, { data: trainings, error: trErr }, { data: specs, error: spErr }] = await Promise.all([
+        supa.from('candidate_professions').select('profession_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
+        supa.from('candidate_trainings').select('training_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
+        supa.from('candidate_specialties').select('specialty_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
+      ]);
+      if (profErr || trErr || spErr) throw (profErr || trErr || spErr);
+      const primaryTraining = (trainings || []).find(r => r.is_primary)?.training_id;
+      if (primaryTraining && S.currentCand) S.currentCand.primary_training_id = primaryTraining;
+      S.currentCandRelations = {
+        loaded: true,
+        professions: relDedupe((profs || []).filter(r => !r.is_primary).map(r => r.profession_id)),
+        trainings: relDedupe((trainings || []).filter(r => !r.is_primary).map(r => r.training_id)),
+        specialties: relDedupe((specs || []).filter(r => !r.is_primary).map(r => r.specialty_id)),
+      };
+    } catch(_) { S.currentCandRelations = empty; }
+    S.pendingRelationEdits = { professions: null, trainings: null, specialties: null };
+  }
+  function relationChipsHtml(kind, ids, removeFn){
+    const chips = relDedupe(ids).map(id => {
+      const row = (kind === 'trainings' ? getTrainingRows().find(r => String(r.id) === String(id)) : kind === 'professions' ? taxonomyFindById(S.taxonomy.professions || [], id) : taxonomyFindById(S.taxonomy.subareas || [], id));
+      return row ? `<span class="ms-chip">${esc(relLabel(row))}<button type="button" onclick="${removeFn}('${esc(kind)}','${esc(String(id))}')">×</button></span>` : '';
+    }).filter(Boolean).join('');
+    return chips || `<div class="ms-empty">${esc(uiTranslate('Sem itens adicionais por enquanto.'))}</div>`;
+  }
+  function renderCandidateMultiSkillBlock(c){
+    const profIds = currentRelationIds('professions');
+    const trIds = currentRelationIds('trainings');
+    const specIds = currentRelationIds('specialties');
+    const primaryTrainingId = getCurrentPrimaryTrainingId(c);
+    const trainingOptions = getTrainingRows().map(r => `<option value="${esc(relLabel(r))}"></option>`).join('');
+    const professionOptions = relationOptions('professions', c).map(r => `<option value="${esc(relLabel(r))}"></option>`).join('');
+    const specialtyOptions = relationOptions('specialties', c).map(r => `<option value="${esc(relLabel(r))}"></option>`).join('');
+    const primaryTrainingOpts = getTrainingRows().map(r => `<option value="${esc(String(r.id))}" ${String(primaryTrainingId)===String(r.id)?'selected':''}>${esc(relLabel(r))}</option>`).join('');
+    return `
+      <div class="section-hdr" style="margin-top:14px">${esc(uiTranslate('Multicargo & formação'))}</div>
+      <div class="ms-grid">
+        <div class="field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formação principal'))}</label><select class="field-select ms-select" onchange="onPrimaryTrainingChange(this)"><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${primaryTrainingOpts}</select><div class="field-taxonomy-hint">${esc(uiTranslate('Usada como formação principal no BI e matching.'))}</div></div>
+        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Profissões adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-rel-input="professions" list="cand-professions-list" placeholder="${esc(uiTranslate('Adicionar profissão adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('professions')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-professions-list">${professionOptions}</datalist><div class="ms-chips">${relationChipsHtml('professions', profIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a principal. Pode ter quantas forem necessárias.'))}</div></div>
+        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formações adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-rel-input="trainings" list="cand-trainings-list" placeholder="${esc(uiTranslate('Adicionar formação adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('trainings')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-trainings-list">${trainingOptions}</datalist><div class="ms-chips">${relationChipsHtml('trainings', trIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a principal. Pode ter quantas forem necessárias.'))}</div></div>
+        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Especialidades adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-rel-input="specialties" list="cand-specialties-list" placeholder="${esc(uiTranslate('Adicionar especialidade adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('specialties')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-specialties-list">${specialtyOptions}</datalist><div class="ms-chips">${relationChipsHtml('specialties', specIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a especialidade principal.'))}</div></div>
+      </div>`;
+  }
+  function rerenderProfessionalPanel(){ const panel = document.getElementById('t-profissional'); if (!panel || !S.currentCand) return; panel.innerHTML = buildPanel('t-profissional', S.currentCand); try { window.t4ApplyLanguageNow(panel); } catch(_) {} }
+  window.addCandidateMultiRelation = function(kind){ const input = document.querySelector(`#t-profissional [data-rel-input="${kind}"]`); if (!input || !S.currentCand) return; const row = relationResolve(kind, input.value, S.currentCand); if (!row) { toast(uiTranslate('Selecione uma opção oficial da lista.'), 'warn'); return; } const ids = currentRelationIds(kind); ids.push(String(row.id)); S.pendingRelationEdits[kind] = relDedupe(ids); input.value = ''; updateCandidateSaveUi(); rerenderProfessionalPanel(); };
+  window.removeCandidateMultiRelation = function(kind, id){ S.pendingRelationEdits[kind] = currentRelationIds(kind).filter(v => String(v) !== String(id)); updateCandidateSaveUi(); rerenderProfessionalPanel(); };
+  window.onPrimaryTrainingChange = function(selectEl){ S.pendingEdits['primary_training_id'] = selectEl?.value || null; updateCandidateSaveUi(); rerenderProfessionalPanel(); };
+  function ensureNewMultiSkillMount(){ let box = document.getElementById('new-multiskill-box'); if (box) return box; const subField = document.getElementById('n-subarea')?.closest('.field-group'); if (!subField || !subField.parentNode) return null; box = document.createElement('div'); box.id = 'new-multiskill-box'; box.className = 'field-group fg-full'; subField.parentNode.insertBefore(box, subField.nextSibling); return box; }
+  function newRelationOptions(kind){
+    if (kind === 'professions') { const primary = String(document.getElementById('n-prof')?.value || ''); const areaId = String(document.getElementById('n-area')?.value || ''); return [...(S.taxonomy?.professions || [])].filter(r => String(r.id) !== primary).sort((a,b)=>{ const aBoost = areaId && String(a.area_id) === areaId ? 0 : 1; const bBoost = areaId && String(b.area_id) === areaId ? 0 : 1; if (aBoost !== bBoost) return aBoost - bBoost; return relLabel(a).localeCompare(relLabel(b), 'pt-BR'); }); }
+    if (kind === 'specialties') { const primary = String(document.getElementById('n-subarea')?.value || ''); const profId = String(document.getElementById('n-prof')?.value || ''); return [...(S.taxonomy?.subareas || [])].filter(r => String(r.id) !== primary).sort((a,b)=>{ const aBoost = profId && String(a.profession_id) === profId ? 0 : 1; const bBoost = profId && String(b.profession_id) === profId ? 0 : 1; if (aBoost !== bBoost) return aBoost - bBoost; return relLabel(a).localeCompare(relLabel(b), 'pt-BR'); }); }
+    return [...getTrainingRows()].sort((a,b)=>relLabel(a).localeCompare(relLabel(b), 'pt-BR'));
+  }
+  function newRelationResolve(kind, raw){ const q = relNorm(raw); if (!q) return null; const rows = newRelationOptions(kind); const exact = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v) === q)); if (exact.length === 1) return exact[0]; const prefix = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v).startsWith(q))); if (prefix.length === 1) return prefix[0]; const contains = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v).includes(q))); return contains.length === 1 ? contains[0] : null; }
+  function renderNewMultiSkillUi(){ const box = ensureNewMultiSkillMount(); if (!box) return; const trainingOptions = getTrainingRows().map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const professionOptions = newRelationOptions('professions').map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const specialtyOptions = newRelationOptions('specialties').map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const primaryTrainingOpts = getTrainingRows().map(r => `<option value="${esc(String(r.id))}" ${String(window.NEWCAND_MULTI.primaryTrainingId||'')===String(r.id)?'selected':''}>${esc(relLabel(r))}</option>`).join(''); box.innerHTML = `<div class="section-hdr">${esc(uiTranslate('Múltiplas formações e competências'))}</div><div class="ms-grid"><div class="field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formação principal'))}</label><select class="field-select ms-select" onchange="onNewPrimaryTrainingChange(this)"><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${primaryTrainingOpts}</select><div class="field-taxonomy-hint">${esc(uiTranslate('Usada como formação principal no BI e matching.'))}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Profissões adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-new-rel-input="professions" list="new-professions-list" placeholder="${esc(uiTranslate('Adicionar profissão adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('professions')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-professions-list">${professionOptions}</datalist><div class="ms-chips">${relationChipsHtml('professions', window.NEWCAND_MULTI.professions || [], 'removeNewMultiRelation')}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formações adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-new-rel-input="trainings" list="new-trainings-list" placeholder="${esc(uiTranslate('Adicionar formação adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('trainings')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-trainings-list">${trainingOptions}</datalist><div class="ms-chips">${relationChipsHtml('trainings', window.NEWCAND_MULTI.trainings || [], 'removeNewMultiRelation')}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Especialidades adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-new-rel-input="specialties" list="new-specialties-list" placeholder="${esc(uiTranslate('Adicionar especialidade adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('specialties')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-specialties-list">${specialtyOptions}</datalist><div class="ms-chips">${relationChipsHtml('specialties', window.NEWCAND_MULTI.specialties || [], 'removeNewMultiRelation')}</div></div></div><div class="field-taxonomy-hint" style="margin-top:8px">${esc(uiTranslate('Escolha a formação principal e cadastre competências complementares sem limite artificial.'))}</div>`; try { window.t4ApplyLanguageNow(box); } catch(_) {} }
+  window.addNewMultiRelation = function(kind){ const input = document.querySelector(`[data-new-rel-input="${kind}"]`); if (!input) return; const row = newRelationResolve(kind, input.value); if (!row) { toast(uiTranslate('Selecione uma opção oficial da lista.'), 'warn'); return; } const current = relDedupe(window.NEWCAND_MULTI[kind] || []); current.push(String(row.id)); window.NEWCAND_MULTI[kind] = relDedupe(current); input.value = ''; renderNewMultiSkillUi(); };
+  window.removeNewMultiRelation = function(kind, id){ window.NEWCAND_MULTI[kind] = relDedupe((window.NEWCAND_MULTI[kind] || []).filter(v => String(v) !== String(id))); renderNewMultiSkillUi(); };
+  window.onNewPrimaryTrainingChange = function(selectEl){ window.NEWCAND_MULTI.primaryTrainingId = String(selectEl?.value || ''); renderNewMultiSkillUi(); };
+  function resetNewMultiSkill(){ window.NEWCAND_MULTI = { professions: [], trainings: [], specialties: [], primaryTrainingId: '' }; }
+  async function syncCandidateRelations(candidateId, snapshot){
+    const supa = await getSupa();
+    const primaryProfessionId = String((S.currentCand?.profession_id || fv(S.currentCand,'profession_id') || '') || '');
+    const primarySpecialtyId = String((S.currentCand?.subarea_id || fv(S.currentCand,'subarea_id') || '') || '');
+    const primaryTrainingId = String((S.currentCand?.primary_training_id || fv(S.currentCand,'primary_training_id') || '') || '');
+    const professions = relDedupe([primaryProfessionId, ...(snapshot.professions || [])]).filter(Boolean);
+    const trainings = relDedupe([primaryTrainingId, ...(snapshot.trainings || [])]).filter(Boolean);
+    const specialties = relDedupe([primarySpecialtyId, ...(snapshot.specialties || [])]).filter(Boolean);
+    let q = await supa.from('candidatos').update({ primary_training_id: isPersistableTaxonomyId(primaryTrainingId) ? Number(primaryTrainingId) : null }).eq('id', candidateId);
+    if (q.error && !String(q.error.message||'').toLowerCase().includes('primary_training_id')) throw q.error;
+    const profRows = professions.map((id, idx) => ({ candidate_id: candidateId, profession_id: Number(id), is_primary: String(id)===String(primaryProfessionId), sort_order: String(id)===String(primaryProfessionId)?0:idx+1, source:'manual', confidence:1 }));
+    const trainingRows = trainings.map((id, idx) => ({ candidate_id: candidateId, training_id: Number(id), is_primary: String(id)===String(primaryTrainingId), sort_order: String(id)===String(primaryTrainingId)?0:idx+1, source:'manual', confidence:1 }));
+    const specialtyRows = specialties.map((id, idx) => ({ candidate_id: candidateId, specialty_id: Number(id), is_primary: String(id)===String(primarySpecialtyId), sort_order: String(id)===String(primarySpecialtyId)?0:idx+1, source:'manual', confidence:1 }));
+    q = await supa.from('candidate_professions').delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
+    if (profRows.length) { q = await supa.from('candidate_professions').insert(profRows); if (q.error) throw q.error; }
+    q = await supa.from('candidate_trainings').delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
+    if (trainingRows.length) { q = await supa.from('candidate_trainings').insert(trainingRows); if (q.error) throw q.error; }
+    q = await supa.from('candidate_specialties').delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
+    if (specialtyRows.length) { q = await supa.from('candidate_specialties').insert(specialtyRows); if (q.error) throw q.error; }
+  }
+  function hasPendingRelationChanges(){ return ['professions','trainings','specialties'].some(k => Array.isArray(S.pendingRelationEdits?.[k])); }
+  const _buildPanelBase = buildPanel;
+  buildPanel = function(tabId, c){ let html = _buildPanelBase(tabId, c); if (tabId === 't-profissional') { const marker = '<div class="section-hdr">Idiomas</div>'; const block = renderCandidateMultiSkillBlock(c); if (html.includes(marker)) html = html.replace(marker, block + marker); else html += block; } return html; };
+  window.buildPanel = buildPanel;
+  const _openCandBase = openCand;
+  openCand = async function(id){ S.pendingRelationEdits = { professions: null, trainings: null, specialties: null }; await loadTrainingCatalogSafe(); await _openCandBase(id); const cid = S.currentCand?.ID || S.currentCand?.id; if (cid) { await loadCandidateRelationsSafe(cid); rerenderProfessionalPanel(); } };
+  window.openCand = openCand;
+  const _closeCandBase = closeCand;
+  closeCand = function(){ S.currentCandRelations = { loaded:false, professions:[], trainings:[], specialties:[] }; S.pendingRelationEdits = { professions: null, trainings: null, specialties: null }; _closeCandBase(); };
+  window.closeCand = closeCand;
+  updateCandidateSaveUi = function(){ const baseCount = Object.keys(S.pendingEdits || {}).length + (S.rhInterviewDirty ? 1 : 0); const relCount = ['professions','trainings','specialties'].reduce((acc,k)=> acc + (Array.isArray(S.pendingRelationEdits?.[k]) ? S.pendingRelationEdits[k].length : 0), 0); const total = baseCount + relCount; const btn = document.getElementById('cm-save'); if (!btn) return; btn.textContent = `💾 Salvar (${total})`; if (total > 0) btn.classList.add('has-changes'); else btn.classList.remove('has-changes'); };
+  window.updateCandidateSaveUi = updateCandidateSaveUi;
+  const _saveCandidateBase = saveCandidate;
+  saveCandidate = async function(){ const relSnapshot = { professions: currentRelationIds('professions'), trainings: currentRelationIds('trainings'), specialties: currentRelationIds('specialties') }; const baseChanged = Object.keys(S.pendingEdits || {}).length > 0 || !!S.rhInterviewDirty; const relChanged = hasPendingRelationChanges(); if (!baseChanged && !relChanged) { toast('Nenhuma alteração detectada.', 'warn'); return; } const btn = document.getElementById('cm-save'); if (!baseChanged && btn) { btn.textContent = '⏳ Salvando...'; btn.disabled = true; } if (baseChanged) { await _saveCandidateBase.apply(this, arguments); if (Object.keys(S.pendingEdits || {}).length > 0 || !!S.rhInterviewDirty) return; } if (relChanged && S.currentCand?.ID) { try { await syncCandidateRelations(S.currentCand.ID, relSnapshot); await loadCandidateRelationsSafe(S.currentCand.ID); S.pendingRelationEdits = { professions: null, trainings: null, specialties: null }; rerenderProfessionalPanel(); if (!baseChanged) toast('✅ Relações complementares salvas.', 'ok'); } catch(e) { toast(`${uiTranslate('Falhou ao salvar relações adicionais:')} ${e.message || e}`, 'warn', 7000); } } if (btn) { btn.textContent = '💾 Salvar'; btn.disabled = false; btn.classList.remove('has-changes'); } };
+  window.saveCandidate = saveCandidate;
+  const _populateNewFormBase = populateNewForm;
+  populateNewForm = function(){ _populateNewFormBase(); loadTrainingCatalogSafe().then(renderNewMultiSkillUi); };
+  window.populateNewForm = populateNewForm;
+  const _openNewCandidateBase = openNewCandidate;
+  openNewCandidate = function(){ resetNewMultiSkill(); _openNewCandidateBase(); populateNewForm(); renderNewMultiSkillUi(); };
+  window.openNewCandidate = openNewCandidate;
+  const _closeNewBase = closeNew;
+  closeNew = function(){ resetNewMultiSkill(); const box = document.getElementById('new-multiskill-box'); if (box) box.remove(); _closeNewBase(); };
+  window.closeNew = closeNew;
+  submitNew = async function() {
+    const nome = document.getElementById('n-nome').value.trim(); if (!nome) { toast('⚠ Nome é obrigatório.', 'err'); return; }
+    const btn = document.getElementById('n-btn'); btn.textContent = '⏳ Criando...'; btn.disabled = true;
+    const sess = getSession();
+    try {
+      const areaVal = document.getElementById('n-area').value || ''; const profVal = document.getElementById('n-prof').value || ''; const subVal = document.getElementById('n-subarea').value || '';
+      const areaRow = taxonomyFindById(S?.taxonomy?.areas || [], areaVal); const profRow = taxonomyFindById(S?.taxonomy?.professions || [], profVal); const subRow = taxonomyFindById(S?.taxonomy?.subareas || [], subVal);
+      const primaryTrainingId = window.NEWCAND_MULTI.primaryTrainingId || '';
+      const r = await apiPost({ action: 'createCandidate', actor: sess?.nome || 'web', fields: { 'Nome completo': nome, 'STATUS PIPELINE': document.getElementById('n-status').value || 'Novo candidato', 'E-mail': document.getElementById('n-email').value.trim(), 'Telefone': document.getElementById('n-tel').value.trim(), 'País de origem': document.getElementById('n-pais').value.trim(), 'Cidade atual': document.getElementById('n-cidade').value.trim(), 'Profissão principal': (profRow?.label_pt) || document.getElementById('n-prof-search').value.trim() || null, 'Área profissional': (areaRow?.label_pt) || document.getElementById('n-area-search').value.trim() || null, 'subarea_label': (subRow?.label_pt) || document.getElementById('n-subarea-search').value.trim() || null, 'area_id': isPersistableTaxonomyId(areaVal) ? areaVal : null, 'profession_id': isPersistableTaxonomyId(profVal) ? profVal : null, 'subarea_id': isPersistableTaxonomyId(subVal) ? subVal : null, 'primary_training_id': isPersistableTaxonomyId(primaryTrainingId) ? primaryTrainingId : null, 'taxonomy_status': (areaRow || profRow || subRow) ? ((isPersistableTaxonomyId(areaVal) || isPersistableTaxonomyId(profVal) || isPersistableTaxonomyId(subVal)) ? 'mapped' : 'seed_selected') : null, 'taxonomy_confidence': (areaRow || profRow || subRow) ? ((isPersistableTaxonomyId(areaVal) || isPersistableTaxonomyId(profVal) || isPersistableTaxonomyId(subVal)) ? 1 : 0.78) : null, 'Nível alemão': document.getElementById('n-alemao').value, 'Referência': document.getElementById('n-origem').value.trim(), 'Responsável interno': document.getElementById('n-resp').value.trim(), 'Observação': document.getElementById('n-obs').value.trim(), } });
+      try { await syncCandidateRelations(r.id, { professions: relDedupe(window.NEWCAND_MULTI.professions || []), trainings: relDedupe(window.NEWCAND_MULTI.trainings || []), specialties: relDedupe(window.NEWCAND_MULTI.specialties || []) }); } catch(syncErr) { toast(`${uiTranslate('Falhou ao salvar relações adicionais:')} ${syncErr.message || syncErr}`, 'warn', 7000); }
+      toast(`✅ Candidato criado: ${r.id}`, 'ok');
+      const pdfFile = _pendingCurriculumFile; _pendingCurriculumFile = null; closeNew(); btn.textContent = '✓ Criar Candidato'; btn.disabled = false; ['n-nome','n-email','n-tel','n-cidade','n-prof','n-area','n-subarea','n-area-search','n-prof-search','n-subarea-search','n-origem','n-resp','n-obs'].forEach(id=>{ const el = document.getElementById(id); if (el) el.value = ''; }); await loadAll(); renderView();
+      if (pdfFile && driveIsConnected()) {
+        toast('⏳ Enviando currículo ao Drive...', 'ok', 10000);
+        try {
+          const safeName = String(nome).replace(/[^a-zA-ZÀ-ÿ0-9\s\-_.]/g, '').trim();
+          const fileName = `Curriculo - ${safeName}.pdf`; const renamedFile = new File([pdfFile], fileName, { type: 'application/pdf' });
+          let driveResult; try { driveResult = await driveUploadFile(renamedFile, r.id, nome); } catch(uploadErr) { toast(`⚠ Candidato criado, mas falhou ao enviar currículo ao Drive: ${uploadErr.message}`, 'warn', 8000); return; }
+          try { await apiPost({ action: 'updateCandidate', id: r.id, actor: sess?.nome || 'web', fields: _cvBuildSaveFields(driveResult) }); toast(`✅ Currículo "${driveResult.fileName}" salvo no Drive e vínculo registrado.`, 'ok', 6000); await loadAll(); renderView(); } catch(saveErr) { toast(`⚠ Currículo enviado ao Drive, mas falhou ao salvar vínculo no banco: ${saveErr.message}`, 'warn', 8000); }
+        } catch(driveErr) { toast(`⚠ Candidato criado, mas erro inesperado no fluxo do Drive: ${driveErr.message}`, 'warn', 8000); }
+      } else if (pdfFile && !driveIsConnected()) { toast('⚠ Candidato criado. Currículo não enviado — conecte o Google Drive em Configurações → Conexão.', 'warn', 9000); }
+    } catch(e) { toast('❌ ' + e.message, 'err'); btn.textContent = '✓ Criar Candidato'; btn.disabled = false; }
+  };
+  window.submitNew = submitNew;
+  document.addEventListener('DOMContentLoaded', () => { loadTrainingCatalogSafe().catch(()=>{}); });
+})();
+
 </script>
 
 </body>
