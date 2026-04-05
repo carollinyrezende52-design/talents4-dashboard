@@ -1866,11 +1866,11 @@ details.bi-secondary {
 
 
 /* ───────── Employer Hub v3 ───────── */
-.emp-hub{display:grid;grid-template-columns:158px minmax(0,1fr);grid-template-areas:'left main' 'left detail';grid-template-rows:minmax(420px,1fr) minmax(300px,.88fr);gap:14px;height:calc(100vh - 180px);max-height:calc(100vh - 180px);min-height:calc(100vh - 180px);align-items:stretch;overflow:hidden}
+.emp-hub{display:grid;grid-template-columns:minmax(232px,252px) minmax(0,1fr);grid-template-areas:'left main';grid-template-rows:minmax(420px,1fr);gap:14px;height:calc(100vh - 180px);max-height:calc(100vh - 180px);min-height:calc(100vh - 180px);align-items:stretch;overflow:hidden}
 .emp-pane{background:linear-gradient(180deg,rgba(13,19,33,.98),rgba(10,15,27,.98));border:1px solid rgba(103,126,170,.18);border-radius:18px;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.28)}
 .emp-hub>.emp-pane:nth-of-type(1){grid-area:left}
 .emp-hub>.emp-pane:nth-of-type(2){grid-area:main}
-.emp-hub>.emp-pane:nth-of-type(3){grid-area:detail}
+.emp-hub>.emp-pane:nth-of-type(3){grid-area:detail;display:none}
 .emp-pane-hd{padding:16px 16px 12px;border-bottom:1px solid rgba(103,126,170,.16);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .emp-pane-title{font-size:15px;font-weight:900;color:#f4f7ff}
 .emp-pane-sub{font-size:11.5px;color:#97a7c6;margin-top:4px;line-height:1.45}
@@ -1917,6 +1917,7 @@ details.bi-secondary {
 .emp-tab:hover{border-color:rgba(116,165,255,.34);color:#eef4ff}
 .emp-tab.active{background:rgba(59,130,246,.16);border-color:rgba(96,165,250,.58);color:#f5f8ff}
 .emp-cands{padding:10px 10px 18px;display:flex;flex-direction:column;gap:10px}
+.emp-cand-wrap{display:flex;flex-direction:column;gap:10px}
 .emp-cand{padding:13px 14px;border:1px solid rgba(103,126,170,.16);border-radius:14px;background:#0f172a;cursor:pointer;transition:.15s;text-align:left;width:100%}
 .emp-cand:hover{background:#15203a;border-color:rgba(116,165,255,.34)}
 .emp-cand.active{border-color:rgba(96,165,250,.58);background:linear-gradient(180deg,rgba(59,130,246,.16),rgba(59,130,246,.08))}
@@ -1927,6 +1928,12 @@ details.bi-secondary {
 .emp-cand-foot{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.2px;color:#b4c0d8}
 .emp-cand-note{margin-top:8px;font-size:11px;line-height:1.45;color:#d5def0;background:rgba(255,255,255,.02);border:1px solid rgba(103,126,170,.14);border-radius:10px;padding:8px 10px}
 .emp-cand-note strong{color:#f4f7ff;font-weight:800}
+.emp-inline-detail{margin-top:10px;border:1px solid rgba(96,165,250,.24);border-radius:16px;background:linear-gradient(180deg,rgba(9,14,24,.98),rgba(8,12,22,.98));overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+.emp-inline-detail .emp-pane-hd{padding:14px 16px 10px;background:rgba(59,130,246,.04)}
+.emp-inline-detail .emp-summary{padding:14px 16px 16px}
+.emp-inline-detail .emp-summary-name{font-size:18px}
+.emp-inline-detail .emp-actions{padding-top:2px}
+
 .emp-summary{padding:16px;display:flex;flex-direction:column;gap:12px}
 .emp-summary-name{font-size:20px;font-weight:900;color:#f8fbff;line-height:1.25}
 .emp-summary-sub{display:flex;flex-wrap:wrap;gap:7px}
@@ -1957,9 +1964,9 @@ details.bi-secondary {
 .emp-link:hover{text-decoration:underline}
 .emp-muted{color:#9baccc}
 .emp-section-note{font-size:11px;color:#8fa1bf}
-.emp-create{white-space:nowrap;padding:3px 7px;font-size:10px;min-height:26px;min-width:auto;max-width:58px}
-@media (max-width: 1480px){.emp-hub{grid-template-columns:152px minmax(0,1fr);grid-template-rows:minmax(400px,1fr) minmax(280px,.82fr)}}
-@media (max-width: 1120px){.emp-hub{grid-template-columns:1fr;grid-template-areas:'left' 'main' 'detail';grid-template-rows:auto auto auto;height:auto;max-height:none;min-height:0}.emp-pane{min-height:auto}.emp-scroll{max-height:none;height:auto}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.emp-employer-brief-grid{grid-template-columns:1fr}.emp-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.emp-create{white-space:nowrap;padding:4px 8px;font-size:10px;min-height:28px;min-width:auto;max-width:64px}
+@media (max-width: 1480px){.emp-hub{grid-template-columns:minmax(214px,228px) minmax(0,1fr);grid-template-rows:minmax(400px,1fr)}}
+@media (max-width: 1120px){.emp-hub{grid-template-columns:1fr;grid-template-areas:'left' 'main';grid-template-rows:auto auto;height:auto;max-height:none;min-height:0}.emp-pane{min-height:auto}.emp-scroll{max-height:none;height:auto}.emp-main-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.emp-employer-brief-grid{grid-template-columns:1fr}.emp-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width: 820px){.field-grid,.field-grid.g3{grid-template-columns:1fr}.modal-footer{flex-wrap:wrap}.modal-footer .btn{flex:1 1 auto}.detail-tabs{margin:12px 14px 0}.detail-panel{padding:14px 14px 18px}.modal-hdr,.modal-footer{padding-left:14px;padding-right:14px}}
 @media (max-width: 720px){.emp-employer-brief-grid{grid-template-columns:1fr}.emp-summary-grid{grid-template-columns:1fr}}
 
@@ -6534,6 +6541,136 @@ function renderEmployerHub(el) {
     </div>`;
   })() : '';
 
+  const currentDetailPanel = current ? `<div class="emp-inline-detail">
+    <div class="emp-pane-hd">
+      <div>
+        <div class="emp-pane-title">${esc(uiTranslate('Detalhe do candidato selecionado'))}</div>
+        <div class="emp-pane-sub">${esc(uiTranslate('Painel detalhado aberto logo abaixo do candidato clicado.'))}</div>
+      </div>
+    </div>
+    <div class="emp-summary">
+
+      <div>
+        <div class="emp-summary-name">${esc(fv(current,'Nome completo')||'—')}</div>
+        <div class="emp-summary-sub" style="margin-top:6px">
+          <span class="badge ${STATUS_BADGE[fv(current,'STATUS PIPELINE')]||'b-inativo'}">${esc(fv(current,'STATUS PIPELINE')||'—')}</span>
+          ${matchStatus?`<span class="badge b-stage">${esc(matchStatus)}</span>`:''}
+          ${fv(current,'Perfil','perfil')?`<span class="badge ${PERFIL_BADGE[fv(current,'Perfil','perfil')]||''}">${esc((fv(current,'Perfil','perfil')||'').replace('Candidato ',''))}</span>`:''}
+          ${fv(current,'ultima_atualizacao')?`<span style="font-size:10px;color:var(--txt3)">Atualizado ${uiFormatDate(fv(current,'ultima_atualizacao'))}</span>`:''}
+        </div>
+      </div>
+
+      <div class="emp-summary-section">
+        <div class="emp-summary-section-title">🏢 Employers vinculados</div>
+        ${candMatches.length ? candMatches.map(m => {
+          const empNome = m.employers?.nome || m.empregador_id || '—';
+          return `<div class="emp-employer-pill ${m.is_primary?'primary':''}">
+            <div>
+              <div class="emp-employer-pill-name">${esc(empNome)}</div>
+              ${m.status_vinculo?`<div style="font-size:10px;color:#7a8bab;margin-top:2px">${esc(m.status_vinculo)}</div>`:''}
+            </div>
+            ${m.match_strength?`<span class="emp-employer-pill-badge">${esc(m.match_strength)}</span>`:''}
+            ${m.is_primary?`<span class="emp-employer-pill-badge" style="background:rgba(245,192,0,.18);color:#f5c000;border-color:rgba(245,192,0,.3)">Principal</span>`:''}
+            <button type="button" class="emp-link" data-emp-action="edit-match" data-match-id="${esc(m.id)}" data-candidate-id="${esc(cid)}" style="margin-left:4px;font-size:10px" title="Editar vínculo">✏️</button>
+          </div>`;
+        }).join('') : `<div style="color:var(--txt3);font-size:11.5px">${esc(getEmployerDisplay(current)||'Nenhum employer vinculado via N:N')}</div>`}
+        <button type="button" class="emp-btn" data-emp-action="link-employer" data-candidate-id="${esc(cid)}" style="margin-top:6px;font-size:11px;padding:6px 10px">🔗 + Vincular empregador</button>
+      </div>
+
+      <div class="emp-summary-section">
+        <div class="emp-summary-section-title">👤 Dados do candidato</div>
+        <div class="emp-summary-grid">
+          ${box('Prontidão', readiness?.label, readiness?.cls||'')}
+          ${box('Alemão', fv(current,'Nível de alemão','Nível alemão'))}
+          ${box('Documentação', docLabel)}
+          ${box('Pronto para employer', prontoEmp)}
+          ${box('Profissão / Área-alvo', candidateProfessionLabel(current))}
+          ${box('Cidade atual', fv(current,'Cidade atual'))}
+          ${box('Tipo de vaga', entTipoCard)}
+          ${box('Responsável interno', fv(current,'Avaliador','Responsável interno','responsavel_interno'))}
+          ${box('Score', String(current._score||0))}
+        </div>
+      </div>
+
+      ${(motEncaixe||riscosMatch||proxAcaoMatch) ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🎯 Matching — vínculo em foco</div>
+        ${txt('Motivo do encaixe', motEncaixe)}
+        ${txt('Riscos / Ressalvas', riscosMatch)}
+        ${txt('Próxima ação', proxAcaoMatch)}
+      </div>` : (ops?.acao ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🎯 Próxima ação</div>
+        ${txt('Ação', ops.acao)}
+      </div>` : '')}
+
+      ${(expPrincipal||tempoExp||aderenciaTec||pontosTec||projetoPreferido) ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🛠 Experiência e aderência</div>
+        <div class="emp-summary-grid">
+          ${box('Tempo total de experiência', tempoExp)}
+          ${box('Aderência técnica', aderenciaTec)}
+        </div>
+        ${txt('Experiências principais', expPrincipal)}
+        ${txt('Projeto / experiência preferida', projetoPreferido)}
+        ${txt('Pontos técnicos fortes e fracos', pontosTec)}
+      </div>` : ''}
+
+      ${(disponibilidadeMudanca||statusMigratorio||prazoSaida||flexGeo||trabalhoAtual||expectativaSalarial) ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🚚 Disponibilidade e mobilidade</div>
+        <div class="emp-summary-grid">
+          ${box('Disponibilidade para mudança', disponibilidadeMudanca)}
+          ${box('Status migratório', statusMigratorio)}
+          ${box('Prazo realista de saída', prazoSaida)}
+          ${box('Flexibilidade geográfica', flexGeo)}
+          ${box('Expectativa salarial', expectativaSalarial)}
+        </div>
+        ${txt('Trabalho atual', trabalhoAtual)}
+        ${blueCardObs ? txt('Blue Card / contrato', blueCardObs) : ''}
+      </div>` : ''}
+
+      ${(redeApoio||mudancaFamilia||expIntl||adaptacaoCultural||autonomiaPratica) ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🌍 Integração, família e adaptação</div>
+        <div class="emp-summary-grid">
+          ${box('Rede de apoio', redeApoio)}
+          ${box('Mudança sozinho ou com família', mudancaFamilia)}
+          ${box('Experiência internacional prévia', expIntl)}
+          ${box('Autonomia prática', autonomiaPratica)}
+        </div>
+        ${txt('Adaptação cultural', adaptacaoCultural)}
+      </div>` : ''}
+
+      ${(resumoRh||motivacaoRh||restricoes) ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🧠 Análise RH</div>
+        ${txt('Resumo RH', resumoRh)}
+        ${txt('Motivação real', motivacaoRh)}
+        ${txt('Restrições objetivas', restricoes)}
+        <div class="emp-summary-grid" style="margin-top:8px">
+          ${box('Readiness internacional', readIntl)}
+        </div>
+      </div>` : ''}
+
+      ${(entData||entAvaliador||entConclusao||entDiploma||entObs) ? `<div class="emp-summary-section">
+        <div class="emp-summary-section-title">🎙 Dados da entrevista</div>
+        <div class="emp-summary-grid">
+          ${entData ? box('Data da entrevista', uiFormatDate(entData)) : ''}
+          ${entAvaliador ? box('Entrevistador(a)', entAvaliador) : ''}
+          ${entEmpresa ? box('Empresa / Cliente', entEmpresa) : ''}
+          ${entPosicao ? box('Posição / Vaga', entPosicao) : ''}
+          ${entTipo ? box('Tipo de vaga', entTipo) : ''}
+          ${entDiploma ? box('Diploma / Formação', entDiploma) : ''}
+          ${entAlemao ? box('Alemão (entrevista)', entAlemao) : ''}
+          ${(entEstCivil||entFilho) ? box('Estado civil / Filhos', [entEstCivil, entFilho].filter(Boolean).join(' · ')) : ''}
+        </div>
+        ${txt('Observação', entObs)}
+        ${txt('Conclusão da entrevista', entConclusao)}
+      </div>` : ''}
+
+      <div class="emp-actions">
+        <button type="button" class="emp-btn primary" data-emp-action="open-candidate" data-candidate-id="${esc(cid)}">📂 Abrir ficha completa</button>
+        <button type="button" class="emp-btn" data-emp-action="open-filtered" data-employer="${esc(selectedGroup?.name || getEmployerDisplay(current) || '__UNASSIGNED__')}">Ver grupo</button>
+      </div>
+
+    </div>
+  </div>` : '';
+
   el.innerHTML = `
     <div class="emp-hub">
 
@@ -6625,160 +6762,30 @@ function renderEmployerHub(el) {
             const linkStatus = getEmployerLinkStatusFor(match, c) || (selectedGroup?.kind==='unassigned' ? 'Sem employer' : '—');
             const candMatchCount = getMatchesForCandidate(thisCid).length;
             const cardTipoVaga = fv(c,'Tipo de candidato','tipo_de_candidato','tipo_vaga_preferido','Tipo de vaga preferido','tipo_vaga','Tipo de vaga') || '';
-            return `<button type="button" class="emp-cand ${thisCid===cid?'active':''}" data-emp-action="select-candidate" data-candidate-id="${esc(thisCid)}">
-              <div class="emp-cand-top">
-                <div>
-                  <div class="emp-cand-name">${esc(fv(c,'Nome completo')||'—')}</div>
-                  <div class="emp-cand-meta">
-                    <span>${esc(prof)}</span>
-                    <span>${esc(al)}</span>
-                    <span>${esc(pf)}</span>
-                    ${candMatchCount > 1 ? `<span style="color:var(--teal)">+${candMatchCount} employers</span>` : ''}
+            return `<div class="emp-cand-wrap">
+              <button type="button" class="emp-cand ${thisCid===cid?'active':''}" data-emp-action="select-candidate" data-candidate-id="${esc(thisCid)}">
+                <div class="emp-cand-top">
+                  <div>
+                    <div class="emp-cand-name">${esc(fv(c,'Nome completo')||'—')}</div>
+                    <div class="emp-cand-meta">
+                      <span>${esc(prof)}</span>
+                      <span>${esc(al)}</span>
+                      <span>${esc(pf)}</span>
+                      ${candMatchCount > 1 ? `<span style="color:var(--teal)">+${candMatchCount} employers</span>` : ''}
+                    </div>
                   </div>
+                  <span class="emp-count">${score}</span>
                 </div>
-                <span class="emp-count">${score}</span>
-              </div>
-              <div class="emp-cand-foot">
-                <span>${esc(linkStatus)}</span>
-                <span>${esc(city)} · ${esc(resp)}</span>
-              </div>
-              ${cardTipoVaga ? `<div class="emp-cand-note"><strong>${esc(uiTranslate('Tipo de vaga'))}:</strong> ${esc(cardTipoVaga)}</div>` : ''}
-            </button>`;
+                <div class="emp-cand-foot">
+                  <span>${esc(linkStatus)}</span>
+                  <span>${esc(city)} · ${esc(resp)}</span>
+                </div>
+                ${cardTipoVaga ? `<div class="emp-cand-note"><strong>${esc(uiTranslate('Tipo de vaga'))}:</strong> ${esc(cardTipoVaga)}</div>` : ''}
+              </button>
+              ${thisCid===cid ? currentDetailPanel : ''}
+            </div>`;
           }).join('') : `<div class="emp-empty-note">${esc(uiTranslate('Nenhum candidato encontrado com os filtros atuais.'))}</div>`}
         </div></div>
-      </section>
-
-      <!-- ── COLUNA 3: Painel operacional do candidato ── -->
-      <section class="emp-pane emp-detail-pane">
-        <div class="emp-pane-hd">
-          <div>
-            <div class="emp-pane-title">${esc(uiTranslate('Detalhe do candidato selecionado'))}</div>
-            <div class="emp-pane-sub">${esc(uiTranslate('Clique em um candidato na lista acima para abrir o painel detalhado abaixo.'))}</div>
-          </div>
-        </div>
-        <div class="emp-scroll">
-          ${current ? `<div class="emp-summary">
-
-            <div>
-              <div class="emp-summary-name">${esc(fv(current,'Nome completo')||'—')}</div>
-              <div class="emp-summary-sub" style="margin-top:6px">
-                <span class="badge ${STATUS_BADGE[fv(current,'STATUS PIPELINE')]||'b-inativo'}">${esc(fv(current,'STATUS PIPELINE')||'—')}</span>
-                ${matchStatus?`<span class="badge b-stage">${esc(matchStatus)}</span>`:''}
-                ${fv(current,'Perfil','perfil')?`<span class="badge ${PERFIL_BADGE[fv(current,'Perfil','perfil')]||''}">${esc((fv(current,'Perfil','perfil')||'').replace('Candidato ',''))}</span>`:''}
-                ${fv(current,'ultima_atualizacao')?`<span style="font-size:10px;color:var(--txt3)">Atualizado ${uiFormatDate(fv(current,'ultima_atualizacao'))}</span>`:''}
-              </div>
-            </div>
-
-            <div class="emp-summary-section">
-              <div class="emp-summary-section-title">🏢 Employers vinculados</div>
-              ${candMatches.length ? candMatches.map(m => {
-                const empNome = m.employers?.nome || m.empregador_id || '—';
-                return `<div class="emp-employer-pill ${m.is_primary?'primary':''}">
-                  <div>
-                    <div class="emp-employer-pill-name">${esc(empNome)}</div>
-                    ${m.status_vinculo?`<div style="font-size:10px;color:#7a8bab;margin-top:2px">${esc(m.status_vinculo)}</div>`:''}
-                  </div>
-                  ${m.match_strength?`<span class="emp-employer-pill-badge">${esc(m.match_strength)}</span>`:''}
-                  ${m.is_primary?`<span class="emp-employer-pill-badge" style="background:rgba(245,192,0,.18);color:#f5c000;border-color:rgba(245,192,0,.3)">Principal</span>`:''}
-                  <button type="button" class="emp-link" data-emp-action="edit-match" data-match-id="${esc(m.id)}" data-candidate-id="${esc(cid)}" style="margin-left:4px;font-size:10px" title="Editar vínculo">✏️</button>
-                </div>`;
-              }).join('') : `<div style="color:var(--txt3);font-size:11.5px">${esc(getEmployerDisplay(current)||'Nenhum employer vinculado via N:N')}</div>`}
-              <button type="button" class="emp-btn" data-emp-action="link-employer" data-candidate-id="${esc(cid)}" style="margin-top:6px;font-size:11px;padding:6px 10px">🔗 + Vincular empregador</button>
-            </div>
-
-            <div class="emp-summary-section">
-              <div class="emp-summary-section-title">👤 Dados do candidato</div>
-              <div class="emp-summary-grid">
-                ${box('Prontidão', readiness?.label, readiness?.cls||'')}
-                ${box('Alemão', fv(current,'Nível de alemão','Nível alemão'))}
-                ${box('Documentação', docLabel)}
-                ${box('Pronto para employer', prontoEmp)}
-                ${box('Profissão / Área-alvo', candidateProfessionLabel(current))}
-                ${box('Cidade atual', fv(current,'Cidade atual'))}
-                ${box('Tipo de vaga', entTipoCard)}
-                ${box('Responsável interno', fv(current,'Avaliador','Responsável interno','responsavel_interno'))}
-                ${box('Score', String(current._score||0))}
-              </div>
-            </div>
-
-            ${(motEncaixe||riscosMatch||proxAcaoMatch) ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🎯 Matching — vínculo em foco</div>
-              ${txt('Motivo do encaixe', motEncaixe)}
-              ${txt('Riscos / Ressalvas', riscosMatch)}
-              ${txt('Próxima ação', proxAcaoMatch)}
-            </div>` : (ops?.acao ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🎯 Próxima ação</div>
-              ${txt('Ação', ops.acao)}
-            </div>` : '')}
-
-            ${(expPrincipal||tempoExp||aderenciaTec||pontosTec||projetoPreferido) ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🛠 Experiência e aderência</div>
-              <div class="emp-summary-grid">
-                ${box('Tempo total de experiência', tempoExp)}
-                ${box('Aderência técnica', aderenciaTec)}
-              </div>
-              ${txt('Experiências principais', expPrincipal)}
-              ${txt('Projeto / experiência preferida', projetoPreferido)}
-              ${txt('Pontos técnicos fortes e fracos', pontosTec)}
-            </div>` : ''}
-
-            ${(disponibilidadeMudanca||statusMigratorio||prazoSaida||flexGeo||trabalhoAtual||expectativaSalarial) ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🚚 Disponibilidade e mobilidade</div>
-              <div class="emp-summary-grid">
-                ${box('Disponibilidade para mudança', disponibilidadeMudanca)}
-                ${box('Status migratório', statusMigratorio)}
-                ${box('Prazo realista de saída', prazoSaida)}
-                ${box('Flexibilidade geográfica', flexGeo)}
-                ${box('Expectativa salarial', expectativaSalarial)}
-              </div>
-              ${txt('Trabalho atual', trabalhoAtual)}
-              ${blueCardObs ? txt('Blue Card / contrato', blueCardObs) : ''}
-            </div>` : ''}
-
-            ${(redeApoio||mudancaFamilia||expIntl||adaptacaoCultural||autonomiaPratica) ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🌍 Integração, família e adaptação</div>
-              <div class="emp-summary-grid">
-                ${box('Rede de apoio', redeApoio)}
-                ${box('Mudança sozinho ou com família', mudancaFamilia)}
-                ${box('Experiência internacional prévia', expIntl)}
-                ${box('Autonomia prática', autonomiaPratica)}
-              </div>
-              ${txt('Adaptação cultural', adaptacaoCultural)}
-            </div>` : ''}
-
-            ${(resumoRh||motivacaoRh||restricoes) ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🧠 Análise RH</div>
-              ${txt('Resumo RH', resumoRh)}
-              ${txt('Motivação real', motivacaoRh)}
-              ${txt('Restrições objetivas', restricoes)}
-              <div class="emp-summary-grid" style="margin-top:8px">
-                ${box('Readiness internacional', readIntl)}
-              </div>
-            </div>` : ''}
-
-            ${(entData||entAvaliador||entConclusao||entDiploma||entObs) ? `<div class="emp-summary-section">
-              <div class="emp-summary-section-title">🎙 Dados da entrevista</div>
-              <div class="emp-summary-grid">
-                ${entData ? box('Data da entrevista', uiFormatDate(entData)) : ''}
-                ${entAvaliador ? box('Entrevistador(a)', entAvaliador) : ''}
-                ${entEmpresa ? box('Empresa / Cliente', entEmpresa) : ''}
-                ${entPosicao ? box('Posição / Vaga', entPosicao) : ''}
-                ${entTipo ? box('Tipo de vaga', entTipo) : ''}
-                ${entDiploma ? box('Diploma / Formação', entDiploma) : ''}
-                ${entAlemao ? box('Alemão (entrevista)', entAlemao) : ''}
-                ${(entEstCivil||entFilho) ? box('Estado civil / Filhos', [entEstCivil, entFilho].filter(Boolean).join(' · ')) : ''}
-              </div>
-              ${txt('Observação', entObs)}
-              ${txt('Conclusão da entrevista', entConclusao)}
-            </div>` : ''}
-
-            <div class="emp-actions">
-              <button type="button" class="emp-btn primary" data-emp-action="open-candidate" data-candidate-id="${esc(cid)}">📂 Abrir ficha completa</button>
-              <button type="button" class="emp-btn" data-emp-action="open-filtered" data-employer="${esc(selectedGroup?.name || getEmployerDisplay(current) || '__UNASSIGNED__')}">Ver grupo</button>
-            </div>
-
-          </div>` : `<div class="emp-empty-note" style="margin:16px">Selecione um candidato para ver o resumo operacional completo.</div>`}
-        </div>
       </section>
 
     </div>`;
@@ -9715,12 +9722,12 @@ function loadTaxonomySelect(selectEl, rows, selectedValue='') {
 }
 function currentTaxonomyProfessions(areaId='') {
   const list = Array.isArray(S?.taxonomy?.professions) ? [...S.taxonomy.professions] : [];
-  if (!areaId) return list;
+  if (!areaId) return [];
   return list.filter(p => String(p?.area_id ?? '') === String(areaId));
 }
 function currentTaxonomySubareas(professionId='') {
   const list = Array.isArray(S?.taxonomy?.subareas) ? [...S.taxonomy.subareas] : [];
-  if (!professionId) return list;
+  if (!professionId) return [];
   return list.filter(s => String(s?.profession_id ?? '') === String(professionId));
 }
 function taxonomyRowsFor(kind, areaId='', professionId='') {
@@ -9752,6 +9759,17 @@ function filterNewTaxonomySelect(kind) {
   let rows = taxonomyRowsFor(kind, areaId, profId);
   if (q) rows = rows.filter(row => taxonomyDisplay(row).toLowerCase().includes(q));
   loadTaxonomySelect(selectEl, rows, selected);
+  if (kind === 'profession') selectEl.disabled = !areaId || !rows.length;
+  if (kind === 'subarea') selectEl.disabled = !profId || !rows.length;
+  if (kind !== 'area' && !q) return;
+  if (q && rows.length === 1) {
+    const row = rows[0];
+    selectEl.value = String(row.id);
+    searchEl.value = taxonomyDisplay(row);
+    if (kind === 'area') onNewCandidateAreaChange();
+    else if (kind === 'profession') onNewCandidateProfessionChange();
+    else syncNewTaxonomySearch('subarea');
+  }
 }
 function markNewTaxonomySelection(kind) {
   if (kind === 'area') onNewCandidateAreaChange();
@@ -9765,6 +9783,7 @@ function onNewCandidateAreaChange() {
   const currentProf = profSel?.value || '';
   const allowedProf = currentTaxonomyProfessions(areaId);
   loadTaxonomySelect(profSel, allowedProf, currentProf);
+  if (profSel) profSel.disabled = !areaId || !allowedProf.length;
   if (currentProf && !allowedProf.some(p => String(p.id) === String(currentProf)) && profSel) profSel.value = '';
   syncNewTaxonomySearch('area');
   filterNewTaxonomySelect('profession');
@@ -9781,7 +9800,7 @@ function onNewCandidateProfessionChange() {
   const allowedSub = currentTaxonomySubareas(profId);
   loadTaxonomySelect(subSel, allowedSub, currentSub);
   if (subSel) {
-    subSel.disabled = !allowedSub.length;
+    subSel.disabled = !profId || !allowedSub.length;
     if (currentSub && !allowedSub.some(s => String(s.id) === String(currentSub))) subSel.value = '';
   }
   syncNewTaxonomySearch('area');
@@ -9868,7 +9887,18 @@ function renderCandidateTaxonomyField(c, kind, label) {
   const state = getTaxonomyFieldState(c, kind);
   const rows = taxonomyRowsFor(kind, areaState.id, profState.id);
   const options = rows.map(row => `<option value="${esc(String(row.id))}" ${String(state.id)===String(row.id)?'selected':''}>${esc(taxonomyDisplay(row))}</option>`).join('');
-  return `<div class="field-group"><label class="field-lbl">${esc(label)}</label><div class="field-taxonomy"><input class="field-input field-taxonomy-search" type="text" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" value="${esc(state.label)}" placeholder="${esc(uiTranslate('Digite para filtrar e selecione abaixo'))}" oninput="filterCandidateTaxonomySelect('${esc(kind)}', this)"><div class="field-select-wrap"><select class="field-select" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" onchange="onCandidateTaxonomyFieldChange('${esc(kind)}', this)"><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${options}</select><button type="button" class="field-select-add" onclick="requestTaxonomyOption('${esc(kind)}')" title="${esc(uiTranslate('Sugerir nova opção'))}">+</button></div><div class="field-taxonomy-hint">${esc(kind==='subarea' ? uiTranslate('Opcional. Vinculada à profissão selecionada.') : uiTranslate('Use a busca para filtrar e depois selecione a opção oficial.'))}</div></div></div>`;
+  const disabled = kind === 'profession' ? !areaState.id : kind === 'subarea' ? !profState.id : false;
+  const placeholder = kind === 'area'
+    ? uiTranslate('Digite para filtrar áreas e selecione abaixo')
+    : kind === 'profession'
+      ? uiTranslate('Selecione primeiro a área e depois a profissão')
+      : uiTranslate('Selecione primeiro a profissão e depois a subárea');
+  const hint = kind === 'area'
+    ? uiTranslate('Selecione uma área oficial para liberar as profissões relacionadas.')
+    : kind === 'subarea'
+      ? uiTranslate('Opcional. Vinculada à profissão selecionada.')
+      : uiTranslate('A lista mostra apenas profissões oficiais da área selecionada.');
+  return `<div class="field-group"><label class="field-lbl">${esc(label)}</label><div class="field-taxonomy"><input class="field-input field-taxonomy-search" type="text" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" value="${esc(state.label)}" placeholder="${esc(placeholder)}" oninput="filterCandidateTaxonomySelect('${esc(kind)}', this)"><div class="field-select-wrap"><select class="field-select" data-tax-scope="candidate" data-tax-kind="${esc(kind)}" onchange="onCandidateTaxonomyFieldChange('${esc(kind)}', this)" ${disabled ? 'disabled' : ''}><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${options}</select><button type="button" class="field-select-add" onclick="requestTaxonomyOption('${esc(kind)}')" title="${esc(uiTranslate('Sugerir nova opção'))}">+</button></div><div class="field-taxonomy-hint">${esc(hint)}</div></div></div>`;
 }
 function filterCandidateTaxonomySelect(kind, inputEl) {
   const wrap = inputEl?.closest('.field-taxonomy');
@@ -9884,6 +9914,15 @@ function filterCandidateTaxonomySelect(kind, inputEl) {
   if (q) rows = rows.filter(row => taxonomyDisplay(row).toLowerCase().includes(q));
   const selected = selectEl.value || '';
   loadTaxonomySelect(selectEl, rows, selected);
+  if (kind === 'profession') selectEl.disabled = !areaState.id || !rows.length;
+  if (kind === 'subarea') selectEl.disabled = !profState.id || !rows.length;
+  if (kind !== 'area' && !q) return;
+  if (q && rows.length === 1) {
+    const row = rows[0];
+    selectEl.value = String(row.id);
+    inputEl.value = taxonomyDisplay(row);
+    onCandidateTaxonomyFieldChange(kind, selectEl);
+  }
 }
 function updateCandidateSaveUi() {
   const n = Object.keys(S.pendingEdits).length + (S.rhInterviewDirty ? 1 : 0);
@@ -9952,9 +9991,11 @@ function populateNewForm() {
   };
   if (taxonomyEnabled()) {
     loadTaxonomySelect(document.getElementById('n-area'), S.taxonomy.areas || []);
-    loadTaxonomySelect(document.getElementById('n-prof'), S.taxonomy.professions || []);
+    loadTaxonomySelect(document.getElementById('n-prof'), []);
     loadTaxonomySelect(document.getElementById('n-subarea'), []);
+    const profSel = document.getElementById('n-prof');
     const subSel = document.getElementById('n-subarea');
+    if (profSel) profSel.disabled = true;
     if (subSel) subSel.disabled = true;
     ['area','profession','subarea'].forEach(syncNewTaxonomySearch);
   } else {
@@ -12157,6 +12198,12 @@ function agNav(dir) {
     'Campos preservados':'Beibehaltene Felder',
     'Resumo operacional':'Operative Zusammenfassung',
     'Detalhe do candidato selecionado':'Detail des ausgewählten Kandidaten',
+    'Painel detalhado aberto logo abaixo do candidato clicado.':'Detailpanel direkt unter dem angeklickten Kandidaten geöffnet.',
+    'Selecione primeiro a área e depois a profissão':'Wählen Sie zuerst den Bereich und dann den Beruf aus.',
+    'Selecione primeiro a profissão e depois a subárea':'Wählen Sie zuerst den Beruf und dann den Unterbereich aus.',
+    'Selecione uma área oficial para liberar as profissões relacionadas.':'Wählen Sie einen offiziellen Bereich aus, um die zugehörigen Berufe freizugeben.',
+    'A lista mostra apenas profissões oficiais da área selecionada.':'Die Liste zeigt nur offizielle Berufe des ausgewählten Bereichs.',
+    'Digite para filtrar áreas e selecione abaixo':'Geben Sie zum Filtern der Bereiche ein und wählen Sie unten aus',
     'Clique em um candidato na lista acima para abrir o painel detalhado abaixo.':'Klicken Sie in der Liste oben auf einen Kandidaten, um das Detailfeld unten zu öffnen.',
     'Digite para filtrar e selecione abaixo':'Zum Filtern tippen und unten auswählen',
     'Sugerir nova opção':'Neue Option vorschlagen',
