@@ -5688,10 +5688,13 @@ function ensureEmployerHubState(base) {
   else if (qf === 'forte') entries = entries.filter(e => normalizeUpper(fv(e.candidate,'Perfil','perfil')).includes('FORTE'));
 
   const poolIds = new Set(entries.map(e => String(e.candidate.ID || e.candidate.id || '')));
-  if (!poolIds.has(String(S.employerHub.selectedCandidateId || ''))) {
-    S.employerHub.selectedCandidateId = entries[0]?.candidate?.ID || entries[0]?.candidate?.id || selectedGroup?.entries?.[0]?.candidate?.ID || selectedGroup?.entries?.[0]?.candidate?.id || '';
+  const currentSelectedId = String(S.employerHub.selectedCandidateId || '');
+  if (currentSelectedId && !poolIds.has(currentSelectedId)) {
+    S.employerHub.selectedCandidateId = '';
   }
-  const selectedEntry = entries.find(e => String(e.candidate.ID || e.candidate.id || '') === String(S.employerHub.selectedCandidateId || '')) || entries[0] || null;
+  const selectedEntry = S.employerHub.selectedCandidateId
+    ? (entries.find(e => String(e.candidate.ID || e.candidate.id || '') === String(S.employerHub.selectedCandidateId || '')) || null)
+    : null;
   persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
 
   return { groups, visibleGroups, selectedGroup, selectedCandidateId:S.employerHub.selectedCandidateId, selectedEntry, tab, unresolvedCount: unresolved.length, filteredEntries: entries };
@@ -6425,7 +6428,7 @@ function renderEmployerHub(el) {
     return;
   }
 
-  const currentEntry = selectedEntry || (filteredEntries || [])[0] || null;
+  const currentEntry = selectedEntry || null;
   const current = currentEntry?.candidate || null;
   const cid = current ? String(current.ID || current.id || '') : '';
 
@@ -6595,7 +6598,7 @@ function renderEmployerHub(el) {
     <div class="emp-pane-hd">
       <div>
         <div class="emp-pane-title">${esc(uiTranslate('Detalhe do candidato selecionado'))}</div>
-        <div class="emp-pane-sub">${esc(uiTranslate('Painel detalhado aberto logo abaixo do candidato clicado.'))}</div>
+        <div class="emp-pane-sub">${esc(uiTranslate('Painel detalhado aberto logo abaixo do candidato clicado. Clique novamente no mesmo candidato para recolher.'))}</div>
       </div>
     </div>
     <div class="emp-summary">
@@ -14673,6 +14676,25 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
 .pf-v53-chip-label{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pf-v53-chip-row{display:flex;flex-wrap:wrap;gap:8px}
 .pf-v53-chip .pf-v53-btn{height:26px;padding:0 8px;border-radius:9px;font-size:11px}
+.pf-v53-summary{position:sticky;top:10px;z-index:4;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:linear-gradient(180deg,rgba(10,16,32,.96),rgba(9,13,27,.94));backdrop-filter:blur(10px);padding:12px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+.pf-v53-summary-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.pf-v53-summary-title{font-size:13px;font-weight:800;color:var(--txt1);letter-spacing:.03em;text-transform:uppercase}
+.pf-v53-summary-sub{font-size:12px;color:var(--txt2)}
+.pf-v53-summary-stats{display:flex;flex-wrap:wrap;gap:8px}
+.pf-v53-summary-stat{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:12px;color:var(--txt1)}
+.pf-v53-summary-stat strong{color:#fff}
+.pf-v53-summary-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.pf-v53-summary-item{border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.02);padding:10px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.pf-v53-summary-item.primary{border-color:rgba(0,194,130,.28);background:rgba(0,194,130,.06)}
+.pf-v53-summary-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pf-v53-summary-item-label{font-size:12px;color:var(--txt2)}
+.pf-v53-summary-item-path{font-size:13px;color:var(--txt1);font-weight:700;line-height:1.35;word-break:break-word}
+.pf-v53-summary-item-meta{font-size:12px;color:var(--txt2)}
+@media (max-width: 720px){
+  .pf-v53-summary{top:6px;padding:10px 12px}
+  .pf-v53-summary-list{grid-template-columns:1fr}
+}
+
 .pf-v53-note{padding:10px 12px;border:1px dashed var(--border2);border-radius:12px;color:var(--txt3);font-size:12px;background:rgba(255,255,255,.018);line-height:1.6}
 .pf-v53-empty{padding:10px 12px;border:1px dashed var(--border2);border-radius:12px;color:var(--txt3);font-size:12px;background:rgba(255,255,255,.015)}
 .pf-v53-admin-search-results{display:flex;flex-direction:column;gap:8px}
@@ -14914,6 +14936,30 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const options = trainingRows().map(r => `<option value="${htmlEsc(String(r.id))}" ${String(st.primaryTrainingId || '') === String(r.id) ? 'selected' : ''}>${htmlEsc(labelOf(r))}</option>`).join('');
     return `<div class="pf-v53-card soft"><div class="pf-v53-head"><div><div class="pf-v53-title">Formação</div><div class="pf-v53-sub">A formação principal deve ser ampla. Cursos e certificações entram como adicionais.</div></div></div><div class="pf-v53-grid-2"><div class="pf-v53-field"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="v53SetPrimaryTraining('${scope}', this.value)"><option value="">Selecionar</option>${options}</select><div class="pf-v53-help">Evite transformar curso curto ou NR em formação principal.</div><div class="pf-v53-chip-row" style="margin-top:8px">${chipsMain}</div></div><div class="pf-v53-field"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input class="field-input" id="${scope}-v53-training-input" placeholder="Buscar formação adicional" oninput="v53RenderTrainingHints('${scope}')"><button type="button" class="pf-v53-btn" onclick="v53AddTraining('${scope}')">Adicionar</button></div><div class="pf-v53-suggest" id="${scope}-v53-training-hints">${renderTrainingHints(scope, '')}</div><div class="pf-v53-chip-row" style="margin-top:8px">${chipsExtra}</div></div></div></div>`;
   }
+  function renderCompactSummary(scope){
+    const st = scope === 'candidate' ? currentCandidateState() : currentNewState();
+    const mainRow = trainingById(st.primaryTrainingId);
+    const extraRows = (st.trainings || []).map(id => trainingById(id)).filter(Boolean);
+    const flows = (st.flows || []).filter(flow => {
+      const specs = Array.isArray(flow.specialties) ? flow.specialties : [];
+      return !!(String(flow.area_label || '').trim() || String(flow.profession_label || '').trim() || specs.some(s => String(s.specialty_label || '').trim()));
+    });
+    const totalSpecs = flows.reduce((acc, flow) => acc + ((flow.specialties || []).filter(s => String(s.specialty_label || '').trim()).length), 0);
+    const stats = [
+      `<span class="pf-v53-summary-stat"><strong>${flows.length}</strong> fluxo${flows.length === 1 ? '' : 's'}</span>`,
+      `<span class="pf-v53-summary-stat"><strong>${totalSpecs}</strong> especialidade${totalSpecs === 1 ? '' : 's'}</span>`,
+      mainRow ? `<span class="pf-v53-summary-stat"><strong>Formação principal:</strong> ${htmlEsc(labelOf(mainRow))}</span>` : `<span class="pf-v53-summary-stat"><strong>Formação principal:</strong> não definida</span>`,
+      extraRows.length ? `<span class="pf-v53-summary-stat"><strong>${extraRows.length}</strong> formação${extraRows.length === 1 ? ' adicional' : 's adicionais'}</span>` : `<span class="pf-v53-summary-stat"><strong>0</strong> formações adicionais</span>`
+    ].join('');
+    const items = flows.length ? flows.map((flow, idx) => {
+      const specs = (flow.specialties || []).map(s => String(s.specialty_label || '').trim()).filter(Boolean);
+      const topSpecs = specs.slice(0, 3);
+      const extraSpecCount = Math.max(0, specs.length - topSpecs.length);
+      const specText = topSpecs.length ? topSpecs.join(' • ') + (extraSpecCount ? ` +${extraSpecCount}` : '') : 'Sem especialidade';
+      return `<div class="pf-v53-summary-item ${flow.is_primary ? 'primary' : ''}"><div class="pf-v53-summary-item-top"><span class="pf-v53-summary-item-label">Fluxo ${idx + 1}</span>${flow.is_primary ? '<span class="pf-v53-badge ok">Principal</span>' : ''}</div><div class="pf-v53-summary-item-path">${htmlEsc(flow.area_label || 'Área')} → ${htmlEsc(flow.profession_label || 'Profissão')}</div><div class="pf-v53-summary-item-meta">${htmlEsc(specText)}</div></div>`;
+    }).join('') : `<div class="pf-v53-empty">Ainda não há fluxo resumido. Selecione área, profissão e especialidades para o resumo aparecer aqui.</div>`;
+    return `<div class="pf-v53-summary"><div class="pf-v53-summary-head"><div><div class="pf-v53-summary-title">Mini resumo da trilha profissional</div><div class="pf-v53-summary-sub">Visão curta do que já foi marcado, sem precisar rolar a tela.</div></div></div><div class="pf-v53-summary-stats">${stats}</div><div class="pf-v53-summary-list">${items}</div></div>`;
+  }
   function renderSpecialtyManager(scope, flow){
     const chips = (flow.specialties || []).length ? flow.specialties.map((s, idx) => `<div class="pf-v53-chip ${(!s.specialty_id && s.specialty_label)?'pending':''} ${idx===0?'primary':''}"><span class="pf-v53-chip-label">${htmlEsc(s.specialty_label || labelOf(byId(specialtyRows(), s.specialty_id)) || 'Especialidade')}</span>${idx===0?'<span class="pf-v53-badge ok">Principal</span>':`<button type="button" class="pf-v53-btn small" onclick="v53SetPrimarySpecialty('${scope}','${flow.uid}','${s.uid}')">Tornar principal</button>`}<button type="button" class="pf-v53-btn small danger" onclick="v53RemoveSpecialty('${scope}','${flow.uid}','${s.uid}')">Remover</button></div>`).join('') : `<div class="pf-v53-empty">Sem especialidades neste fluxo.</div>`;
     return `<div class="pf-v53-field" style="grid-column:1/-1"><label class="field-lbl">Especialidades</label><div class="pf-toolbar"><input class="field-input" id="${scope}-v53-specialty-${flow.uid}" placeholder="Buscar especialidade oficial ou registrar pendente" oninput="v53RenderFieldHints('${scope}','${flow.uid}','specialty')" onkeydown="if(event.key==='Enter'){event.preventDefault();v53AddSpecialty('${scope}','${flow.uid}')}"><button type="button" class="pf-v53-btn" onclick="v53AddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div><div class="pf-v53-suggest" id="${scope}-v53-specialty-hints-${flow.uid}">${renderFieldHints(scope, flow, 'specialty', '')}</div><div class="pf-v53-help">Várias especialidades são permitidas dentro do mesmo fluxo.</div><div class="pf-v53-chip-row">${chips}</div></div>`;
@@ -14939,7 +14985,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     return `<div class="pf-v53-card admin"><div class="pf-v53-head"><div><div class="pf-v53-title">Administração do catálogo</div><div class="pf-v53-sub">Painel operacional para ampliar área, profissão, especialidade, vínculos e aliases sem editar código.</div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn warn" onclick="v53AdminRefresh()">Atualizar catálogo</button></div></div><div class="pf-v53-topline"><span class="pf-v53-stat">${areasCount} áreas</span><span class="pf-v53-stat">${professionsCount} profissões</span><span class="pf-v53-stat">${specialtiesCount} especialidades</span><span class="pf-v53-stat">${aliasesCount} aliases</span></div><div class="pf-v53-grid-2"><div class="pf-v53-card soft"><div class="pf-v53-title">Busca do catálogo</div><div class="pf-v53-field"><input class="field-input" id="v53-admin-search" placeholder="Buscar área, profissão, especialidade ou alias" oninput="v53AdminRenderSearch()"></div><div id="v53-admin-search-results" class="pf-v53-admin-search-results"><div class="pf-v53-empty">Digite para auditar o catálogo atual.</div></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Sugestões pendentes</div><div id="v53-admin-requests" class="pf-v53-requests"><div class="pf-v53-empty">Carregando solicitações...</div></div></div></div><div class="pf-v53-grid-2"><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova área</div><div class="pf-v53-field"><label class="field-lbl">Nome em português</label><input class="field-input" id="v53-admin-area-label" placeholder="Ex.: Atendimento Veterinário"></div><div class="pf-v53-field"><label class="field-lbl">Nome em alemão</label><input class="field-input" id="v53-admin-area-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateArea()">Salvar área</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova profissão</div><div class="pf-v53-field"><label class="field-lbl">Área</label><input class="field-input" id="v53-admin-prof-area" placeholder="Digite a área" oninput="v53AdminSuggestInput('area','v53-admin-prof-area','v53-admin-prof-area-hints',10)"><div id="v53-admin-prof-area-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Profissão em português</label><input class="field-input" id="v53-admin-prof-label" placeholder="Ex.: Caixa Lotérico"></div><div class="pf-v53-field"><label class="field-lbl">Profissão em alemão</label><input class="field-input" id="v53-admin-prof-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateProfession()">Salvar profissão</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova especialidade</div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input class="field-input" id="v53-admin-spec-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-spec-prof','v53-admin-spec-prof-hints',10)"><div id="v53-admin-spec-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Especialidade em português</label><input class="field-input" id="v53-admin-spec-label" placeholder="Ex.: Atendimento lotérico"></div><div class="pf-v53-field"><label class="field-lbl">Especialidade em alemão</label><input class="field-input" id="v53-admin-spec-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateSpecialty()">Salvar especialidade</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Vincular profissão a outra área</div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input class="field-input" id="v53-admin-link-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-link-prof','v53-admin-link-prof-hints',10)"><div id="v53-admin-link-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Área adicional</label><input class="field-input" id="v53-admin-link-area" placeholder="Digite a área" oninput="v53AdminSuggestInput('area','v53-admin-link-area','v53-admin-link-area-hints',10)"><div id="v53-admin-link-area-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminLinkProfessionArea()">Vincular</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Vincular especialidade a outra profissão</div><div class="pf-v53-field"><label class="field-lbl">Especialidade</label><input class="field-input" id="v53-admin-link-spec" placeholder="Digite a especialidade" oninput="v53AdminSuggestInput('specialty','v53-admin-link-spec','v53-admin-link-spec-hints',10)"><div id="v53-admin-link-spec-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Profissão adicional</label><input class="field-input" id="v53-admin-link-spec-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-link-spec-prof','v53-admin-link-spec-prof-hints',10)"><div id="v53-admin-link-spec-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminLinkSpecialtyProfession()">Vincular</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar alias</div><div class="pf-v53-field"><label class="field-lbl">Tipo</label><select class="field-select" id="v53-admin-alias-type" onchange="v53AdminAliasTypeChanged()"><option value="profession">Profissão</option><option value="specialty">Especialidade</option><option value="area">Área</option></select></div><div class="pf-v53-field"><label class="field-lbl">Alvo oficial</label><input class="field-input" id="v53-admin-alias-target" placeholder="Digite o alvo oficial" oninput="v53AdminAliasSuggest()"><div id="v53-admin-alias-target-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Alias</label><input class="field-input" id="v53-admin-alias-label" placeholder="Ex.: Caixa, Enfermeira, Help Desk"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateAlias()">Salvar alias</button></div></div></div></div>`;
   }
   function renderProfessionalTab(c){
-    return `<div class="pf-root"><div class="section-hdr">Formação & Carreira</div>${renderTrainingManager('candidate')}${renderManager('candidate')}<div class="pf-v53-card soft"><div class="pf-v53-title">Detalhes profissionais</div><div class="pf-v53-grid">${stdInput(c,'Universidade','Universidade / Formação')}${stdInput(c,'Curso de Graduação','Curso de Graduação')}${stdSelect(c,'Anabin','Classificação Anabin')}${stdSelect(c,'Pós-graduação','Pós-graduação?')}${stdInput(c,'Experiência Profissional (tempo)','Exp. profissional (tempo)')}${stdInput(c,'Referência','Referência / Origem')}${stdInput(c,'Data da Candidatura','Data candidatura')}${stdInput(c,'CV/ ARQUIVO DOC','Link CV')}</div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Idiomas</div><div class="pf-v53-grid">${stdSelect(c,'Nível alemão','Nível de alemão')}${stdSelect(c,'Em curso de alemão','Cursando alemão?')}${stdInput(c,'Língua Estrangeira','Língua estrangeira')}${stdInput(c,'Nível Língua Estrangeira','Nível língua estrangeira')}${stdSelect(c,'Resultado da prova','Resultado de prova')}<div></div></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Resumo</div><div class="pf-v53-grid">${stdTextarea(c,'Resumo profissional','Resumo profissional',true)}</div></div>${renderAdminCard()}</div>`;
+    return `<div class="pf-root"><div class="section-hdr">Formação & Carreira</div>${renderCompactSummary('candidate')}${renderTrainingManager('candidate')}${renderManager('candidate')}<div class="pf-v53-card soft"><div class="pf-v53-title">Detalhes profissionais</div><div class="pf-v53-grid">${stdInput(c,'Universidade','Universidade / Formação')}${stdInput(c,'Curso de Graduação','Curso de Graduação')}${stdSelect(c,'Anabin','Classificação Anabin')}${stdSelect(c,'Pós-graduação','Pós-graduação?')}${stdInput(c,'Experiência Profissional (tempo)','Exp. profissional (tempo)')}${stdInput(c,'Referência','Referência / Origem')}${stdInput(c,'Data da Candidatura','Data candidatura')}${stdInput(c,'CV/ ARQUIVO DOC','Link CV')}</div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Idiomas</div><div class="pf-v53-grid">${stdSelect(c,'Nível alemão','Nível de alemão')}${stdSelect(c,'Em curso de alemão','Cursando alemão?')}${stdInput(c,'Língua Estrangeira','Língua estrangeira')}${stdInput(c,'Nível Língua Estrangeira','Nível língua estrangeira')}${stdSelect(c,'Resultado da prova','Resultado de prova')}<div></div></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Resumo</div><div class="pf-v53-grid">${stdTextarea(c,'Resumo profissional','Resumo profissional',true)}</div></div>${renderAdminCard()}</div>`;
   }
   function hideLegacyNewFields(){
     ['n-area','n-prof','n-subarea'].forEach(id => {
@@ -14966,7 +15012,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     hideLegacyNewFields();
     const mount = ensureNewMount();
     if (!mount) return;
-    mount.innerHTML = `<div class="section-hdr">Fluxos profissionais e formação</div><div class="pf-root">${renderTrainingManager('new')}${renderManager('new')}</div>`;
+    mount.innerHTML = `<div class="section-hdr">Fluxos profissionais e formação</div><div class="pf-root">${renderCompactSummary('new')}${renderTrainingManager('new')}${renderManager('new')}</div>`;
   }
   function rerenderCandidatePanel(){
     const panel = document.getElementById('t-profissional');
