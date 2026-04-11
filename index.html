@@ -12175,6 +12175,25 @@ async function loadTaxonomyCatalog(supa) {
     S.taxonomy = { ...merged, requestsEnabled: false, hasDbCatalog: false };
   }
 }
+
+async function loadProfessionalTaxonomy(force=false) {
+  try {
+    const supa = await getSupa();
+    await loadTaxonomyCatalog(supa);
+    try { markCacheStamp('taxonomyAt'); } catch(_) {}
+    try {
+      if (typeof refreshNewTaxonomySelects === 'function') refreshNewTaxonomySelects();
+      if (typeof renderNewMultiSkillUi === 'function') renderNewMultiSkillUi();
+      if (typeof renderCandidateMultiSkillUi === 'function' && S && S.current) renderCandidateMultiSkillUi();
+    } catch(_) {}
+    return S?.taxonomy || null;
+  } catch (e) {
+    console.warn('[T4 rebuild patch] Falha ao carregar taxonomia profissional:', e?.message || e);
+    const seed = (typeof taxonomySeedClone === 'function') ? taxonomySeedClone() : { areas:[], professions:[], subareas:[] };
+    S.taxonomy = { ...(S.taxonomy || {}), ...seed, requestsEnabled:false, hasDbCatalog:false };
+    return S?.taxonomy || null;
+  }
+}
 async function requestTaxonomyOption(kind) {
   const labelMap = { area:'nova área', profession:'nova profissão', subarea:'nova subárea' };
   const raw = window.prompt(uiTranslate(`Digite a ${labelMap[kind] || 'nova opção'} desejada:`), '');
