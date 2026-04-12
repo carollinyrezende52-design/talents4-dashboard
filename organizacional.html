@@ -114,10 +114,56 @@
     .planner-day{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
     .planner-day h4{margin:0 0 8px;font-size:13px}
     .planner-item{padding:8px;border-radius:10px;background:#f8fafc;border:1px solid var(--line);margin-bottom:8px}
+    .home-hero{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:14px}
+    .hero-shell{position:relative;overflow:hidden}
+    .hero-shell::before{content:'';position:absolute;inset:auto -40px -40px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),rgba(255,255,255,0));pointer-events:none}
+    .hero-main{background:linear-gradient(135deg,#153b66 0%,#1f4d80 100%);border-color:#153b66;color:#fff}
+    .hero-main .hero-kicker,.hero-main .hero-sub,.hero-main .hero-stat-label,.hero-main .hero-note{color:rgba(255,255,255,.82)}
+    .hero-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#607286}
+    .hero-title{margin:8px 0 0;font-size:30px;line-height:1.06;font-weight:900}
+    .hero-sub{margin:10px 0 0;font-size:14px;line-height:1.5;color:var(--muted)}
+    .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+    .hero-stat{padding:12px 13px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14)}
+    .hero-stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .hero-stat-value{margin-top:4px;font-size:28px;font-weight:900;line-height:1}
+    .hero-note{margin-top:14px;font-size:13px;line-height:1.5}
+    .signal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+    .signal-card{display:flex;flex-direction:column;gap:12px}
+    .signal-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .signal-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:#607286}
+    .signal-value{font-size:30px;font-weight:900;line-height:1}
+    .signal-sub{font-size:13px;color:var(--muted);line-height:1.45}
+    .signal-list{display:grid;gap:8px}
+    .signal-item{display:flex;justify-content:space-between;gap:12px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px}
+    .signal-item strong{font-size:12px}
+    .focus-list{display:grid;gap:10px}
+    .focus-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#f8fbff}
+    .focus-row.is-critical{background:#fff4f3;border-color:#f0c8c3}
+    .focus-row.is-watch{background:#fff8ee;border-color:#ecd7a0}
+    .focus-main{min-width:0}
+    .focus-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:5px}
+    .focus-label{font-size:13px;font-weight:900}
+    .focus-sub{font-size:12px;color:var(--muted);line-height:1.45}
+    .focus-empty{padding:16px;border:1px dashed var(--line);border-radius:14px;background:#fbfdff;color:var(--muted);text-align:center}
+    .pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
+    .pill.blue{background:#eef5ff;color:#25538a}
+    .pill.orange{background:#fff5e8;color:#a86808}
+    .pill.red{background:#fff0f0;color:#b23535}
+    .pill.green{background:#ebfbf2;color:#0b6b41}
+    .workspace-hero{display:grid;grid-template-columns:1.35fr 1fr;gap:12px;margin-bottom:12px}
+    .workspace-hero-main{padding:18px;border-radius:18px;background:linear-gradient(135deg,#153b66 0%,#1d4f86 100%);border:1px solid #153b66;color:#fff;box-shadow:var(--shadow)}
+    .workspace-hero-main.is-critical{background:linear-gradient(135deg,#7a1821 0%,#b42318 100%);border-color:#9f1c14}
+    .workspace-hero-main.is-watch{background:linear-gradient(135deg,#8a5a00 0%,#b7791f 100%);border-color:#9a6a12}
+    .workspace-hero-main .hero-kicker,.workspace-hero-main .hero-sub,.workspace-hero-main .hero-note{color:rgba(255,255,255,.86)}
+    .workspace-hero-side{display:grid;gap:12px}
+    .mini-metric{padding:14px;border-radius:16px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}
+    .mini-metric-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:#607286}
+    .mini-metric-value{margin-top:6px;font-size:28px;font-weight:900;line-height:1}
+    .mini-metric-sub{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.45}
     .muted{color:var(--muted)}
     .emp-w0{background:#ead7ca}.emp-w1{background:#d8d2e2}.emp-w2{background:#d9e6d0}.emp-w3{background:#d9e7f3}.emp-w4{background:#eee3b9}.emp-w5{background:#e9c5c5}.emp-w6{background:#d5e4cf}.emp-w7{background:#dec7d4}.emp-w8{background:#d3e0e6}.emp-w9{background:#e6ebf0}
-    @media (max-width:1200px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.grid4,.grid3,.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:760px){.grid4,.grid3,.grid2{grid-template-columns:1fr}.drawer{width:100%}}
+    @media (max-width:1200px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.grid4,.grid3,.grid2,.signal-grid,.home-hero,.workspace-hero{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media (max-width:760px){.grid4,.grid3,.grid2,.signal-grid,.home-hero,.workspace-hero{grid-template-columns:1fr}.hero-stats{grid-template-columns:1fr}.focus-row{grid-template-columns:1fr}.drawer{width:100%}}
   </style>
 </head>
 <body>
@@ -158,7 +204,24 @@
     </div>
 
     <section id="view-home">
+      <div class="home-hero">
+        <div class="card hero-shell hero-main" id="homeHero">
+          <div class="hero-kicker">Radar operacional</div>
+          <div class="hero-title">Conecte a sessao para ver a operacao</div>
+          <div class="hero-sub">A leitura executiva carrega assim que o CRM operacional abrir a sessao autenticada.</div>
+        </div>
+        <div class="card hero-shell" id="homePriorityBoard">
+          <div class="hero-kicker">Fila prioritaria</div>
+          <div style="font-size:24px;font-weight:900;margin-top:8px">Aguardando dados do workspace</div>
+          <div class="hero-sub">Depois do login, esta area mostra as acoes que destravam follow-up, agenda, documentos e reposicao.</div>
+        </div>
+      </div>
       <div class="grid4" id="homeKpis"></div>
+      <div class="signal-grid" id="homeSignals"></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="section-head"><div><h3>Radar de employers</h3><p>Leitura consolidada de pressao, risco e proxima acao.</p></div><span class="chip" id="countEmployerPulse">0</span></div>
+        <div class="table-wrap"><table class="dense"><thead><tr><th>Employer</th><th>Saude</th><th>Pressao</th><th>Proxima acao</th><th>Ultimo toque</th><th>Acoes</th></tr></thead><tbody id="tblEmployerPulse"></tbody></table></div>
+      </div>
       <div class="stack" style="margin-top:14px">
         <div class="grid2">
           <div class="card">
@@ -210,7 +273,7 @@
       </div>
       <div class="table-wrap">
         <table class="dense">
-          <thead><tr><th>Employer</th><th>Openings abertas</th><th>Matches</th><th>Aguardando feedback</th><th>Documentos</th><th>Último toque</th><th>Ações</th></tr></thead>
+          <thead><tr><th>Employer</th><th>Saude</th><th>Openings</th><th>Pipeline</th><th>Docs</th><th>Ultimo toque</th><th>Proxima acao</th><th>Ações</th></tr></thead>
           <tbody id="tblEmployers"></tbody>
         </table>
       </div>
@@ -237,7 +300,18 @@
         </div>
 
         <div id="ws-summary">
+          <div class="workspace-hero" id="workspaceHero"></div>
           <div class="grid4" id="workspaceSummaryKpis"></div>
+          <div class="grid2" style="margin-top:12px">
+            <div class="card">
+              <div class="section-head"><div><h3>Plano de ataque</h3><p>Fila priorizada do employer para a semana.</p></div><span class="chip" id="workspaceActionCount">0</span></div>
+              <div class="focus-list" id="workspaceActionList"></div>
+            </div>
+            <div class="card">
+              <div class="section-head"><div><h3>Ultimos movimentos</h3><p>Leitura rapida da cadencia e do historico recente.</p></div><span class="chip" id="workspaceSignalCount">0</span></div>
+              <div class="focus-list" id="workspaceSignalList"></div>
+            </div>
+          </div>
         </div>
 
         <div id="ws-openings" class="hidden">
@@ -491,6 +565,257 @@ function humanDate(v){
   if(Number.isNaN(d.getTime())) return String(v);
   return d.toLocaleString('pt-BR');
 }
+function parseDateSafe(v){
+  if(!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+function startOfToday(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+function dayDeltaFromToday(v){
+  const d = parseDateSafe(v);
+  if(!d) return null;
+  const base = startOfToday();
+  const target = new Date(d);
+  target.setHours(0,0,0,0);
+  return Math.round((target - base) / 86400000);
+}
+function daysAgo(v){
+  const delta = dayDeltaFromToday(v);
+  if(delta === null) return null;
+  return Math.max(0, -delta);
+}
+function formatDayDelta(v){
+  const delta = typeof v === 'number' ? v : dayDeltaFromToday(v);
+  if(delta === null) return 'sem prazo';
+  if(delta === 0) return 'hoje';
+  if(delta === 1) return 'amanha';
+  if(delta === -1) return 'ontem';
+  return delta > 1 ? `em ${delta} dias` : `${Math.abs(delta)} dia(s) atras`;
+}
+function priorityWeight(v=''){
+  const s = String(v || '').toLowerCase();
+  if(s === 'critical') return 4;
+  if(s === 'high') return 3;
+  if(s === 'medium') return 2;
+  if(s === 'low') return 1;
+  return 0;
+}
+function shortText(v, max=84){
+  const text = String(v || '').replace(/\s+/g,' ').trim();
+  if(!text) return '—';
+  return text.length > max ? text.slice(0, max - 1) + '…' : text;
+}
+function uniqueCount(rows, fn){
+  return new Set((rows || []).map(fn).filter(Boolean)).size;
+}
+function toneMeta(score){
+  if(score >= 11) return {key:'critical', label:'Critico', badge:'b-red', pill:'red', focus:'is-critical'};
+  if(score >= 6) return {key:'watch', label:'Atencao', badge:'b-orange', pill:'orange', focus:'is-watch'};
+  return {key:'stable', label:'Estavel', badge:'b-green', pill:'green', focus:''};
+}
+function jsArg(v){
+  return JSON.stringify(v ?? '');
+}
+function actionOnclick(action){
+  if(!action || !action.kind) return '';
+  if(action.kind === 'activity') return `openActivity(${jsArg(action.id)})`;
+  if(action.kind === 'meeting') return `openMeeting(${jsArg(action.id)}, ${jsArg(action.employerId || '')})`;
+  if(action.kind === 'document') return `openDocument(${jsArg(action.id)}, ${jsArg(action.employerId || '')})`;
+  if(action.kind === 'opening') return `openOpening(${jsArg(action.id)}, ${jsArg(action.employerId || '')})`;
+  if(action.kind === 'pipeline') return `openPipeline(${jsArg(action.id)}, ${jsArg(action.employerId || '')})`;
+  if(action.kind === 'match') return `openMatch(${jsArg(action.id)}, ${jsArg(action.employerId || '')})`;
+  if(action.kind === 'workspace-tab') return `jumpWorkspace(${jsArg(action.employerId || '')}, ${jsArg(action.tab || 'summary')})`;
+  if(action.kind === 'employer') return `goEmployer(${jsArg(action.employerId || '')})`;
+  return '';
+}
+function renderFocusList(items, emptyMsg='Sem itens nesta fila.'){
+  if(!items || !items.length) return `<div class="focus-empty">${esc(emptyMsg)}</div>`;
+  return items.map(item => {
+    const tone = item.tone || {};
+    const action = item.action || item;
+    const onclick = actionOnclick(action);
+    const button = onclick ? `<button class="btn small" onclick='${onclick}'>Abrir</button>` : '';
+    return `<div class="focus-row ${tone.focus || ''}">
+      <div class="focus-main">
+        <div class="focus-meta">
+          <span class="pill ${tone.pill || 'blue'}">${esc(item.badge || tone.label || 'Item')}</span>
+          ${item.meta ? `<span class="muted">${esc(item.meta)}</span>` : ''}
+        </div>
+        <div class="focus-label">${esc(item.label || 'Sem titulo')}</div>
+        <div class="focus-sub">${esc(item.sub || 'Sem detalhe adicional.')}</div>
+      </div>
+      ${button}
+    </div>`;
+  }).join('');
+}
+function sortPriorityItems(items){
+  return (items || []).slice().sort((a,b) => {
+    const weightDiff = Number(b.weight || 0) - Number(a.weight || 0);
+    if(weightDiff) return weightDiff;
+    const aDelta = a.delta === null || a.delta === undefined ? 999 : Math.abs(a.delta);
+    const bDelta = b.delta === null || b.delta === undefined ? 999 : Math.abs(b.delta);
+    if(aDelta !== bDelta) return aDelta - bDelta;
+    return String(a.label || '').localeCompare(String(b.label || ''), 'pt-BR');
+  });
+}
+function chooseEmployerAction(current, candidate){
+  if(!candidate) return current;
+  if(!current) return candidate;
+  const currentWeight = Number(current.weight || 0);
+  const candidateWeight = Number(candidate.weight || 0);
+  if(candidateWeight !== currentWeight) return candidateWeight > currentWeight ? candidate : current;
+  const currentDelta = current.delta === null || current.delta === undefined ? 999 : Math.abs(current.delta);
+  const candidateDelta = candidate.delta === null || candidate.delta === undefined ? 999 : Math.abs(candidate.delta);
+  return candidateDelta < currentDelta ? candidate : current;
+}
+function buildEmployerPulse(home = State.cache.home || {}, employerRows = State.cache.employers || []){
+  const map = new Map();
+  const employerLookup = new Map((employerRows || []).map(row => [String(row.employer_id || row.id || row.employer_name || ''), row]));
+  function ensure(employerId, employerName='Sem employer'){
+    const key = String(employerId || employerName || 'sem-employer');
+    if(!map.has(key)){
+      const summary = employerLookup.get(String(employerId || '')) || null;
+      map.set(key, {
+        key,
+        employer_id: employerId || '',
+        employer_name: employerName || summary?.employer_name || 'Sem employer',
+        openings_open: Number(summary?.openings_open || 0),
+        matches_total: Number(summary?.matches_total || 0),
+        awaiting_feedback_summary: Number(summary?.awaiting_feedback || 0),
+        document_pendencies_summary: Number(summary?.document_pendencies || 0),
+        last_touch_at: summary?.last_touch_at || null,
+        today:0,
+        next7:0,
+        awaiting:0,
+        docs:0,
+        ready:0,
+        replacement:0,
+        meetings:0,
+        stale_days:null,
+        action:null,
+        priority_load:0
+      });
+    }
+    return map.get(key);
+  }
+  (employerRows || []).forEach(row => ensure(row.employer_id, row.employer_name));
+  (home.today || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.today += 1;
+    item.priority_load += priorityWeight(row.priority);
+    item.action = chooseEmployerAction(item.action, {kind:'activity', id:row.id, employerId:row.employer_id, weight:100 + priorityWeight(row.priority) * 10, delta:dayDeltaFromToday(row.due_date), label:row.title || 'Atividade', sub:`Tarefa ${formatDayDelta(row.due_date)}`});
+  });
+  (home.next7 || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.next7 += 1;
+    item.priority_load += priorityWeight(row.priority);
+    item.action = chooseEmployerAction(item.action, {kind:'activity', id:row.id, employerId:row.employer_id, weight:55 + priorityWeight(row.priority) * 8, delta:dayDeltaFromToday(row.due_date), label:row.title || 'Atividade futura', sub:`Programada ${formatDayDelta(row.due_date)}`});
+  });
+  (home.awaiting || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.awaiting += 1;
+    item.action = chooseEmployerAction(item.action, {kind:'pipeline', id:row.pipeline_item_id, employerId:row.employer_id, weight:92, delta:dayDeltaFromToday(row.due_date), label:`Cobrar retorno de ${row.opening_title || 'vaga'}`, sub:row.next_action || 'Pipeline aguardando feedback do employer'});
+  });
+  (home.stale || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    const staleDays = Number(row.days_without_touch || 0) || 0;
+    item.stale_days = item.stale_days === null ? staleDays : Math.max(item.stale_days, staleDays);
+    item.openings_open = Math.max(item.openings_open, Number(row.openings_open || 0));
+    item.action = chooseEmployerAction(item.action, {kind:'employer', employerId:row.employer_id, weight:staleDays >= 14 ? 88 : staleDays >= 7 ? 78 : 62, delta:staleDays ? -staleDays : null, label:`Retomar contato com ${row.employer_name || 'employer'}`, sub:`${staleDays} dia(s) sem toque · ${row.openings_open || 0} openings abertas`});
+  });
+  (home.ready || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.ready += 1;
+    item.action = chooseEmployerAction(item.action, {kind:'match', id:row.match_id, employerId:row.employer_id, weight:64, delta:null, label:`Aproveitar shortlist em ${row.opening_title || 'vaga'}`, sub:`Match score ${row.match_score || 'n/d'} pronto para envio`});
+  });
+  (home.replacement || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.replacement += 1;
+    item.action = chooseEmployerAction(item.action, {kind:'opening', id:row.opening_id, employerId:row.employer_id, weight:86, delta:null, label:`Reposicao aberta em ${row.title || 'vaga'}`, sub:`${row.quantity_open || 0} posicao(oes) ainda sem cobertura`});
+  });
+  (home.meetings || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.meetings += 1;
+    const delta = dayDeltaFromToday(row.meeting_date);
+    item.action = chooseEmployerAction(item.action, {kind:'meeting', id:row.id, employerId:row.employer_id, weight:delta !== null && delta <= 2 ? 80 : 60, delta, label:`Reuniao ${formatDayDelta(delta)}`, sub:row.title || 'Compromisso agendado'});
+  });
+  (home.docs || []).forEach(row => {
+    const item = ensure(row.employer_id, row.employer_name);
+    item.docs += 1;
+    item.action = chooseEmployerAction(item.action, {kind:'document', id:row.id, employerId:row.employer_id, weight:['missing','rejected','expired'].includes(String(row.status || '').toLowerCase()) ? 90 : 72, delta:dayDeltaFromToday(row.due_date), label:`Resolver documento ${row.title || ''}`.trim(), sub:`${row.status || 'pendente'} · ${formatDayDelta(row.due_date)}`});
+  });
+  return Array.from(map.values()).map(item => {
+    const lastTouchAge = item.stale_days !== null ? item.stale_days : daysAgo(item.last_touch_at);
+    const awaitingTotal = Math.max(item.awaiting, item.awaiting_feedback_summary);
+    const docsTotal = Math.max(item.docs, item.document_pendencies_summary);
+    const riskScore = (item.today * 4) + (awaitingTotal * 4) + (docsTotal * 3) + (item.replacement * 5) + (item.next7 * 1) + (item.ready > 0 ? 1 : 0) + (lastTouchAge >= 14 ? 6 : lastTouchAge >= 7 ? 4 : lastTouchAge >= 3 ? 2 : 0);
+    const tone = toneMeta(riskScore);
+    return {...item, awaitingTotal, docsTotal, lastTouchAge, tone, riskScore, pressure:`${item.today} hoje · ${awaitingTotal} feedback · ${docsTotal} docs${item.replacement ? ` · ${item.replacement} repos.` : ''}`, nextLabel:item.action ? item.action.label : 'Sem acao critica registrada', nextSub:item.action ? item.action.sub : 'Operacao sem gargalo imediato nesta leitura.'};
+  }).sort((a,b) => {
+    const diff = Number(b.riskScore || 0) - Number(a.riskScore || 0);
+    if(diff) return diff;
+    return String(a.employer_name || '').localeCompare(String(b.employer_name || ''), 'pt-BR');
+  });
+}
+function buildHomePriorityItems(home = State.cache.home || {}){
+  const items = [];
+  (home.today || []).forEach(row => items.push({badge:'Hoje', label:row.title || 'Atividade', sub:`${row.employer_name || 'Sem employer'} · ${formatDayDelta(row.due_date)} · prioridade ${row.priority || 'n/d'}`, weight:104 + priorityWeight(row.priority) * 10, delta:dayDeltaFromToday(row.due_date), tone:toneMeta(12), action:{kind:'activity', id:row.id, employerId:row.employer_id}}));
+  (home.awaiting || []).forEach(row => items.push({badge:'Feedback', label:`Cobrar retorno: ${row.opening_title || 'vaga'}`, sub:`${row.employer_name || 'Sem employer'} · ${shortText(row.next_action || 'Pipeline aguardando resposta')}`, weight:92, delta:dayDeltaFromToday(row.due_date), tone:toneMeta(11), action:{kind:'pipeline', id:row.pipeline_item_id, employerId:row.employer_id}}));
+  (home.docs || []).forEach(row => items.push({badge:'Docs', label:row.title || 'Documento pendente', sub:`${row.employer_name || 'Sem employer'} · ${row.status || 'pendente'} · ${formatDayDelta(row.due_date)}`, weight:['missing','rejected','expired'].includes(String(row.status || '').toLowerCase()) ? 88 : 74, delta:dayDeltaFromToday(row.due_date), tone:toneMeta(['missing','rejected','expired'].includes(String(row.status || '').toLowerCase()) ? 11 : 7), action:{kind:'document', id:row.id, employerId:row.employer_id}}));
+  (home.replacement || []).forEach(row => items.push({badge:'Reposicao', label:row.title || 'Abertura com gap', sub:`${row.employer_name || 'Sem employer'} · ${row.quantity_open || 0} posicao(oes) ainda abertas`, weight:86, delta:null, tone:toneMeta(10), action:{kind:'opening', id:row.opening_id, employerId:row.employer_id}}));
+  (home.stale || []).forEach(row => items.push({badge:'Sem toque', label:`Retomar ${row.employer_name || 'employer'}`, sub:`${row.days_without_touch || 0} dia(s) sem contato · ${row.openings_open || 0} openings abertas`, weight:Number(row.days_without_touch || 0) >= 14 ? 84 : 68, delta:row.days_without_touch ? -Number(row.days_without_touch) : null, tone:toneMeta(Number(row.days_without_touch || 0) >= 14 ? 11 : 7), action:{kind:'employer', employerId:row.employer_id}}));
+  (home.meetings || []).forEach(row => {
+    const delta = dayDeltaFromToday(row.meeting_date);
+    items.push({badge:'Reuniao', label:row.title || 'Compromisso agendado', sub:`${row.employer_name || 'Sem employer'} · ${formatDayDelta(delta)}`, weight:delta !== null && delta <= 2 ? 76 : 58, delta, tone:toneMeta(delta !== null && delta <= 2 ? 8 : 5), action:{kind:'meeting', id:row.id, employerId:row.employer_id}});
+  });
+  return sortPriorityItems(items).slice(0, 6);
+}
+function buildWorkspaceSnapshot(ws){
+  const summary = ws.summary || {};
+  const activitiesOpen = (ws.activities || []).filter(a => !['done','cancelled'].includes(String(a.status || '').toLowerCase()));
+  const activitiesOverdue = activitiesOpen.filter(a => {
+    const delta = dayDeltaFromToday(a.due_date || a.planned_for);
+    return delta !== null && delta < 0;
+  });
+  const meetingsOpen = (ws.meetings || []).filter(m => !['completed','cancelled','no_show'].includes(String(m.status || '').toLowerCase()));
+  const meetingsNext7 = meetingsOpen.filter(m => {
+    const delta = dayDeltaFromToday(m.meeting_date);
+    return delta !== null && delta >= 0 && delta <= 7;
+  });
+  const docsPending = (ws.documents || []).filter(d => !['approved','received'].includes(String(d.status || '').toLowerCase()));
+  const awaiting = (ws.pipeline || []).filter(p => ['awaiting_feedback','waiting'].includes(String(p.match_status || p.stage || p.pipeline_status || '').toLowerCase()) || String(p.stage || '').toLowerCase() === 'awaiting_feedback');
+  const ready = (ws.pipeline || []).filter(p => ['shortlisted','ready_to_present'].includes(String(p.match_status || '').toLowerCase()));
+  const replacement = (ws.openings || []).filter(o => String(o.status || '').toLowerCase() === 'open' && Number(o.quantity_open || 0) > 0);
+  const recentDates = [
+    summary.last_touch_at,
+    ...(ws.notes || []).map(n => n.created_at),
+    ...(ws.meetings || []).map(m => m.meeting_date || m.created_at),
+    ...(ws.activities || []).map(a => a.updated_at || a.created_at || a.due_date),
+    ...(ws.documents || []).map(d => d.updated_at || d.created_at || d.due_date)
+  ].map(parseDateSafe).filter(Boolean).sort((a,b) => b - a);
+  const lastTouch = recentDates[0] ? recentDates[0].toISOString() : null;
+  const riskScore = (activitiesOverdue.length * 4) + (awaiting.length * 4) + (docsPending.length * 3) + (replacement.length * 2) + ((daysAgo(lastTouch) || 0) >= 7 ? 4 : 0);
+  const tone = toneMeta(riskScore);
+  const healthScore = Math.max(24, 100 - riskScore * 7);
+  const actions = [];
+  if(activitiesOverdue.length) actions.push({badge:'Overdue', label:`${activitiesOverdue.length} atividade(s) vencida(s)`, sub:'Priorize a aba Atividades para limpar o backlog mais sensivel.', weight:96, delta:-1, tone:toneMeta(11), action:{kind:'workspace-tab', employerId:summary.employer_id, tab:'activities'}});
+  if(awaiting.length) actions.push({badge:'Feedback', label:`${awaiting.length} item(ns) aguardando retorno`, sub:'Pipeline parado no employer. Revise prazo, proxima acao e follow-up.', weight:90, delta:null, tone:toneMeta(10), action:{kind:'workspace-tab', employerId:summary.employer_id, tab:'pipeline'}});
+  if(docsPending.length) actions.push({badge:'Docs', label:`${docsPending.length} documento(s) pendente(s)`, sub:'Concentre a resolucao de compliance antes de perder timing.', weight:84, delta:null, tone:toneMeta(8), action:{kind:'workspace-tab', employerId:summary.employer_id, tab:'documents'}});
+  if(meetingsNext7.length) actions.push({badge:'Agenda', label:`${meetingsNext7.length} reuniao(oes) nos proximos 7 dias`, sub:'Garanta pauta, proxima acao e resumo fechados.', weight:72, delta:0, tone:toneMeta(6), action:{kind:'workspace-tab', employerId:summary.employer_id, tab:'meetings'}});
+  if(ready.length) actions.push({badge:'Supply', label:`${ready.length} match(es) pronto(s) para envio`, sub:'Aproveite o ready pool antes que a fila esfrie.', weight:68, delta:null, tone:toneMeta(5), action:{kind:'workspace-tab', employerId:summary.employer_id, tab:'pipeline'}});
+  if(replacement.length) actions.push({badge:'Reposicao', label:`${replacement.length} vaga(s) aberta(s) com gap`, sub:'Revise quantidade aberta, prioridade e cobertura atual.', weight:78, delta:null, tone:toneMeta(7), action:{kind:'workspace-tab', employerId:summary.employer_id, tab:'openings'}});
+  const recentRows = [
+    ...(ws.notes || []).map(n => ({badge:'Nota', label:'Nota interna', sub:`${humanDate(n.created_at)} · ${shortText(n.body, 88)}`})),
+    ...(ws.activities || []).slice(0,3).map(a => ({badge:'Atividade', label:a.title || 'Atividade', sub:`${a.status || 'sem status'} · ${formatDayDelta(a.due_date || a.planned_for)}`})),
+    ...(ws.meetings || []).slice(0,3).map(m => ({badge:'Reuniao', label:m.title || 'Reuniao', sub:`${humanDate(m.meeting_date)} · ${m.status || 'sem status'}`})),
+    ...(ws.documents || []).slice(0,3).map(d => ({badge:'Documento', label:d.title || 'Documento', sub:`${d.status || 'sem status'} · ${formatDayDelta(d.due_date)}`}))
+  ].slice(0, 6).map(item => ({...item, tone:toneMeta(4)}));
+  return {summary, tone, healthScore, lastTouch, activitiesOpen, activitiesOverdue, meetingsOpen, meetingsNext7, docsPending, awaiting, ready, replacement, actions:sortPriorityItems(actions), recentRows};
+}
 function monthLabelPt(yyyyMm){
   if(!yyyyMm) return '';
   const [y,m] = yyyyMm.split('-').map(Number);
@@ -603,13 +928,77 @@ async function loadHome(){
     q('v_org_home_document_pendencies')
   ]);
   State.cache.home = {today,next7,awaiting,stale,ready,replacement,meetings,docs};
+  const pulse = buildEmployerPulse(State.cache.home, State.cache.employers);
+  const priorities = buildHomePriorityItems(State.cache.home);
+  const criticalEmployers = pulse.filter(p => p.tone.key === 'critical');
+  const focusEmployer = pulse[0] || null;
+  const signalCards = [
+    {
+      title:'Follow-up comercial',
+      value:awaiting.length,
+      sub:`${uniqueCount(awaiting, r => String(r.employer_id || r.employer_name || ''))} employer(s) esperam retorno.`,
+      items:pulse.filter(p => p.awaitingTotal > 0).slice(0,3).map(p => ({label:p.employer_name, value:`${p.awaitingTotal} aguard.`}))
+    },
+    {
+      title:'Cadencia e toque',
+      value:stale.length,
+      sub:`${criticalEmployers.length} employer(s) em risco por falta de retorno ou toque.`,
+      items:pulse.filter(p => (p.lastTouchAge || 0) >= 3).slice(0,3).map(p => ({label:p.employer_name, value:`${p.lastTouchAge || 0}d sem toque`}))
+    },
+    {
+      title:'Supply e reposicao',
+      value:ready.length + replacement.length,
+      sub:`${ready.length} shortlist(s) pronta(s) e ${replacement.length} gap(s) de reposicao.`,
+      items:pulse.filter(p => p.ready > 0 || p.replacement > 0).slice(0,3).map(p => ({label:p.employer_name, value:`${p.ready} ready${p.replacement ? ` · ${p.replacement} gap` : ''}`}))
+    }
+  ];
 
+  document.getElementById('homeHero').innerHTML = `
+    <div class="hero-kicker">Radar operacional</div>
+    <div class="hero-title">${today.length + awaiting.length + docs.length + replacement.length} frentes pedem decisao agora</div>
+    <div class="hero-sub">A home agora prioriza follow-up, risco comercial, documentos e reposicao por employer, em vez de apenas listar filas isoladas.</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-label">Employers criticos</div><div class="hero-stat-value">${criticalEmployers.length}</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Foco hoje</div><div class="hero-stat-value">${today.length}</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Ready pool</div><div class="hero-stat-value">${ready.length}</div></div>
+    </div>
+    <div class="hero-note">${focusEmployer ? `Mais pressionado agora: ${focusEmployer.employer_name} · ${focusEmployer.pressure}.` : 'Nenhum employer com pressao critica nesta leitura.'}</div>
+  `;
+  document.getElementById('homePriorityBoard').innerHTML = `
+    <div class="hero-kicker">Fila prioritaria</div>
+    <div style="font-size:24px;font-weight:900;margin-top:8px">O que destrava a operacao</div>
+    <div class="hero-sub">As proximas acoes com maior impacto entre follow-up, agenda, documentos e reposicao.</div>
+    <div style="margin-top:14px">${renderFocusList(priorities, 'Sem acoes urgentes registradas no momento.')}</div>
+  `;
   document.getElementById('homeKpis').innerHTML = [
-    ['tarefas hoje', today.length],
-    ['próximos 7 dias', next7.length],
-    ['aguardando feedback', awaiting.length],
-    ['documentos pendentes', docs.length]
-  ].map(([k,v])=>`<div class="card"><div class="kpi-label">${esc(k)}</div><div class="kpi-value">${esc(v)}</div></div>`).join('');
+    {label:'tarefas hoje', value:today.length, sub:`${uniqueCount(today, r => String(r.employer_id || r.employer_name || ''))} employer(s) envolvidos`},
+    {label:'proximos 7 dias', value:next7.length, sub:`${meetings.length} reuniao(oes) e ${next7.length} atividade(s) na janela curta`},
+    {label:'feedback parado', value:awaiting.length, sub:`${uniqueCount(awaiting, r => String(r.employer_id || r.employer_name || ''))} employer(s) aguardando retorno`},
+    {label:'docs e reposicao', value:docs.length + replacement.length, sub:`${docs.length} docs pendentes e ${replacement.length} gap(s) de cobertura`}
+  ].map(card => `<div class="card"><div class="kpi-label">${esc(card.label)}</div><div class="kpi-value">${esc(card.value)}</div><div class="mini-metric-sub">${esc(card.sub)}</div></div>`).join('');
+  document.getElementById('homeSignals').innerHTML = signalCards.map(card => `
+    <div class="card signal-card">
+      <div class="signal-top">
+        <div>
+          <div class="signal-title">${esc(card.title)}</div>
+          <div class="signal-value">${esc(card.value)}</div>
+        </div>
+      </div>
+      <div class="signal-sub">${esc(card.sub)}</div>
+      <div class="signal-list">
+        ${(card.items || []).length ? card.items.map(item => `<div class="signal-item"><strong>${esc(item.label)}</strong><span>${esc(item.value)}</span></div>`).join('') : `<div class="focus-empty">Sem destaque nesta leitura.</div>`}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('countEmployerPulse').textContent = pulse.length;
+  document.getElementById('tblEmployerPulse').innerHTML = rowsHtml(pulse.slice(0,6),6,r=>`<tr>
+    <td><strong>${esc(r.employer_name)}</strong></td>
+    <td><span class="badge ${r.tone.badge}">${esc(r.tone.label)}</span></td>
+    <td>${esc(r.pressure)}</td>
+    <td><strong>${esc(r.nextLabel)}</strong><div class="muted" style="margin-top:4px">${esc(shortText(r.nextSub, 74))}</div></td>
+    <td>${esc(r.last_touch_at ? humanDate(r.last_touch_at) : ((r.lastTouchAge || r.lastTouchAge === 0) ? `${r.lastTouchAge} dia(s) sem toque` : 'sem registro'))}</td>
+    <td><button class="btn small" onclick='${actionOnclick(r.action || {kind:"employer", employerId:r.employer_id})}'>Abrir</button></td>
+  </tr>`);
 
   document.getElementById('countToday').textContent = today.length;
   document.getElementById('countNext7').textContent = next7.length;
@@ -644,24 +1033,29 @@ async function loadHome(){
   document.getElementById('tblDocs').innerHTML = rowsHtml(docs,5,r=>`<tr>
     <td>${esc(r.employer_name||'')}</td><td>${esc(r.title)}</td><td><span class="badge ${badgeClass(r.status)}">${esc(r.status)}</span></td><td>${esc(r.due_date||'')}</td>
     <td><button class="btn small" onclick='openDocument("${esc(r.id)}","${esc(r.employer_id||'')}")'>Abrir</button></td></tr>`);
+  if(Array.isArray(State.cache.employers) && State.cache.employers.length){
+    await loadEmployers();
+  }
 }
 
 async function loadEmployers(){
   const rows = await q('v_org_employer_workspace_summary');
   State.cache.employers = rows;
+  const pulseMap = new Map(buildEmployerPulse(State.cache.home, rows).map(item => [String(item.employer_id || item.key), item]));
   const qv = (document.getElementById('employerSearch').value||'').toLowerCase();
   document.getElementById('tblEmployers').innerHTML = rowsHtml(
     rows.filter(r=>!qv || String(r.employer_name).toLowerCase().includes(qv)),
-    7,
-    r=>`<tr>
+    8,
+    r=>{ const pulse = pulseMap.get(String(r.employer_id || '')) || {tone:toneMeta(0), nextLabel:'Sem acao critica registrada'}; return `<tr>
       <td><strong>${esc(r.employer_name)}</strong></td>
+      <td><span class="badge ${pulse.tone.badge}">${esc(pulse.tone.label)}</span></td>
       <td>${esc(r.openings_open)}</td>
-      <td>${esc(r.matches_total)}</td>
-      <td>${esc(r.awaiting_feedback)}</td>
+      <td>${esc(r.matches_total)} <span class="muted">· ${esc(r.awaiting_feedback)} aguard.</span></td>
       <td>${esc(r.document_pendencies)}</td>
       <td>${esc(r.last_touch_at ? humanDate(r.last_touch_at) : '—')}</td>
+      <td><strong>${esc(pulse.nextLabel)}</strong><div class="muted" style="margin-top:4px">${esc(shortText(pulse.nextSub || '', 60))}</div></td>
       <td><button class="btn small" onclick='goEmployer("${esc(r.employer_id)}")'>Abrir workspace</button></td>
-    </tr>`
+    </tr>`}
   );
   const wsSelect = document.getElementById('workspaceEmployerSelect');
   wsSelect.innerHTML = rows.map(r=>`<option value="${esc(r.employer_id)}" ${String(State.workspaceEmployerId)===String(r.employer_id)?'selected':''}>${esc(r.employer_name)}</option>`).join('');
@@ -717,14 +1111,51 @@ async function qFilter(table, filters, orderBy=null, ascending=false){
 function renderWorkspace(){
   const ws = State.cache.workspace;
   const s = ws.summary || {};
+  const snapshot = buildWorkspaceSnapshot(ws);
+  const healthLead = snapshot.tone.key === 'critical'
+    ? 'Employer com backlog alto e risco real de perda de timing.'
+    : snapshot.tone.key === 'watch'
+      ? 'Employer pede acompanhamento proximo para nao virar gargalo.'
+      : 'Employer sob controle, com espaco para acelerar conversao.';
   document.getElementById('workspaceTitle').textContent = s.employer_name || 'Employer';
-  document.getElementById('workspaceDesc').textContent = `Openings abertas: ${s.openings_open||0} · apresentados: ${s.matches_presented||0} · docs pendentes: ${s.document_pendencies||0}`;
+  document.getElementById('workspaceDesc').textContent = `${healthLead} Openings abertas: ${s.openings_open||0} · apresentados: ${s.matches_presented||0} · docs pendentes: ${s.document_pendencies||0}`;
+  document.getElementById('workspaceHero').innerHTML = `
+    <div class="workspace-hero-main ${snapshot.tone.key === 'critical' ? 'is-critical' : snapshot.tone.key === 'watch' ? 'is-watch' : ''}">
+      <div class="hero-kicker">Employer cockpit</div>
+      <div class="hero-title">${snapshot.tone.label} · saude ${snapshot.healthScore}</div>
+      <div class="hero-sub">${healthLead}</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-label">Feedback parado</div><div class="hero-stat-value">${snapshot.awaiting.length}</div></div>
+        <div class="hero-stat"><div class="hero-stat-label">Docs pendentes</div><div class="hero-stat-value">${snapshot.docsPending.length}</div></div>
+        <div class="hero-stat"><div class="hero-stat-label">Ativ. abertas</div><div class="hero-stat-value">${snapshot.activitiesOpen.length}</div></div>
+      </div>
+      <div class="hero-note">${snapshot.lastTouch ? `Ultimo movimento: ${humanDate(snapshot.lastTouch)}.` : 'Sem historico recente de toque.'}</div>
+    </div>
+    <div class="workspace-hero-side">
+      <div class="mini-metric">
+        <div class="mini-metric-label">Agenda curta</div>
+        <div class="mini-metric-value">${snapshot.meetingsNext7.length}</div>
+        <div class="mini-metric-sub">reuniao(oes) nos proximos 7 dias</div>
+      </div>
+      <div class="mini-metric">
+        <div class="mini-metric-label">Ready pool</div>
+        <div class="mini-metric-value">${snapshot.ready.length}</div>
+        <div class="mini-metric-sub">${snapshot.replacement.length} gap(s) de reposicao na conta</div>
+      </div>
+    </div>
+  `;
   document.getElementById('workspaceSummaryKpis').innerHTML = [
-    ['openings abertas', s.openings_open || 0],
-    ['matches apresentados', s.matches_presented || 0],
-    ['aguardando feedback', s.awaiting_feedback || 0],
-    ['documentos pendentes', s.document_pendencies || 0]
-  ].map(([k,v])=>`<div class="card"><div class="kpi-label">${esc(k)}</div><div class="kpi-value">${esc(v)}</div></div>`).join('');
+    {label:'openings abertas', value:s.openings_open || 0, sub:`${snapshot.replacement.length} com gap de cobertura`},
+    {label:'matches apresentados', value:s.matches_presented || 0, sub:`${snapshot.ready.length} ainda prontos para proximo envio`},
+    {label:'aguardando feedback', value:s.awaiting_feedback || snapshot.awaiting.length || 0, sub:'ponto de atrito comercial no employer'},
+    {label:'documentos pendentes', value:s.document_pendencies || snapshot.docsPending.length || 0, sub:'itens que podem travar conversao'},
+    {label:'atividades abertas', value:snapshot.activitiesOpen.length, sub:`${snapshot.activitiesOverdue.length} vencida(s)`},
+    {label:'agenda viva', value:snapshot.meetingsOpen.length, sub:`${snapshot.meetingsNext7.length} nos proximos 7 dias`}
+  ].map(card=>`<div class="card"><div class="kpi-label">${esc(card.label)}</div><div class="kpi-value">${esc(card.value)}</div><div class="mini-metric-sub">${esc(card.sub)}</div></div>`).join('');
+  document.getElementById('workspaceActionCount').textContent = snapshot.actions.length;
+  document.getElementById('workspaceActionList').innerHTML = renderFocusList(snapshot.actions, 'Sem acoes prioritarias nesta conta no momento.');
+  document.getElementById('workspaceSignalCount').textContent = snapshot.recentRows.length;
+  document.getElementById('workspaceSignalList').innerHTML = renderFocusList(snapshot.recentRows, 'Sem historico recente para esta conta.');
 
   document.getElementById('tblOpenings').innerHTML = rowsHtml(ws.openings,9,o=>`<tr>
     <td><input value="${esc(o.title)}" onchange='mut("openings","${esc(o.id)}","title",this.value)'></td>
@@ -1083,11 +1514,25 @@ async function createPipeline(){
   await Promise.all([loadWorkspace(employerId), loadHome()]);
 }
 
+function setWorkspaceTab(tab){
+  State.wsTab = tab || 'summary';
+  document.querySelectorAll('.ws-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===State.wsTab));
+  ['summary','openings','pipeline','presented','meetings','activities','documents','history'].forEach(t=>document.getElementById('ws-'+t).classList.toggle('hidden', t!==State.wsTab));
+}
+window.jumpWorkspace = async function(employerId, tab='summary'){
+  if(employerId) State.workspaceEmployerId = employerId;
+  if(State.workspaceEmployerId) await loadWorkspace(State.workspaceEmployerId);
+  const select = document.getElementById('workspaceEmployerSelect');
+  if(select && State.workspaceEmployerId) select.value = State.workspaceEmployerId;
+  setView('workspace');
+  setWorkspaceTab(tab);
+};
 window.goEmployer = async function(employerId){
   State.workspaceEmployerId = employerId;
   await loadWorkspace(employerId);
   document.getElementById('workspaceEmployerSelect').value = employerId;
   setView('workspace');
+  setWorkspaceTab(State.wsTab || 'summary');
 };
 window.openActivity = async function(id){
   const a = await one('org_activities', {id});
@@ -1123,23 +1568,18 @@ document.getElementById('calendarMonth').onchange = renderCalendar;
 document.getElementById('calendarEmployer').onchange = renderCalendar;
 document.getElementById('calendarTodayBtn').onclick = () => { const now = new Date().toISOString().slice(0,7); document.getElementById('calendarMonth').value = now; renderCalendar(); };
 
-document.querySelectorAll('.ws-tab').forEach(btn=>{
-  btn.onclick = ()=>{
-    State.wsTab = btn.dataset.tab;
-    document.querySelectorAll('.ws-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===State.wsTab));
-    ['summary','openings','pipeline','presented','meetings','activities','documents','history'].forEach(t=>document.getElementById('ws-'+t).classList.toggle('hidden', t!==State.wsTab));
-  };
-});
+document.querySelectorAll('.ws-tab').forEach(btn=>{ btn.onclick = ()=>setWorkspaceTab(btn.dataset.tab); });
 
 async function init(){
   try{
     clearAlert();
     await requireSession();
-    await loadHome();
     await loadEmployers();
+    await loadHome();
     if(State.workspaceEmployerId) document.getElementById('workspaceEmployerSelect').value = State.workspaceEmployerId;
     if(!State.workspaceEmployerId && State.cache.employers[0]) State.workspaceEmployerId = State.cache.employers[0].employer_id;
     if(State.workspaceEmployerId) await loadWorkspace(State.workspaceEmployerId);
+    setWorkspaceTab(State.wsTab || 'summary');
     await loadPlannerAndCalendar();
     const nowMonth = new Date().toISOString().slice(0,7);
     document.getElementById('plannerMonth').value = nowMonth;
