@@ -13,8 +13,8 @@
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
-    button,input,select,textarea{font:inherit}
-    input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text)}
+    button,input,textarea{font:inherit}
+    input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text)}
     textarea{min-height:76px;resize:vertical}
     .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
     .sidebar{background:#eef3f9;border-right:1px solid var(--line);padding:16px 14px;position:sticky;top:0;height:100vh;overflow:auto}
@@ -39,6 +39,14 @@
     .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
     .btn.small{padding:6px 9px;border-radius:9px;font-size:12px}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+    .sheet-picker-wrap{display:grid;gap:7px;min-width:280px;flex:1}
+    .sheet-picker-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .sheet-picker-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#607286}
+    .sheet-picker{display:flex;gap:8px;overflow:auto;padding:4px 2px 6px}
+    .sheet-chip{border:1px solid #c9d7e5;background:#f8fbff;color:#20456c;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
+    .sheet-chip:hover{background:#eef5ff}
+    .sheet-chip.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:var(--shadow)}
+    .sheet-chip.all{background:#fff}
     .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px}
     .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -62,6 +70,18 @@
     .tabbar button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
     .badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800}
     .b-blue{background:#eef5ff;color:#25538a}.b-green{background:#ebfbf2;color:#0b6b41}.b-orange{background:#fff5e8;color:#a86808}.b-red{background:#fff0f0;color:#b23535}.b-gray{background:#f1f5f9;color:#627182}
+    .cell-cycle{width:100%;display:grid;gap:2px;justify-items:center;border:1px solid currentColor;border-radius:12px;background:#fff;padding:7px 8px;cursor:pointer;font-weight:800;font-size:12px}
+    .cell-cycle small{font-size:10px;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.05em}
+    .cell-cycle.b-blue{background:#eef5ff}
+    .cell-cycle.b-green{background:#ebfbf2}
+    .cell-cycle.b-orange{background:#fff5e8}
+    .cell-cycle.b-red{background:#fff0f0}
+    .cell-cycle.b-gray{background:#f1f5f9}
+    .inline-row td{background:#f9fbff}
+    .inline-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:#607286;margin-bottom:6px}
+    .inline-actions{display:grid;gap:8px;min-width:130px}
+    .inline-note{display:grid;gap:8px}
+    .inline-hint{font-size:11px;color:var(--muted);line-height:1.35}
     .drawer{position:fixed;right:-520px;top:0;width:520px;height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 28px rgba(16,32,51,.12);z-index:40;transition:right .22s ease;display:flex;flex-direction:column}
     .drawer.open{right:0}
     .drawer-head{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
@@ -163,7 +183,7 @@
     .muted{color:var(--muted)}
     .emp-w0{background:#ead7ca}.emp-w1{background:#d8d2e2}.emp-w2{background:#d9e6d0}.emp-w3{background:#d9e7f3}.emp-w4{background:#eee3b9}.emp-w5{background:#e9c5c5}.emp-w6{background:#d5e4cf}.emp-w7{background:#dec7d4}.emp-w8{background:#d3e0e6}.emp-w9{background:#e6ebf0}
     @media (max-width:1200px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.grid4,.grid3,.grid2,.signal-grid,.home-hero,.workspace-hero{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media (max-width:760px){.grid4,.grid3,.grid2,.signal-grid,.home-hero,.workspace-hero{grid-template-columns:1fr}.hero-stats{grid-template-columns:1fr}.focus-row{grid-template-columns:1fr}.drawer{width:100%}}
+    @media (max-width:760px){.grid4,.grid3,.grid2,.signal-grid,.home-hero,.workspace-hero{grid-template-columns:1fr}.hero-stats{grid-template-columns:1fr}.focus-row{grid-template-columns:1fr}.drawer{width:100%}.sheet-picker-wrap{min-width:100%}.inline-actions{min-width:0}}
   </style>
 </head>
 <body>
@@ -281,7 +301,10 @@
 
     <section id="view-workspace" class="hidden">
       <div class="toolbar">
-        <select id="workspaceEmployerSelect" style="max-width:320px"></select>
+        <div class="sheet-picker-wrap">
+          <div class="sheet-picker-head"><span class="sheet-picker-label">Empregadores</span><span class="muted">clique para trocar a conta</span></div>
+          <div class="sheet-picker" id="workspaceEmployerPicker"></div>
+        </div>
         <button class="btn primary" id="workspaceReloadBtn">Recarregar workspace</button>
       </div>
       <div class="card">
@@ -392,7 +415,10 @@
     <section id="view-planner" class="hidden">
       <div class="toolbar">
         <input type="month" id="plannerMonth" style="max-width:220px" />
-        <select id="plannerEmployer" style="max-width:320px"><option value="">Todos os employers</option></select>
+        <div class="sheet-picker-wrap">
+          <div class="sheet-picker-head"><span class="sheet-picker-label">Filtro de employer</span><span class="muted">mesma leitura da planilha</span></div>
+          <div class="sheet-picker" id="plannerEmployerPicker"></div>
+        </div>
       </div>
       <div class="muted" style="margin:-4px 0 10px 2px;font-size:12px">Estrutura visual aproximada da planilha mensal: employer em bloco, 4 etapas fixas e dias do mês em colunas.</div>
       <div class="planner-grid">
@@ -410,7 +436,10 @@
         <div class="section-head"><div><h3>Calendário operacional</h3><p>Leitura mensal em grade, com aparência mais próxima de planilha e marcações por dia.</p></div></div>
         <div class="cal-toolbar">
           <input type="month" id="calendarMonth" style="max-width:220px" />
-          <select id="calendarEmployer" style="max-width:320px"><option value="">Todos os employers</option></select>
+          <div class="sheet-picker-wrap">
+            <div class="sheet-picker-head"><span class="sheet-picker-label">Filtro de employer</span><span class="muted">visual fixo, sem dropdown</span></div>
+            <div class="sheet-picker" id="calendarEmployerPicker"></div>
+          </div>
           <button class="btn" id="calendarTodayBtn">Ir para mês atual</button>
         </div>
         <div id="calendarTitle" style="background:#2b5b8d;color:#fff;padding:10px 14px;font-weight:900;text-align:center;border:1px solid #9fb0c2;border-bottom:0;border-radius:10px 10px 0 0"></div>
@@ -441,7 +470,18 @@ const OPERATIONAL_URL = 'https://talents4.github.io/talents4/';
 const State = {
   view:'home',
   workspaceEmployerId:null,
+  plannerEmployerId:'',
+  calendarEmployerId:'',
   wsTab:'summary',
+  newRows:{
+    employers:null,
+    openings:null,
+    pipeline:null,
+    meetings:null,
+    activities:null,
+    documents:null,
+    notes:null
+  },
   cache:{
     home:{},
     employers:[],
@@ -539,9 +579,6 @@ async function one(table, filters){
   if(error) throw error;
   return data;
 }
-function optionList(values, current){
-  return values.map(v=>`<option value="${esc(v)}" ${String(current)===String(v)?'selected':''}>${esc(v)}</option>`).join('');
-}
 function dateOnly(v){
   if(!v) return '';
   const d = new Date(v);
@@ -619,6 +656,224 @@ function toneMeta(score){
 }
 function jsArg(v){
   return JSON.stringify(v ?? '');
+}
+function prettyEnum(v){
+  const text = String(v || '').replace(/_/g,' ').trim();
+  if(!text) return 'â€”';
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+function enumBadgeClass(enumKey, value=''){
+  const s = String(value || '').toLowerCase();
+  if(enumKey === 'priority'){
+    if(s === 'critical') return 'b-red';
+    if(s === 'high') return 'b-orange';
+    if(s === 'medium') return 'b-blue';
+    if(s === 'low') return 'b-green';
+  }
+  return badgeClass(s);
+}
+function updateCycleButton(btn, enumKey, value){
+  if(!btn) return;
+  btn.dataset.value = value;
+  btn.className = `cell-cycle ${enumBadgeClass(enumKey, value)}`;
+  btn.innerHTML = `<span>${esc(prettyEnum(value))}</span><small>alternar</small>`;
+}
+function cycleButtonMarkup(bucket, id, field, enumKey, current){
+  const value = current || (ENUMS[enumKey] || [])[0] || '';
+  return `<button type="button" class="cell-cycle ${enumBadgeClass(enumKey, value)}" data-value="${esc(value)}" onclick='cycleEnumValue(${jsArg(bucket)},${jsArg(id)},${jsArg(field)},${jsArg(enumKey)},this)'><span>${esc(prettyEnum(value))}</span><small>alternar</small></button>`;
+}
+function draftCycleButtonMarkup(kind, field, enumKey, current){
+  const value = current || (ENUMS[enumKey] || [])[0] || '';
+  return `<button type="button" class="cell-cycle ${enumBadgeClass(enumKey, value)}" data-value="${esc(value)}" onclick='cycleDraftValue(${jsArg(kind)},${jsArg(field)},${jsArg(enumKey)},this)'><span>${esc(prettyEnum(value))}</span><small>alternar</small></button>`;
+}
+function composeRows(prefixHtml, rows, emptyCols, render, emptyMsg='Sem dados.'){
+  const body = (rows || []).length ? rows.map(render).join('') : '';
+  if(body) return prefixHtml + body;
+  if(prefixHtml) return prefixHtml;
+  return `<tr><td colspan="${emptyCols}" class="muted">${esc(emptyMsg)}</td></tr>`;
+}
+function renderEmployerPicker(containerId, activeId, includeAll, clickFn){
+  const mount = document.getElementById(containerId);
+  if(!mount) return;
+  const rows = State.cache.employers || [];
+  const html = [];
+  if(includeAll){
+    html.push(`<button type="button" class="sheet-chip all ${!activeId ? 'active' : ''}" onclick='${clickFn}("")'>Todos os employers</button>`);
+  }
+  rows.forEach(row => {
+    html.push(`<button type="button" class="sheet-chip ${String(activeId) === String(row.employer_id) ? 'active' : ''}" onclick='${clickFn}(${jsArg(row.employer_id)})'>${esc(row.employer_name)}</button>`);
+  });
+  mount.innerHTML = html.length ? html.join('') : `<span class="muted">Sem employers carregados.</span>`;
+}
+function renderEmployerPickers(){
+  renderEmployerPicker('workspaceEmployerPicker', State.workspaceEmployerId, false, 'setWorkspaceEmployer');
+  renderEmployerPicker('plannerEmployerPicker', State.plannerEmployerId || '', true, 'setPlannerEmployer');
+  renderEmployerPicker('calendarEmployerPicker', State.calendarEmployerId || '', true, 'setCalendarEmployer');
+}
+function syncCreateButtons(){
+  [
+    ['newEmployerBtn','employers','Novo employer','Fechar nova linha'],
+    ['newOpeningBtn','openings','Nova vaga','Fechar nova linha'],
+    ['newPipelineBtn','pipeline','Novo match/pipeline','Fechar nova linha'],
+    ['newMeetingBtn','meetings','Nova reuniÃ£o','Fechar nova linha'],
+    ['newActivityBtn','activities','Nova atividade','Fechar nova linha'],
+    ['newActivityWorkspaceBtn','activities','Nova atividade','Fechar nova linha'],
+    ['newDocumentBtn','documents','Novo documento','Fechar nova linha'],
+    ['newNoteBtn','notes','Nova nota','Fechar nova linha']
+  ].forEach(([id, kind, openLabel, closeLabel]) => {
+    const btn = document.getElementById(id);
+    if(btn) btn.textContent = State.newRows[kind] ? closeLabel : openLabel;
+  });
+}
+function draftDefaults(kind){
+  const today = new Date().toISOString().slice(0,10);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(10,0,0,0);
+  const tomorrowLocal = dtLocal(tomorrow.toISOString());
+  if(kind === 'employers') return {name:''};
+  if(kind === 'openings') return {title:'', department:'', status:'draft', quantity_requested:1, quantity_open:1, priority:'medium', next_action:'', due_date:today};
+  if(kind === 'pipeline') return {opening_id:'', candidate_id:'', stage:'sourcing', pipeline_status:'active', priority:'medium', next_action:'', due_date:today, match_status:'draft'};
+  if(kind === 'meetings') return {title:'', meeting_date:tomorrowLocal, status:'scheduled', priority:'medium', next_action:'', summary:''};
+  if(kind === 'activities') return {title:'', activity_type:'task', status:'open', priority:'medium', planned_for:today, due_date:today};
+  if(kind === 'documents') return {title:'', document_type:'other', status:'missing', drive_url:'', due_date:today};
+  if(kind === 'notes') return {body:''};
+  return {};
+}
+function normalizeIdValue(value){
+  const raw = String(value ?? '').trim();
+  if(!raw) return '';
+  return /^\d+$/.test(raw) ? Number(raw) : raw;
+}
+function setDraftValue(kind, field, value){
+  if(!State.newRows[kind]) return;
+  State.newRows[kind][field] = value;
+}
+function rerenderDraftScope(kind){
+  syncCreateButtons();
+  if(kind === 'employers'){
+    loadEmployers().catch(err => showAlert(String(err?.message || err), 'danger'));
+    return;
+  }
+  renderWorkspace();
+}
+window.startInlineCreate = function(kind){
+  State.newRows[kind] = State.newRows[kind] ? null : draftDefaults(kind);
+  rerenderDraftScope(kind);
+};
+window.cancelInlineCreate = function(kind){
+  State.newRows[kind] = null;
+  rerenderDraftScope(kind);
+};
+window.cycleDraftValue = function(kind, field, enumKey, btn){
+  const draft = State.newRows[kind];
+  const values = ENUMS[enumKey] || [];
+  if(!draft || !values.length) return;
+  const current = String(draft[field] || values[0]);
+  const idx = Math.max(0, values.findIndex(v => String(v) === current));
+  const next = values[(idx + 1) % values.length];
+  draft[field] = next;
+  updateCycleButton(btn, enumKey, next);
+};
+window.cycleEnumValue = function(bucket, id, field, enumKey, btn){
+  const values = ENUMS[enumKey] || [];
+  if(!values.length) return;
+  const current = String(btn?.dataset?.value || values[0]);
+  const idx = Math.max(0, values.findIndex(v => String(v) === current));
+  const next = values[(idx + 1) % values.length];
+  mut(bucket, id, field, next);
+  updateCycleButton(btn, enumKey, next);
+};
+function renderEmployerDraftRow(){
+  const draft = State.newRows.employers;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><div class="inline-label">Employer</div><input placeholder="Nome do employer" value="${esc(draft.name || '')}" oninput='setDraftValue("employers","name",this.value)'></td>
+    <td><span class="badge b-blue">Novo</span></td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+    <td>â€”</td>
+    <td><div class="inline-hint">Linha de cadastro visÃ­vel, sem pop-up. Depois de salvar, este employer entra na malha operacional.</div></td>
+    <td><div class="inline-actions"><button class="btn small primary" onclick="saveNewEmployer()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("employers")'>Cancelar</button></div></td>
+  </tr>`;
+}
+function renderOpeningDraftRow(){
+  const draft = State.newRows.openings;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><div class="inline-label">TÃ­tulo</div><input placeholder="Nova vaga" value="${esc(draft.title || '')}" oninput='setDraftValue("openings","title",this.value)'></td>
+    <td><div class="inline-label">Departamento</div><input placeholder="Equipe / Ã¡rea" value="${esc(draft.department || '')}" oninput='setDraftValue("openings","department",this.value)'></td>
+    <td>${draftCycleButtonMarkup('openings','status','opening_status',draft.status)}</td>
+    <td><div class="inline-label">Qtd solicitada</div><input type="number" min="1" value="${esc(draft.quantity_requested || 1)}" oninput='setDraftValue("openings","quantity_requested",this.value)'></td>
+    <td><div class="inline-label">Qtd aberta</div><input type="number" min="1" value="${esc(draft.quantity_open || 1)}" oninput='setDraftValue("openings","quantity_open",this.value)'></td>
+    <td>${draftCycleButtonMarkup('openings','priority','priority',draft.priority)}</td>
+    <td><div class="inline-label">PrÃ³xima aÃ§Ã£o</div><input placeholder="Ex.: validar perfil com employer" value="${esc(draft.next_action || '')}" oninput='setDraftValue("openings","next_action",this.value)'></td>
+    <td><div class="inline-label">Prazo</div><input type="date" value="${esc(draft.due_date || '')}" oninput='setDraftValue("openings","due_date",this.value)'></td>
+    <td><div class="inline-actions"><button class="btn small primary" onclick="saveNewOpening()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("openings")'>Cancelar</button></div></td>
+  </tr>`;
+}
+function renderPipelineDraftRow(){
+  const draft = State.newRows.pipeline;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><div class="inline-label">Opening ID</div><input placeholder="ID da vaga" value="${esc(draft.opening_id || '')}" oninput='setDraftValue("pipeline","opening_id",this.value)'></td>
+    <td><div class="inline-label">Candidate ID</div><input placeholder="ID do candidato" value="${esc(draft.candidate_id || '')}" oninput='setDraftValue("pipeline","candidate_id",this.value)'></td>
+    <td>${draftCycleButtonMarkup('pipeline','stage','pipeline_stage',draft.stage)}</td>
+    <td>${draftCycleButtonMarkup('pipeline','pipeline_status','pipeline_status',draft.pipeline_status)}</td>
+    <td>${draftCycleButtonMarkup('pipeline','priority','priority',draft.priority)}</td>
+    <td><div class="inline-label">PrÃ³xima aÃ§Ã£o</div><input placeholder="Ex.: enviar shortlist" value="${esc(draft.next_action || '')}" oninput='setDraftValue("pipeline","next_action",this.value)'></td>
+    <td><div class="inline-label">Prazo</div><input type="date" value="${esc(draft.due_date || '')}" oninput='setDraftValue("pipeline","due_date",this.value)'></td>
+    <td>${draftCycleButtonMarkup('pipeline','match_status','match_status',draft.match_status)}</td>
+    <td><div class="inline-actions"><button class="btn small primary" onclick="saveNewPipeline()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("pipeline")'>Cancelar</button></div></td>
+  </tr>`;
+}
+function renderMeetingDraftRow(){
+  const draft = State.newRows.meetings;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><div class="inline-label">TÃ­tulo</div><input placeholder="Nova reuniÃ£o" value="${esc(draft.title || '')}" oninput='setDraftValue("meetings","title",this.value)'></td>
+    <td><div class="inline-label">Data</div><input type="datetime-local" value="${esc(draft.meeting_date || '')}" oninput='setDraftValue("meetings","meeting_date",this.value)'></td>
+    <td>${draftCycleButtonMarkup('meetings','status','meeting_status',draft.status)}</td>
+    <td>${draftCycleButtonMarkup('meetings','priority','priority',draft.priority)}</td>
+    <td><div class="inline-label">PrÃ³xima aÃ§Ã£o</div><input placeholder="Ex.: enviar pauta" value="${esc(draft.next_action || '')}" oninput='setDraftValue("meetings","next_action",this.value)'></td>
+    <td><div class="inline-label">Resumo</div><textarea oninput='setDraftValue("meetings","summary",this.value)'>${esc(draft.summary || '')}</textarea></td>
+    <td><div class="inline-actions"><button class="btn small primary" onclick="saveNewMeeting()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("meetings")'>Cancelar</button></div></td>
+  </tr>`;
+}
+function renderActivityDraftRow(){
+  const draft = State.newRows.activities;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><div class="inline-label">TÃ­tulo</div><input placeholder="Nova atividade" value="${esc(draft.title || '')}" oninput='setDraftValue("activities","title",this.value)'></td>
+    <td>${draftCycleButtonMarkup('activities','activity_type','activity_type',draft.activity_type)}</td>
+    <td>${draftCycleButtonMarkup('activities','status','activity_status',draft.status)}</td>
+    <td>${draftCycleButtonMarkup('activities','priority','priority',draft.priority)}</td>
+    <td><div class="inline-label">Planejado</div><input type="date" value="${esc(draft.planned_for || '')}" oninput='setDraftValue("activities","planned_for",this.value)'></td>
+    <td><div class="inline-label">Prazo</div><input type="date" value="${esc(draft.due_date || '')}" oninput='setDraftValue("activities","due_date",this.value)'></td>
+    <td><div class="inline-actions"><button class="btn small primary" onclick="saveNewActivity()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("activities")'>Cancelar</button></div></td>
+  </tr>`;
+}
+function renderDocumentDraftRow(){
+  const draft = State.newRows.documents;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><div class="inline-label">TÃ­tulo</div><input placeholder="Novo documento" value="${esc(draft.title || '')}" oninput='setDraftValue("documents","title",this.value)'></td>
+    <td>${draftCycleButtonMarkup('documents','document_type','document_type',draft.document_type)}</td>
+    <td>${draftCycleButtonMarkup('documents','status','document_status',draft.status)}</td>
+    <td><div class="inline-label">Drive URL</div><input placeholder="Link do documento" value="${esc(draft.drive_url || '')}" oninput='setDraftValue("documents","drive_url",this.value)'></td>
+    <td><div class="inline-label">Prazo</div><input type="date" value="${esc(draft.due_date || '')}" oninput='setDraftValue("documents","due_date",this.value)'></td>
+    <td><div class="inline-actions"><button class="btn small primary" onclick="saveNewDocument()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("documents")'>Cancelar</button></div></td>
+  </tr>`;
+}
+function renderNoteDraftRow(){
+  const draft = State.newRows.notes;
+  if(!draft) return '';
+  return `<tr class="inline-row">
+    <td><span class="badge b-blue">nota</span></td>
+    <td>${esc(humanDate(new Date().toISOString()))}</td>
+    <td><div class="inline-note"><textarea placeholder="Escreva a nota visÃ­vel nesta linha" oninput='setDraftValue("notes","body",this.value)'>${esc(draft.body || '')}</textarea><div class="inline-actions"><button class="btn small primary" onclick="saveNewNote()">Salvar</button><button class="btn small" onclick='cancelInlineCreate("notes")'>Cancelar</button></div></div></td>
+  </tr>`;
 }
 function actionOnclick(action){
   if(!action || !action.kind) return '';
@@ -1043,8 +1298,10 @@ async function loadEmployers(){
   State.cache.employers = rows;
   const pulseMap = new Map(buildEmployerPulse(State.cache.home, rows).map(item => [String(item.employer_id || item.key), item]));
   const qv = (document.getElementById('employerSearch').value||'').toLowerCase();
-  document.getElementById('tblEmployers').innerHTML = rowsHtml(
-    rows.filter(r=>!qv || String(r.employer_name).toLowerCase().includes(qv)),
+  const filteredRows = rows.filter(r=>!qv || String(r.employer_name).toLowerCase().includes(qv));
+  document.getElementById('tblEmployers').innerHTML = composeRows(
+    renderEmployerDraftRow(),
+    filteredRows,
     8,
     r=>{ const pulse = pulseMap.get(String(r.employer_id || '')) || {tone:toneMeta(0), nextLabel:'Sem acao critica registrada'}; return `<tr>
       <td><strong>${esc(r.employer_name)}</strong></td>
@@ -1057,11 +1314,12 @@ async function loadEmployers(){
       <td><button class="btn small" onclick='goEmployer("${esc(r.employer_id)}")'>Abrir workspace</button></td>
     </tr>`}
   );
-  const wsSelect = document.getElementById('workspaceEmployerSelect');
-  wsSelect.innerHTML = rows.map(r=>`<option value="${esc(r.employer_id)}" ${String(State.workspaceEmployerId)===String(r.employer_id)?'selected':''}>${esc(r.employer_name)}</option>`).join('');
-  const plannerEmployer = document.getElementById('plannerEmployer');
-  plannerEmployer.innerHTML = '<option value="">Todos os employers</option>' + rows.map(r=>`<option value="${esc(r.employer_id)}">${esc(r.employer_name)}</option>`).join('');
   if(!State.workspaceEmployerId && rows[0]) State.workspaceEmployerId = rows[0].employer_id;
+  if(State.workspaceEmployerId && !rows.some(r => String(r.employer_id) === String(State.workspaceEmployerId))) State.workspaceEmployerId = rows[0]?.employer_id || null;
+  if(State.plannerEmployerId && !rows.some(r => String(r.employer_id) === String(State.plannerEmployerId))) State.plannerEmployerId = '';
+  if(State.calendarEmployerId && !rows.some(r => String(r.employer_id) === String(State.calendarEmployerId))) State.calendarEmployerId = '';
+  renderEmployerPickers();
+  syncCreateButtons();
 }
 
 async function loadWorkspace(employerId){
@@ -1156,28 +1414,30 @@ function renderWorkspace(){
   document.getElementById('workspaceActionList').innerHTML = renderFocusList(snapshot.actions, 'Sem acoes prioritarias nesta conta no momento.');
   document.getElementById('workspaceSignalCount').textContent = snapshot.recentRows.length;
   document.getElementById('workspaceSignalList').innerHTML = renderFocusList(snapshot.recentRows, 'Sem historico recente para esta conta.');
+  renderEmployerPickers();
+  syncCreateButtons();
 
-  document.getElementById('tblOpenings').innerHTML = rowsHtml(ws.openings,9,o=>`<tr>
+  document.getElementById('tblOpenings').innerHTML = composeRows(renderOpeningDraftRow(), ws.openings, 9, o=>`<tr>
     <td><input value="${esc(o.title)}" onchange='mut("openings","${esc(o.id)}","title",this.value)'></td>
     <td><input value="${esc(o.department||"")}" onchange='mut("openings","${esc(o.id)}","department",this.value)'></td>
-    <td><select onchange='mut("openings","${esc(o.id)}","status",this.value)'>${optionList(ENUMS.opening_status,o.status)}</select></td>
+    <td>${cycleButtonMarkup('openings', o.id, 'status', 'opening_status', o.status)}</td>
     <td><input value="${esc(o.quantity_requested)}" onchange='mut("openings","${esc(o.id)}","quantity_requested",this.value)'></td>
     <td><input value="${esc(o.quantity_open)}" onchange='mut("openings","${esc(o.id)}","quantity_open",this.value)'></td>
-    <td><select onchange='mut("openings","${esc(o.id)}","priority",this.value)'>${optionList(ENUMS.priority,o.priority)}</select></td>
+    <td>${cycleButtonMarkup('openings', o.id, 'priority', 'priority', o.priority)}</td>
     <td><input value="${esc(o.next_action||"")}" onchange='mut("openings","${esc(o.id)}","next_action",this.value)'></td>
     <td><input type="date" value="${esc(dateOnly(o.due_date))}" onchange='mut("openings","${esc(o.id)}","due_date",this.value)'></td>
     <td><button class="btn small" onclick='saveOpening("${esc(o.id)}")'>Salvar</button></td>
   </tr>`);
 
-  document.getElementById('tblPipeline').innerHTML = rowsHtml(ws.pipeline,9,p=>`<tr>
+  document.getElementById('tblPipeline').innerHTML = composeRows(renderPipelineDraftRow(), ws.pipeline, 9, p=>`<tr>
     <td>${esc(p.opening_title)}</td>
     <td>${esc(p.candidate_id)}</td>
-    <td><select onchange='mut("pipeline","${esc(p.pipeline_item_id)}","stage",this.value)'>${optionList(ENUMS.pipeline_stage,p.stage)}</select></td>
-    <td><select onchange='mut("pipeline","${esc(p.pipeline_item_id)}","pipeline_status",this.value)'>${optionList(ENUMS.pipeline_status,p.pipeline_status)}</select></td>
-    <td><select onchange='mut("pipeline","${esc(p.pipeline_item_id)}","priority",this.value)'>${optionList(ENUMS.priority,p.priority)}</select></td>
+    <td>${cycleButtonMarkup('pipeline', p.pipeline_item_id, 'stage', 'pipeline_stage', p.stage)}</td>
+    <td>${cycleButtonMarkup('pipeline', p.pipeline_item_id, 'pipeline_status', 'pipeline_status', p.pipeline_status)}</td>
+    <td>${cycleButtonMarkup('pipeline', p.pipeline_item_id, 'priority', 'priority', p.priority)}</td>
     <td><input value="${esc(p.next_action||"")}" onchange='mut("pipeline","${esc(p.pipeline_item_id)}","next_action",this.value)'></td>
     <td><input type="date" value="${esc(dateOnly(p.due_date))}" onchange='mut("pipeline","${esc(p.pipeline_item_id)}","due_date",this.value)'></td>
-    <td><select onchange='mut("pipelineMatch","${esc(p.match_id)}","match_status",this.value)'>${optionList(ENUMS.match_status,p.match_status)}</select></td>
+    <td>${cycleButtonMarkup('pipelineMatch', p.match_id, 'match_status', 'match_status', p.match_status)}</td>
     <td><button class="btn small" onclick='savePipeline("${esc(p.pipeline_item_id)}","${esc(p.match_id)}")'>Salvar</button></td>
   </tr>`);
 
@@ -1185,30 +1445,30 @@ function renderWorkspace(){
     <td>${esc(p.candidate_id)}</td><td>${esc(p.opening_title)}</td><td>${esc(humanDate(p.presented_at))}</td><td>${esc(humanDate(p.feedback_at))}</td><td>${esc(p.stage)}</td><td>${esc(p.due_date||'')}</td>
   </tr>`);
 
-  document.getElementById('tblWsMeetings').innerHTML = rowsHtml(ws.meetings,7,m=>`<tr>
+  document.getElementById('tblWsMeetings').innerHTML = composeRows(renderMeetingDraftRow(), ws.meetings, 7, m=>`<tr>
     <td><input value="${esc(m.title)}" onchange='mut("meetings","${esc(m.id)}","title",this.value)'></td>
     <td><input type="datetime-local" value="${esc(dtLocal(m.meeting_date))}" onchange='mut("meetings","${esc(m.id)}","meeting_date",this.value)'></td>
-    <td><select onchange='mut("meetings","${esc(m.id)}","status",this.value)'>${optionList(ENUMS.meeting_status,m.status)}</select></td>
-    <td><select onchange='mut("meetings","${esc(m.id)}","priority",this.value)'>${optionList(ENUMS.priority,m.priority)}</select></td>
+    <td>${cycleButtonMarkup('meetings', m.id, 'status', 'meeting_status', m.status)}</td>
+    <td>${cycleButtonMarkup('meetings', m.id, 'priority', 'priority', m.priority)}</td>
     <td><input value="${esc(m.next_action||"")}" onchange='mut("meetings","${esc(m.id)}","next_action",this.value)'></td>
     <td><textarea onchange='mut("meetings","${esc(m.id)}","summary",this.value)'>${esc(m.summary||"")}</textarea></td>
     <td><button class="btn small" onclick='saveMeetingRow("${esc(m.id)}")'>Salvar</button></td>
   </tr>`);
 
-  document.getElementById('tblActivities').innerHTML = rowsHtml(ws.activities,7,a=>`<tr>
+  document.getElementById('tblActivities').innerHTML = composeRows(renderActivityDraftRow(), ws.activities, 7, a=>`<tr>
     <td><input value="${esc(a.title)}" onchange='mut("activities","${esc(a.id)}","title",this.value)'></td>
-    <td><select onchange='mut("activities","${esc(a.id)}","activity_type",this.value)'>${optionList(ENUMS.activity_type,a.activity_type)}</select></td>
-    <td><select onchange='mut("activities","${esc(a.id)}","status",this.value)'>${optionList(ENUMS.activity_status,a.status)}</select></td>
-    <td><select onchange='mut("activities","${esc(a.id)}","priority",this.value)'>${optionList(ENUMS.priority,a.priority)}</select></td>
+    <td>${cycleButtonMarkup('activities', a.id, 'activity_type', 'activity_type', a.activity_type)}</td>
+    <td>${cycleButtonMarkup('activities', a.id, 'status', 'activity_status', a.status)}</td>
+    <td>${cycleButtonMarkup('activities', a.id, 'priority', 'priority', a.priority)}</td>
     <td><input type="date" value="${esc(dateOnly(a.planned_for))}" onchange='mut("activities","${esc(a.id)}","planned_for",this.value)'></td>
     <td><input type="date" value="${esc(dateOnly(a.due_date))}" onchange='mut("activities","${esc(a.id)}","due_date",this.value)'></td>
     <td><button class="btn small" onclick='saveActivityRow("${esc(a.id)}")'>Salvar</button></td>
   </tr>`);
 
-  document.getElementById('tblDocuments').innerHTML = rowsHtml(ws.documents,6,d=>`<tr>
+  document.getElementById('tblDocuments').innerHTML = composeRows(renderDocumentDraftRow(), ws.documents, 6, d=>`<tr>
     <td><input value="${esc(d.title)}" onchange='mut("documents","${esc(d.id)}","title",this.value)'></td>
-    <td><select onchange='mut("documents","${esc(d.id)}","document_type",this.value)'>${optionList(ENUMS.document_type,d.document_type)}</select></td>
-    <td><select onchange='mut("documents","${esc(d.id)}","status",this.value)'>${optionList(ENUMS.document_status,d.status)}</select></td>
+    <td>${cycleButtonMarkup('documents', d.id, 'document_type', 'document_type', d.document_type)}</td>
+    <td>${cycleButtonMarkup('documents', d.id, 'status', 'document_status', d.status)}</td>
     <td><input value="${esc(d.drive_url||"")}" onchange='mut("documents","${esc(d.id)}","drive_url",this.value)'></td>
     <td><input type="date" value="${esc(dateOnly(d.due_date))}" onchange='mut("documents","${esc(d.id)}","due_date",this.value)'></td>
     <td><button class="btn small" onclick='saveDocumentRow("${esc(d.id)}")'>Salvar</button></td>
@@ -1220,13 +1480,13 @@ function renderWorkspace(){
     ...ws.meetings.map(m=>({kind:'reunião', date:m.created_at, body:`${m.title} · ${m.status}`})),
     ...ws.documents.map(d=>({kind:'documento', date:d.created_at, body:`${d.title} · ${d.status}`}))
   ].sort((a,b)=> new Date(b.date) - new Date(a.date));
-  document.getElementById('tblHistory').innerHTML = rowsHtml(historyRows,3,h=>`<tr><td>${esc(h.kind)}</td><td>${esc(humanDate(h.date))}</td><td>${esc(h.body)}</td></tr>`);
+  document.getElementById('tblHistory').innerHTML = composeRows(renderNoteDraftRow(), historyRows, 3, h=>`<tr><td>${esc(h.kind)}</td><td>${esc(humanDate(h.date))}</td><td>${esc(h.body)}</td></tr>`);
 }
 
 function renderPlanner(){
   const monthInput = document.getElementById('plannerMonth');
   const selected = monthInput.value || new Date().toISOString().slice(0,7);
-  const employerId = document.getElementById('plannerEmployer').value || '';
+  const employerId = State.plannerEmployerId || '';
   document.getElementById('plannerTitle').textContent = `Planejamento de recrutamento - ${monthLabelPt(selected)}`;
   const employers = (State.cache.employers || []).filter(e => !employerId || String(e.employer_id) === String(employerId));
   const days = daysInMonth(selected);
@@ -1286,7 +1546,7 @@ function renderCalendar(){
   const monthInput = document.getElementById('calendarMonth');
   const selected = monthInput.value || new Date().toISOString().slice(0,7);
   document.getElementById('calendarTitle').textContent = 'Calendário operacional - ' + monthLabelPt(selected);
-  const employerId = document.getElementById('calendarEmployer').value || '';
+  const employerId = State.calendarEmployerId || '';
   const [y,m] = selected.split('-').map(Number);
   const first = new Date(y, m-1, 1);
   const startWeekday = first.getDay(); // 0 dom
@@ -1422,7 +1682,7 @@ async function saveDocumentRow(id){
 }
 
 async function createEmployer(){
-  const name = prompt('Nome do employer:');
+  const name = legacyPromptField('Nome do employer:');
   if(!name) return;
   const supa = createClient();
   const {error} = await supa.from('employers').insert({nome:name});
@@ -1433,7 +1693,7 @@ async function createEmployer(){
 async function createOpening(){
   const employerId = State.workspaceEmployerId;
   if(!employerId) return;
-  const title = prompt('Título da vaga:');
+  const title = legacyPromptField('Título da vaga:');
   if(!title) return;
   const supa = createClient();
   const {error} = await supa.from('org_openings').insert({
@@ -1445,7 +1705,7 @@ async function createOpening(){
 }
 async function createActivity(employerIdOverride=null){
   const employerId = employerIdOverride || State.workspaceEmployerId;
-  const title = prompt('Título da atividade:');
+  const title = legacyPromptField('Título da atividade:');
   if(!title || !employerId) return;
   const supa = createClient();
   const {error} = await supa.from('org_activities').insert({
@@ -1458,7 +1718,7 @@ async function createActivity(employerIdOverride=null){
 }
 async function createMeeting(){
   const employerId = State.workspaceEmployerId;
-  const title = prompt('Título da reunião:');
+  const title = legacyPromptField('Título da reunião:');
   if(!title || !employerId) return;
   const when = new Date(); when.setDate(when.getDate()+1); when.setHours(10,0,0,0);
   const supa = createClient();
@@ -1471,7 +1731,7 @@ async function createMeeting(){
 }
 async function createDocument(){
   const employerId = State.workspaceEmployerId;
-  const title = prompt('Título do documento:');
+  const title = legacyPromptField('Título do documento:');
   if(!title || !employerId) return;
   const supa = createClient();
   const {error} = await supa.from('org_documents').insert({
@@ -1483,7 +1743,7 @@ async function createDocument(){
 }
 async function createNote(){
   const employerId = State.workspaceEmployerId;
-  const body = prompt('Nota:');
+  const body = legacyPromptField('Nota:');
   if(!body || !employerId) return;
   const supa = createClient();
   const {error} = await supa.from('org_notes').insert({
@@ -1496,8 +1756,8 @@ async function createNote(){
 async function createPipeline(){
   const employerId = State.workspaceEmployerId;
   if(!employerId) return;
-  const openingId = prompt('ID da vaga (opening_id):');
-  const candidateId = prompt('ID do candidato (candidatos.id):');
+  const openingId = legacyPromptField('ID da vaga (opening_id):');
+  const candidateId = legacyPromptField('ID do candidato (candidatos.id):');
   if(!openingId || !candidateId) return;
   const supa = createClient();
   const {data:match,error:err1} = await supa.from('org_matches').insert({
@@ -1514,23 +1774,224 @@ async function createPipeline(){
   await Promise.all([loadWorkspace(employerId), loadHome()]);
 }
 
+async function createEmployer(){
+  startInlineCreate('employers');
+}
+async function saveNewEmployer(){
+  const draft = State.newRows.employers;
+  const name = String(draft?.name || '').trim();
+  if(!name) return showAlert('Preencha o nome do employer.','danger');
+  const supa = createClient();
+  const {error} = await supa.from('employers').insert({nome:name});
+  if(error) return showAlert('Falha ao criar employer. A tabela base employers pode exigir outros campos obrigatÃ³rios. ' + error.message, 'danger');
+  State.newRows.employers = null;
+  showAlert('Employer criado.','ok');
+  await loadEmployers(); await loadHome();
+}
+async function createOpening(){
+  const employerId = State.workspaceEmployerId;
+  if(!employerId) return showAlert('Escolha um employer antes de abrir uma nova vaga.','danger');
+  setView('workspace');
+  setWorkspaceTab('openings');
+  startInlineCreate('openings');
+}
+async function saveNewOpening(){
+  const employerId = State.workspaceEmployerId;
+  const draft = State.newRows.openings;
+  const title = String(draft?.title || '').trim();
+  if(!employerId) return showAlert('Escolha um employer antes de salvar a vaga.','danger');
+  if(!title) return showAlert('Preencha o tÃ­tulo da vaga.','danger');
+  const supa = createClient();
+  const {error} = await supa.from('org_openings').insert({
+    employer_id:employerId,
+    title,
+    department:draft.department || null,
+    status:draft.status || 'draft',
+    priority:draft.priority || 'medium',
+    quantity_requested:Number(draft.quantity_requested || 1),
+    quantity_open:Number(draft.quantity_open || 1),
+    next_action:draft.next_action || null,
+    due_date:draft.due_date || null
+  });
+  if(error) return showAlert(error.message,'danger');
+  State.newRows.openings = null;
+  showAlert('Vaga criada.','ok');
+  await loadWorkspace(employerId); await loadHome();
+}
+async function createActivity(employerIdOverride=null){
+  const employerId = employerIdOverride || State.workspaceEmployerId;
+  if(!employerId) return showAlert('Escolha um employer antes de abrir uma atividade.','danger');
+  setView('workspace');
+  setWorkspaceTab('activities');
+  startInlineCreate('activities');
+}
+async function saveNewActivity(){
+  const employerId = State.workspaceEmployerId;
+  const draft = State.newRows.activities;
+  const title = String(draft?.title || '').trim();
+  if(!title || !employerId) return showAlert('Preencha o tÃ­tulo da atividade e o employer.','danger');
+  const supa = createClient();
+  const {error} = await supa.from('org_activities').insert({
+    entity_type:'employer',
+    entity_id:String(employerId),
+    employer_id:employerId,
+    activity_type:draft.activity_type || 'task',
+    title,
+    status:draft.status || 'open',
+    priority:draft.priority || 'medium',
+    planned_for:draft.planned_for || null,
+    due_date:draft.due_date || null
+  });
+  if(error) return showAlert(error.message,'danger');
+  State.newRows.activities = null;
+  showAlert('Atividade criada.','ok');
+  await Promise.all([loadHome(), loadWorkspace(employerId), loadPlannerAndCalendar()]);
+}
+async function createMeeting(){
+  const employerId = State.workspaceEmployerId;
+  if(!employerId) return showAlert('Escolha um employer antes de abrir uma reuniÃ£o.','danger');
+  setView('workspace');
+  setWorkspaceTab('meetings');
+  startInlineCreate('meetings');
+}
+async function saveNewMeeting(){
+  const employerId = State.workspaceEmployerId;
+  const draft = State.newRows.meetings;
+  const title = String(draft?.title || '').trim();
+  if(!title || !employerId) return showAlert('Preencha o tÃ­tulo da reuniÃ£o e o employer.','danger');
+  const supa = createClient();
+  const {error} = await supa.from('org_meetings').insert({
+    employer_id:employerId,
+    title,
+    meeting_date:draft.meeting_date || null,
+    status:draft.status || 'scheduled',
+    priority:draft.priority || 'medium',
+    next_action:draft.next_action || null,
+    summary:draft.summary || null
+  });
+  if(error) return showAlert(error.message,'danger');
+  State.newRows.meetings = null;
+  showAlert('ReuniÃ£o criada.','ok');
+  await Promise.all([loadHome(), loadWorkspace(employerId), loadPlannerAndCalendar()]);
+}
+async function createDocument(){
+  const employerId = State.workspaceEmployerId;
+  if(!employerId) return showAlert('Escolha um employer antes de abrir um documento.','danger');
+  setView('workspace');
+  setWorkspaceTab('documents');
+  startInlineCreate('documents');
+}
+async function saveNewDocument(){
+  const employerId = State.workspaceEmployerId;
+  const draft = State.newRows.documents;
+  const title = String(draft?.title || '').trim();
+  if(!title || !employerId) return showAlert('Preencha o tÃ­tulo do documento e o employer.','danger');
+  const supa = createClient();
+  const {error} = await supa.from('org_documents').insert({
+    entity_type:'employer',
+    entity_id:String(employerId),
+    employer_id:employerId,
+    title,
+    document_type:draft.document_type || 'other',
+    status:draft.status || 'missing',
+    drive_url:draft.drive_url || null,
+    due_date:draft.due_date || null
+  });
+  if(error) return showAlert(error.message,'danger');
+  State.newRows.documents = null;
+  showAlert('Documento criado.','ok');
+  await Promise.all([loadHome(), loadWorkspace(employerId)]);
+}
+async function createNote(){
+  const employerId = State.workspaceEmployerId;
+  if(!employerId) return showAlert('Escolha um employer antes de abrir uma nota.','danger');
+  setView('workspace');
+  setWorkspaceTab('history');
+  startInlineCreate('notes');
+}
+async function saveNewNote(){
+  const employerId = State.workspaceEmployerId;
+  const draft = State.newRows.notes;
+  const body = String(draft?.body || '').trim();
+  if(!body || !employerId) return showAlert('Escreva a nota antes de salvar.','danger');
+  const supa = createClient();
+  const {error} = await supa.from('org_notes').insert({
+    entity_type:'employer', entity_id:String(employerId), employer_id:employerId, body
+  });
+  if(error) return showAlert(error.message,'danger');
+  State.newRows.notes = null;
+  showAlert('Nota criada.','ok');
+  await loadWorkspace(employerId);
+}
+async function createPipeline(){
+  const employerId = State.workspaceEmployerId;
+  if(!employerId) return showAlert('Escolha um employer antes de abrir um match/pipeline.','danger');
+  setView('workspace');
+  setWorkspaceTab('pipeline');
+  startInlineCreate('pipeline');
+}
+async function saveNewPipeline(){
+  const employerId = State.workspaceEmployerId;
+  const draft = State.newRows.pipeline;
+  if(!employerId) return showAlert('Escolha um employer antes de salvar o pipeline.','danger');
+  const openingId = normalizeIdValue(draft?.opening_id);
+  const candidateId = normalizeIdValue(draft?.candidate_id);
+  if(!openingId || !candidateId) return showAlert('Preencha opening ID e candidate ID.','danger');
+  const supa = createClient();
+  const {data:match,error:err1} = await supa.from('org_matches').insert({
+    employer_id:employerId, opening_id:openingId, candidate_id:candidateId,
+    status:draft.match_status || 'draft', priority:draft.priority || 'medium'
+  }).select().single();
+  if(err1) return showAlert(err1.message,'danger');
+  const {error:err2} = await supa.from('org_pipeline_items').insert({
+    match_id:match.id, employer_id:employerId, opening_id:openingId, candidate_id:candidateId,
+    stage:draft.stage || 'sourcing',
+    status:draft.pipeline_status || 'active',
+    priority:draft.priority || 'medium',
+    next_action:draft.next_action || null,
+    due_date:draft.due_date || null
+  });
+  if(err2) return showAlert(err2.message,'danger');
+  State.newRows.pipeline = null;
+  showAlert('Match/pipeline criado.','ok');
+  await Promise.all([loadWorkspace(employerId), loadHome()]);
+}
+
 function setWorkspaceTab(tab){
   State.wsTab = tab || 'summary';
   document.querySelectorAll('.ws-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===State.wsTab));
   ['summary','openings','pipeline','presented','meetings','activities','documents','history'].forEach(t=>document.getElementById('ws-'+t).classList.toggle('hidden', t!==State.wsTab));
 }
+function legacyPromptField(){
+  return '';
+}
+window.setWorkspaceEmployer = async function(employerId){
+  if(!employerId) return;
+  State.workspaceEmployerId = employerId;
+  renderEmployerPickers();
+  await loadWorkspace(employerId);
+};
+window.setPlannerEmployer = function(employerId=''){
+  State.plannerEmployerId = employerId || '';
+  renderEmployerPickers();
+  renderPlanner();
+};
+window.setCalendarEmployer = function(employerId=''){
+  State.calendarEmployerId = employerId || '';
+  renderEmployerPickers();
+  renderCalendar();
+};
 window.jumpWorkspace = async function(employerId, tab='summary'){
   if(employerId) State.workspaceEmployerId = employerId;
   if(State.workspaceEmployerId) await loadWorkspace(State.workspaceEmployerId);
-  const select = document.getElementById('workspaceEmployerSelect');
-  if(select && State.workspaceEmployerId) select.value = State.workspaceEmployerId;
+  renderEmployerPickers();
   setView('workspace');
   setWorkspaceTab(tab);
 };
 window.goEmployer = async function(employerId){
   State.workspaceEmployerId = employerId;
   await loadWorkspace(employerId);
-  document.getElementById('workspaceEmployerSelect').value = employerId;
+  renderEmployerPickers();
   setView('workspace');
   setWorkspaceTab(State.wsTab || 'summary');
 };
@@ -1560,12 +2021,9 @@ document.getElementById('newActivityWorkspaceBtn').onclick = () => createActivit
 document.getElementById('newDocumentBtn').onclick = createDocument;
 document.getElementById('newNoteBtn').onclick = createNote;
 document.getElementById('workspaceReloadBtn').onclick = () => loadWorkspace(State.workspaceEmployerId);
-document.getElementById('workspaceEmployerSelect').onchange = e => loadWorkspace(e.target.value);
 document.getElementById('employerSearch').oninput = loadEmployers;
 document.getElementById('plannerMonth').onchange = renderPlanner;
-document.getElementById('plannerEmployer').onchange = renderPlanner;
 document.getElementById('calendarMonth').onchange = renderCalendar;
-document.getElementById('calendarEmployer').onchange = renderCalendar;
 document.getElementById('calendarTodayBtn').onclick = () => { const now = new Date().toISOString().slice(0,7); document.getElementById('calendarMonth').value = now; renderCalendar(); };
 
 document.querySelectorAll('.ws-tab').forEach(btn=>{ btn.onclick = ()=>setWorkspaceTab(btn.dataset.tab); });
@@ -1576,7 +2034,6 @@ async function init(){
     await requireSession();
     await loadEmployers();
     await loadHome();
-    if(State.workspaceEmployerId) document.getElementById('workspaceEmployerSelect').value = State.workspaceEmployerId;
     if(!State.workspaceEmployerId && State.cache.employers[0]) State.workspaceEmployerId = State.cache.employers[0].employer_id;
     if(State.workspaceEmployerId) await loadWorkspace(State.workspaceEmployerId);
     setWorkspaceTab(State.wsTab || 'summary');
@@ -1584,7 +2041,7 @@ async function init(){
     const nowMonth = new Date().toISOString().slice(0,7);
     document.getElementById('plannerMonth').value = nowMonth;
     document.getElementById('calendarMonth').value = nowMonth;
-    document.getElementById('calendarEmployer').innerHTML = document.getElementById('plannerEmployer').innerHTML;
+    renderEmployerPickers();
     renderPlanner();
     renderCalendar();
     showAlert('Home operacional P0 carregada com CRUD real nas entidades novas do schema. Employer base continua dependendo da tabela public.employers existente.', 'ok');
