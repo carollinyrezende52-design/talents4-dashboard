@@ -530,28 +530,30 @@ async function loadWorkspace(employerId){
     documents,
     notes
   ] = await Promise.all([
-    qFilter('org_openings',{employer_id:employerId}),
-    qFilter('v_org_pipeline_live',{employer_id:employerId}),
-    qFilter('v_org_candidates_presented',{employer_id:employerId}),
-    qFilter('org_meetings',{employer_id:employerId}),
-    qFilter('org_activities',{employer_id:employerId}),
-    qFilter('org_documents',{employer_id:employerId}),
-    qFilter('org_notes',{employer_id:employerId})
+    qFilter('org_openings',{employer_id:employerId},'updated_at',false),
+    qFilter('v_org_pipeline_live',{employer_id:employerId},'updated_at',false),
+    qFilter('v_org_candidates_presented',{employer_id:employerId},'presented_at',false),
+    qFilter('org_meetings',{employer_id:employerId},'meeting_date',false),
+    qFilter('org_activities',{employer_id:employerId},'due_date',true),
+    qFilter('org_documents',{employer_id:employerId},'due_date',true),
+    qFilter('org_notes',{employer_id:employerId},'created_at',false)
   ]);
   State.cache.workspace = {summary,openings,pipeline,presented,meetings,activities,documents,notes};
   renderWorkspace();
 }
-async function qFilter(table, filters){
+async function qFilter(table, filters, orderBy='created_at', ascending=false){
   const supa = createClient();
   let req = supa.from(table).select('*');
   Object.entries(filters).forEach(([k,v])=> req = req.eq(k,v));
-  const {data,error} = await req.order('created_at',{ascending:false});
-  if(error){
-    const retry = await req;
-    if(retry.error) throw retry.error;
-    return retry.data || [];
+  if (orderBy) {
+    const ordered = await req.order(orderBy,{ascending});
+    if (!ordered.error) return ordered.data || [];
+    const msg = String(ordered.error?.message || '');
+    if (!/does not exist|column|42703/i.test(msg)) throw ordered.error;
   }
-  return data || [];
+  const plain = await req;
+  if (plain.error) throw plain.error;
+  return plain.data || [];
 }
 function renderWorkspace(){
   const ws = State.cache.workspace;
