@@ -107,6 +107,8 @@
     .planner-sheet .owner{min-width:145px;width:145px;background:#f4f6f8;font-size:13px}
     .planner-sheet .status{min-width:135px;width:135px;background:#f4f6f8;font-size:13px}
     .planner-sheet .note{min-width:285px;width:285px;background:#f4f6f8;font-size:13px;line-height:1.35}
+    .planner-bucket-cell{cursor:pointer;transition:background .15s ease, box-shadow .15s ease}
+    .planner-bucket-cell:hover{background:#f8fbff;box-shadow:inset 0 0 0 1px #cfe0f1}
     .planner-sheet .daycol{min-width:84px;width:84px;background:#fff;padding:4px}
     .planner-sheet .daybox{min-height:74px;background:#fbfcfd;border:1px solid #d7dee6;border-radius:4px;padding:4px 5px;display:flex;flex-direction:column;gap:4px}
     .planner-sheet .daybox.is-clickable{cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease}
@@ -124,10 +126,11 @@
     .planner-drawer-toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center}
     .planner-drawer-list{display:grid;gap:12px}
     .planner-drawer-item{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
-    .planner-drawer-grid{display:grid;grid-template-columns:1.4fr repeat(4,minmax(0,140px));gap:10px;margin-top:10px}
+    .planner-drawer-grid{display:grid;grid-template-columns:1.6fr repeat(4,minmax(0,110px));gap:10px;margin-top:10px}
     .planner-drawer-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
     .planner-drawer-empty{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fbfdff;color:var(--muted)}
     .planner-drawer-add{border:1px solid #cfe0f1;background:#f8fbff}
+    .planner-owner-box{margin-top:10px}
     .cal-shell{display:grid;gap:0;border:1px solid #9fb0c2;border-radius:10px;overflow:hidden;background:#eef2f6}
     .cal-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
@@ -1245,8 +1248,16 @@ function userNameById(id){
   const u = (State.cache.users || []).find(x => String(x.id) === String(id));
   return u ? (u.nome || u.username || u.email || String(id)) : String(id);
 }
-function employerColorClassByIndex(idx){
-  return 'emp-w' + Math.min(idx, 9);
+function employerColorClassByIndex(idx, stableKey=''){
+  const paletteSize = 10;
+  const seed = String(stableKey || '');
+  if(seed){
+    let hash = 0;
+    for(let i = 0; i < seed.length; i++) hash = ((hash * 31) + seed.charCodeAt(i)) >>> 0;
+    return 'emp-w' + (hash % paletteSize);
+  }
+  const safeIdx = Number.isFinite(Number(idx)) ? Number(idx) : 0;
+  return 'emp-w' + (((safeIdx % paletteSize) + paletteSize) % paletteSize);
 }
 function plannerCellDetails(employerId, dateIso, bucket){
   return (State.cache.calendar.activities || []).filter(a =>
@@ -1648,7 +1659,7 @@ function renderPlanner(){
       const summary = plannerBucketSummary(emp.employer_id, selected, bucket);
       htmlRows += `<tr>`;
       if(rowIdx === 0){
-        htmlRows += `<td class="emp ${employerColorClassByIndex(idx)}" rowspan="4">${esc(emp.employer_name)}</td>`;
+        htmlRows += `<td class="emp ${employerColorClassByIndex(idx, emp.employer_id || emp.employer_name || idx)}" rowspan="4">${esc(emp.employer_name)}</td>`;
       }
       htmlRows += `<td class="stage">${esc(meta.label)}</td>`;
       htmlRows += `<td class="owner">${esc(summary.owner)}</td>`;
@@ -1660,9 +1671,8 @@ function renderPlanner(){
         if(!entries.length){
           return `<td class="daycol"><div class="daybox planner-empty is-clickable" onclick='${openCell}'><div>—</div><div class="planner-more">clique para adicionar</div></div></td>`;
         }
-        const preview = entries.slice(0,3).map(a => `<span class="planner-chip ${meta.css}" title="${esc(a.title)}">${esc(a.title.length > 18 ? a.title.slice(0,18)+'…' : a.title)}</span>`).join('');
-        const moreText = entries.length > 3 ? `+${entries.length - 3} item(ns) · clique para ver tudo` : 'clique para editar esta célula';
-        return `<td class="daycol"><div class="daybox is-clickable" onclick='${openCell}'><div class="planner-count">${entries.length}</div>${preview}<div class="planner-more">${esc(moreText)}</div></div></td>`;
+        const preview = entries.map(a => `<span class="planner-chip ${meta.css}" title="${esc(a.title)}">${esc(a.title)}</span>`).join('');
+        return `<td class="daycol"><div class="daybox is-clickable" onclick='${openCell}'><div class="planner-count">${entries.length}</div>${preview}<div class="planner-more">clique para editar esta célula</div></div></td>`;
       }).join('');
       htmlRows += `</tr>`;
     });
