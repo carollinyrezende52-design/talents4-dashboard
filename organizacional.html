@@ -70,11 +70,52 @@
     .alert.ok{background:#edf9f1;border-color:#bee3ca;color:#106c42}
     .alert.danger{background:#fff0f0;border-color:#edc7c7;color:#a12a2a}
     .planner-grid{display:grid;gap:12px}
+    .planner-sheet-shell{background:#dfe5ec;border:1px solid #9fb0c2;border-radius:10px;box-shadow:none;overflow:hidden}
+    .planner-sheet-title{background:#2b5b8d;color:#fff;padding:10px 14px;text-align:center;font-size:20px;font-weight:900;letter-spacing:.01em}
+    .planner-sheet-wrap{overflow:auto;background:#eef2f6}
+    .planner-sheet{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;background:#eef2f6}
+    .planner-sheet th,.planner-sheet td{padding:6px 7px;border-right:1px solid #b7c3d0;border-bottom:1px solid #b7c3d0;vertical-align:top}
+    .planner-sheet thead th{position:sticky;top:0;z-index:2}
+    .planner-sheet .title-legend{font-weight:900;text-transform:uppercase;text-align:center;color:#111;font-size:11px}
+    .planner-sheet .legend-pesquisa{background:#efd2a4}
+    .planner-sheet .legend-triagem{background:#f3ec9a}
+    .planner-sheet .legend-envio{background:#d8ebdd}
+    .planner-sheet .legend-feedback{background:#f2d5a4}
+    .planner-sheet .headblue{background:#2b5b8d;color:#fff;text-transform:uppercase;font-weight:800;letter-spacing:.06em;text-align:center;font-size:11px}
+    .planner-sheet .emp{min-width:180px;width:180px;font-weight:900;text-align:center;vertical-align:middle;font-size:15px;border-right:1px solid #91a3b6}
+    .planner-sheet .stage{min-width:210px;width:210px;background:#eef1f5;font-weight:800;font-size:13px}
+    .planner-sheet .owner{min-width:145px;width:145px;background:#f4f6f8;font-size:13px}
+    .planner-sheet .status{min-width:135px;width:135px;background:#f4f6f8;font-size:13px}
+    .planner-sheet .note{min-width:285px;width:285px;background:#f4f6f8;font-size:13px;line-height:1.35}
+    .planner-sheet .daycol{min-width:84px;width:84px;background:#fff;padding:4px}
+    .planner-sheet .daybox{min-height:74px;background:#fbfcfd;border:1px solid #d7dee6;border-radius:4px;padding:4px 5px;display:flex;flex-direction:column;gap:4px}
+    .planner-chip{display:block;padding:3px 4px;border-radius:3px;border:1px solid #d7dee6;background:#f8fafc;font-size:10px;font-weight:700;margin-bottom:2px;cursor:pointer;line-height:1.2}
+    .planner-chip.research{background:#fbf1df}
+    .planner-chip.screening{background:#faf6cd}
+    .planner-chip.send{background:#eaf5ec}
+    .planner-chip.feedback{background:#fbeed9}
+    .planner-count{font-size:10px;font-weight:900;align-self:flex-end;background:#2b5b8d;color:#fff;border-radius:999px;padding:1px 6px}
+    .planner-empty{color:#98a6b6;justify-content:center;align-items:center;text-align:center}
+    .planner-subnote{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.2}
+    .cal-shell{display:grid;gap:0;border:1px solid #9fb0c2;border-radius:10px;overflow:hidden;background:#eef2f6}
+    .cal-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
+    .calendar-head{background:#2b5b8d;color:#fff;text-align:center;padding:8px 4px;font-size:11px;font-weight:800;text-transform:uppercase;border-right:1px solid #8ea3b8}
+    .calendar-head:last-child{border-right:0}
+    .calendar-cell{border-right:1px solid #b7c3d0;border-bottom:1px solid #b7c3d0;padding:6px;background:#fff;min-height:160px;display:flex;flex-direction:column;gap:5px}
+    .calendar-cell.muted-day{background:#f3f5f8;color:#9aa7b6}
+    .calendar-date{display:flex;justify-content:space-between;align-items:center;font-weight:900;padding-bottom:3px;border-bottom:1px dashed #d7dee6}
+    .calendar-date .n{font-size:17px}
+    .calendar-item{padding:4px 6px;border-radius:3px;border:1px solid #d7dee6;background:#f8fafc;font-size:10px;cursor:pointer;line-height:1.2}
+    .calendar-item.meeting{background:#eef5ff;border-left:4px solid #2b6cb0}
+    .calendar-item.activity{background:#fff7e8;border-left:4px solid #c98a1a}
+    .calendar-item small{display:block;color:var(--muted);margin-top:2px;font-size:10px}
     .planner-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
     .planner-day{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
     .planner-day h4{margin:0 0 8px;font-size:13px}
     .planner-item{padding:8px;border-radius:10px;background:#f8fafc;border:1px solid var(--line);margin-bottom:8px}
     .muted{color:var(--muted)}
+    .emp-w0{background:#ead7ca}.emp-w1{background:#d8d2e2}.emp-w2{background:#d9e6d0}.emp-w3{background:#d9e7f3}.emp-w4{background:#eee3b9}.emp-w5{background:#e9c5c5}.emp-w6{background:#d5e4cf}.emp-w7{background:#dec7d4}.emp-w8{background:#d3e0e6}.emp-w9{background:#e6ebf0}
     @media (max-width:1200px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.grid4,.grid3,.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media (max-width:760px){.grid4,.grid3,.grid2{grid-template-columns:1fr}.drawer{width:100%}}
   </style>
@@ -276,16 +317,33 @@
 
     <section id="view-planner" class="hidden">
       <div class="toolbar">
-        <input type="month" id="plannerMonth" />
+        <input type="month" id="plannerMonth" style="max-width:220px" />
         <select id="plannerEmployer" style="max-width:320px"><option value="">Todos os employers</option></select>
       </div>
-      <div class="planner-grid" id="plannerGrid"></div>
+      <div class="muted" style="margin:-4px 0 10px 2px;font-size:12px">Estrutura visual aproximada da planilha mensal: employer em bloco, 4 etapas fixas e dias do mês em colunas.</div>
+      <div class="planner-grid">
+        <div class="planner-sheet-shell">
+          <div class="planner-sheet-title" id="plannerTitle">Planejamento de recrutamento</div>
+          <div class="planner-sheet-wrap">
+            <table class="planner-sheet" id="plannerSheet"></table>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="view-calendar" class="hidden">
       <div class="card">
-        <div class="section-head"><div><h3>Calendário operacional</h3><p>Reuniões e atividades por data.</p></div></div>
-        <div class="planner-days" id="calendarGrid"></div>
+        <div class="section-head"><div><h3>Calendário operacional</h3><p>Leitura mensal em grade, com aparência mais próxima de planilha e marcações por dia.</p></div></div>
+        <div class="cal-toolbar">
+          <input type="month" id="calendarMonth" style="max-width:220px" />
+          <select id="calendarEmployer" style="max-width:320px"><option value="">Todos os employers</option></select>
+          <button class="btn" id="calendarTodayBtn">Ir para mês atual</button>
+        </div>
+        <div id="calendarTitle" style="background:#2b5b8d;color:#fff;padding:10px 14px;font-weight:900;text-align:center;border:1px solid #9fb0c2;border-bottom:0;border-radius:10px 10px 0 0"></div>
+        <div class="cal-shell">
+          <div class="calendar-grid" id="calendarHeads"></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -324,7 +382,8 @@ const State = {
       notes:[]
     },
     planner:[],
-    calendar:{activities:[], meetings:[]}
+    calendar:{activities:[], meetings:[]},
+    users:[]
   }
 };
 
@@ -432,6 +491,101 @@ function humanDate(v){
   if(Number.isNaN(d.getTime())) return String(v);
   return d.toLocaleString('pt-BR');
 }
+function monthLabelPt(yyyyMm){
+  if(!yyyyMm) return '';
+  const [y,m] = yyyyMm.split('-').map(Number);
+  const d = new Date(y, m-1, 1);
+  return d.toLocaleDateString('pt-BR',{month:'long', year:'numeric'});
+}
+function daysInMonth(yyyyMm){
+  const [y,m] = yyyyMm.split('-').map(Number);
+  const last = new Date(y, m, 0).getDate();
+  const weekdayMap = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const arr = [];
+  for(let day=1; day<=last; day++){
+    const d = new Date(y, m-1, day);
+    arr.push({day, weekday: weekdayMap[d.getDay()], iso: d.toISOString().slice(0,10)});
+  }
+  return arr;
+}
+function bucketMeta(bucket){
+  const map = {
+    research:{label:'Pesquisa de perfis', css:'research'},
+    screening:{label:'Triagem / qualificação', css:'screening'},
+    send:{label:'Envio de currículos', css:'send'},
+    feedback:{label:'Feedback / próximos passos', css:'feedback'}
+  };
+  return map[bucket] || {label:bucket || '—', css:''};
+}
+function inferPlannerBucket(activity){
+  const b = String(activity.planner_bucket || '').trim();
+  if(b) return b;
+  const t = String(activity.activity_type || '').toLowerCase();
+  if(t === 'research') return 'research';
+  if(t === 'screening') return 'screening';
+  if(t === 'sendout') return 'send';
+  return 'feedback';
+}
+function userNameById(id){
+  if(!id) return '—';
+  const u = (State.cache.users || []).find(x => String(x.id) === String(id));
+  return u ? (u.nome || u.username || u.email || String(id)) : String(id);
+}
+function employerColorClassByIndex(idx){
+  return 'emp-w' + Math.min(idx, 9);
+}
+function plannerCellDetails(employerId, dateIso, bucket){
+  return (State.cache.calendar.activities || []).filter(a =>
+    String(a.employer_id) === String(employerId) &&
+    String(a.planned_for || a.due_date || '').slice(0,10) === dateIso &&
+    inferPlannerBucket(a) === bucket
+  );
+}
+function plannerBucketSummary(employerId, yyyyMm, bucket){
+  const acts = (State.cache.calendar.activities || []).filter(a =>
+    String(a.employer_id) === String(employerId) &&
+    String(a.planned_for || a.due_date || '').slice(0,7) === yyyyMm &&
+    inferPlannerBucket(a) === bucket
+  );
+  const owner = acts.find(a => a.owner_user_id)?.owner_user_id || '';
+  let status = '';
+  const statuses = acts.map(a => String(a.status || ''));
+  if(statuses.includes('overdue')) status = 'overdue';
+  else if(statuses.includes('waiting')) status = 'waiting';
+  else if(statuses.includes('in_progress')) status = 'in_progress';
+  else if(statuses.includes('open')) status = 'open';
+  else if(acts.length && statuses.every(s => s === 'done')) status = 'done';
+  const next = acts
+    .slice()
+    .sort((a,b) => String(a.due_date || a.planned_for || '').localeCompare(String(b.due_date || b.planned_for || '')))
+    .find(a => a.next_action || a.title);
+  return {
+    count: acts.length,
+    owner: owner ? userNameById(owner) : '—',
+    status: status || '—',
+    next: next ? (next.next_action || next.title || '—') : '—'
+  };
+}
+window.openPlannerCell = function(employerId, dateIso, bucket){
+  const items = plannerCellDetails(employerId, dateIso, bucket);
+  const employer = (State.cache.employers || []).find(e => String(e.employer_id) === String(employerId));
+  const meta = bucketMeta(bucket);
+  drawerOpen(
+    `${employer ? employer.employer_name : 'Employer'} · ${meta.label}`,
+    dateIso,
+    items.length ? `<div class="stack">` + items.map(a => `
+      <div class="card">
+        <strong>${esc(a.title)}</strong>
+        <div class="muted" style="margin-top:6px">${esc(a.activity_type)} · ${esc(a.status)} · due ${esc(a.due_date || '—')}</div>
+        <div style="margin-top:8px">${esc(a.next_action || a.description || '—')}</div>
+      </div>`).join('') + `</div>` : `<div class="muted">Sem atividades nesta célula.</div>`
+  );
+}
+window.openCalendarCell = function(kind, id, employerId){
+  if(employerId) State.workspaceEmployerId = employerId;
+  if(kind === 'meeting'){ openMeeting(id, employerId || ''); return; }
+  if(kind === 'activity'){ openActivity(id); return; }
+}
 function rowsHtml(rows, emptyCols, render){
   if(!rows.length) return `<tr><td colspan="${emptyCols}" class="muted">Sem dados.</td></tr>`;
   return rows.map(render).join('');
@@ -530,29 +684,34 @@ async function loadWorkspace(employerId){
     documents,
     notes
   ] = await Promise.all([
-    qFilter('org_openings',{employer_id:employerId},'updated_at',false),
-    qFilter('v_org_pipeline_live',{employer_id:employerId},'updated_at',false),
-    qFilter('v_org_candidates_presented',{employer_id:employerId},'presented_at',false),
-    qFilter('org_meetings',{employer_id:employerId},'meeting_date',false),
-    qFilter('org_activities',{employer_id:employerId},'due_date',true),
-    qFilter('org_documents',{employer_id:employerId},'due_date',true),
-    qFilter('org_notes',{employer_id:employerId},'created_at',false)
+    qFilter('org_openings',{employer_id:employerId}, 'updated_at', false),
+    qFilter('v_org_pipeline_live',{employer_id:employerId}, 'match_created_at', false),
+    qFilter('v_org_candidates_presented',{employer_id:employerId}, 'presented_at', false),
+    qFilter('org_meetings',{employer_id:employerId}, 'meeting_date', false),
+    qFilter('org_activities',{employer_id:employerId}, 'due_date', true),
+    qFilter('org_documents',{employer_id:employerId}, 'due_date', true),
+    qFilter('org_notes',{employer_id:employerId}, 'created_at', false)
   ]);
   State.cache.workspace = {summary,openings,pipeline,presented,meetings,activities,documents,notes};
   renderWorkspace();
 }
-async function qFilter(table, filters, orderBy='created_at', ascending=false){
+async function qFilter(table, filters, orderBy=null, ascending=false){
   const supa = createClient();
-  let req = supa.from(table).select('*');
-  Object.entries(filters).forEach(([k,v])=> req = req.eq(k,v));
-  if (orderBy) {
-    const ordered = await req.order(orderBy,{ascending});
-    if (!ordered.error) return ordered.data || [];
+  let base = supa.from(table).select('*');
+  Object.entries(filters).forEach(([k,v])=> base = base.eq(k,v));
+
+  if(orderBy){
+    const ordered = await base.order(orderBy,{ascending});
+    if(!ordered.error) return ordered.data || [];
+
     const msg = String(ordered.error?.message || '');
-    if (!/does not exist|column|42703/i.test(msg)) throw ordered.error;
+    const code = String(ordered.error?.code || '');
+    const isMissingColumn = /does not exist|column/i.test(msg) || code === '42703';
+    if(!isMissingColumn) throw ordered.error;
   }
-  const plain = await req;
-  if (plain.error) throw plain.error;
+
+  const plain = await base;
+  if(plain.error) throw plain.error;
   return plain.data || [];
 }
 function renderWorkspace(){
@@ -637,53 +796,118 @@ function renderPlanner(){
   const monthInput = document.getElementById('plannerMonth');
   const selected = monthInput.value || new Date().toISOString().slice(0,7);
   const employerId = document.getElementById('plannerEmployer').value || '';
-  const rows = State.cache.planner.filter(r=>{
-    const sameMonth = String(r.month_ref).slice(0,7) === selected;
-    const sameEmployer = !employerId || String(r.employer_id) === String(employerId);
+  document.getElementById('plannerTitle').textContent = `Planejamento de recrutamento - ${monthLabelPt(selected)}`;
+  const employers = (State.cache.employers || []).filter(e => !employerId || String(e.employer_id) === String(employerId));
+  const days = daysInMonth(selected);
+  const buckets = ['research','screening','send','feedback'];
+
+  let htmlRows = `<thead>
+    <tr>
+      <th class="headblue"></th>
+      <th class="title-legend legend-pesquisa">Pesquisa</th>
+      <th class="title-legend legend-triagem">Triagem</th>
+      <th class="title-legend legend-envio">Envio</th>
+      <th class="title-legend legend-feedback">Feedback</th>
+      ${days.map(d => `<th class="headblue">${esc(d.weekday)}</th>`).join('')}
+    </tr>
+    <tr>
+      <th class="headblue">Empregador</th>
+      <th class="headblue">Etapa / atividade</th>
+      <th class="headblue">Responsável</th>
+      <th class="headblue">Status</th>
+      <th class="headblue">Observação / próxima ação</th>
+      ${days.map(d => `<th class="headblue">${esc(d.day)}</th>`).join('')}
+    </tr>
+  </thead><tbody>`;
+
+  employers.forEach((emp, idx) => {
+    buckets.forEach((bucket, rowIdx) => {
+      const meta = bucketMeta(bucket);
+      const summary = plannerBucketSummary(emp.employer_id, selected, bucket);
+      htmlRows += `<tr>`;
+      if(rowIdx === 0){
+        htmlRows += `<td class="emp ${employerColorClassByIndex(idx)}" rowspan="4">${esc(emp.employer_name)}</td>`;
+      }
+      htmlRows += `<td class="stage">${esc(meta.label)}</td>`;
+      htmlRows += `<td class="owner">${esc(summary.owner)}</td>`;
+      htmlRows += `<td class="status"><span class="badge ${badgeClass(summary.status)}">${esc(summary.status)}</span></td>`;
+      htmlRows += `<td class="note">${esc(summary.next)}<div class="planner-subnote">${summary.count ? `${summary.count} atividade(s) no mês` : 'sem atividade neste bucket'}</div></td>`;
+      htmlRows += days.map(d => {
+        const entries = plannerCellDetails(emp.employer_id, d.iso, bucket);
+        if(!entries.length){
+          return `<td class="daycol"><div class="daybox planner-empty">—</div></td>`;
+        }
+        const preview = entries.slice(0,2).map(a => `<span class="planner-chip ${meta.css}" onclick="openPlannerCell('${esc(emp.employer_id)}','${esc(d.iso)}','${esc(bucket)}')" title="${esc(a.title)}">${esc(a.title.length > 18 ? a.title.slice(0,18)+'…' : a.title)}</span>`).join('');
+        return `<td class="daycol"><div class="daybox"><div class="planner-count">${entries.length}</div>${preview}${entries.length > 2 ? `<div class="planner-subnote">+${entries.length - 2} item(ns)</div>` : ''}</div></td>`;
+      }).join('');
+      htmlRows += `</tr>`;
+    });
+  });
+
+  if(!employers.length){
+    htmlRows += `<tr><td colspan="${5 + days.length}" class="muted">Sem employers para este filtro.</td></tr>`;
+  }
+  htmlRows += `</tbody>`;
+  document.getElementById('plannerSheet').innerHTML = htmlRows;
+}
+
+function renderCalendar(){
+  const monthInput = document.getElementById('calendarMonth');
+  const selected = monthInput.value || new Date().toISOString().slice(0,7);
+  document.getElementById('calendarTitle').textContent = 'Calendário operacional - ' + monthLabelPt(selected);
+  const employerId = document.getElementById('calendarEmployer').value || '';
+  const [y,m] = selected.split('-').map(Number);
+  const first = new Date(y, m-1, 1);
+  const startWeekday = first.getDay(); // 0 dom
+  const lastDay = new Date(y, m, 0).getDate();
+  const heads = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  document.getElementById('calendarHeads').innerHTML = heads.map(h => `<div class="calendar-head">${esc(h)}</div>`).join('');
+
+  const cells = [];
+  for(let i=0;i<startWeekday;i++) cells.push(null);
+  for(let day=1; day<=lastDay; day++) cells.push(new Date(y, m-1, day));
+  while(cells.length % 7 !== 0) cells.push(null);
+
+  const acts = (State.cache.calendar.activities || []).filter(a => {
+    const ds = String(a.due_date || a.planned_for || '').slice(0,7);
+    const sameMonth = ds === selected;
+    const sameEmployer = !employerId || String(a.employer_id) === String(employerId);
     return sameMonth && sameEmployer;
   });
-  const map = {};
-  rows.forEach(r=>{
-    const key = `${r.activity_date}`;
-    if(!map[key]) map[key] = [];
-    map[key].push(r);
+  const meets = (State.cache.calendar.meetings || []).filter(me => {
+    const ds = String(me.meeting_date || '').slice(0,7);
+    const sameMonth = ds === selected;
+    const sameEmployer = !employerId || String(me.employer_id) === String(employerId);
+    return sameMonth && sameEmployer;
   });
-  const days = Object.keys(map).sort();
-  document.getElementById('plannerGrid').innerHTML = days.length ? `<div class="planner-days">${
-    days.map(day=>`<div class="planner-day">
-      <h4>${esc(day)}</h4>
-      ${map[day].map(r=>`<div class="planner-item"><strong>${esc(r.employer_name)}</strong><br>${esc(r.planner_bucket)} · ${esc(r.activity_count)} atividade(s)</div>`).join('')}
-    </div>`).join('')
-  }</div>` : `<div class="card"><div class="muted">Sem atividades de planner macro para este filtro.</div></div>`;
-}
-function renderCalendar(){
-  const today = new Date();
-  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const days = [];
-  for(let i=0;i<14;i++){
-    const d = new Date(start); d.setDate(start.getDate()+i);
-    days.push(d);
-  }
-  const acts = State.cache.calendar.activities;
-  const meets = State.cache.calendar.meetings;
-  document.getElementById('calendarGrid').innerHTML = days.map(d=>{
+  const employerMap = Object.fromEntries((State.cache.employers || []).map(e => [String(e.employer_id), e.employer_name]));
+
+  document.getElementById('calendarGrid').innerHTML = cells.map(d => {
+    if(!d) return `<div class="calendar-cell muted-day"></div>`;
     const ds = d.toISOString().slice(0,10);
-    const dayActs = acts.filter(a=>String(a.due_date||a.planned_for||'').slice(0,10)===ds);
-    const dayMeets = meets.filter(m=>String(m.meeting_date||'').slice(0,10)===ds);
-    return `<div class="planner-day">
-      <h4>${esc(d.toLocaleDateString('pt-BR'))}</h4>
-      ${dayActs.map(a=>`<div class="planner-item">${esc(a.title)}<br><span class="muted">${esc(a.activity_type)}</span></div>`).join('')}
-      ${dayMeets.map(m=>`<div class="planner-item">${esc(m.title)}<br><span class="muted">reunião</span></div>`).join('')}
+    const dayActs = acts.filter(a => String(a.due_date || a.planned_for || '').slice(0,10) === ds);
+    const dayMeets = meets.filter(me => String(me.meeting_date || '').slice(0,10) === ds);
+    const items = [
+      ...dayActs.slice(0,3).map(a => `<div class="calendar-item activity" onclick="openCalendarCell('activity','${esc(a.id)}','${esc(a.employer_id || '')}')">${esc(a.title)}<small>${esc(employerMap[String(a.employer_id)] || '')}</small></div>`),
+      ...dayMeets.slice(0,3).map(me => `<div class="calendar-item meeting" onclick="openCalendarCell('meeting','${esc(me.id)}','${esc(me.employer_id || '')}')">${esc(me.title)}<small>${esc(employerMap[String(me.employer_id)] || '')}</small></div>`)
+    ];
+    const extra = (dayActs.length + dayMeets.length) - 6;
+    return `<div class="calendar-cell">
+      <div class="calendar-date"><span class="n">${d.getDate()}</span><span class="muted">${heads[d.getDay()]}</span></div>
+      ${items.join('')}
+      ${extra > 0 ? `<div class="planner-subnote">+${extra} item(ns)</div>` : ''}
     </div>`;
   }).join('');
 }
 async function loadPlannerAndCalendar(){
   State.cache.planner = await q('v_org_planner_monthly_macro');
-  const [activities, meetings] = await Promise.all([
+  const [activities, meetings, users] = await Promise.all([
     q('org_activities'),
-    q('org_meetings')
+    q('org_meetings'),
+    q('usuarios')
   ]);
   State.cache.calendar = {activities, meetings};
+  State.cache.users = users || [];
   renderPlanner();
   renderCalendar();
 }
@@ -895,6 +1119,9 @@ document.getElementById('workspaceEmployerSelect').onchange = e => loadWorkspace
 document.getElementById('employerSearch').oninput = loadEmployers;
 document.getElementById('plannerMonth').onchange = renderPlanner;
 document.getElementById('plannerEmployer').onchange = renderPlanner;
+document.getElementById('calendarMonth').onchange = renderCalendar;
+document.getElementById('calendarEmployer').onchange = renderCalendar;
+document.getElementById('calendarTodayBtn').onclick = () => { const now = new Date().toISOString().slice(0,7); document.getElementById('calendarMonth').value = now; renderCalendar(); };
 
 document.querySelectorAll('.ws-tab').forEach(btn=>{
   btn.onclick = ()=>{
@@ -914,13 +1141,21 @@ async function init(){
     if(!State.workspaceEmployerId && State.cache.employers[0]) State.workspaceEmployerId = State.cache.employers[0].employer_id;
     if(State.workspaceEmployerId) await loadWorkspace(State.workspaceEmployerId);
     await loadPlannerAndCalendar();
-    document.getElementById('plannerMonth').value = new Date().toISOString().slice(0,7);
+    const nowMonth = new Date().toISOString().slice(0,7);
+    document.getElementById('plannerMonth').value = nowMonth;
+    document.getElementById('calendarMonth').value = nowMonth;
+    document.getElementById('calendarEmployer').innerHTML = document.getElementById('plannerEmployer').innerHTML;
     renderPlanner();
     renderCalendar();
     showAlert('Home operacional P0 carregada com CRUD real nas entidades novas do schema. Employer base continua dependendo da tabela public.employers existente.', 'ok');
   }catch(err){
     console.error(err);
-    showAlert(err.message || 'Falha ao carregar.', 'danger');
+    const msg = String(err?.message || 'Falha ao carregar.');
+    if(/does not exist|42703/i.test(msg)){
+      showAlert('Há incompatibilidade entre o frontend e alguma view/coluna do Supabase. Esta versão já caiu para carregamento sem ordenação quando a coluna não existe, mas se o erro persistir a view citada no console precisa ser corrigida no banco. Detalhe: ' + msg, 'danger');
+    } else {
+      showAlert(msg, 'danger');
+    }
   }
 }
 init();
