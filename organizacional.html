@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Talents 4 — CRM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -394,7 +395,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo Empregador
     </div>
-    <div class="storage-chip">Dados salvos no navegador. Use backup JSON para não depender só do localStorage.</div>
+    <div class="storage-chip">Dados salvos no navegador e sincronizados com Supabase quando disponível. Use backup JSON como redundância.</div>
     <div class="storage-tools">
       <button class="storage-btn" onclick="exportBackup()">⬇ Exportar backup JSON</button>
       <button class="storage-btn" onclick="document.getElementById('backup-import').click()">⬆ Importar backup JSON</button>
@@ -1115,15 +1116,117 @@ function defaultState(){
 }
 
 // ─── STATE MANAGEMENT ───
+const SUPABASE_URL='https://xcxqtjzlqmncwnhbolnl.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
+const REMOTE_APP_KEY='talents4_crm_v5';
+let _supa=null,_remoteSaveTimer=null,_remoteReady=false,_remoteSyncErrorShown=false,_hydratingRemote=false;
 let S;
+function getSupa(){
+  if(!window.supabase?.createClient) return null;
+  if(!_supa){
+    _supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  }
+  return _supa;
+}
+async function getSessionSafe(){
+  try{
+    const client=getSupa();
+    if(!client) return null;
+    const {data,error}=await client.auth.getSession();
+    if(error || !data?.session) return null;
+    return data.session;
+  }catch{return null;}
+}
+function ensureUiState(){
+  const defs=defaultState();
+  if(!S || typeof S!=='object') S=defs;
+  if(!Array.isArray(S.employers)) S.employers=defs.employers;
+  S.employers=S.employers.filter(e=>e && e.name && e.name!=='Observações:').map((e,idx)=>{
+    const openings = normalizeOpenings(e.openings || e.vagas || []);
+    return {
+      id:e.id||uid(),
+      name:e.name,
+      color:e.color||DEFAULT_EMP_COLORS[idx%DEFAULT_EMP_COLORS.length],
+      descricao:e.descricao||'',
+      focusAreas:e.focusAreas||'',
+      vagas:e.vagas||openingsToText(openings),
+      openings:openings,
+      contato:e.contato||'',
+      pasta:e.pasta||'',
+      crm:e.crm||e.link||'',
+      link:e.link||'',
+      saude:e.saude||'Estável'
+    };
+  });
+  if(!S.employers.length) S.employers=defs.employers;
+  if(!S.dossiers || typeof S.dossiers!=='object') S.dossiers={};
+  S.employers.forEach(e=>{
+    if(!S.dossiers[e.name] || typeof S.dossiers[e.name]!=='object') S.dossiers[e.name]={candidatos:[],removidos:[],reposicao:[]};
+    if(!Array.isArray(S.dossiers[e.name].candidatos)) S.dossiers[e.name].candidatos=[];
+    if(!Array.isArray(S.dossiers[e.name].removidos)) S.dossiers[e.name].removidos=[];
+    if(!Array.isArray(S.dossiers[e.name].reposicao)) S.dossiers[e.name].reposicao=[];
+  });
+  Object.keys(S.dossiers).forEach(name=>{ if(!S.employers.find(e=>e.name===name)) delete S.dossiers[name]; });
+  if(!Array.isArray(S.planEntries)) S.planEntries=[];
+  if(!Array.isArray(S.meetings)) S.meetings=[];
+  if(!Array.isArray(S.weeklySummaries)) S.weeklySummaries=[];
+  if(typeof S.currentMonthIdx!=='number' || Number.isNaN(S.currentMonthIdx) || S.currentMonthIdx<0 || S.currentMonthIdx>=MONTHS.length) S.currentMonthIdx=0;
+  if(!S.currentDossieEmp || !S.employers.find(e=>e.name===S.currentDossieEmp)) S.currentDossieEmp=S.employers[0]?.name||'';
+  if(!['info','pipeline','removidos','reposicao'].includes(S.currentDossieTab)) S.currentDossieTab='info';
+  if(!['plan-mensal','calendario','reunioes','resumo','employers','dossie'].includes(S.currentPage)) S.currentPage='plan-mensal';
+}
 function load(){
-  try{const raw=localStorage.getItem('t4crm_v2');S=raw?JSON.parse(raw):defaultState();}
-  catch{S=defaultState();}
-  // Migration: ensure employers array exists
-  if(!S.employers){S=defaultState();}
+  try{
+    const raw=localStorage.getItem('t4crm_v5') || localStorage.getItem('t4crm_v2');
+    S=raw?JSON.parse(raw):defaultState();
+  }catch{S=defaultState();}
+  if(!S.employers) S=defaultState();
   ensureUiState();
 }
-function save(){localStorage.setItem('t4crm_v2',JSON.stringify(S));}
+async function loadRemoteState(){
+  const session=await getSessionSafe();
+  if(!session) return false;
+  const client=getSupa();
+  const {data,error}=await client.from('org_ui_state_snapshots').select('payload,updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle();
+  if(error){
+    if(!_remoteSyncErrorShown){ console.warn('Supabase snapshot indisponível:', error.message); _remoteSyncErrorShown=true; }
+    return false;
+  }
+  if(data?.payload && typeof data.payload==='object'){
+    _hydratingRemote=true;
+    S=data.payload;
+    ensureUiState();
+    _hydratingRemote=false;
+    _remoteReady=true;
+    return true;
+  }
+  _remoteReady=true;
+  return false;
+}
+async function saveRemoteNow(){
+  if(_hydratingRemote) return;
+  const session=await getSessionSafe();
+  if(!session) return;
+  const client=getSupa();
+  const {error}=await client.from('org_ui_state_snapshots').upsert({
+    app_key:REMOTE_APP_KEY,
+    payload:S,
+    updated_at:new Date().toISOString()
+  },{onConflict:'app_key'});
+  if(error && !_remoteSyncErrorShown){
+    console.warn('Falha ao sincronizar com Supabase:', error.message);
+    _remoteSyncErrorShown=true;
+  }
+}
+function scheduleRemoteSave(){
+  clearTimeout(_remoteSaveTimer);
+  _remoteSaveTimer=setTimeout(()=>{saveRemoteNow();},900);
+}
+function save(){
+  localStorage.setItem('t4crm_v5',JSON.stringify(S));
+  localStorage.setItem('t4crm_v2',JSON.stringify(S));
+  scheduleRemoteSave();
+}
 load();
 migrateState();
 
@@ -1276,6 +1379,7 @@ function populateAllSelects(){
 
 // ─── NAVIGATION ───
 function nav(page){
+  S.currentPage=page;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
@@ -2374,13 +2478,30 @@ function showStatusPicker(el,id,type,options){
   setTimeout(()=>document.addEventListener('click',()=>picker.remove(),{once:true}),10);
 }
 
-// ─── INIT ───
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('backup-import')?.addEventListener('change',e=>{const f=e.target.files?.[0]; if(f) importBackup(f); e.target.value='';});
+function renderBootstrap(){
+  ensureUiState();
   populateAllSelects();
   document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;
   document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;
   renderPlanTable();
+  renderCalendar();
+  renderMeetings();
+  renderResumo();
+  renderEmployers();
+  renderEmpTabs();
+  renderDossie();
+  nav(S.currentPage||'plan-mensal');
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', async()=>{
+  document.getElementById('backup-import')?.addEventListener('change',e=>{const f=e.target.files?.[0]; if(f) importBackup(f); e.target.value='';});
+  renderBootstrap();
+  const remoteLoaded = await loadRemoteState();
+  if(remoteLoaded){
+    renderBootstrap();
+    toast('Dados sincronizados do Supabase ✓');
+  }
 });
 
 document.querySelectorAll('.modal-ov').forEach(ov=>{
