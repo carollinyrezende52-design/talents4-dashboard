@@ -181,9 +181,9 @@ tbody tr:hover .row-actions.hover{opacity:1}
 .pri-meta{font-size:11px;color:var(--text3);margin-top:2px}
 
 /* INFO FIELDS */
-.ifield{background:var(--bg);border-radius:var(--r);padding:12px;margin-bottom:10px}
-.ifield-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px}
-.ifield-value{font-size:12px;color:var(--text);white-space:pre-wrap}
+.ifield{background:#F8FAFC;border-radius:var(--r);padding:12px;margin-bottom:10px;border:1px solid #E8EEF6}
+.ifield-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748B;margin-bottom:6px}
+.ifield-value{font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.55}
 
 /* STATUS PICKER */
 .status-picker{position:absolute;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-lg);padding:4px;min-width:150px}
@@ -222,6 +222,57 @@ tbody tr:hover .row-actions.hover{opacity:1}
 .cal-cell:hover .cal-add-btn{display:flex}
 .cal-more{font-size:10px;color:var(--text2);font-weight:600;padding:1px 5px;cursor:pointer}
 
+.cal-event{position:relative;min-height:34px;align-items:flex-start;padding:3px 5px 3px 7px;border-left:4px solid rgba(255,255,255,.45);white-space:normal;line-height:1.15}
+.cal-event-title{display:block;font-size:10px;font-weight:700;line-height:1.15}
+.cal-event-meta{display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap}
+.cal-mini-badge{display:inline-flex;align-items:center;padding:1px 5px;border-radius:999px;font-size:9px;font-weight:800;line-height:1.2;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.22)}
+.cal-meet{background:#0F172A!important;border-left-color:#60A5FA}
+.cal-status-afazer{background:#D97706!important;border-left-color:#FBBF24}
+.cal-status-andamento{background:#1D4ED8!important;border-left-color:#93C5FD}
+.cal-status-concluido{background:#059669!important;border-left-color:#A7F3D0}
+.cal-status-bloqueado{background:#B91C1C!important;border-left-color:#FCA5A5}
+.cal-status-cancelado{background:#6B7280!important;border-left-color:#D1D5DB}
+.day-list{display:grid;gap:10px}
+.day-item{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:#F8FAFC}
+.day-item h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.day-item .meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:8px}
+.day-item .body{font-size:12px;line-height:1.55;color:var(--text)}
+.expand-row{cursor:pointer}
+.expand-row.expanded{background:#EEF6FF}
+.meet-expanded td{padding:0!important;background:#F8FBFF}
+.meet-expand-box{padding:14px 16px;border-top:1px dashed #D5E3F4}
+.meet-expand-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px}
+.meet-expand-card{background:#fff;border:1px solid #D9E4F2;border-radius:10px;padding:12px}
+.meet-expand-card .ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:6px}
+.meet-expand-card .txt{font-size:12px;color:var(--text);line-height:1.55;white-space:pre-wrap}
+.summary-source{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:800;background:#E0E7FF;color:#3730A3}
+.summary-source.manual{background:#DCFCE7;color:#166534}
+.emp-card{background:linear-gradient(180deg,#FFFFFF 0%,#F7FAFD 100%);border-color:#D6E1ED}
+.emp-card:hover{box-shadow:0 10px 24px rgba(15,23,42,.10);border-color:#C2D3E6}
+.emp-card{position:relative}
+.emp-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.emp-section{background:#F3F7FC;border-color:#D9E4F2}
+.emp-focus-chip{background:#EEF4FF;border-color:#D8E4F8;color:#294A7A}
+.emp-linkbox{background:#F7FAFD;border-color:#D9E4F2}
+.info-summary-box{background:linear-gradient(180deg,#F8FBFF,#F1F6FD);border:1px solid #D5E3F4}
+.small-stat{background:linear-gradient(180deg,#FFFFFF,#F7FAFD);border-color:#D6E1ED}
+.small-stat.clickable{cursor:pointer;transition:all .12s}
+.small-stat.clickable:hover{transform:translateY(-1px);box-shadow:var(--sh)}
+.small-stat.accent-blue{background:linear-gradient(180deg,#F7FBFF,#ECF4FF)}
+.small-stat.accent-amber{background:linear-gradient(180deg,#FFF9F0,#FEF3C7)}
+.small-stat.accent-green{background:linear-gradient(180deg,#F3FFF8,#DCFCE7)}
+.small-stat.accent-red{background:linear-gradient(180deg,#FFF7F7,#FEE2E2)}
+.compact-item{background:#F5F9FF;border-color:#D5E3F4}
+.compact-item.clickable{cursor:pointer}
+.compact-item.clickable:hover{background:#EEF6FF}
+.emp-group-head td{background:#EAF2FB!important;border-top:3px solid #C0D3E8;border-bottom:1px solid #D5E3F4;padding:10px 12px!important}
+.plan-activity-row td{background:#FFF}
+.plan-activity-row:nth-child(even) td{background:#FBFDFF}
+.plan-emp-cell{font-weight:700;color:#334155}
+.weekly-table .auto-row td{background:#FBFDFF}
+.weekly-table .manual-row td{background:#F6FFF8}
+.linkish{cursor:pointer}
+
 /* EMPLOYER CARD */
 .emp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;display:flex;align-items:flex-start;gap:12px;transition:box-shadow .15s}
 .emp-card:hover{box-shadow:var(--sh)}
@@ -230,7 +281,72 @@ tbody tr:hover .row-actions.hover{opacity:1}
 .emp-card-name{font-size:13px;font-weight:700;letter-spacing:-.1px}
 .emp-card-meta{font-size:11px;color:var(--text2);margin-top:2px}
 .emp-card-vagas{font-size:11px;color:var(--text3);margin-top:4px;white-space:pre-wrap}
-.emp-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.emp-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.emp-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.emp-card-actions{display:flex;gap:5px;flex-shrink:0}
+.emp-card-summary{font-size:12px;color:var(--text2);line-height:1.55;margin-top:8px}
+.emp-section{margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#F8FAFC}
+.emp-section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:7px}
+.emp-opening-list{display:grid;gap:6px}
+.emp-opening-item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:7px 8px;background:#fff;border:1px solid #E8EEF6;border-radius:7px}
+.emp-opening-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.35}
+.emp-opening-qty{font-size:10px;font-weight:700;color:var(--text2);background:#EEF2FF;padding:3px 7px;border-radius:999px}
+.emp-opening-status{font-size:10px;font-weight:700;padding:3px 7px;border-radius:999px;background:#F3F4F6;color:#475569}
+.emp-focus-list{display:flex;gap:6px;flex-wrap:wrap}
+.emp-focus-chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#fff;border:1px solid #E8EEF6;font-size:11px;color:var(--text2);font-weight:600}
+.emp-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.emp-linkbox{padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff}
+.emp-linkbox .lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:5px}
+.emp-linkbox .val,.emp-linkbox a{font-size:12px;color:var(--text);text-decoration:none;word-break:break-word}
+.emp-linkbox a{color:var(--blue);font-weight:600}
+.ifield-value strong{color:var(--text)}
+.ifield-value a{color:var(--blue);font-weight:600;text-decoration:none}
+.opening-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:#fff;font-size:11px;color:var(--text2);margin:3px 4px 0 0;border:1px solid #E8EEF6}
+.info-opening-list{display:grid;gap:8px}
+.info-opening-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid #E8EEF6;border-radius:8px;background:#fff}
+.info-opening-row .t{font-size:12px;font-weight:700;color:var(--text);line-height:1.4}
+.info-opening-row .q{font-size:10px;font-weight:700;color:var(--text2);background:#EEF2FF;padding:3px 7px;border-radius:999px}
+.info-opening-row .s{font-size:10px;font-weight:700;color:#475569;background:#F3F4F6;padding:3px 7px;border-radius:999px}
+.info-meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.info-summary-box{padding:12px 14px;border:1px solid #D9E4F2;border-radius:9px;background:#F8FAFC}
+.info-summary-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:6px}
+.info-summary-text{font-size:12px;color:var(--text);line-height:1.55}
+@media(max-width:900px){.emp-cards-grid{grid-template-columns:1fr}.emp-links,.info-meta-grid{grid-template-columns:1fr}}
+
+/* IMPROVEMENTS V3 */
+.emp-group-head td{background:#edf3fb!important;border-top:2px solid #c7d7ec;border-bottom:1px solid #d7e3f2;padding:8px 12px!important}
+.emp-group-head .gtitle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--text)}
+.emp-group-head .gmeta{font-size:11px;color:var(--text2);margin-top:2px}
+.plan-emp-cell{background:#fcfdff}
+.plan-activity-row td{border-bottom:1px solid #eef2f7}
+.openings-editor{display:grid;gap:8px}
+.opening-row{display:grid;grid-template-columns:1.7fr .6fr .8fr 34px;gap:8px;align-items:center}
+.opening-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:var(--bg);font-size:11px;color:var(--text2);margin:3px 4px 0 0}
+.summary-note{padding:12px;border:1px dashed var(--border);border-radius:var(--r);background:#fafcff;font-size:12px;color:var(--text2);line-height:1.5}
+.day-list{display:grid;gap:10px}
+.day-item{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);background:#fff}
+.day-item h4{font-size:12px;font-weight:700;margin-bottom:4px}
+.day-item .meta{font-size:11px;color:var(--text2);margin-bottom:6px}
+.day-item .body{font-size:12px;color:var(--text)}
+.storage-tools{display:grid;gap:6px;padding:8px 16px 12px}
+.storage-btn{display:flex;align-items:center;gap:6px;padding:6px 0;cursor:pointer;color:rgba(255,255,255,.48);font-size:11px;font-weight:500;transition:all .12s;background:none;border:none;text-align:left;font-family:'Sora',sans-serif}
+.storage-btn:hover{color:#fff}
+.storage-chip{margin:0 16px 6px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);font-size:10px;line-height:1.4}
+.weekly-table textarea,.weekly-table input,.weekly-table select{font-size:11px;padding:6px 8px}
+.weekly-table td{vertical-align:top}
+.small-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.small-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px}
+.small-stat .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:5px}
+.small-stat .val{font-size:24px;font-weight:800;line-height:1}
+.small-stat .sub{font-size:11px;color:var(--text3);margin-top:3px}
+.ifield-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ifield-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compact-list{display:grid;gap:8px}
+.compact-item{padding:10px 12px;background:var(--bg);border-radius:var(--r);border:1px solid var(--border)}
+.compact-item-title{font-size:12px;font-weight:700;color:var(--text)}
+.compact-item-sub{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.4}
+@media(max-width:900px){.opening-row{grid-template-columns:1fr}.ifield-grid-3,.ifield-grid-2{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -278,6 +394,12 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo Empregador
     </div>
+    <div class="storage-chip">Dados salvos no navegador. Use backup JSON para não depender só do localStorage.</div>
+    <div class="storage-tools">
+      <button class="storage-btn" onclick="exportBackup()">⬇ Exportar backup JSON</button>
+      <button class="storage-btn" onclick="document.getElementById('backup-import').click()">⬆ Importar backup JSON</button>
+    </div>
+    <input type="file" id="backup-import" accept="application/json" style="display:none">
   </div>
 </nav>
 
@@ -423,10 +545,20 @@ tbody tr:hover .row-actions.hover{opacity:1}
     <div class="ph-left"><h1>Resumo Geral</h1><p>Leitura consolidada da operação — Abril a Dezembro 2026</p></div>
     <div class="ph-right">
       <select class="fi" style="width:auto;padding:6px 10px" id="resumo-month-filter" onchange="renderResumo()"><option value="">Todos os meses</option></select>
+      <button class="btn btn-primary" onclick="openWeeklyModal()">Nova linha semanal</button>
     </div>
   </div>
   <div class="pb">
     <div class="stats" id="resumo-stats"></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd"><h3>🗂 Resumo semanal manual</h3><span style="font-size:11px;color:var(--text3)">Campos que existiam na planilha mensal</span></div>
+      <div class="tbl-wrap">
+        <table class="weekly-table">
+          <thead><tr><th>Mês</th><th>Semana</th><th>Período</th><th>Empregador</th><th>O que foi feito</th><th>Resultado</th><th>Próxima ação</th><th>Responsável</th><th>Status</th><th>Observações</th><th style="width:80px"></th></tr></thead>
+          <tbody id="weekly-tbody"></tbody>
+        </table>
+      </div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div class="card">
         <div class="card-hd"><h3>🔴 Prioridades em aberto</h3></div>
@@ -600,17 +732,28 @@ tbody tr:hover .row-actions.hover{opacity:1}
         <textarea class="ft" id="emp-descricao" placeholder="Descreva a empresa, setor, histórico..."></textarea>
       </div>
       <div class="fg">
-        <label class="fl">Vagas abertas</label>
-        <textarea class="ft" id="emp-vagas" placeholder="Liste as posições abertas (uma por linha)..."></textarea>
+        <label class="fl">Áreas-foco / cluster operacional</label>
+        <textarea class="ft" id="emp-focusareas" placeholder="Ex: comercial/industrial, CNC-produção, logística e kaufmännisch"></textarea>
       </div>
-      <div class="frow">
+      <div class="fg">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px">
+          <label class="fl" style="margin-bottom:0">Vagas estruturadas</label>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="addOpeningRow()">+ Adicionar vaga</button>
+        </div>
+        <div id="emp-openings-editor" class="openings-editor"></div>
+      </div>
+      <div class="frow3">
         <div class="fg">
           <label class="fl">Contato</label>
           <input class="fi" id="emp-contato" placeholder="Nome ou email do contato">
         </div>
         <div class="fg">
-          <label class="fl">Link / CRM</label>
-          <input class="fi" id="emp-link" placeholder="https://...">
+          <label class="fl">Pasta / Drive</label>
+          <input class="fi" id="emp-pasta" placeholder="https://drive...">
+        </div>
+        <div class="fg">
+          <label class="fl">CRM / Link</label>
+          <input class="fi" id="emp-crm" placeholder="https://...">
         </div>
       </div>
       <div class="fg">
@@ -810,6 +953,12 @@ tbody tr:hover .row-actions.hover{opacity:1}
     </div>
     <div class="modal-body">
       <input type="hidden" id="rep-id">
+      <div class="frow3">
+        <div class="fg"><label class="fl">Data da solicitação</label><input type="date" class="fi" id="rep-data"></div>
+        <div class="fg"><label class="fl">Qtd.</label><input class="fi" id="rep-qtd" placeholder="Ex: 1"></div>
+        <div class="fg"><label class="fl">Data do novo envio</label><input type="date" class="fi" id="rep-envio"></div>
+      </div>
+      <div class="fg"><label class="fl">Gatilho / motivo</label><input class="fi" id="rep-gatilho" placeholder="Motivo da reposição"></div>
       <div class="fg"><label class="fl">Perfil necessário</label><textarea class="ft" id="rep-perfil" placeholder="Descreva o perfil buscado..."></textarea></div>
       <div class="fg"><label class="fl">Substitui qual candidato?</label><input class="fi" id="rep-substitui" placeholder="Nome do candidato removido"></div>
       <div class="frow">
@@ -823,6 +972,62 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <div class="modal-footer-right">
         <button class="btn btn-ghost" onclick="closeModal('modal-replace')">Cancelar</button>
         <button class="btn btn-primary" onclick="saveReplace()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL: DIA DO CALENDÁRIO ══════ -->
+<div class="modal-ov" id="modal-day">
+  <div class="modal modal-lg">
+    <div class="modal-hd">
+      <h2 id="modal-day-title">Itens do dia</h2>
+      <button class="modal-close" onclick="closeModal('modal-day')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modal-day-body"></div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="modal-footer-right">
+        <button class="btn btn-ghost" onclick="closeModal('modal-day')">Fechar</button>
+        <button class="btn btn-primary" onclick="openPlanModal(null,document.getElementById('modal-day').dataset.date||'')">Nova atividade neste dia</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL: RESUMO SEMANAL ══════ -->
+<div class="modal-ov" id="modal-weekly">
+  <div class="modal modal-lg">
+    <div class="modal-hd">
+      <h2 id="modal-weekly-title">Nova linha semanal</h2>
+      <button class="modal-close" onclick="closeModal('modal-weekly')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="weekly-id">
+      <div class="frow3">
+        <div class="fg"><label class="fl">Mês</label><select class="fs" id="weekly-month"></select></div>
+        <div class="fg"><label class="fl">Semana</label><input class="fi" id="weekly-week" placeholder="Ex: Semana 2"></div>
+        <div class="fg"><label class="fl">Período</label><input class="fi" id="weekly-period" placeholder="Ex: 06/04 a 12/04"></div>
+      </div>
+      <div class="fg"><label class="fl">Empregador</label><select class="fs" id="weekly-employer"></select></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">O que foi feito</label><textarea class="ft" id="weekly-done"></textarea></div>
+        <div class="fg"><label class="fl">Resultado</label><textarea class="ft" id="weekly-result"></textarea></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Próxima ação</label><textarea class="ft" id="weekly-next"></textarea></div>
+        <div class="fg"><label class="fl">Observações da reunião</label><textarea class="ft" id="weekly-notes"></textarea></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Responsável</label><input class="fi" id="weekly-owner"></div>
+        <div class="fg"><label class="fl">Status</label><select class="fs" id="weekly-status"><option>A fazer</option><option>Em andamento</option><option>Concluído</option><option>Cancelado</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div><button class="btn btn-danger btn-sm" id="weekly-delete-btn" onclick="deleteWeeklyFromModal()" style="display:none">🗑 Excluir</button></div>
+      <div class="modal-footer-right">
+        <button class="btn btn-ghost" onclick="closeModal('modal-weekly')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveWeekly()">Salvar</button>
       </div>
     </div>
   </div>
@@ -916,14 +1121,121 @@ function load(){
   catch{S=defaultState();}
   // Migration: ensure employers array exists
   if(!S.employers){S=defaultState();}
+  ensureUiState();
 }
 function save(){localStorage.setItem('t4crm_v2',JSON.stringify(S));}
 load();
+migrateState();
 
 // ─── EMPLOYER HELPERS ───
 function getEmpNames(){return S.employers.map(e=>e.name);}
-function getEmpObj(name){return S.employers.find(e=>e.name===name)||{name,color:'#6B7280',descricao:'',vagas:'',contato:'',link:'',saude:'Estável'};}
+function getEmpObj(name){return S.employers.find(e=>e.name===name)||{name,color:'#6B7280',descricao:'',focusAreas:'',vagas:'',openings:[],contato:'',pasta:'',crm:'',link:'',saude:'Estável'};}
 function getEmpColor(name){return getEmpObj(name).color||'#6B7280';}
+
+function splitFocusAreas(raw){
+  return String(raw||'').split(/[,\n;]+/).map(s=>s.trim()).filter(Boolean);
+}
+function renderEmployerOpeningsList(openings, maxItems=4){
+  const arr=normalizeOpenings(openings||[]);
+  if(!arr.length) return `<div class="muted">Nenhuma vaga estruturada cadastrada.</div>`;
+  const shown=arr.slice(0,maxItems);
+  return `<div class="emp-opening-list">${
+    shown.map(o=>`<div class="emp-opening-item">
+      <div class="emp-opening-title">${o.title}</div>
+      <div class="emp-opening-qty">${o.qty&&o.qty>1?`${o.qty} vagas`:'1 vaga'}</div>
+      <div class="emp-opening-status">${o.status||'Aberta'}</div>
+    </div>`).join('')
+  }${arr.length>maxItems?`<div class="planner-subnote">+ ${arr.length-maxItems} vaga(s) adicional(is)</div>`:''}</div>`;
+}
+function renderInfoOpeningsList(openings){
+  const arr=normalizeOpenings(openings||[]);
+  if(!arr.length) return `<em style="color:var(--text3)">Nenhuma vaga estruturada cadastrada.</em>`;
+  return `<div class="info-opening-list">${
+    arr.map(o=>`<div class="info-opening-row">
+      <div class="t">${o.title}</div>
+      <div class="q">${o.qty&&o.qty>1?`${o.qty} vagas`:'1 vaga'}</div>
+      <div class="s">${o.status||'Aberta'}</div>
+    </div>`).join('')
+  }</div>`;
+}
+function statusPillText(v){ return badge(v||'—'); }
+
+function parseOpeningsText(txt){
+  return String(txt||'').split('\n').map(s=>s.trim()).filter(Boolean).map(t=>({title:t,qty:1,status:'Aberta'}));
+}
+function normalizeOpenings(arr){
+  if(Array.isArray(arr)&&arr.length) return arr.map(o=>({title:String(o.title||'').trim(),qty:Number(o.qty||1)||1,status:String(o.status||'Aberta').trim()||'Aberta'})).filter(o=>o.title);
+  return [];
+}
+function openingsToText(arr){return normalizeOpenings(arr).map(o=>o.title).join('\n');}
+function ensureWeeklySummaries(){ if(!Array.isArray(S.weeklySummaries)) S.weeklySummaries=[]; }
+function migrateState(){
+  S.employers=(S.employers||[]).filter(e=>e&&e.name&&e.name!=='Observações:').map((e,idx)=>{
+    const openings=normalizeOpenings(e.openings);
+    const migrated = {
+      ...e,
+      color:e.color||DEFAULT_EMP_COLORS[idx%DEFAULT_EMP_COLORS.length],
+      focusAreas:e.focusAreas|| (e.name==='Eisen Schmid' ? 'comercial/industrial, CNC-produção, logística e kaufmännisch' : ''),
+      pasta:e.pasta||'',
+      crm:e.crm||e.link||'',
+      openings: openings.length ? openings : parseOpeningsText(e.vagas||''),
+    };
+    migrated.vagas = openingsToText(migrated.openings);
+    migrated.link = migrated.crm;
+    return migrated;
+  });
+  ensureWeeklySummaries();
+  if(!S.dossiers) S.dossiers={};
+  S.employers.forEach(e=>{ if(!S.dossiers[e.name]) S.dossiers[e.name]={candidatos:[],removidos:[],reposicao:[]}; });
+  Object.keys(S.dossiers).forEach(name=>{ if(!S.employers.find(e=>e.name===name)) delete S.dossiers[name]; });
+  ensureUiState();
+}
+function renderEmployerOpeningsEditor(rows){
+  const wrap=document.getElementById('emp-openings-editor');
+  if(!wrap)return;
+  const arr=normalizeOpenings(rows);
+  if(!arr.length) arr.push({title:'',qty:1,status:'Aberta'});
+  wrap.innerHTML=arr.map((o,i)=>`<div class="opening-row">
+    <input class="fi emp-opening-title" data-i="${i}" value="${(o.title||'').replace(/"/g,'&quot;')}" placeholder="Título da vaga">
+    <input class="fi emp-opening-qty" data-i="${i}" type="number" min="1" value="${o.qty||1}" placeholder="Qtd">
+    <select class="fs emp-opening-status" data-i="${i}"><option ${o.status==='Aberta'?'selected':''}>Aberta</option><option ${o.status==='Em busca'?'selected':''}>Em busca</option><option ${o.status==='Pausada'?'selected':''}>Pausada</option><option ${o.status==='Fechada'?'selected':''}>Fechada</option></select>
+    <button type="button" class="icon-btn danger" onclick="removeOpeningRow(${i})" title="Remover"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+  </div>`).join('');
+}
+function collectOpeningRows(){
+  return [...document.querySelectorAll('#emp-openings-editor .opening-row')].map(r=>({
+    title:r.querySelector('.emp-opening-title')?.value?.trim()||'',
+    qty:Number(r.querySelector('.emp-opening-qty')?.value||1)||1,
+    status:r.querySelector('.emp-opening-status')?.value||'Aberta'
+  })).filter(o=>o.title);
+}
+function addOpeningRow(){
+  const current=collectOpeningRows();
+  current.push({title:'',qty:1,status:'Aberta'});
+  renderEmployerOpeningsEditor(current);
+}
+function removeOpeningRow(idx){
+  const current=collectOpeningRows();
+  current.splice(idx,1);
+  renderEmployerOpeningsEditor(current.length?current:[{title:'',qty:1,status:'Aberta'}]);
+}
+function exportBackup(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`talents4-crm-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Backup exportado ✓');
+}
+function importBackup(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{ S=JSON.parse(reader.result); migrateState(); save(); populateAllSelects(); nav('plan-mensal'); toast('Backup importado ✓'); }
+    catch(e){ toast('⚠ Backup inválido'); }
+  };
+  reader.readAsText(file);
+}
 
 // ─── POPULATE SELECTS ───
 function populateAllSelects(){
@@ -1018,20 +1330,24 @@ function openEmpModal(name){
   document.getElementById('emp-name').value='';
   document.getElementById('emp-color').value=DEFAULT_EMP_COLORS[S.employers.length%DEFAULT_EMP_COLORS.length];
   document.getElementById('emp-descricao').value='';
-  document.getElementById('emp-vagas').value='';
+  document.getElementById('emp-focusareas').value='';
   document.getElementById('emp-contato').value='';
-  document.getElementById('emp-link').value='';
+  document.getElementById('emp-pasta').value='';
+  document.getElementById('emp-crm').value='';
   document.getElementById('emp-saude').value='Estável';
+  renderEmployerOpeningsEditor([]);
   if(isEdit){
     const e=getEmpObj(name);
     document.getElementById('emp-id').value=e.id||e.name;
     document.getElementById('emp-name').value=e.name;
     document.getElementById('emp-color').value=e.color||'#2563EB';
     document.getElementById('emp-descricao').value=e.descricao||'';
-    document.getElementById('emp-vagas').value=e.vagas||'';
+    document.getElementById('emp-focusareas').value=e.focusAreas||'';
     document.getElementById('emp-contato').value=e.contato||'';
-    document.getElementById('emp-link').value=e.link||'';
+    document.getElementById('emp-pasta').value=e.pasta||'';
+    document.getElementById('emp-crm').value=e.crm||e.link||'';
     document.getElementById('emp-saude').value=e.saude||'Estável';
+    renderEmployerOpeningsEditor(e.openings||parseOpeningsText(e.vagas||''));
   }
   openModal('modal-emp');
 }
@@ -1040,12 +1356,17 @@ function saveEmp(){
   const id=document.getElementById('emp-id').value;
   const name=document.getElementById('emp-name').value.trim();
   if(!name){toast('⚠ Nome do empregador é obrigatório');return;}
+  const openings=collectOpeningRows();
   const data={
     color:document.getElementById('emp-color').value,
     descricao:document.getElementById('emp-descricao').value,
-    vagas:document.getElementById('emp-vagas').value,
+    focusAreas:document.getElementById('emp-focusareas').value,
+    openings,
+    vagas:openingsToText(openings),
     contato:document.getElementById('emp-contato').value,
-    link:document.getElementById('emp-link').value,
+    pasta:document.getElementById('emp-pasta').value,
+    crm:document.getElementById('emp-crm').value,
+    link:document.getElementById('emp-crm').value,
     saude:document.getElementById('emp-saude').value,
   };
   if(id){
@@ -1099,17 +1420,20 @@ function renderEmployers(){
   const grid=document.getElementById('emp-cards-grid');
   if(!list.length){grid.innerHTML=`<div class="empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg><p>Nenhum empregador encontrado</p><small>Clique em "Novo Empregador" para adicionar</small></div>`;return;}
   grid.innerHTML=list.map(e=>{
-    const cands=(S.dossiers[e.name]?.candidatos||[]).length;
+    const dossier=S.dossiers[e.name]||{candidatos:[],removidos:[],reposicao:[]};
+    const cands=(dossier.candidatos||[]).length;
     const saude=e.saude||'Estável';
-    return `<div class="emp-card">
+    const resumo=(e.descricao||'').trim();
+    const focus=splitFocusAreas(e.focusAreas||'');
+    return `<div class="emp-card" style="--emp:${e.color};border-left:6px solid ${e.color}">
       <div class="emp-color-bar" style="background:${e.color}"></div>
       <div class="emp-card-body">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="emp-card-head">
           <div>
             <div class="emp-card-name">${e.name}</div>
             <div class="emp-card-meta">${cands} candidato${cands!==1?'s':''} no pipeline &nbsp;·&nbsp; ${badge(saude)}</div>
           </div>
-          <div style="display:flex;gap:5px;flex-shrink:0">
+          <div class="emp-card-actions">
             <button class="icon-btn" onclick="openEmpModal('${e.name}')" title="Editar">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
@@ -1118,17 +1442,27 @@ function renderEmployers(){
             </button>
           </div>
         </div>
-        ${e.descricao?`<div class="emp-card-meta" style="margin-top:6px;color:var(--text2)">${e.descricao.substring(0,120)}${e.descricao.length>120?'...':''}</div>`:''}
-        ${e.vagas?`<div class="emp-card-vagas" style="margin-top:6px"><strong style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">VAGAS</strong><br>${e.vagas}</div>`:''}
-        ${e.contato||e.link?`<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-          ${e.contato?`<span style="font-size:11px;color:var(--text2)">📧 ${e.contato}</span>`:''}
-          ${e.link?`<a href="${e.link}" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none">🔗 Link</a>`:''}
+
+        <div class="emp-card-summary" style="background:${alpha(e.color,.07)};border:1px solid ${alpha(e.color,.18)};padding:10px 12px;border-radius:8px">${resumo ? `${resumo.substring(0,180)}${resumo.length>180?'...':''}` : '<span class="muted">Sem resumo do empregador.</span>'}</div>
+
+        <div class="emp-section" style="background:${alpha(e.color,.06)};border-color:${alpha(e.color,.18)}">
+          <div class="emp-section-label">Vagas abertas</div>
+          ${renderEmployerOpeningsList(e.openings||[])}
+        </div>
+
+        ${focus.length?`<div class="emp-section" style="background:${alpha(e.color,.05)};border-color:${alpha(e.color,.16)}">
+          <div class="emp-section-label">Áreas-foco</div>
+          <div class="emp-focus-list">${focus.map(f=>`<span class="emp-focus-chip">${f}</span>`).join('')}</div>
+        </div>`:''}
+
+        ${(e.contato||e.pasta||e.crm)?`<div class="emp-links">
+          <div class="emp-linkbox"><div class="lbl">Contato</div><div class="val">${e.contato||'—'}</div></div>
+          <div class="emp-linkbox"><div class="lbl">Pasta / CRM</div><div class="val">${e.pasta?`<a href="${e.pasta}" target="_blank">Pasta</a>`:''}${e.pasta&&e.crm?' · ':''}${e.crm?`<a href="${e.crm}" target="_blank">CRM</a>`:''}${!e.pasta&&!e.crm?'—':''}</div></div>
         </div>`:''}
       </div>
     </div>`;
   }).join('');
 }
-
 function goToDossie(name){S.currentDossieEmp=name;nav('dossie');}
 
 // ─── PLAN TABLE ───
@@ -1201,43 +1535,42 @@ function renderPlanTable(){
   const empF=document.getElementById('plan-emp-filter')?.value||'';
   const tbody=document.getElementById('plan-tbody');
   let emps=getEmpNames().filter(e=>(!search||e.toLowerCase().includes(search))&&(!empF||e===empF));
-  let rows=[];
-  emps.forEach((emp,ei)=>{
+  if(!emps.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>Nenhum empregador encontrado.</p></div></td></tr>`;return;}
+  const blocks = emps.map(emp=>{
     const empEntries=S.planEntries.filter(e=>e.month===month&&e.employer===emp);
-    // also show entries with custom activities
-    const allActs=[...new Set([...ACTIVITIES.slice(0,4),...empEntries.map(e=>e.activity)])];
-    allActs.forEach((act,ai)=>{
-      const entry=empEntries.find(e=>e.activity===act);
-      if(statusF&&(!entry||entry.status!==statusF))return;
-      rows.push({emp,act,entry,isFirst:ai===0,empIdx:ei});
-    });
-  });
-  if(!rows.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>Nenhuma atividade encontrada para ${MONTHS[S.currentMonthIdx].l}.</p><small>Clique em "Nova Atividade" para adicionar</small></div></td></tr>`;return;}
-  const color=name=>getEmpColor(name);
-  tbody.innerHTML=rows.map(({emp,act,entry,isFirst})=>`
-    <tr class="${isFirst?'employer-sep':''}">
-      <td style="width:4px;padding:0"><div style="width:4px;height:100%;min-height:36px;background:${color(emp)};border-radius:2px"></div></td>
-      <td style="font-weight:${isFirst?700:400};color:${isFirst?'var(--text)':'var(--text3)'}">
-        ${isFirst?`<span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${color(emp)};flex-shrink:0;display:inline-block"></span>${emp}</span>`:''}
-      </td>
-      <td style="font-size:12px">${act}</td>
-      <td style="font-size:11px">${entry?.responsavel||'<span style="color:var(--text3)">—</span>'}</td>
-      <td style="position:relative">
-        ${entry?`<button class="badge ${STATUS_COLORS[entry.status]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${entry.id}','plan',['A fazer','Em andamento','Concluído','Bloqueado','Cancelado'])">${entry.status||'—'}</button>`:'<span style="color:var(--text3)">—</span>'}
-      </td>
-      <td style="font-size:11px;max-width:220px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${entry?.obs||''}</span></td>
-      <td style="font-size:11px;color:var(--text2)">${entry?.inicio||''}</td>
-      <td style="font-size:11px;color:var(--text2)">${entry?.fim||''}</td>
-      <td>
-        <div class="row-actions">
-          ${entry
-            ?`<button class="icon-btn" onclick="openPlanModal('${entry.id}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
-            :`<button class="icon-btn" onclick="openPlanModal(null);document.getElementById('plan-employer').value='${emp}';document.getElementById('plan-activity').value='${act}';" title="Adicionar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
-        </div>
-      </td>
-    </tr>`).join('');
+    const fixedActs=['Pesquisa de perfis','Triagem / qualificação','Envio de currículos','Feedback / próximos passos'];
+    const allActs=[...new Set([...fixedActs,...empEntries.map(e=>e.activity)])];
+    const rows=allActs.map(act=>({act,entry:empEntries.find(e=>e.activity===act)})).filter(({entry})=>!statusF || (entry && entry.status===statusF));
+    if(!rows.length) return '';
+    const color=getEmpColor(emp);
+    const openCount=empEntries.filter(e=>['A fazer','Em andamento','Bloqueado'].includes(e.status)).length;
+    return `
+      <tr class="emp-group-head"><td colspan="9">
+        <div class="gtitle"><span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;box-shadow:0 0 0 4px ${alpha(color,.14)}"></span>${emp}</div>
+        <div class="gmeta">${rows.length} linha(s) visíveis · ${openCount} pendência(s) aberta(s)</div>
+      </td></tr>
+      ${rows.map(({act,entry},idx)=>`
+        <tr class="plan-activity-row" data-plan-id="${entry?.id||''}" style="${idx===0?`box-shadow:inset 0 2px 0 ${alpha(color,.22)}`:''}">
+          <td style="width:6px;padding:0;background:${alpha(color,.14)}"><div style="width:6px;height:100%;min-height:38px;background:${color}"></div></td>
+          <td class="plan-emp-cell" style="font-size:11px;color:var(--text2);background:${alpha(color,.06)}">${act===rows[0].act?'<strong>'+emp+'</strong>':''}</td>
+          <td style="font-size:12px;font-weight:700">${act}</td>
+          <td style="font-size:11px">${entry?.responsavel||'<span style="color:var(--text3)">—</span>'}</td>
+          <td style="position:relative">${entry?`<button class="badge ${STATUS_COLORS[entry.status]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${entry.id}','plan',['A fazer','Em andamento','Concluído','Bloqueado','Cancelado'])">${entry.status||'—'}</button>`:'<span style="color:var(--text3)">—</span>'}</td>
+          <td style="font-size:11px;max-width:260px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${entry?.obs||''}">${entry?.obs||''}</span></td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${entry?.inicio||''}</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${entry?.fim||''}</td>
+          <td>
+            <div class="row-actions">
+              ${entry
+                ?`<button class="icon-btn" onclick="openPlanModal('${entry.id}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
+                :`<button class="icon-btn" onclick="openPlanModal(null);document.getElementById('plan-employer').value='${emp}';document.getElementById('plan-activity').value='${act}';" title="Adicionar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
+            </div>
+          </td>
+        </tr>`).join('')}`;
+  }).join('');
+  if(!blocks.trim()){tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>Nenhuma atividade encontrada para ${MONTHS[S.currentMonthIdx].l}.</p><small>Clique em "Nova Atividade" para adicionar</small></div></td></tr>`;return;}
+  tbody.innerHTML=blocks;
 }
-
 // ─── CALENDAR ───
 function renderCalLegend(){
   const el=document.getElementById('cal-legend');
@@ -1253,39 +1586,39 @@ function renderCalendar(){
   const monthKey=MONTHS[S.currentMonthIdx].k;
   const [year,month]=monthKey.split('-').map(Number);
   const today=new Date();
-  
-  // Build header
+
   const dayNames=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
   headerEl.style.gridTemplateColumns='repeat(7,1fr)';
   headerEl.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);background:#F8FAFC;border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;overflow:hidden';
   headerEl.innerHTML=dayNames.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
-  
-  // First day of month (0=Sun, adjusted to Mon=0)
+
   const firstDay=new Date(year,month-1,1);
-  const startDow=(firstDay.getDay()+6)%7; // Monday=0
+  const startDow=(firstDay.getDay()+6)%7;
   const daysInMonth=new Date(year,month,0).getDate();
   const prevDays=new Date(year,month-1,0).getDate();
-  
-  // Get entries for display
+
   const entries=S.planEntries.filter(e=>e.month===monthKey&&(!empF||e.employer===empF));
   const meetings=S.meetings.filter(m=>m.mes===monthKey&&(!empF||m.employer===empF));
-  
-  // Group by date
+
   const byDate={};
+  const pushByDate=(dateStr,item)=>{ if(!byDate[dateStr]) byDate[dateStr]=[]; byDate[dateStr].push(item); };
+
   entries.forEach(e=>{
-    if(e.inicio){
-      if(!byDate[e.inicio])byDate[e.inicio]=[];
-      byDate[e.inicio].push({type:'plan',data:e});
+    if(!e.inicio && !e.fim) return;
+    const startDate=e.inicio||e.fim;
+    const endDate=e.fim||e.inicio;
+    let cur=startDate;
+    while(cur && cur<=endDate){
+      if(cur.startsWith(monthKey)) pushByDate(cur,{type:'plan',data:e});
+      const d=new Date(cur+'T00:00:00');
+      d.setDate(d.getDate()+1);
+      cur=d.toISOString().split('T')[0];
     }
   });
   meetings.forEach(m=>{
-    if(m.data){
-      if(!byDate[m.data])byDate[m.data]=[];
-      byDate[m.data].push({type:'meet',data:m});
-    }
+    if(m.data) pushByDate(m.data,{type:'meet',data:m});
   });
-  
-  // Build grid cells
+
   const totalCells=Math.ceil((startDow+daysInMonth)/7)*7;
   let cells='';
   for(let i=0;i<totalCells;i++){
@@ -1293,32 +1626,83 @@ function renderCalendar(){
     if(i<startDow){dayNum=prevDays-startDow+i+1;const d=new Date(year,month-2,dayNum);dateStr=d.toISOString().split('T')[0];isOther=true;}
     else if(i>=startDow+daysInMonth){dayNum=i-startDow-daysInMonth+1;const d=new Date(year,month,dayNum);dateStr=d.toISOString().split('T')[0];isOther=true;}
     else{dayNum=i-startDow+1;dateStr=`${year}-${String(month).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;}
-    
+
     const isToday=!isOther&&today.getFullYear()===year&&today.getMonth()===month-1&&today.getDate()===dayNum;
-    const evts=byDate[dateStr]||[];
+    const evts=(byDate[dateStr]||[]).sort((a,b)=>{
+      const ao=a.type==='meet'?0:1;
+      const bo=b.type==='meet'?0:1;
+      return ao-bo;
+    });
     const MAX=3;
     const shown=evts.slice(0,MAX);
     const extra=evts.length-MAX;
-    
+
     cells+=`<div class="cal-cell${isOther?' other-month':''}${isToday?' today':''}" onclick="calDayClick('${dateStr}')">
       <div class="cal-date">${dayNum}</div>
       ${shown.map(ev=>{
-        const color=ev.type==='meet'?'#0F172A':getEmpColor(ev.data.employer);
-        const label=ev.type==='meet'?`👥 ${ev.data.employer}`:ev.data.activity;
-        return `<div class="cal-event" style="background:${color}" onclick="event.stopPropagation();${ev.type==='plan'?`openPlanModal('${ev.data.id}')`:`openMeetModal('${ev.data.id}')`}" title="${ev.type==='plan'?ev.data.obs:ev.data.tema}">${label}</div>`;
+        if(ev.type==='meet'){
+          const label=ev.data.tema||`Reunião · ${ev.data.employer}`;
+          return `<div class="cal-event cal-meet" onclick="event.stopPropagation();openMeetModal('${ev.data.id}')" title="${ev.data.decidido||ev.data.tema||''}">
+            <span class="cal-event-title">${label}</span>
+            <div class="cal-event-meta">
+              <span class="cal-mini-badge">${ev.data.employer||'Reunião'}</span>
+              <span class="cal-mini-badge">${ev.data.status||'A fazer'}</span>
+            </div>
+          </div>`;
+        }
+        const cls=statusClass(ev.data.status);
+        return `<div class="cal-event ${cls}" onclick="event.stopPropagation();openPlanModal('${ev.data.id}')" title="${ev.data.obs||''}">
+          <span class="cal-event-title">${ev.data.activity}</span>
+          <div class="cal-event-meta">
+            <span class="cal-mini-badge">${ev.data.employer}</span>
+            <span class="cal-mini-badge">${ev.data.status||'—'}</span>
+          </div>
+        </div>`;
       }).join('')}
-      ${extra>0?`<div class="cal-more">+${extra} mais</div>`:''}
+      ${extra>0?`<div class="cal-more" onclick="event.stopPropagation();openDayModal('${dateStr}')">+${extra} mais</div>`:''}
       <button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${dateStr}')" title="Adicionar atividade">+</button>
     </div>`;
   }
-  
+
   gridEl.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;background:var(--surface)';
   gridEl.innerHTML=cells;
 }
-
-function calDayClick(dateStr){
-  openPlanModal(null,dateStr);
+function openDayModal(dateStr){
+  const plans=S.planEntries
+    .filter(e=>occursOnDate(e,dateStr))
+    .map(e=>({
+      type:'Atividade',
+      title:`${e.employer} · ${e.activity}`,
+      meta:e.status||'—',
+      owner:e.responsavel||'Sem responsável',
+      body:[e.obs&&`Observação: ${e.obs}`, e.inicio&&`Início: ${e.inicio}`, e.fim&&`Fim: ${e.fim}`].filter(Boolean).join('\n'),
+      open:`goToPlanEntry('${e.id}')`
+    }));
+  const meetings=S.meetings
+    .filter(m=>m.data===dateStr)
+    .map(m=>({
+      type:'Reunião interna',
+      title:`${m.employer} · ${m.tema||'Sem tema'}`,
+      meta:m.status||'—',
+      owner:m.responsavel||'Sem responsável',
+      body:[m.decidido&&`Decidido: ${m.decidido}`, m.pendencias&&`Pendências: ${m.pendencias}`, m.proxacao&&`Próxima ação: ${m.proxacao}`].filter(Boolean).join('\n'),
+      open:`goToMeeting('${m.id}')`
+    }));
+  const items=[...meetings,...plans];
+  document.getElementById('modal-day').dataset.date=dateStr;
+  document.getElementById('modal-day-title').textContent=`Itens do dia ${dateStr}`;
+  document.getElementById('modal-day-body').innerHTML=items.length
+    ? `<div class="day-list">${items.map(it=>`<div class="day-item">
+        <h4>${it.title}</h4>
+        <div class="meta"><span class="badge ${STATUS_COLORS[it.meta]||'b-gray'}">${it.type}</span><span class="badge ${STATUS_COLORS[it.meta]||'b-gray'}">${it.meta}</span><span>${it.owner}</span></div>
+        <div class="body">${(it.body||'Sem detalhe.').replace(/\n/g,'<br>')}</div>
+        <div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="${it.open};closeModal('modal-day')">Abrir</button></div>
+      </div>`).join('')}</div>`
+    : `<div class="empty"><p>Nenhum item lançado neste dia.</p><small>Use “Nova atividade neste dia” para registrar algo.</small></div>`;
+  openModal('modal-day');
 }
+function calDayClick(dateStr){ openDayModal(dateStr); }
+
 
 // ─── MEETINGS ───
 function openMeetModal(id){
@@ -1386,40 +1770,64 @@ function deleteMeetFromModal(){
 }
 
 function renderMeetings(){
+  ensureUiState();
   const search=(document.getElementById('meet-search')?.value||'').toLowerCase();
   const empF=document.getElementById('meet-emp-filter')?.value||'';
   const monF=document.getElementById('meet-month-filter')?.value||'';
   const tbody=document.getElementById('meet-tbody');
   let list=S.meetings.filter(m=>
-    (!search||[m.employer,m.tema,m.decidido,m.responsavel].join(' ').toLowerCase().includes(search))&&
+    (!search||[m.employer,m.tema,m.decidido,m.responsavel,m.pendencias,m.proxacao].join(' ').toLowerCase().includes(search))&&
     (!empF||m.employer===empF)&&
     (!monF||m.mes===monF)
   ).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
   if(!list.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty"><p>Nenhuma reunião encontrada.</p><small>Clique em "Nova Reunião" para registrar</small></div></td></tr>`;return;}
-  const dot=name=>`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${getEmpColor(name)};margin-right:5px;vertical-align:middle"></span>`;
-  tbody.innerHTML=list.map(m=>`<tr>
-    <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${m.data||'—'}</td>
-    <td style="font-size:11px;color:var(--text2)">${m.semana||'—'}</td>
-    <td style="font-size:12px;font-weight:600">${dot(m.employer)}${m.employer||'—'}</td>
-    <td style="font-size:11px;max-width:150px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.tema||''}">${m.tema||'—'}</span></td>
-    <td style="font-size:11px;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.decidido||''}">${m.decidido||'—'}</span></td>
-    <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.pendencias||''}">${m.pendencias||'—'}</span></td>
-    <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.proxacao||'—'}</span></td>
-    <td style="font-size:11px">${m.responsavel||'—'}</td>
-    <td style="position:relative"><button class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${m.id}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${m.status||'—'}</button></td>
-    <td>
-      <div class="row-actions">
-        <button class="icon-btn" onclick="openMeetModal('${m.id}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+  const dot=name=>`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${getEmpColor(name)};margin-right:6px;vertical-align:middle"></span>`;
+  tbody.innerHTML=list.map(m=>{
+    const expanded=!!S.ui.meetingExpanded[m.id];
+    return `<tr class="expand-row ${expanded?'expanded':''}" data-meet-id="${m.id}" onclick="toggleMeeting('${m.id}')">
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${m.data||'—'}</td>
+      <td style="font-size:11px;color:var(--text2)">${m.semana||'—'}</td>
+      <td style="font-size:12px;font-weight:700">${dot(m.employer)}${m.employer||'—'}</td>
+      <td style="font-size:11px;max-width:150px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.tema||''}">${m.tema||'—'}</span></td>
+      <td style="font-size:11px;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.decidido||''}">${m.decidido||'—'}</span></td>
+      <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.pendencias||''}">${m.pendencias||'—'}</span></td>
+      <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.proxacao||'—'}</span></td>
+      <td style="font-size:11px">${m.responsavel||'—'}</td>
+      <td style="position:relative" onclick="event.stopPropagation()"><button class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${m.id}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${m.status||'—'}</button></td>
+      <td>
+        <div class="row-actions">
+          <button class="icon-btn" onclick="event.stopPropagation();openMeetModal('${m.id}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        </div>
+      </td>
+    </tr>
+    ${expanded?`<tr class="meet-expanded"><td colspan="10">
+      <div class="meet-expand-box">
+        <div class="meet-expand-grid">
+          <div class="meet-expand-card">
+            <div class="ttl">Tema e decisão</div>
+            <div class="txt"><strong>${m.tema||'Sem tema'}</strong>\n${m.decidido||'Sem decisão registrada.'}</div>
+          </div>
+          <div class="meet-expand-card">
+            <div class="ttl">Pendências</div>
+            <div class="txt">${m.pendencias||'Nenhuma pendência registrada.'}</div>
+          </div>
+          <div class="meet-expand-card">
+            <div class="ttl">Próxima ação</div>
+            <div class="txt">${m.proxacao||'Nenhuma próxima ação registrada.'}</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMeetModal('${m.id}')">Editar reunião</button>
+        </div>
       </div>
-    </td>
-  </tr>`).join('');
+    </td></tr>`:''}`;
+  }).join('');
 }
-
 // ─── RESUMO ───
 function renderResumo(){
+  ensureWeeklySummaries();
   const monF=document.getElementById('resumo-month-filter')?.value||'';
   let entries=S.planEntries.filter(e=>!monF||e.month===monF);
-  // Stats
   const total=entries.length;
   const done=entries.filter(e=>e.status==='Concluído').length;
   const pct=total?Math.round(done/total*100):0;
@@ -1431,18 +1839,16 @@ function renderResumo(){
     <div class="stat"><div class="stat-l">A Fazer</div><div class="stat-v" style="color:var(--amber)">${afazer}</div><div class="stat-s">em aberto</div></div>
     <div class="stat"><div class="stat-l">Candidatos</div><div class="stat-v" style="color:var(--blue)">${cands}</div><div class="stat-s">em todos os pipelines</div></div>
   `;
-  // Priorities
   const open=entries.filter(e=>e.status==='A fazer'||e.status==='Bloqueado').slice(0,8);
   document.getElementById('resumo-priorities').innerHTML=open.length?open.map(e=>`
-    <div class="pri-item">
+    <div class="pri-item linkish" onclick="goToPlanEntry('${e.id}')">
       <span style="width:8px;height:8px;border-radius:50%;background:${getEmpColor(e.employer)};flex-shrink:0;margin-top:3px"></span>
       <div class="pri-content">
         <div class="pri-title">${e.employer} — ${e.activity}</div>
-        <div class="pri-meta">${e.obs||''} ${e.responsavel?'· '+e.responsavel:''}</div>
+        <div class="pri-meta">${e.obs||''} ${e.responsavel?`· ${e.responsavel}`:''}</div>
       </div>
       ${badge(e.status)}
     </div>`).join(''):'<p style="color:var(--text3);font-size:12px">Nenhuma prioridade em aberto 🎉</p>';
-  // By employer
   document.getElementById('resumo-by-employer').innerHTML=S.employers.map(emp=>{
     const e2=entries.filter(e=>e.employer===emp.name);
     const done2=e2.filter(e=>e.status==='Concluído').length;
@@ -1461,7 +1867,25 @@ function renderResumo(){
       </div>
     </div>`;
   }).join('');
-  // History
+
+  const displayRows = monF ? computeWeeklyRows(monF) : MONTHS.flatMap(m=>computeWeeklyRows(m.k));
+  document.getElementById('weekly-tbody').innerHTML=displayRows.length?displayRows.map(w=>`<tr class="${w.source==='manual'?'manual-row':'auto-row'}">
+    <td>${MONTHS.find(m=>m.k===w.month)?.l||w.month||'—'}</td>
+    <td>${w.week||'—'}<div style="margin-top:4px">${w.source==='manual'?'<span class="summary-source manual">Manual</span>':'<span class="summary-source">Auto</span>'}</div></td>
+    <td>${w.period||'—'}</td>
+    <td>${w.employer||'—'}</td>
+    <td style="font-size:11px;max-width:180px;white-space:pre-wrap">${w.done||'—'}</td>
+    <td style="font-size:11px;max-width:180px;white-space:pre-wrap">${w.result||'—'}</td>
+    <td style="font-size:11px;max-width:180px;white-space:pre-wrap">${w.next||'—'}</td>
+    <td>${w.owner||'—'}</td>
+    <td>${badge(w.status||'—')}</td>
+    <td style="font-size:11px;max-width:180px;white-space:pre-wrap">${w.notes||'—'}</td>
+    <td><div class="row-actions">${w.source==='manual'
+      ? `<button class="icon-btn" onclick="openWeeklyModal('${w.id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
+      : `<button class="icon-btn" onclick='openWeeklyModal(null,${JSON.stringify({month:w.month,week:w.week,period:w.period,employer:w.employer,done:w.done,result:w.result,next:w.next,owner:w.owner,status:w.status,notes:w.notes}).replace(/'/g,"&#39;")})'><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
+    </div></td>
+  </tr>`).join(''):`<tr><td colspan="11"><div class="empty"><p>Nenhuma linha semanal disponível.</p><small>O quadro semanal mostra automaticamente o que foi registrado em planejamento e reuniões, além das linhas manuais.</small></div></td></tr>`;
+
   document.getElementById('resumo-history').innerHTML=entries.length?entries.map(e=>`<tr>
     <td style="font-size:11px;color:var(--text2)">${MONTHS.find(m=>m.k===e.month)?.l||e.month}</td>
     <td style="font-size:12px;font-weight:600"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${getEmpColor(e.employer)};margin-right:5px;vertical-align:middle"></span>${e.employer}</td>
@@ -1471,10 +1895,14 @@ function renderResumo(){
     <td style="font-size:11px;max-width:200px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.obs||'—'}</span></td>
     <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${e.inicio||'—'}</td>
     <td><div class="row-actions"><button class="icon-btn" onclick="openPlanModal('${e.id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></td>
-  </tr>`).join(''):`<tr><td colspan="8"><div class="empty"><p>Nenhum dado encontrado</p></div></td></tr>`;
+  </tr>`).join(''):`<tr><td colspan="8"><div class="empty"><p>Nenhuma atividade registrada.</p></div></td></tr>`;
 }
-
-// ─── DOSSIE / EMPLOYER TABS ───
+function renderDossieActions(){
+  const el=document.getElementById('dossie-actions');
+  if(!el) return;
+  const e=getEmpObj(S.currentDossieEmp);
+  el.innerHTML=`<button class="btn btn-primary" onclick="openCandModal()">Novo candidato</button><button class="btn btn-ghost" onclick="openReplaceModal()">Nova reposição</button>${e.crm?`<a class="btn btn-ghost" href="${e.crm}" target="_blank">Abrir CRM</a>`:''}`;
+}
 function renderEmpTabs(){
   const el=document.getElementById('emp-tabs');
   if(!el)return;
@@ -1505,6 +1933,7 @@ function switchDossieTab(tab){
 }
 
 function renderDossie(){
+  renderDossieActions();
   renderInfo();
   if(S.currentDossieTab==='pipeline')renderPipeline();
   if(S.currentDossieTab==='removidos')renderRemovidos();
@@ -1517,24 +1946,78 @@ function renderInfo(){
   const d=S.dossiers[emp]||{candidatos:[],removidos:[],reposicao:[]};
   const cands=d.candidatos||[];
   const gostou=cands.filter(c=>c.etapa==='Gostou').length;
+  const naoGostou=cands.filter(c=>c.etapa==='Não gostou').length;
   const reuniao=cands.filter(c=>c.etapa==='Reunião marcada').length;
+  const aguardando=cands.filter(c=>c.etapa==='Aguardando resposta').length;
+  const emProcesso=cands.filter(c=>c.etapa==='Em processo').length;
+  const contratados=cands.filter(c=>c.etapa==='Contratado').length;
+  const removidos=(d.removidos||[]).length;
+  const reposicao=(d.reposicao||[]).length;
+  const abertas=(e.openings||[]).filter(o=>o.status!=='Fechada').length;
+  const nextMeeting=S.meetings.filter(m=>m.employer===emp && m.data).sort((a,b)=>String(a.data).localeCompare(String(b.data)))[0];
+  const nextActions=S.planEntries.filter(p=>p.employer===emp && ['A fazer','Em andamento','Bloqueado'].includes(p.status||'')).slice(0,4);
+  const resumoText = `${cands.length} candidato(s) no pipeline, ${aguardando} aguardando resposta, ${gostou} com feedback positivo, ${naoGostou} recusados e ${reposicao} demanda(s) de reposição abertas.`;
+  const focus=splitFocusAreas(e.focusAreas||'');
+
   document.getElementById('info-content').innerHTML=`
-    <div class="ifield"><div class="ifield-label">Descrição</div><div class="ifield-value">${e.descricao||'<em style="color:var(--text3)">Sem descrição. Clique em "Editar" para adicionar.</em>'}</div></div>
-    <div class="ifield"><div class="ifield-label">Vagas abertas</div><div class="ifield-value">${e.vagas||'<em style="color:var(--text3)">Não informado</em>'}</div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="ifield"><div class="ifield-label">Contato</div><div class="ifield-value">${e.contato||'—'}</div></div>
-      <div class="ifield"><div class="ifield-label">Saúde</div><div class="ifield-value">${badge(e.saude||'Estável')}</div></div>
+    <div class="ifield">
+      <div class="ifield-label">Descrição</div>
+      <div class="ifield-value">${e.descricao||'<em style="color:var(--text3)">Sem descrição. Clique em “Editar” para adicionar.</em>'}</div>
     </div>
-    ${e.link?`<div class="ifield"><div class="ifield-label">Link</div><div class="ifield-value"><a href="${e.link}" target="_blank" style="color:var(--blue);text-decoration:none">${e.link}</a></div></div>`:''}
+
+    <div class="info-summary-box" style="margin-bottom:10px">
+      <div class="info-summary-title">Resumo operacional</div>
+      <div class="info-summary-text">${resumoText}</div>
+    </div>
+
+    <div class="ifield-grid-2">
+      <div class="ifield">
+        <div class="ifield-label">Áreas-foco</div>
+        <div class="ifield-value">${focus.length?`<div class="emp-focus-list">${focus.map(f=>`<span class="emp-focus-chip">${f}</span>`).join('')}</div>`:'<em style="color:var(--text3)">Não informado</em>'}</div>
+      </div>
+      <div class="ifield">
+        <div class="ifield-label">Saúde do processo</div>
+        <div class="ifield-value">${badge(e.saude||'Estável')}</div>
+      </div>
+    </div>
+
+    <div class="ifield">
+      <div class="ifield-label">Vagas abertas</div>
+      <div class="ifield-value">${renderInfoOpeningsList(e.openings||[])}</div>
+    </div>
+
+    <div class="info-meta-grid">
+      <div class="ifield"><div class="ifield-label">Contato</div><div class="ifield-value">${e.contato||'—'}</div></div>
+      <div class="ifield"><div class="ifield-label">Pasta / Drive</div><div class="ifield-value">${e.pasta?`<a href="${e.pasta}" target="_blank">Abrir pasta</a>`:'—'}</div></div>
+      <div class="ifield"><div class="ifield-label">CRM / Link</div><div class="ifield-value">${e.crm?`<a href="${e.crm}" target="_blank">Abrir link</a>`:'—'}</div></div>
+    </div>
+
+    <div class="ifield-grid-2" style="margin-top:10px">
+      <div class="ifield linkish" ${nextMeeting?`onclick="goToMeeting('${nextMeeting.id}')"`:''}>
+        <div class="ifield-label">Próxima reunião</div>
+        <div class="ifield-value">${nextMeeting?`<strong>${nextMeeting.data}</strong><br>${nextMeeting.tema||'Sem tema'}${nextMeeting.proxacao?`<br><span style="color:var(--text2)">${nextMeeting.proxacao}</span>`:''}`:'Nenhuma reunião agendada'}</div>
+      </div>
+      <div class="ifield">
+        <div class="ifield-label">Próximas ações abertas</div>
+        <div class="ifield-value">${nextActions.length?`<div class="compact-list">${nextActions.map(a=>`<div class="compact-item clickable" onclick="goToPlanEntry('${a.id}')"><div class="compact-item-title">${a.activity}</div><div class="compact-item-sub">${a.obs||'Sem observação'}${a.responsavel?` · ${a.responsavel}`:''}</div></div>`).join('')}</div>`:'<em style="color:var(--text3)">Nenhuma pendência aberta no planejamento mensal.</em>'}</div>
+      </div>
+    </div>
   `;
   document.getElementById('info-stats').innerHTML=`
-    <div class="stat"><div class="stat-l">Candidatos</div><div class="stat-v">${cands.length}</div><div class="stat-s">no pipeline</div></div>
-    <div class="stat"><div class="stat-l">Gostou</div><div class="stat-v" style="color:var(--green)">${gostou}</div><div class="stat-s">feedback positivo</div></div>
-    <div class="stat"><div class="stat-l">Reuniões</div><div class="stat-v" style="color:var(--blue)">${reuniao}</div><div class="stat-s">agendadas</div></div>
-    <div class="stat"><div class="stat-l">Removidos</div><div class="stat-v" style="color:var(--gray)">${(d.removidos||[]).length}</div><div class="stat-s">candidatos</div></div>
+    <div class="small-card-grid">
+      <div class="small-stat clickable accent-blue" onclick="goToPipelineFilter('')"><div class="lbl">Candidatos</div><div class="val">${cands.length}</div><div class="sub">no pipeline</div></div>
+      <div class="small-stat clickable accent-amber" onclick="goToPipelineFilter('Aguardando resposta')"><div class="lbl">Aguardando resposta</div><div class="val" style="color:var(--amber)">${aguardando}</div><div class="sub">retorno do employer</div></div>
+      <div class="small-stat clickable accent-green" onclick="goToPipelineFilter('Gostou')"><div class="lbl">Gostou</div><div class="val" style="color:var(--green)">${gostou}</div><div class="sub">feedback positivo</div></div>
+      <div class="small-stat clickable accent-red" onclick="goToPipelineFilter('Não gostou')"><div class="lbl">Não gostou</div><div class="val" style="color:var(--red)">${naoGostou}</div><div class="sub">feedback negativo</div></div>
+      <div class="small-stat clickable accent-blue" onclick="${nextMeeting?`goToMeeting('${nextMeeting.id}')`:`nav('reunioes')`}"><div class="lbl">Reuniões</div><div class="val" style="color:var(--blue)">${reuniao}</div><div class="sub">agendadas</div></div>
+      <div class="small-stat clickable accent-blue" onclick="goToPipelineFilter('Em processo')"><div class="lbl">Em processo</div><div class="val" style="color:var(--blue)">${emProcesso}</div><div class="sub">follow-up ativo</div></div>
+      <div class="small-stat clickable" onclick="openEmpModal(S.currentDossieEmp)"><div class="lbl">Vagas abertas</div><div class="val">${abertas}</div><div class="sub">estruturadas</div></div>
+      <div class="small-stat clickable accent-amber" onclick="goToReposicao()"><div class="lbl">Reposição</div><div class="val" style="color:var(--amber)">${reposicao}</div><div class="sub">demanda aberta</div></div>
+      <div class="small-stat clickable accent-green" onclick="goToPipelineFilter('Contratado')"><div class="lbl">Contratados</div><div class="val" style="color:var(--green)">${contratados}</div><div class="sub">no employer</div></div>
+      <div class="small-stat clickable" onclick="goToRemovidos()"><div class="lbl">Removidos</div><div class="val" style="color:var(--gray)">${removidos}</div><div class="sub">candidatos</div></div>
+    </div>
   `;
 }
-
 // ─── PIPELINE ───
 function openCandModal(id){
   const isEdit=!!id;
@@ -1710,47 +2193,70 @@ function restoreCandidate(id){
 // ─── REPOSIÇÃO ───
 function openReplaceModal(id){
   document.getElementById('rep-id').value='';
+  document.getElementById('rep-data').value='';
+  document.getElementById('rep-gatilho').value='';
   document.getElementById('rep-perfil').value='';
   document.getElementById('rep-substitui').value='';
+  document.getElementById('rep-qtd').value='1';
   document.getElementById('rep-prio').value='Alta';
   document.getElementById('rep-status').value='Aguardando';
+  document.getElementById('rep-envio').value='';
   document.getElementById('rep-obs').value='';
   if(id){
     const emp=S.currentDossieEmp;
     const r=(S.dossiers[emp]?.reposicao||[]).find(x=>x.id===id);
     if(r){
       document.getElementById('rep-id').value=r.id;
+      document.getElementById('rep-data').value=r.dataSolicitacao||r.data||'';
+      document.getElementById('rep-gatilho').value=r.gatilho||'';
       document.getElementById('rep-perfil').value=r.perfil||'';
       document.getElementById('rep-substitui').value=r.substitui||'';
+      document.getElementById('rep-qtd').value=r.qtd||'1';
       document.getElementById('rep-prio').value=r.prioridade||'Alta';
       document.getElementById('rep-status').value=r.status||'Aguardando';
+      document.getElementById('rep-envio').value=r.dataNovoEnvio||'';
       document.getElementById('rep-obs').value=r.obs||'';
     }
+  }else{
+    document.getElementById('rep-data').value=new Date().toISOString().split('T')[0];
   }
   openModal('modal-replace');
 }
-
 function saveReplace(){
   const emp=S.currentDossieEmp;
   if(!S.dossiers[emp].reposicao)S.dossiers[emp].reposicao=[];
   const id=document.getElementById('rep-id').value;
-  const r={id:id||uid(),data:new Date().toISOString().split('T')[0],perfil:document.getElementById('rep-perfil').value,substitui:document.getElementById('rep-substitui').value,prioridade:document.getElementById('rep-prio').value,status:document.getElementById('rep-status').value,obs:document.getElementById('rep-obs').value};
+  const r={
+    id:id||uid(),
+    data:document.getElementById('rep-data').value||new Date().toISOString().split('T')[0],
+    dataSolicitacao:document.getElementById('rep-data').value||new Date().toISOString().split('T')[0],
+    gatilho:document.getElementById('rep-gatilho').value,
+    perfil:document.getElementById('rep-perfil').value,
+    substitui:document.getElementById('rep-substitui').value,
+    qtd:document.getElementById('rep-qtd').value,
+    prioridade:document.getElementById('rep-prio').value,
+    status:document.getElementById('rep-status').value,
+    dataNovoEnvio:document.getElementById('rep-envio').value,
+    obs:document.getElementById('rep-obs').value
+  };
   if(id){const i=S.dossiers[emp].reposicao.findIndex(x=>x.id===id);if(i>=0)S.dossiers[emp].reposicao[i]=r;}
   else S.dossiers[emp].reposicao.push(r);
   save();closeModal('modal-replace');renderReposicao();toast('Solicitação salva ✓');
 }
-
 function renderReposicao(){
   const emp=S.currentDossieEmp;
   const list=S.dossiers[emp]?.reposicao||[];
   const tbody=document.getElementById('replace-tbody');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty"><p>Nenhuma solicitação de reposição.</p></div></td></tr>`;return;}
-  tbody.innerHTML=list.map(r=>`<tr>
-    <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${r.data||'—'}</td>
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty"><p>Nenhuma solicitação de reposição.</p></div></td></tr>`;return;}
+  tbody.innerHTML=list.map(r=>`<tr id="rep-row-${r.id}">
+    <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${r.dataSolicitacao||r.data||'—'}</td>
+    <td style="font-size:11px;color:var(--text2)">${r.gatilho||'—'}</td>
     <td style="font-weight:600">${r.perfil||'—'}</td>
     <td style="font-size:11px;color:var(--text2)">${r.substitui||'—'}</td>
+    <td style="font-size:11px;text-align:center">${r.qtd||'—'}</td>
     <td>${badge(r.prioridade||'—')}</td>
     <td>${badge(r.status||'—')}</td>
+    <td style="font-size:11px;color:var(--text2)">${r.dataNovoEnvio||'—'}</td>
     <td style="font-size:11px;color:var(--text2)">${r.obs||'—'}</td>
     <td>
       <div class="row-actions">
@@ -1760,13 +2266,88 @@ function renderReposicao(){
     </td>
   </tr>`).join('');
 }
-
 function deleteReplace(id){
   const emp=S.currentDossieEmp;
   confirm('Excluir esta solicitação?',()=>{
     S.dossiers[emp].reposicao=(S.dossiers[emp].reposicao||[]).filter(x=>x.id!==id);
     save();renderReposicao();toast('Solicitação removida');
   });
+}
+
+
+// ─── RESUMO SEMANAL MANUAL ───
+function openWeeklyModal(id,preset){
+  ensureWeeklySummaries();
+  populateAllSelects();
+  document.getElementById('weekly-month').innerHTML=MONTHS.map(m=>`<option value="${m.k}">${m.l}</option>`).join('');
+  document.getElementById('weekly-employer').innerHTML=getEmpNames().map(n=>`<option>${n}</option>`).join('');
+  document.getElementById('weekly-id').value='';
+  document.getElementById('weekly-week').value='';
+  document.getElementById('weekly-period').value='';
+  document.getElementById('weekly-done').value='';
+  document.getElementById('weekly-result').value='';
+  document.getElementById('weekly-next').value='';
+  document.getElementById('weekly-owner').value='';
+  document.getElementById('weekly-status').value='A fazer';
+  document.getElementById('weekly-notes').value='';
+  document.getElementById('weekly-month').value=MONTHS[S.currentMonthIdx].k;
+  document.getElementById('weekly-delete-btn').style.display=id?'':'none';
+  document.getElementById('modal-weekly-title').textContent=id?'Editar linha semanal':'Nova linha semanal';
+  if(preset && !id){
+    document.getElementById('weekly-month').value=preset.month||MONTHS[S.currentMonthIdx].k;
+    document.getElementById('weekly-week').value=preset.week||'';
+    document.getElementById('weekly-period').value=preset.period||'';
+    document.getElementById('weekly-employer').value=preset.employer||getEmpNames()[0]||'';
+    document.getElementById('weekly-done').value=preset.done||'';
+    document.getElementById('weekly-result').value=preset.result||'';
+    document.getElementById('weekly-next').value=preset.next||'';
+    document.getElementById('weekly-owner').value=preset.owner||'';
+    document.getElementById('weekly-status').value=preset.status||'A fazer';
+    document.getElementById('weekly-notes').value=preset.notes||'';
+  }
+  if(id){
+    const w=S.weeklySummaries.find(x=>x.id===id);
+    if(w){
+      document.getElementById('weekly-id').value=w.id;
+      document.getElementById('weekly-month').value=w.month||MONTHS[S.currentMonthIdx].k;
+      document.getElementById('weekly-week').value=w.week||'';
+      document.getElementById('weekly-period').value=w.period||'';
+      document.getElementById('weekly-employer').value=w.employer||getEmpNames()[0]||'';
+      document.getElementById('weekly-done').value=w.done||'';
+      document.getElementById('weekly-result').value=w.result||'';
+      document.getElementById('weekly-next').value=w.next||'';
+      document.getElementById('weekly-owner').value=w.owner||'';
+      document.getElementById('weekly-status').value=w.status||'A fazer';
+      document.getElementById('weekly-notes').value=w.notes||'';
+      document.getElementById('modal-weekly-title').textContent='Editar linha semanal';
+    }
+  }
+  openModal('modal-weekly');
+}
+function saveWeekly(){
+  ensureWeeklySummaries();
+  const id=document.getElementById('weekly-id').value;
+  const row={
+    id:id||uid(),
+    month:document.getElementById('weekly-month').value,
+    week:document.getElementById('weekly-week').value,
+    period:document.getElementById('weekly-period').value,
+    employer:document.getElementById('weekly-employer').value,
+    done:document.getElementById('weekly-done').value,
+    result:document.getElementById('weekly-result').value,
+    next:document.getElementById('weekly-next').value,
+    owner:document.getElementById('weekly-owner').value,
+    status:document.getElementById('weekly-status').value,
+    notes:document.getElementById('weekly-notes').value,
+  };
+  if(id){ const i=S.weeklySummaries.findIndex(x=>x.id===id); if(i>=0) S.weeklySummaries[i]=row; }
+  else S.weeklySummaries.push(row);
+  save(); closeModal('modal-weekly'); renderResumo(); toast(id?'Linha semanal atualizada ✓':'Linha semanal criada ✓');
+}
+function deleteWeeklyFromModal(){
+  const id=document.getElementById('weekly-id').value;
+  if(!id) return;
+  confirm('Excluir esta linha semanal?',()=>{ S.weeklySummaries=S.weeklySummaries.filter(x=>x.id!==id); save(); closeModal('modal-weekly'); renderResumo(); toast('Linha semanal removida'); });
 }
 
 // ─── STATUS PICKER ───
@@ -1795,6 +2376,7 @@ function showStatusPicker(el,id,type,options){
 
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('backup-import')?.addEventListener('change',e=>{const f=e.target.files?.[0]; if(f) importBackup(f); e.target.value='';});
   populateAllSelects();
   document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;
   document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;
