@@ -2347,7 +2347,7 @@ details.bi-secondary {
     <div class="nav-item" onclick="nav('inativos')" data-v="inativos"><span class="ico">📦</span>Inativos</div>
     <div class="nav-sec">Sistema</div>
     <div class="nav-item" onclick="nav('settings')" data-v="settings"><span class="ico">⚙️</span>Configurações</div>
-    <div class="nav-item" onclick="goToOrganizacional()" data-v="organizacional_switch">
+    <div class="nav-item" onclick="window.location.href='organizacional.html'" data-v="organizacional_switch">
       <span class="ico">
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" style="display:block"><path fill="currentColor" d="M16 3h5v5h-2V6.41l-4.29 4.3-1.42-1.42 4.3-4.29H16V3Zm-8 18H3v-5h2v1.59l4.29-4.3 1.42 1.42-4.3 4.29H8V21Zm11-8h2v8h-8v-2h6v-6ZM3 3h8v2H5v6H3V3Z"/></svg>
       </span>
@@ -14161,38 +14161,6 @@ function clearFilterKey(key) {
 function escAttr(v) {
   return String(v ?? '').replace(/[&<>"']/g, s => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[s]));
 }
-function goToOrganizacional() {
-  try {
-    window.location.assign('organizacional.html');
-  } catch (_) {
-    window.location.href = 'organizacional.html';
-  }
-}
-function emergencyUnlockMainUi(){
-  try {
-    document.documentElement.style.pointerEvents = '';
-    document.body.style.pointerEvents = '';
-    document.querySelectorAll('.overlay.open, .modal-ov.open').forEach(el => el.classList.remove('open'));
-  } catch (_e) {}
-}
-window.__t4MainUnlockUi = emergencyUnlockMainUi;
-window.addEventListener('error', (ev) => {
-  try {
-    console.error('[T4 Principal] erro de interface:', ev?.error || ev?.message || ev);
-    if (typeof toast === 'function' && ev?.message) toast(`Erro de interface: ${ev.message}`, 'err', 5000);
-  } catch (_e) {}
-});
-window.addEventListener('unhandledrejection', (ev) => {
-  try {
-    const reason = ev?.reason?.message || ev?.reason || 'falha assíncrona';
-    console.error('[T4 Principal] promise rejeitada:', reason);
-    if (typeof toast === 'function') toast(`Falha assíncrona: ${String(reason)}`, 'err', 5000);
-  } catch (_e) {}
-});
-window.addEventListener('pageshow', () => {
-  emergencyUnlockMainUi();
-});
-window.addEventListener('keydown', (e) => { if (e.key === 'Escape') emergencyUnlockMainUi(); });
 
 function getActiveFilterTokens() {
   const tokens = [];
@@ -15689,7 +15657,6 @@ function agNav(dir) {
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    emergencyUnlockMainUi();
     injectSwitch();
     applyLanguage(document.body);
     const mo = new MutationObserver((mutations) => {
