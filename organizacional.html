@@ -1219,6 +1219,36 @@ async function getSessionSafe(){
     return data.session;
   }catch{return null;}
 }
+let _uiErrorToastTs=0;
+function withTimeout(promise, ms, label='Operação'){
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${label} excedeu ${ms}ms`)), ms))
+  ]);
+}
+function logUiError(scope, err){
+  const msg = err?.message || String(err || 'erro desconhecido');
+  console.error(`[T4 Organizacional] ${scope}:`, err);
+  const now = Date.now();
+  if(now - _uiErrorToastTs > 2200){
+    _uiErrorToastTs = now;
+    try{ toast(`${scope} com falha. A interface segue ativa.`); }catch(_){ }
+  }
+  return msg;
+}
+function safeInvoke(scope, fn, fallback=null){
+  try{ return fn(); }catch(err){ logUiError(scope, err); return fallback; }
+}
+function resetTransientUi(){
+  document.querySelectorAll('.modal-ov.open').forEach(el=>el.classList.remove('open'));
+  document.querySelectorAll('.status-picker').forEach(el=>el.remove());
+}
+window.addEventListener('error', ev=>{
+  if(ev?.error) logUiError('Erro de interface', ev.error);
+});
+window.addEventListener('unhandledrejection', ev=>{
+  logUiError('Falha assíncrona', ev?.reason || new Error('Promise rejeitada'));
+});
 async function checkAuthAndRedirect(){
   const session=await getSessionSafe();
   if(!session){
@@ -1287,79 +1317,108 @@ function load(){
   ensureUiState();
 }
 async function loadRemoteState(){
-  const session=await getSessionSafe();
-  if(!session){
-    _remoteReady=false;
+  try{
+    const session=await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if(!session){
+      _remoteReady=false;
+      return false;
+    }
+    const client=getSupa();
+    const {data,error}=await withTimeout(
+      client.from('org_ui_state_snapshots').select('payload,updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle(),
+      5000,
+      'Leitura remota do snapshot'
+    );
+    if(error){
+      if(!_remoteSyncErrorShown){
+        console.warn('Supabase snapshot indisponível:', error.message);
+        _remoteSyncErrorShown=true;
+      }
+      _remoteReady=false;
+      return false;
+    }
+    _remoteReady=true;
+    _remoteSyncErrorShown=false;
+    _remoteSnapshotUpdatedAt=data?.updated_at||null;
+    if(data?.payload && typeof data.payload==='object'){
+      _hydratingRemote=true;
+      S=data.payload;
+      ensureUiState();
+      _hydratingRemote=false;
+      return true;
+    }
     return false;
-  }
-  const client=getSupa();
-  const {data,error}=await client.from('org_ui_state_snapshots').select('payload,updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle();
-  if(error){
+  }catch(err){
+    _remoteReady=false;
     if(!_remoteSyncErrorShown){
-      console.warn('Supabase snapshot indisponível:', error.message);
+      console.warn('Falha ao carregar snapshot remoto:', err?.message || err);
       _remoteSyncErrorShown=true;
     }
-    _remoteReady=false;
     return false;
   }
-  _remoteReady=true;
-  _remoteSyncErrorShown=false;
-  _remoteSnapshotUpdatedAt=data?.updated_at||null;
-  if(data?.payload && typeof data.payload==='object'){
-    _hydratingRemote=true;
-    S=data.payload;
-    ensureUiState();
-    _hydratingRemote=false;
-    return true;
-  }
-  return false;
 }
 async function saveRemoteNow(){
   if(_hydratingRemote || !_remoteReady) return false;
-  const session=await getSessionSafe();
-  if(!session) return false;
-  const client=getSupa();
-  const {data:current,error:readError}=await client.from('org_ui_state_snapshots').select('updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle();
-  if(readError){
+  try{
+    const session=await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if(!session) return false;
+    const client=getSupa();
+    const {data:current,error:readError}=await withTimeout(
+      client.from('org_ui_state_snapshots').select('updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle(),
+      5000,
+      'Validação do snapshot remoto'
+    );
+    if(readError){
+      if(!_remoteSyncErrorShown){
+        console.warn('Falha ao validar snapshot remoto:', readError.message);
+        _remoteSyncErrorShown=true;
+      }
+      return false;
+    }
+    const serverUpdatedAt=current?.updated_at||null;
+    if(serverUpdatedAt && _remoteSnapshotUpdatedAt && serverUpdatedAt!==_remoteSnapshotUpdatedAt){
+      if(!_remoteConflictShown){
+        toast('Conflito de sincronização detectado. Reabra o CRM para evitar sobrescrever dados de outro dispositivo.');
+        _remoteConflictShown=true;
+      }
+      console.warn('Conflito de snapshot detectado. Salvamento remoto cancelado.');
+      return false;
+    }
+    if(serverUpdatedAt && !_remoteSnapshotUpdatedAt){
+      if(!_remoteConflictShown){
+        toast('Sincronização remota bloqueada até recarregar a página.');
+        _remoteConflictShown=true;
+      }
+      return false;
+    }
+    const nextUpdatedAt=new Date().toISOString();
+    const {error}=await withTimeout(
+      client.from('org_ui_state_snapshots').upsert({
+        app_key:REMOTE_APP_KEY,
+        payload:S,
+        updated_at:nextUpdatedAt
+      },{onConflict:'app_key'}),
+      5000,
+      'Gravação do snapshot remoto'
+    );
+    if(error){
+      if(!_remoteSyncErrorShown){
+        console.warn('Falha ao sincronizar com Supabase:', error.message);
+        _remoteSyncErrorShown=true;
+      }
+      return false;
+    }
+    _remoteSnapshotUpdatedAt=nextUpdatedAt;
+    _remoteConflictShown=false;
+    _remoteSyncErrorShown=false;
+    return true;
+  }catch(err){
     if(!_remoteSyncErrorShown){
-      console.warn('Falha ao validar snapshot remoto:', readError.message);
+      console.warn('Falha ao sincronizar com Supabase:', err?.message || err);
       _remoteSyncErrorShown=true;
     }
     return false;
   }
-  const serverUpdatedAt=current?.updated_at||null;
-  if(serverUpdatedAt && _remoteSnapshotUpdatedAt && serverUpdatedAt!==_remoteSnapshotUpdatedAt){
-    if(!_remoteConflictShown){
-      toast('Conflito de sincronização detectado. Reabra o CRM para evitar sobrescrever dados de outro dispositivo.');
-      _remoteConflictShown=true;
-    }
-    console.warn('Conflito de snapshot detectado. Salvamento remoto cancelado.');
-    return false;
-  }
-  if(serverUpdatedAt && !_remoteSnapshotUpdatedAt){
-    if(!_remoteConflictShown){
-      toast('Sincronização remota bloqueada até recarregar a página.');
-      _remoteConflictShown=true;
-    }
-    return false;
-  }
-  const nextUpdatedAt=new Date().toISOString();
-  const {error}=await client.from('org_ui_state_snapshots').upsert({
-    app_key:REMOTE_APP_KEY,
-    payload:S,
-    updated_at:nextUpdatedAt
-  },{onConflict:'app_key'});
-  if(error){
-    if(!_remoteSyncErrorShown){
-      console.warn('Falha ao sincronizar com Supabase:', error.message);
-      _remoteSyncErrorShown=true;
-    }
-    return false;
-  }
-  _remoteSnapshotUpdatedAt=nextUpdatedAt;
-  _remoteConflictShown=false;
-  _remoteSyncErrorShown=false;
-  return true;
 }
 function scheduleRemoteSave(){
   clearTimeout(_remoteSaveTimer);
@@ -1538,27 +1597,45 @@ function populateAllSelects(){
 
 // ─── NAVIGATION ───
 function nav(page){
-  S.currentPage=page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.sb-item').forEach(i=>{if(i.getAttribute('onclick')?.includes("'"+page+"'"))i.classList.add('active');});
-  populateAllSelects();
-  if(page==='plan-mensal'){document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;renderPlanTable();}
-  if(page==='calendario'){document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;renderCalendar();}
-  if(page==='reunioes')renderMeetings();
-  if(page==='resumo')renderResumo();
-  if(page==='dossie'){renderEmpTabs();renderDossie();}
-  if(page==='employers')renderEmployers();
+  const allowed=['plan-mensal','calendario','reunioes','resumo','employers','dossie'];
+  const target=allowed.includes(page)?page:'plan-mensal';
+  S.currentPage=target;
+  resetTransientUi();
+  safeInvoke('Atualização de navegação', ()=>{
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+    const pageEl=document.getElementById('page-'+target);
+    if(pageEl) pageEl.classList.add('active');
+    document.querySelectorAll('.sb-item').forEach(i=>{if(i.getAttribute('onclick')?.includes("'"+target+"'"))i.classList.add('active');});
+  });
+  safeInvoke('Atualização de filtros', ()=>populateAllSelects());
+  if(target==='plan-mensal'){
+    safeInvoke('Cabeçalho do planejamento', ()=>{document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;});
+    safeInvoke('Planejamento mensal', ()=>renderPlanTable());
+  }
+  if(target==='calendario'){
+    safeInvoke('Cabeçalho do calendário', ()=>{document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;});
+    safeInvoke('Calendário', ()=>renderCalendar());
+  }
+  if(target==='reunioes') safeInvoke('Reuniões semanais', ()=>renderMeetings());
+  if(target==='resumo') safeInvoke('Resumo geral', ()=>renderResumo());
+  if(target==='dossie'){
+    safeInvoke('Abas de employer', ()=>renderEmpTabs());
+    safeInvoke('Dossiê do employer', ()=>renderDossie());
+  }
+  if(target==='employers') safeInvoke('Empregadores', ()=>renderEmployers());
 }
 
 function changeMonth(d){
   S.currentMonthIdx=Math.max(0,Math.min(MONTHS.length-1,S.currentMonthIdx+d));
   const lbl=MONTHS[S.currentMonthIdx].l;
-  document.getElementById('month-label').textContent=lbl;
-  document.getElementById('cal-month-label').textContent=lbl;
+  safeInvoke('Atualização do mês', ()=>{
+    document.getElementById('month-label').textContent=lbl;
+    document.getElementById('cal-month-label').textContent=lbl;
+  });
   save();
-  renderPlanTable();
+  if(S.currentPage==='calendario') safeInvoke('Calendário', ()=>renderCalendar());
+  else safeInvoke('Planejamento mensal', ()=>renderPlanTable());
 }
 
 // ─── MODAL HELPERS ───
@@ -2802,30 +2879,33 @@ function showStatusPicker(el,id,type,options){
 
 function renderBootstrap(){
   ensureUiState();
-  populateAllSelects();
-  document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;
-  document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;
-  renderPlanTable();
-  renderCalendar();
-  renderMeetings();
-  renderResumo();
-  renderEmployers();
-  renderEmpTabs();
-  renderDossie();
-  nav(S.currentPage||'plan-mensal');
+  resetTransientUi();
+  safeInvoke('Listas de seleção', ()=>populateAllSelects());
+  safeInvoke('Cabeçalhos do mês', ()=>{
+    document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;
+    document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;
+  });
+  safeInvoke('Renderização inicial', ()=>nav(S.currentPage||'plan-mensal'));
 }
 
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded', async()=>{
   document.getElementById('backup-import')?.addEventListener('change',e=>{const f=e.target.files?.[0]; if(f) importBackup(f); e.target.value='';});
+  resetTransientUi();
+  const session = await safeInvoke('Validação de sessão', ()=>checkAuthAndRedirect(), null);
+  if(!session) return;
+  safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
   renderBootstrap();
-  const remoteLoaded = await loadRemoteState();
-  if(remoteLoaded){
-    renderBootstrap();
-    toast('Dados sincronizados do Supabase ✓');
-  }
+  setTimeout(async()=>{
+    const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
+    if(remoteLoaded){
+      renderBootstrap();
+      try{ toast('Dados sincronizados do Supabase ✓'); }catch(_){ }
+    }
+  },0);
 });
 
+window.addEventListener('pageshow', ()=>resetTransientUi());
 document.querySelectorAll('.modal-ov').forEach(ov=>{
   ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');});
 });
