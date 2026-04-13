@@ -1234,6 +1234,27 @@ migrateState();
 function getEmpNames(){return S.employers.map(e=>e.name);}
 function getEmpObj(name){return S.employers.find(e=>e.name===name)||{name,color:'#6B7280',descricao:'',focusAreas:'',vagas:'',openings:[],contato:'',pasta:'',crm:'',link:'',saude:'Estável'};}
 function getEmpColor(name){return getEmpObj(name).color||'#6B7280';}
+function alpha(color, opacity){
+  const c = String(color || '').trim();
+  if(!c) return `rgba(107,114,128,${opacity})`;
+  if(c.startsWith('rgba(')){
+    const parts = c.slice(5,-1).split(',').map(x=>x.trim());
+    if(parts.length >= 3) return `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, ${opacity})`;
+  }
+  if(c.startsWith('rgb(')){
+    const parts = c.slice(4,-1).split(',').map(x=>x.trim());
+    if(parts.length >= 3) return `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, ${opacity})`;
+  }
+  let hex = c.replace('#','');
+  if(hex.length === 3) hex = hex.split('').map(ch=>ch+ch).join('');
+  if(/^[0-9a-fA-F]{6}$/.test(hex)){
+    const r = parseInt(hex.slice(0,2),16);
+    const g = parseInt(hex.slice(2,4),16);
+    const b = parseInt(hex.slice(4,6),16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+  return color;
+}
 
 function splitFocusAreas(raw){
   return String(raw||'').split(/[,\n;]+/).map(s=>s.trim()).filter(Boolean);
