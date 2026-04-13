@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talents 4 — Organizacional</title>
+<title>Talents 4 — CRM v8</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -233,18 +233,6 @@ tbody tr:hover .row-actions.hover{opacity:1}
 .cal-status-concluido{background:#059669!important;border-left-color:#A7F3D0}
 .cal-status-bloqueado{background:#B91C1C!important;border-left-color:#FCA5A5}
 .cal-status-cancelado{background:#6B7280!important;border-left-color:#D1D5DB}
-.cal-plan-afazer{background:#92400e!important;border-left-color:#fbbf24;color:#fff}
-.cal-plan-andamento{background:#1d4ed8!important;border-left-color:#93c5fd;color:#fff}
-.cal-plan-concluido{background:#047857!important;border-left-color:#6ee7b7;color:#fff}
-.cal-plan-bloqueado{background:#b91c1c!important;border-left-color:#fca5a5;color:#fff}
-.cal-plan-cancelado{background:#475569!important;border-left-color:#cbd5e1;color:#fff}
-.cal-event,
-.cal-event .cal-event-title,
-.cal-event .cal-mini-badge{color:#fff!important}
-.cal-event .cal-mini-badge{background:rgba(255,255,255,.18)!important;border:1px solid rgba(255,255,255,.24)}
-.ifield.click-edit,.info-summary-box.click-edit{cursor:pointer;transition:all .12s}
-.ifield.click-edit:hover,.info-summary-box.click-edit:hover{background:#eef6ff;border-color:#c7d7ec;box-shadow:var(--sh)}
-.ifield-edit-hint{margin-top:8px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--blue)}
 .day-list{display:grid;gap:10px}
 .day-item{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:#F8FAFC}
 .day-item h4{font-size:13px;font-weight:700;margin-bottom:4px}
@@ -415,12 +403,6 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo Empregador
     </div>
-    <div class="storage-chip">Dados salvos no navegador e sincronizados com Supabase quando disponível. Use backup JSON como redundância.</div>
-    <div class="storage-tools">
-      <button class="storage-btn" onclick="exportBackup()">⬇ Exportar backup JSON</button>
-      <button class="storage-btn" onclick="document.getElementById('backup-import').click()">⬆ Importar backup JSON</button>
-    </div>
-    <input type="file" id="backup-import" accept="application/json" style="display:none">
   </div>
 </nav>
 
@@ -1086,15 +1068,6 @@ const STATUS_COLORS={
 };
 const DEFAULT_EMP_COLORS=['#2563EB','#7C3AED','#DC2626','#059669','#D97706','#0891B2','#BE185D','#65A30D','#9333EA','#EA580C','#0F766E','#B45309'];
 function statusClass(v){return STATUS_COLORS[v]||'b-gray';}
-function calendarStatusClass(v){
-  const label=String(v||'').trim();
-  if(label==='A fazer') return 'cal-plan-afazer';
-  if(label==='Em andamento') return 'cal-plan-andamento';
-  if(label==='Concluído') return 'cal-plan-concluido';
-  if(label==='Bloqueado') return 'cal-plan-bloqueado';
-  if(label==='Cancelado') return 'cal-plan-cancelado';
-  return 'cal-plan-afazer';
-}
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function escapeHTML(str){
@@ -1240,6 +1213,36 @@ async function getSessionSafe(){
     return data.session;
   }catch{return null;}
 }
+let _uiErrorToastTs=0;
+function withTimeout(promise, ms, label='Operação'){
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${label} excedeu ${ms}ms`)), ms))
+  ]);
+}
+function logUiError(scope, err){
+  const msg = err?.message || String(err || 'erro desconhecido');
+  console.error(`[T4 Organizacional] ${scope}:`, err);
+  const now = Date.now();
+  if(now - _uiErrorToastTs > 2200){
+    _uiErrorToastTs = now;
+    try{ toast(`${scope} com falha. A interface segue ativa.`); }catch(_){ }
+  }
+  return msg;
+}
+function safeInvoke(scope, fn, fallback=null){
+  try{ return fn(); }catch(err){ logUiError(scope, err); return fallback; }
+}
+function resetTransientUi(){
+  document.querySelectorAll('.modal-ov.open').forEach(el=>el.classList.remove('open'));
+  document.querySelectorAll('.status-picker').forEach(el=>el.remove());
+}
+window.addEventListener('error', ev=>{
+  if(ev?.error) logUiError('Erro de interface', ev.error);
+});
+window.addEventListener('unhandledrejection', ev=>{
+  logUiError('Falha assíncrona', ev?.reason || new Error('Promise rejeitada'));
+});
 async function checkAuthAndRedirect(){
   const session=await getSessionSafe();
   if(!session){
@@ -1253,22 +1256,8 @@ function initAuthWatchdog(){
   try{
     const client=getSupa();
     if(!client) return;
-    client.auth.onAuthStateChange(async (_event, session)=>{
-      if(!session){
-        window.location.replace('index.html');
-        return;
-      }
-      if(session && !_hydratingRemote){
-        try{
-          const loaded=await loadRemoteState();
-          if(loaded){
-            renderBootstrap();
-            toast('Dados sincronizados do Supabase ✓');
-          }
-        }catch(err){
-          console.warn('Falha ao reidratar snapshot após auth:', err);
-        }
-      }
+    client.auth.onAuthStateChange((_event, session)=>{
+      if(!session) window.location.replace('index.html');
     });
     _authWatchdogInit=true;
   }catch{}
@@ -1322,80 +1311,108 @@ function load(){
   ensureUiState();
 }
 async function loadRemoteState(){
-  const session=await getSessionSafe();
-  if(!session){
-    _remoteReady=false;
+  try{
+    const session=await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if(!session){
+      _remoteReady=false;
+      return false;
+    }
+    const client=getSupa();
+    const {data,error}=await withTimeout(
+      client.from('org_ui_state_snapshots').select('payload,updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle(),
+      5000,
+      'Leitura remota do snapshot'
+    );
+    if(error){
+      if(!_remoteSyncErrorShown){
+        console.warn('Supabase snapshot indisponível:', error.message);
+        _remoteSyncErrorShown=true;
+      }
+      _remoteReady=false;
+      return false;
+    }
+    _remoteReady=true;
+    _remoteSyncErrorShown=false;
+    _remoteSnapshotUpdatedAt=data?.updated_at||null;
+    if(data?.payload && typeof data.payload==='object'){
+      _hydratingRemote=true;
+      S=data.payload;
+      ensureUiState();
+      _hydratingRemote=false;
+      return true;
+    }
     return false;
-  }
-  const client=getSupa();
-  const {data,error}=await client.from('org_ui_state_snapshots').select('payload,updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle();
-  if(error){
+  }catch(err){
+    _remoteReady=false;
     if(!_remoteSyncErrorShown){
-      console.warn('Supabase snapshot indisponível:', error.message);
+      console.warn('Falha ao carregar snapshot remoto:', err?.message || err);
       _remoteSyncErrorShown=true;
     }
-    _remoteReady=false;
     return false;
   }
-  _remoteReady=true;
-  _remoteSyncErrorShown=false;
-  _remoteSnapshotUpdatedAt=data?.updated_at||null;
-  if(data?.payload && typeof data.payload==='object'){
-    _hydratingRemote=true;
-    S=data.payload;
-    ensureUiState();
-    _hydratingRemote=false;
-    return true;
-  }
-  return false;
 }
 async function saveRemoteNow(){
-  if(_hydratingRemote) return false;
-  const session=await getSessionSafe();
-  if(!session) return false;
-  _remoteReady=true;
-  const client=getSupa();
-  const {data:current,error:readError}=await client.from('org_ui_state_snapshots').select('updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle();
-  if(readError){
+  if(_hydratingRemote || !_remoteReady) return false;
+  try{
+    const session=await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if(!session) return false;
+    const client=getSupa();
+    const {data:current,error:readError}=await withTimeout(
+      client.from('org_ui_state_snapshots').select('updated_at').eq('app_key',REMOTE_APP_KEY).limit(1).maybeSingle(),
+      5000,
+      'Validação do snapshot remoto'
+    );
+    if(readError){
+      if(!_remoteSyncErrorShown){
+        console.warn('Falha ao validar snapshot remoto:', readError.message);
+        _remoteSyncErrorShown=true;
+      }
+      return false;
+    }
+    const serverUpdatedAt=current?.updated_at||null;
+    if(serverUpdatedAt && _remoteSnapshotUpdatedAt && serverUpdatedAt!==_remoteSnapshotUpdatedAt){
+      if(!_remoteConflictShown){
+        toast('Conflito de sincronização detectado. Reabra o CRM para evitar sobrescrever dados de outro dispositivo.');
+        _remoteConflictShown=true;
+      }
+      console.warn('Conflito de snapshot detectado. Salvamento remoto cancelado.');
+      return false;
+    }
+    if(serverUpdatedAt && !_remoteSnapshotUpdatedAt){
+      if(!_remoteConflictShown){
+        toast('Sincronização remota bloqueada até recarregar a página.');
+        _remoteConflictShown=true;
+      }
+      return false;
+    }
+    const nextUpdatedAt=new Date().toISOString();
+    const {error}=await withTimeout(
+      client.from('org_ui_state_snapshots').upsert({
+        app_key:REMOTE_APP_KEY,
+        payload:S,
+        updated_at:nextUpdatedAt
+      },{onConflict:'app_key'}),
+      5000,
+      'Gravação do snapshot remoto'
+    );
+    if(error){
+      if(!_remoteSyncErrorShown){
+        console.warn('Falha ao sincronizar com Supabase:', error.message);
+        _remoteSyncErrorShown=true;
+      }
+      return false;
+    }
+    _remoteSnapshotUpdatedAt=nextUpdatedAt;
+    _remoteConflictShown=false;
+    _remoteSyncErrorShown=false;
+    return true;
+  }catch(err){
     if(!_remoteSyncErrorShown){
-      console.warn('Falha ao validar snapshot remoto:', readError.message);
+      console.warn('Falha ao sincronizar com Supabase:', err?.message || err);
       _remoteSyncErrorShown=true;
     }
     return false;
   }
-  const serverUpdatedAt=current?.updated_at||null;
-  if(serverUpdatedAt && _remoteSnapshotUpdatedAt && serverUpdatedAt!==_remoteSnapshotUpdatedAt){
-    if(!_remoteConflictShown){
-      toast('Conflito de sincronização detectado. Reabra o CRM para evitar sobrescrever dados de outro dispositivo.');
-      _remoteConflictShown=true;
-    }
-    console.warn('Conflito de snapshot detectado. Salvamento remoto cancelado.');
-    return false;
-  }
-  if(serverUpdatedAt && !_remoteSnapshotUpdatedAt){
-    if(!_remoteConflictShown){
-      toast('Sincronização remota bloqueada até recarregar a página.');
-      _remoteConflictShown=true;
-    }
-    return false;
-  }
-  const nextUpdatedAt=new Date().toISOString();
-  const {error}=await client.from('org_ui_state_snapshots').upsert({
-    app_key:REMOTE_APP_KEY,
-    payload:S,
-    updated_at:nextUpdatedAt
-  },{onConflict:'app_key'});
-  if(error){
-    if(!_remoteSyncErrorShown){
-      console.warn('Falha ao sincronizar com Supabase:', error.message);
-      _remoteSyncErrorShown=true;
-    }
-    return false;
-  }
-  _remoteSnapshotUpdatedAt=nextUpdatedAt;
-  _remoteConflictShown=false;
-  _remoteSyncErrorShown=false;
-  return true;
 }
 function scheduleRemoteSave(){
   clearTimeout(_remoteSaveTimer);
@@ -1405,38 +1422,10 @@ async function flushRemoteSave(){
   clearTimeout(_remoteSaveTimer);
   try{ await saveRemoteNow(); }catch(err){ console.warn('Falha no flush remoto:', err); }
 }
-async function bootstrapRemoteSync(maxWaitMs=10000){
-  const started=Date.now();
-  while(Date.now()-started<maxWaitMs){
-    const session=await getSessionSafe();
-    if(session){
-      try{
-        const loaded=await loadRemoteState();
-        if(loaded){
-          renderBootstrap();
-          toast('Dados sincronizados do Supabase ✓');
-        }
-      }catch(err){
-        console.warn('Falha no sync inicial:', err);
-      }
-      return true;
-    }
-    await new Promise(resolve=>setTimeout(resolve,300));
-  }
-  window.location.replace('index.html');
-  return false;
-}
-let _lastRemoteWriteAt=0;
 function save(){
   localStorage.setItem('t4crm_v5',JSON.stringify(S));
   localStorage.setItem('t4crm_v2',JSON.stringify(S));
-  const now=Date.now();
-  if(now-_lastRemoteWriteAt>4000){
-    _lastRemoteWriteAt=now;
-    flushRemoteSave();
-  }else{
-    scheduleRemoteSave();
-  }
+  scheduleRemoteSave();
 }
 load();
 migrateState();
@@ -1604,29 +1593,64 @@ function populateAllSelects(){
   renderCalLegend();
 }
 
+
+let _pageRenderRaf=0;
+function renderCurrentPage(page){
+  const target=page||S.currentPage||'plan-mensal';
+  if(target==='plan-mensal'){
+    safeInvoke('Cabeçalho do planejamento', ()=>{document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;});
+    safeInvoke('Planejamento mensal', ()=>renderPlanTable());
+    return;
+  }
+  if(target==='calendario'){
+    safeInvoke('Cabeçalho do calendário', ()=>{document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;});
+    safeInvoke('Calendário', ()=>renderCalendar());
+    return;
+  }
+  if(target==='reunioes'){ safeInvoke('Reuniões semanais', ()=>renderMeetings()); return; }
+  if(target==='resumo'){ safeInvoke('Resumo geral', ()=>renderResumo()); return; }
+  if(target==='dossie'){
+    safeInvoke('Abas de employer', ()=>renderEmpTabs());
+    safeInvoke('Dossiê do employer', ()=>renderDossie());
+    return;
+  }
+  if(target==='employers'){ safeInvoke('Empregadores', ()=>renderEmployers()); return; }
+}
+function scheduleCurrentPageRender(page){
+  if(_pageRenderRaf) cancelAnimationFrame(_pageRenderRaf);
+  const target=page||S.currentPage||'plan-mensal';
+  _pageRenderRaf=requestAnimationFrame(()=>{
+    _pageRenderRaf=0;
+    renderCurrentPage(target);
+  });
+}
+
 // ─── NAVIGATION ───
 function nav(page){
-  S.currentPage=page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.sb-item').forEach(i=>{if(i.getAttribute('onclick')?.includes("'"+page+"'"))i.classList.add('active');});
-  populateAllSelects();
-  if(page==='plan-mensal'){document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;renderPlanTable();}
-  if(page==='calendario'){document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;renderCalendar();}
-  if(page==='reunioes')renderMeetings();
-  if(page==='resumo')renderResumo();
-  if(page==='dossie'){renderEmpTabs();renderDossie();}
-  if(page==='employers')renderEmployers();
+  const allowed=['plan-mensal','calendario','reunioes','resumo','employers','dossie'];
+  const target=allowed.includes(page)?page:'plan-mensal';
+  S.currentPage=target;
+  resetTransientUi();
+  safeInvoke('Atualização de navegação', ()=>{
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+    const pageEl=document.getElementById('page-'+target);
+    if(pageEl) pageEl.classList.add('active');
+    document.querySelectorAll('.sb-item').forEach(i=>{if(i.getAttribute('onclick')?.includes("'"+target+"'"))i.classList.add('active');});
+  });
+  safeInvoke('Atualização de filtros', ()=>populateAllSelects());
+  scheduleCurrentPageRender(target);
 }
 
 function changeMonth(d){
   S.currentMonthIdx=Math.max(0,Math.min(MONTHS.length-1,S.currentMonthIdx+d));
   const lbl=MONTHS[S.currentMonthIdx].l;
-  document.getElementById('month-label').textContent=lbl;
-  document.getElementById('cal-month-label').textContent=lbl;
+  safeInvoke('Atualização do mês', ()=>{
+    document.getElementById('month-label').textContent=lbl;
+    document.getElementById('cal-month-label').textContent=lbl;
+  });
   save();
-  renderPlanTable();
+  scheduleCurrentPageRender(S.currentPage||'plan-mensal');
 }
 
 // ─── MODAL HELPERS ───
@@ -2069,7 +2093,7 @@ function renderCalendar(){
             </div>
           </div>`;
         }
-        const cls=calendarStatusClass(ev.data.status);
+        const cls=statusClass(ev.data.status);
         return `<div class="cal-event ${cls}" onclick="event.stopPropagation();openPlanModal('${escapeJsString(ev.data.id)}')" title="${safeAttrValue(ev.data.obs||'')}">
           <span class="cal-event-title">${safeText(ev.data.activity,'—')}</span>
           <div class="cal-event-meta">
@@ -2442,41 +2466,36 @@ function renderInfo(){
   const crmUrl=safeUrl(e.crm);
 
   document.getElementById('info-content').innerHTML=`
-    <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)">
+    <div class="ifield">
       <div class="ifield-label">Descrição</div>
-      <div class="ifield-value">${e.descricao?nl2brSafe(e.descricao):'<em style="color:var(--text3)">Sem descrição. Clique para adicionar.</em>'}</div>
-      <div class="ifield-edit-hint">Clique para editar o empregador</div>
+      <div class="ifield-value">${e.descricao?nl2brSafe(e.descricao):'<em style="color:var(--text3)">Sem descrição. Clique em “Editar” para adicionar.</em>'}</div>
     </div>
 
-    <div class="info-summary-box click-edit" style="margin-bottom:10px" onclick="openEmpModal(S.currentDossieEmp)">
+    <div class="info-summary-box" style="margin-bottom:10px">
       <div class="info-summary-title">Resumo operacional</div>
       <div class="info-summary-text">${escapeHTML(resumoText)}</div>
-      <div class="ifield-edit-hint">Clique para editar os dados-base do empregador</div>
     </div>
 
     <div class="ifield-grid-2">
-      <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)">
+      <div class="ifield">
         <div class="ifield-label">Áreas-foco</div>
         <div class="ifield-value">${focus.length?`<div class="emp-focus-list">${focus.map(f=>`<span class="emp-focus-chip">${escapeHTML(f)}</span>`).join('')}</div>`:'<em style="color:var(--text3)">Não informado</em>'}</div>
-        <div class="ifield-edit-hint">Clique para editar</div>
       </div>
-      <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)">
+      <div class="ifield">
         <div class="ifield-label">Saúde do processo</div>
         <div class="ifield-value">${badge(e.saude||'Estável')}</div>
-        <div class="ifield-edit-hint">Clique para editar</div>
       </div>
     </div>
 
-    <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)">
+    <div class="ifield">
       <div class="ifield-label">Vagas abertas</div>
       <div class="ifield-value">${renderInfoOpeningsList(e.openings||[])}</div>
-      <div class="ifield-edit-hint">Clique para editar vagas estruturadas</div>
     </div>
 
     <div class="info-meta-grid">
-      <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)"><div class="ifield-label">Contato</div><div class="ifield-value">${safeText(e.contato,'—')}</div><div class="ifield-edit-hint">Clique para editar</div></div>
-      <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)"><div class="ifield-label">Pasta / Drive</div><div class="ifield-value">${pastaUrl?`<a href="${pastaUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Abrir pasta</a>`:'—'}</div><div class="ifield-edit-hint">Clique para editar</div></div>
-      <div class="ifield click-edit" onclick="openEmpModal(S.currentDossieEmp)"><div class="ifield-label">CRM / Link</div><div class="ifield-value">${crmUrl?`<a href="${crmUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Abrir link</a>`:'—'}</div><div class="ifield-edit-hint">Clique para editar</div></div>
+      <div class="ifield"><div class="ifield-label">Contato</div><div class="ifield-value">${safeText(e.contato,'—')}</div></div>
+      <div class="ifield"><div class="ifield-label">Pasta / Drive</div><div class="ifield-value">${pastaUrl?`<a href="${pastaUrl}" target="_blank" rel="noopener noreferrer">Abrir pasta</a>`:'—'}</div></div>
+      <div class="ifield"><div class="ifield-label">CRM / Link</div><div class="ifield-value">${crmUrl?`<a href="${crmUrl}" target="_blank" rel="noopener noreferrer">Abrir link</a>`:'—'}</div></div>
     </div>
 
     <div class="ifield-grid-2" style="margin-top:10px">
@@ -2875,41 +2894,32 @@ function showStatusPicker(el,id,type,options){
 
 function renderBootstrap(){
   ensureUiState();
-  populateAllSelects();
-  document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;
-  document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;
-  renderPlanTable();
-  renderCalendar();
-  renderMeetings();
-  renderResumo();
-  renderEmployers();
-  renderEmpTabs();
-  renderDossie();
-  nav(S.currentPage||'plan-mensal');
+  resetTransientUi();
+  safeInvoke('Listas de seleção', ()=>populateAllSelects());
+  safeInvoke('Cabeçalhos do mês', ()=>{
+    document.getElementById('month-label').textContent=MONTHS[S.currentMonthIdx].l;
+    document.getElementById('cal-month-label').textContent=MONTHS[S.currentMonthIdx].l;
+  });
+  safeInvoke('Renderização inicial', ()=>nav(S.currentPage||'plan-mensal'));
 }
 
 // ─── INIT ───
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('backup-import')?.addEventListener('change',e=>{const f=e.target.files?.[0]; if(f) importBackup(f); e.target.value='';});
+document.addEventListener('DOMContentLoaded', async()=>{
+  resetTransientUi();
+  const session = await safeInvoke('Validação de sessão', ()=>checkAuthAndRedirect(), null);
+  if(!session) return;
+  safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
   renderBootstrap();
-  initAuthWatchdog();
-  bootstrapRemoteSync().catch(err=>console.warn('Falha no bootstrap remoto:', err));
+  setTimeout(async()=>{
+    const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
+    if(remoteLoaded){
+      renderBootstrap();
+      try{ toast('Dados sincronizados do Supabase ✓'); }catch(_){ }
+    }
+  },0);
 });
 
-window.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState==='hidden') flushRemoteSave();
-});
-window.addEventListener('pagehide', ()=>{ flushRemoteSave(); });
-window.addEventListener('beforeunload', ()=>{ flushRemoteSave(); });
-window.addEventListener('pageshow', ()=>{
-  document.querySelectorAll('.modal-ov.open').forEach(ov=>ov.classList.remove('open'));
-  document.body.style.pointerEvents='';
-  scheduleCurrentPageRender(S.currentPage||'plan-mensal');
-});
-window.addEventListener('keydown', (e)=>{
-  if(e.key==='Escape') document.querySelectorAll('.modal-ov.open').forEach(ov=>ov.classList.remove('open'));
-});
-
+window.addEventListener('pageshow', ()=>resetTransientUi());
 document.querySelectorAll('.modal-ov').forEach(ov=>{
   ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');});
 });
