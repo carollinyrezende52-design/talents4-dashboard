@@ -802,15 +802,8 @@ tbody tr:hover .row-actions.hover{opacity:1}
         </div>
         <div class="fg">
           <label class="fl">Atividade *</label>
-          <select class="fs" id="plan-activity">
-            <option>Pesquisa de perfis</option>
-            <option>Triagem / qualificação</option>
-            <option>Envio de currículos</option>
-            <option>Feedback / próximos passos</option>
-            <option>Reunião / alinhamento</option>
-            <option>Formulário / documentação</option>
-            <option>Outro</option>
-          </select>
+          <select class="fs" id="plan-activity" onchange="togglePlanCustomActivityField()"></select>
+          <input class="fi" id="plan-activity-custom" placeholder="Digite o nome da atividade" style="margin-top:8px;display:none">
         </div>
       </div>
       <div class="frow">
@@ -1715,8 +1708,10 @@ function openEmpModal(name){
 
 function saveEmp(){
   const id=document.getElementById('emp-id').value;
-  const name=document.getElementById('emp-name').value.trim();
+  const rawName=document.getElementById('emp-name').value.trim();
+  const name=rawName.replace(/\s+/g,' ').trim();
   if(!name){toast('⚠ Nome do empregador é obrigatório');return;}
+  const normalizeEmployerName=v=>String(v||'').replace(/\s+/g,' ').trim().toLowerCase();
   const openings=collectOpeningRows();
   const data={
     color:document.getElementById('emp-color').value,
@@ -1730,61 +1725,79 @@ function saveEmp(){
     link:document.getElementById('emp-crm').value,
     saude:document.getElementById('emp-saude').value,
   };
-  if(id){
-    // edit existing
-    const existing=S.employers.find(e=>e.id===id||e.name===id);
-    if(existing){
-      const oldName=existing.name;
-      Object.assign(existing,{name,...data});
-      // rename in dossiers if name changed
-      if(oldName!==name&&S.dossiers[oldName]){
-        S.dossiers[name]=S.dossiers[oldName];
-        delete S.dossiers[oldName];
-      }
-      // rename in plan entries and meetings
-      S.planEntries.forEach(e=>{if(e.employer===oldName)e.employer=name;});
-      S.meetings.forEach(m=>{if(m.employer===oldName)m.employer=name;});
-      if(S.currentDossieEmp===oldName)S.currentDossieEmp=name;
+
+  const existing=S.employers.find(e=>e.id===id||e.name===id);
+  const duplicate=S.employers.find(e=>normalizeEmployerName(e.name)===normalizeEmployerName(name) && (!existing || e.id!==existing.id));
+  if(duplicate){
+    toast('⚠ Já existe um empregador com este nome. Use um nome distinto.');
+    return;
+  }
+
+  if(existing){
+    const oldName=existing.name;
+    Object.assign(existing,{name,...data});
+    if(oldName!==name&&S.dossiers[oldName]){
+      S.dossiers[name]=S.dossiers[oldName];
+      delete S.dossiers[oldName];
     }
+    S.planEntries.forEach(e=>{if(e.employer===oldName)e.employer=name;});
+    S.meetings.forEach(m=>{if(m.employer===oldName)m.employer=name;});
+    S.weeklySummaries.forEach(w=>{if(w.employer===oldName)w.employer=name;});
+    if(S.currentDossieEmp===oldName)S.currentDossieEmp=name;
   } else {
-    // check for duplicate name
-    if(S.employers.find(e=>e.name===name)){toast('⚠ Já existe um empregador com este nome');return;}
     const newEmp={id:uid(),name,...data};
     S.employers.push(newEmp);
     if(!S.dossiers[name])S.dossiers[name]={candidatos:[],removidos:[],reposicao:[]};
+    if(!S.currentDossieEmp)S.currentDossieEmp=name;
   }
-  save();closeModal('modal-emp');
+  save();
+  closeModal('modal-emp');
   populateAllSelects();
   renderEmployers();
+  refreshVisibleViews({calendar:true});
   if(document.getElementById('page-dossie').classList.contains('active')){renderEmpTabs();renderDossie();}
   toast('Empregador salvo ✓');
 }
 
 function deleteEmpById(){
-  const name=document.getElementById('emp-id').value;
-  if(!name) return;
+  const key=document.getElementById('emp-id').value;
+  if(!key) return;
   confirm('Excluir este empregador e todos os dados vinculados?',()=>{
-    const emp=S.employers.find(e=>e.name===name);
-    S.employers=S.employers.filter(e=>e.name!==name);
-    if(emp) delete S.dossiers[emp.name];
+    const emp=S.employers.find(e=>e.id===key||e.name===key);
+    if(!emp){toast('⚠ Empregador não encontrado');return;}
+    const name=emp.name;
+    S.employers=S.employers.filter(e=>e.id!==emp.id && e.name!==name);
+    delete S.dossiers[name];
     S.planEntries=S.planEntries.filter(e=>e.employer!==name);
     S.meetings=S.meetings.filter(m=>m.employer!==name);
     S.weeklySummaries=S.weeklySummaries.filter(w=>w.employer!==name);
     if(S.currentDossieEmp===name) S.currentDossieEmp=S.employers[0]?.name||'';
-    save();closeModal('modal-emp');populateAllSelects();refreshVisibleViews({calendar:true});renderEmpTabs();toast('Empregador excluído');
+    save();
+    closeModal('modal-emp');
+    populateAllSelects();
+    renderEmployers();
+    refreshVisibleViews({calendar:true});
+    if(document.getElementById('page-dossie').classList.contains('active')){renderEmpTabs();renderDossie();}
+    toast('Empregador excluído');
   });
 }
 function deleteEmpDirect(name){
   if(!name) return;
   confirm('Excluir este empregador e todos os dados vinculados?',()=>{
     const emp=S.employers.find(e=>e.name===name);
-    S.employers=S.employers.filter(e=>e.name!==name);
-    if(emp) delete S.dossiers[emp.name];
+    if(!emp){toast('⚠ Empregador não encontrado');return;}
+    S.employers=S.employers.filter(e=>e.id!==emp.id && e.name!==name);
+    delete S.dossiers[emp.name];
     S.planEntries=S.planEntries.filter(e=>e.employer!==name);
     S.meetings=S.meetings.filter(m=>m.employer!==name);
     S.weeklySummaries=S.weeklySummaries.filter(w=>w.employer!==name);
     if(S.currentDossieEmp===name) S.currentDossieEmp=S.employers[0]?.name||'';
-    save();populateAllSelects();refreshVisibleViews({calendar:true});renderEmpTabs();toast('Empregador excluído');
+    save();
+    populateAllSelects();
+    renderEmployers();
+    refreshVisibleViews({calendar:true});
+    if(document.getElementById('page-dossie').classList.contains('active')){renderEmpTabs();renderDossie();}
+    toast('Empregador excluído');
   });
 }
 
@@ -1907,16 +1920,74 @@ function goToRemovidos(){
   renderRemovidos();
 }
 
+const PLAN_FIXED_ACTIVITIES=[
+  'Pesquisa de perfis',
+  'Triagem / qualificação',
+  'Envio de currículos',
+  'Feedback / próximos passos',
+  'Reunião / alinhamento',
+  'Formulário / documentação'
+];
+function buildPlanActivityOptions(currentValue=''){
+  const normalizedCurrent=String(currentValue||'').trim();
+  const dynamic=(S.planEntries||[]).map(e=>String(e?.activity||'').trim()).filter(Boolean);
+  const values=[];
+  [...PLAN_FIXED_ACTIVITIES, ...dynamic].forEach(v=>{ if(v && !values.includes(v)) values.push(v); });
+  if(normalizedCurrent && !values.includes(normalizedCurrent)) values.push(normalizedCurrent);
+  const select=document.getElementById('plan-activity');
+  if(!select) return;
+  select.innerHTML=values.map(v=>`<option value="${escapeAttr(v)}">${escapeHTML(v)}</option>`).join('')+`<option value="__custom__">Outra atividade personalizada</option>`;
+}
+function setPlanActivityValue(value=''){
+  const normalized=String(value||'').trim();
+  buildPlanActivityOptions(normalized);
+  const select=document.getElementById('plan-activity');
+  const custom=document.getElementById('plan-activity-custom');
+  if(!select || !custom) return;
+  if(normalized && Array.from(select.options).some(opt=>opt.value===normalized)){
+    select.value=normalized;
+    custom.value='';
+    custom.style.display='none';
+  }else if(normalized){
+    select.value='__custom__';
+    custom.value=normalized;
+    custom.style.display='';
+  }else{
+    select.value=PLAN_FIXED_ACTIVITIES[0];
+    custom.value='';
+    custom.style.display='none';
+  }
+}
+function togglePlanCustomActivityField(){
+  const select=document.getElementById('plan-activity');
+  const custom=document.getElementById('plan-activity-custom');
+  if(!select || !custom) return;
+  const isCustom=select.value==='__custom__';
+  custom.style.display=isCustom?'':'none';
+  if(isCustom){
+    custom.focus();
+    custom.select();
+  }
+}
+function getPlanActivityValue(){
+  const select=document.getElementById('plan-activity');
+  const custom=document.getElementById('plan-activity-custom');
+  if(!select) return '';
+  if(select.value==='__custom__'){
+    return String(custom?.value||'').trim();
+  }
+  return String(select.value||'').trim();
+}
+
 // ─── PLAN TABLE ───
-function openPlanModal(id,datePreset){
+function openPlanModal(id,datePreset,presetActivity){
   const isEdit=!!id;
   document.getElementById('modal-plan-title').textContent=isEdit?'Editar Atividade':'Nova Atividade';
   document.getElementById('plan-delete-btn').style.display=isEdit?'':'none';
   document.getElementById('plan-id').value='';
-  // defaults
   const empNames=getEmpNames();
   document.getElementById('plan-employer').innerHTML=optionListHtml(empNames, null);
-  document.getElementById('plan-activity').value='Pesquisa de perfis';
+  setPlanActivityValue(String(presetActivity||PLAN_FIXED_ACTIVITIES[0]||''));
   document.getElementById('plan-responsavel').value='';
   document.getElementById('plan-status').value='A fazer';
   document.getElementById('plan-obs').value='';
@@ -1928,7 +1999,7 @@ function openPlanModal(id,datePreset){
     if(e){
       document.getElementById('plan-id').value=e.id;
       document.getElementById('plan-employer').value=e.employer;
-      document.getElementById('plan-activity').value=e.activity;
+      setPlanActivityValue(e.activity||'');
       document.getElementById('plan-responsavel').value=e.responsavel||'';
       document.getElementById('plan-status').value=e.status||'A fazer';
       document.getElementById('plan-obs').value=e.obs||'';
@@ -1943,12 +2014,14 @@ function openPlanModal(id,datePreset){
 function savePlanEntry(){
   const id=document.getElementById('plan-id').value;
   const emp=document.getElementById('plan-employer').value;
+  const activity=getPlanActivityValue();
   if(!emp){toast('⚠ Selecione um empregador');return;}
+  if(!activity){toast('⚠ Informe o nome da atividade');return;}
   const entry={
     id:id||uid(),
     month:document.getElementById('plan-month').value,
     employer:emp,
-    activity:document.getElementById('plan-activity').value,
+    activity,
     responsavel:document.getElementById('plan-responsavel').value,
     status:document.getElementById('plan-status').value,
     obs:document.getElementById('plan-obs').value,
@@ -1990,25 +2063,35 @@ function renderPlanTable(){
   }
   const blocks = emps.map(emp=>{
     const empEntries=S.planEntries.filter(e=>e.month===month&&e.employer===emp);
-    const fixedActs=['Pesquisa de perfis','Triagem / qualificação','Envio de currículos','Feedback / próximos passos'];
-    const allActs=[...new Set([...fixedActs,...empEntries.map(e=>e.activity)])];
-    const rows=allActs.map(act=>({act,entry:empEntries.find(e=>e.activity===act)})).filter(({entry})=>!statusF || (entry && entry.status===statusF));
-    if(!rows.length) return '';
+    const rows=[];
+    PLAN_FIXED_ACTIVITIES.forEach(act=>{
+      const matches=empEntries.filter(e=>e.activity===act);
+      if(matches.length){
+        matches.forEach(entry=>rows.push({act,entry}));
+      }else{
+        rows.push({act,entry:null});
+      }
+    });
+    empEntries.filter(e=>!PLAN_FIXED_ACTIVITIES.includes(e.activity)).forEach(entry=>{
+      rows.push({act:entry.activity,entry});
+    });
+    const visibleRows=rows.filter(({entry})=>!statusF || (entry && entry.status===statusF));
+    if(!visibleRows.length) return '';
     const color=getEmpColor(emp);
     const openCount=empEntries.filter(e=>['A fazer','Em andamento','Bloqueado'].includes(e.status)).length;
     const empJs=escapeJsString(emp);
     return `
       <tr class="emp-group-head"><td colspan="9">
         <div class="gtitle"><span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;box-shadow:0 0 0 4px ${alpha(color,.14)}"></span>${escapeHTML(emp)}</div>
-        <div class="gmeta">${rows.length} linha(s) visíveis · ${openCount} pendência(s) aberta(s)</div>
+        <div class="gmeta">${visibleRows.length} linha(s) visíveis · ${openCount} pendência(s) aberta(s)</div>
       </td></tr>
-      ${rows.map(({act,entry},idx)=>{
+      ${visibleRows.map(({act,entry},idx)=>{
         const actHtml=escapeHTML(act);
         const actJs=escapeJsString(act);
         const entryId=entry?.id||'';
         const obsText=String(entry?.obs||'').trim();
         const obsTitle=safeAttrValue(obsText);
-        const empStrong=act===rows[0].act?`<strong>${escapeHTML(emp)}</strong>`:'';
+        const empStrong=idx===0?`<strong>${escapeHTML(emp)}</strong>`:'';
         return `<tr class="plan-activity-row" data-plan-id="${escapeAttr(entryId)}" style="${idx===0?`box-shadow:inset 0 2px 0 ${alpha(color,.22)}`:''}">
           <td style="width:6px;padding:0;background:${alpha(color,.14)}"><div style="width:6px;height:100%;min-height:38px;background:${color}"></div></td>
           <td class="plan-emp-cell" style="font-size:11px;color:var(--text2);background:${alpha(color,.06)}">${empStrong}</td>
@@ -2022,7 +2105,7 @@ function renderPlanTable(){
             <div class="row-actions">
               ${entry
                 ?`<button class="icon-btn" onclick="openPlanModal('${escapeJsString(entry.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn danger" onclick="deletePlanDirect('${escapeJsString(entry.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>`
-                :`<button class="icon-btn" onclick="openPlanModal(null);document.getElementById('plan-employer').value='${empJs}';document.getElementById('plan-activity').value='${actJs}';" title="Adicionar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
+                :`<button class="icon-btn" onclick="openPlanModal(null,'','${actJs}');document.getElementById('plan-employer').value='${empJs}';" title="Adicionar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
             </div>
           </td>
         </tr>`;
