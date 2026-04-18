@@ -4065,5 +4065,896 @@ document.querySelectorAll('.modal-ov').forEach(ov=>{
   ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');});
 });
 </script>
+
+<script>
+(function(){
+  const INTERNAL_LABEL = 'Talents4 (interna)';
+  const MEETING_TASK_MARKER = 'meeting-task';
+  const EMPLOYER_PROJECT_MARKER = 'employer-project';
+
+  function deepClone(v){ try{return JSON.parse(JSON.stringify(v));}catch(_){ return Array.isArray(v)?v.slice():Object.assign({},v||{});} }
+  function tryJson(raw, fallback){ try{ return raw ? JSON.parse(raw) : fallback; }catch(_){ return fallback; } }
+  function num(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
+  function relEmpIdByName(name){ const e=(S.employers||[]).find(x=>String(x.name||'')===String(name||'')); return e ? String(e.id||'') : null; }
+  function meetingDisplayEmployer(m){ return (m && (m.scope==='interna_talents' || !String(m.employer||'').trim())) ? INTERNAL_LABEL : String(m?.employer||''); }
+
+  function mergeById(primary, secondary){
+    const out = new Map();
+    (secondary||[]).forEach(item=>{ if(item && item.id) out.set(String(item.id), item); });
+    (primary||[]).forEach(item=>{ if(!item) return; const key=String(item.id||Math.random()); out.set(key, item); });
+    return Array.from(out.values());
+  }
+
+  function metricForKey(key){
+    return (S.operationalMetrics||[]).find(m=>String(m.metric_key||'')===String(key));
+  }
+
+  function taskDefault(t){
+    return {
+      id: relUuid(t?.id),
+      title: String(t?.title||'').trim(),
+      owner: String(t?.owner||'').trim(),
+      status: String(t?.status||'A fazer').trim() || 'A fazer',
+      due: String(t?.due||'').trim(),
+      comments: String(t?.comments||'').trim(),
+      target: num(t?.target),
+      actual: num(t?.actual),
+      priority: String(t?.priority||'Média').trim() || 'Média'
+    };
+  }
+
+  function projectDefault(p){
+    return {
+      id: relUuid(p?.id),
+      title: String(p?.title||'').trim(),
+      owner: String(p?.owner||'').trim(),
+      status: String(p?.status||'A fazer').trim() || 'A fazer',
+      due: String(p?.due||'').trim(),
+      comments: String(p?.comments||'').trim(),
+      target: num(p?.target),
+      actual: num(p?.actual),
+      priority: String(p?.priority||'Média').trim() || 'Média'
+    };
+  }
+
+  function getMeetingTasksFromOperational(meetingId){
+    return (S.operationalTasks||[])
+      .filter(t=>String(t?.context_type||'')==='meeting' && String(t?.meeting_id||'')===String(meetingId) && String(t?.resource_link||'')===MEETING_TASK_MARKER)
+      .map(t=>{
+        const mk = metricForKey(`meeting_task_${t.id}`);
+        return taskDefault({
+          id:t.id,
+          title:t.title,
+          owner:t.owner,
+          status:t.status,
+          due:t.due_date || t.due,
+          comments:t.notes,
+          target:mk?.target_value,
+          actual:mk?.actual_value,
+          priority:t.priority
+        });
+      });
+  }
+
+  function getEmployerProjectsFromOperational(emp){
+    const empId = String(emp?.id||'');
+    const empName = String(emp?.name||'');
+    return (S.operationalTasks||[])
+      .filter(t=>String(t?.context_type||'')==='employer' && String(t?.resource_link||'')===EMPLOYER_PROJECT_MARKER && (String(t?.employer_id_text||'')===empId || String(t?.employer||'')===empName))
+      .map(t=>{
+        const mk = metricForKey(`employer_project_${t.id}`);
+        return projectDefault({
+          id:t.id,
+          title:t.title,
+          owner:t.owner,
+          status:t.status,
+          due:t.due_date || t.due,
+          comments:t.notes,
+          target:mk?.target_value,
+          actual:mk?.actual_value,
+          priority:t.priority
+        });
+      });
+  }
+
+  function ensureMeetingTaskEditor(){
+    const modalBody = document.querySelector('#modal-meet .modal-body');
+    if(modalBody && !document.getElementById('meet-task-editor-wrap')){
+      const wrap = document.createElement('div');
+      wrap.id = 'meet-task-editor-wrap';
+      wrap.className = 'fg';
+      wrap.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
+          <label class="fl" style="margin-bottom:0">Tarefas alinhadas na reunião</label>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="addMeetingTaskRow()">+ Adicionar tarefa</button>
+        </div>
+        <div id="meet-task-editor"></div>
+        <small style="display:block;margin-top:8px;color:var(--text3)">Essas tarefas também entram no PO Operacional e podem carregar meta e resultado.</small>
+      `;
+      modalBody.appendChild(wrap);
+    }
+  }
+
+  function ensureEmployerProjectsEditor(){
+    const statusField = document.getElementById('emp-saude')?.closest('.fg');
+    if(statusField && !document.getElementById('emp-projects-editor-wrap')){
+      const wrap = document.createElement('div');
+      wrap.id = 'emp-projects-editor-wrap';
+      wrap.className = 'fg';
+      wrap.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
+          <label class="fl" style="margin-bottom:0">Projetos do empregador</label>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="addEmployerProjectRow()">+ Adicionar projeto</button>
+        </div>
+        <div id="emp-projects-editor"></div>
+        <small style="display:block;margin-top:8px;color:var(--text3)">Projetos também entram no PO Operacional como prioridades acompanháveis.</small>
+      `;
+      statusField.parentElement.insertBefore(wrap, statusField);
+    }
+  }
+
+  function ensureMeetingScopeUi(){
+    const row = document.getElementById('meet-employer')?.closest('.frow');
+    if(row && !document.getElementById('meet-scope')){
+      row.classList.add('frow3');
+      const fg = document.createElement('div');
+      fg.className = 'fg';
+      fg.innerHTML = `
+        <label class="fl">Tipo da reunião</label>
+        <select class="fs" id="meet-scope" onchange="toggleMeetingScopeUi()">
+          <option value="employer">Reunião com empregador</option>
+          <option value="interna_talents">Reunião interna Talents4</option>
+        </select>
+      `;
+      row.insertBefore(fg, row.firstElementChild);
+    }
+  }
+
+  function ensurePatchedUi(){
+    ensureMeetingScopeUi();
+    ensureMeetingTaskEditor();
+    ensureEmployerProjectsEditor();
+  }
+
+  window.toggleMeetingScopeUi = function(){
+    const scope = document.getElementById('meet-scope')?.value || 'employer';
+    const sel = document.getElementById('meet-employer');
+    if(!sel) return;
+    const help = document.getElementById('meet-scope-help');
+    if(scope==='interna_talents'){
+      if(!Array.from(sel.options).some(o=>o.value==='')) sel.insertAdjacentHTML('afterbegin','<option value="">— reunião interna / geral —</option>');
+      sel.value = '';
+      sel.disabled = true;
+      if(help) help.textContent = 'Reunião interna da equipe Talents4. Empregador fica opcional.';
+    }else{
+      sel.disabled = false;
+      if(help) help.textContent = 'Selecione o empregador quando a reunião for externa.';
+    }
+  };
+
+  window.renderMeetingTaskEditor = function(tasks){
+    const list = (tasks||[]).map(taskDefault);
+    const host = document.getElementById('meet-task-editor');
+    if(!host) return;
+    host.innerHTML = list.length ? list.map((t, idx)=>`
+      <div class="opening-row" data-meet-task-row="${idx}" style="grid-template-columns:1.2fr .8fr .75fr .8fr .7fr .7fr 46px;align-items:start">
+        <input class="fi" data-k="title" placeholder="Tarefa alinhada" value="${safeAttrValue(t.title)}">
+        <input class="fi" data-k="owner" placeholder="Responsável" value="${safeAttrValue(t.owner)}">
+        <select class="fs" data-k="status">
+          ${['A fazer','Em andamento','Pronto','Bloqueado','Cancelado'].map(v=>`<option ${t.status===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}
+        </select>
+        <input type="date" class="fi" data-k="due" value="${safeAttrValue(t.due)}">
+        <input type="number" step="0.01" class="fi" data-k="target" placeholder="Meta" value="${safeAttrValue(t.target)}">
+        <input type="number" step="0.01" class="fi" data-k="actual" placeholder="Atual" value="${safeAttrValue(t.actual)}">
+        <button class="icon-btn danger" type="button" onclick="removeMeetingTaskRow(${idx})"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+        <textarea class="ft" data-k="comments" placeholder="Comentário / acompanhamento" style="grid-column:1 / span 6;min-height:72px">${escapeHTML(t.comments)}</textarea>
+      </div>
+    `).join('') : `<div class="empty"><p>Nenhuma tarefa vinculada.</p><small>Use “Adicionar tarefa” para registrar os alinhamentos da reunião.</small></div>`;
+  };
+
+  window.collectMeetingTaskRows = function(){
+    return Array.from(document.querySelectorAll('#meet-task-editor [data-meet-task-row]')).map(row=>taskDefault({
+      id: row.dataset.id || relUuid(),
+      title: row.querySelector('[data-k="title"]')?.value,
+      owner: row.querySelector('[data-k="owner"]')?.value,
+      status: row.querySelector('[data-k="status"]')?.value,
+      due: row.querySelector('[data-k="due"]')?.value,
+      comments: row.querySelector('[data-k="comments"]')?.value,
+      target: row.querySelector('[data-k="target"]')?.value,
+      actual: row.querySelector('[data-k="actual"]')?.value,
+      priority: 'Média'
+    })).filter(t=>t.title);
+  };
+  window.addMeetingTaskRow = function(){
+    const current = document.querySelectorAll('#meet-task-editor [data-meet-task-row]').length ? window.collectMeetingTaskRows() : [];
+    current.push(taskDefault({}));
+    window.renderMeetingTaskEditor(current);
+  };
+  window.removeMeetingTaskRow = function(idx){
+    const current = window.collectMeetingTaskRows();
+    current.splice(idx, 1);
+    window.renderMeetingTaskEditor(current);
+  };
+
+  window.renderEmployerProjectsEditor = function(projects){
+    const list = (projects||[]).map(projectDefault);
+    const host = document.getElementById('emp-projects-editor');
+    if(!host) return;
+    host.innerHTML = list.length ? list.map((p, idx)=>`
+      <div class="opening-row" data-emp-project-row="${idx}" style="grid-template-columns:1.2fr .8fr .75fr .8fr .7fr .7fr 46px;align-items:start">
+        <input class="fi" data-k="title" placeholder="Projeto" value="${safeAttrValue(p.title)}">
+        <input class="fi" data-k="owner" placeholder="Responsável" value="${safeAttrValue(p.owner)}">
+        <select class="fs" data-k="status">
+          ${['A fazer','Em andamento','Concluído','Bloqueado','Cancelado'].map(v=>`<option ${p.status===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}
+        </select>
+        <input type="date" class="fi" data-k="due" value="${safeAttrValue(p.due)}">
+        <input type="number" step="0.01" class="fi" data-k="target" placeholder="Meta" value="${safeAttrValue(p.target)}">
+        <input type="number" step="0.01" class="fi" data-k="actual" placeholder="Atual" value="${safeAttrValue(p.actual)}">
+        <button class="icon-btn danger" type="button" onclick="removeEmployerProjectRow(${idx})"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+        <textarea class="ft" data-k="comments" placeholder="Comentário / evolução do projeto" style="grid-column:1 / span 6;min-height:72px">${escapeHTML(p.comments)}</textarea>
+      </div>
+    `).join('') : `<div class="empty"><p>Nenhum projeto registrado.</p><small>Use “Adicionar projeto” para acompanhar campanhas, bolsa de estudos e outras frentes.</small></div>`;
+  };
+  window.collectEmployerProjectRows = function(){
+    return Array.from(document.querySelectorAll('#emp-projects-editor [data-emp-project-row]')).map(row=>projectDefault({
+      id: row.dataset.id || relUuid(),
+      title: row.querySelector('[data-k="title"]')?.value,
+      owner: row.querySelector('[data-k="owner"]')?.value,
+      status: row.querySelector('[data-k="status"]')?.value,
+      due: row.querySelector('[data-k="due"]')?.value,
+      comments: row.querySelector('[data-k="comments"]')?.value,
+      target: row.querySelector('[data-k="target"]')?.value,
+      actual: row.querySelector('[data-k="actual"]')?.value,
+      priority: 'Média'
+    })).filter(p=>p.title);
+  };
+  window.addEmployerProjectRow = function(){
+    const current = document.querySelectorAll('#emp-projects-editor [data-emp-project-row]').length ? window.collectEmployerProjectRows() : [];
+    current.push(projectDefault({}));
+    window.renderEmployerProjectsEditor(current);
+  };
+  window.removeEmployerProjectRow = function(idx){
+    const current = window.collectEmployerProjectRows();
+    current.splice(idx, 1);
+    window.renderEmployerProjectsEditor(current);
+  };
+
+  const oldPopulateAllSelects = window.populateAllSelects;
+  window.populateAllSelects = function(){
+    oldPopulateAllSelects();
+    ensurePatchedUi();
+    const meetEmp = document.getElementById('meet-employer');
+    if(meetEmp && !Array.from(meetEmp.options).some(o=>o.value==='')){
+      meetEmp.insertAdjacentHTML('afterbegin','<option value="">— reunião interna / geral —</option>');
+    }
+    const meetFilter = document.getElementById('meet-emp-filter');
+    if(meetFilter && !Array.from(meetFilter.options).some(o=>o.value==='__internal__')){
+      meetFilter.insertAdjacentHTML('beforeend', `<option value="__internal__">${INTERNAL_LABEL}</option>`);
+    }
+  };
+
+  const oldMeetingStateToRel = window.meetingStateToRel;
+  window.meetingStateToRel = function(item){
+    const internal = (item?.scope==='interna_talents') || !String(item?.employer||'').trim();
+    const noteMeta = { scope: internal ? 'interna_talents' : 'employer' };
+    return {
+      id: relUuid(item?.id),
+      meeting_scope: internal ? 'group' : 'employer',
+      group_name: internal ? 'Talents 4' : null,
+      employer_id: null,
+      employer_name_snapshot: internal ? null : (item?.employer || null),
+      title:(item?.tema || '').trim() || (internal ? 'Reunião interna Talents4' : `Reunião ${item?.employer||''}`),
+      topic:item?.tema || null,
+      month_ref:item?.mes || null,
+      week_label:item?.semana || null,
+      scheduled_at:relTsOrNull(item?.data),
+      decision_summary:item?.decidido || null,
+      resolved_items:null,
+      pending_items:item?.pendencias || null,
+      next_action:item?.proxacao || null,
+      owner_name:item?.responsavel || null,
+      status:item?.status || 'A fazer',
+      notes: JSON.stringify(noteMeta),
+      created_by:null,
+      updated_by:null,
+      deleted_at:null
+    };
+  };
+  window.meetingRelToState = function(row){
+    const meta = tryJson(row?.notes, {});
+    const scope = meta?.scope || (row?.meeting_scope==='group' ? 'interna_talents' : 'employer');
+    const id = row.id;
+    return {
+      id,
+      data: relDateOnly(row.scheduled_at) || '',
+      mes: row.month_ref || '',
+      semana: row.week_label || '',
+      employer: scope==='interna_talents' ? '' : (row.employer_name_snapshot || ''),
+      scope,
+      tema: row.topic || row.title || '',
+      decidido: row.decision_summary || '',
+      pendencias: row.pending_items || '',
+      proxacao: row.next_action || '',
+      responsavel: row.owner_name || '',
+      status: row.status || 'A fazer',
+      tasks: getMeetingTasksFromOperational(id)
+    };
+  };
+
+  const oldOpTaskStateToRel = window.opTaskStateToRel;
+  window.opTaskStateToRel = function(item, idx=0){
+    const empName = String(item?.employer || '').trim();
+    const empId = item?.employer_id_text || (empName ? relEmpIdByName(empName) : null);
+    const context = item?.context_type || (item?.meeting_id ? 'meeting' : (empName ? 'employer' : 'internal'));
+    return {
+      id: relUuid(item?.id),
+      title:item?.title || 'Tarefa operacional',
+      description:item?.description || null,
+      status:item?.status || 'A fazer',
+      priority:item?.priority || 'Média',
+      owner_user_key:item?.owner || null,
+      assigned_user_key:item?.owner || null,
+      team_scope:item?.team_scope || 'team',
+      context_type:context,
+      employer_id: empId || null,
+      candidate_id:null,
+      meeting_id:item?.meeting_id || null,
+      week_number:null,
+      month_ref:item?.month || MONTHS[S.currentMonthIdx]?.k || null,
+      start_date:item?.start_date || null,
+      due_date:item?.due_date || item?.due || null,
+      completed_at:(item?.status==='Pronto' || item?.status==='Concluído') ? (item?.completed_at || new Date().toISOString()) : null,
+      resource_link:item?.resource_link || null,
+      notes:item?.notes || null,
+      sort_index:Number.isFinite(idx) ? idx : 0,
+      is_recurring:false,
+      created_by:null,
+      updated_by:null,
+      deleted_at:null
+    };
+  };
+  window.opTaskRelToState = function(row){
+    const empName = row?.employer_id ? ((S.employers||[]).find(e=>String(e.id)===String(row.employer_id))?.name || '') : '';
+    return {
+      id:row.id,
+      title:row.title || '',
+      description:row.description || '',
+      status:row.status || 'A fazer',
+      priority:row.priority || 'Média',
+      owner:row.owner_user_key || row.assigned_user_key || '',
+      team_scope:row.team_scope || 'team',
+      employer:empName,
+      employer_id_text: row.employer_id || null,
+      month:row.month_ref || '',
+      start_date:row.start_date || '',
+      due_date:row.due_date || '',
+      notes:row.notes || '',
+      completed_at:row.completed_at || null,
+      context_type:row.context_type || '',
+      meeting_id:row.meeting_id || null,
+      resource_link:row.resource_link || null
+    };
+  };
+
+  const oldLoadHybrid = window.orgHybridLoadRelationalSlices;
+  window.orgHybridLoadRelationalSlices = async function(){
+    const legacy = {
+      planEntries: deepClone(S.planEntries||[]),
+      meetings: deepClone(S.meetings||[]),
+      weeklySummaries: deepClone(S.weeklySummaries||[]),
+      operationalTasks: deepClone(S.operationalTasks||[]),
+      operationalMetrics: deepClone(S.operationalMetrics||[])
+    };
+    const res = await oldLoadHybrid();
+    S.planEntries = mergeById(S.planEntries||[], legacy.planEntries||[]);
+    S.meetings = mergeById(S.meetings||[], legacy.meetings||[]).map(m=>{
+      if(!m.scope) m.scope = String(m.employer||'').trim() ? 'employer' : 'interna_talents';
+      if(!Array.isArray(m.tasks)) m.tasks = getMeetingTasksFromOperational(m.id);
+      return m;
+    });
+    S.weeklySummaries = mergeById(S.weeklySummaries||[], legacy.weeklySummaries||[]);
+    S.operationalTasks = mergeById(S.operationalTasks||[], legacy.operationalTasks||[]);
+    S.operationalMetrics = mergeById(S.operationalMetrics||[], legacy.operationalMetrics||[]);
+    save();
+    return res;
+  };
+
+  async function softDeleteOperationalMetricByKey(metricKey){
+    const client = getSupa();
+    if(!client || !metricKey) return;
+    try{
+      const {error} = await withTimeout(client.from(ORG_HYBRID.OPMET).update({deleted_at:new Date().toISOString()}).eq('metric_key', metricKey).is('deleted_at', null), 5000, 'Soft delete métrica vinculada');
+      if(error) throw error;
+    }catch(err){
+      console.warn('[T4 Organizacional] soft delete metric key:', err?.message || err);
+    }
+    S.operationalMetrics = (S.operationalMetrics||[]).filter(m=>String(m.metric_key)!==String(metricKey));
+  }
+
+  function upsertLocalTask(task){
+    const idx = (S.operationalTasks||[]).findIndex(x=>String(x.id)===String(task.id));
+    if(idx>=0) S.operationalTasks[idx]=task; else S.operationalTasks.push(task);
+  }
+  function upsertLocalMetric(metric){
+    const idx = (S.operationalMetrics||[]).findIndex(x=>String(x.id)===String(metric.id) || String(x.metric_key)===String(metric.metric_key));
+    if(idx>=0) S.operationalMetrics[idx]=metric; else S.operationalMetrics.push(metric);
+  }
+
+  async function syncMeetingOperationalItems(meeting){
+    const desired = (meeting.tasks||[]).map(taskDefault);
+    const existing = (S.operationalTasks||[]).filter(t=>String(t.context_type||'')==='meeting' && String(t.resource_link||'')===MEETING_TASK_MARKER && String(t.meeting_id||'')===String(meeting.id));
+    const desiredIds = desired.map(t=>String(t.id));
+    for(const stale of existing.filter(t=>!desiredIds.includes(String(t.id)))){
+      try{ await orgHybridSoftDeleteOperationalTask(stale.id); }catch(err){ console.warn('[T4 Organizacional] soft delete tarefa reunião:', err?.message || err); }
+      await softDeleteOperationalMetricByKey(`meeting_task_${stale.id}`);
+      S.operationalTasks = (S.operationalTasks||[]).filter(t=>String(t.id)!==String(stale.id));
+    }
+    for(let idx=0; idx<desired.length; idx++){
+      const task = desired[idx];
+      const state = {
+        id: task.id,
+        title: task.title,
+        description: 'Tarefa alinhada em reunião',
+        status: task.status,
+        priority: task.priority || 'Média',
+        owner: task.owner,
+        team_scope: 'team',
+        employer: meeting.employer || '',
+        employer_id_text: meeting.employer ? relEmpIdByName(meeting.employer) : null,
+        month: meeting.mes || MONTHS[S.currentMonthIdx]?.k || '',
+        start_date: meeting.data || '',
+        due_date: task.due || '',
+        notes: task.comments || '',
+        context_type: 'meeting',
+        meeting_id: meeting.id,
+        resource_link: MEETING_TASK_MARKER
+      };
+      await orgHybridUpsertOperationalTask(state, idx);
+      upsertLocalTask(state);
+      const metric = {
+        id: metricForKey(`meeting_task_${task.id}`)?.id || relUuid(),
+        month: meeting.mes || MONTHS[S.currentMonthIdx]?.k || '',
+        metric_key: `meeting_task_${task.id}`,
+        metric_label: `Tarefa reunião: ${task.title}`,
+        target_value: num(task.target),
+        actual_value: num(task.actual),
+        team_scope: 'team',
+        owner: task.owner || '',
+        notes: meeting.tema || 'Reunião interna'
+      };
+      await orgHybridUpsertOperationalMetric(metric);
+      upsertLocalMetric(metric);
+      task.id = state.id;
+    }
+  }
+
+  async function softDeleteMeetingOperationalItems(meetingId){
+    const existing = (S.operationalTasks||[]).filter(t=>String(t.context_type||'')==='meeting' && String(t.resource_link||'')===MEETING_TASK_MARKER && String(t.meeting_id||'')===String(meetingId));
+    for(const stale of existing){
+      try{ await orgHybridSoftDeleteOperationalTask(stale.id); }catch(err){ console.warn('[T4 Organizacional] soft delete task meeting cascade:', err?.message || err); }
+      await softDeleteOperationalMetricByKey(`meeting_task_${stale.id}`);
+      S.operationalTasks = (S.operationalTasks||[]).filter(t=>String(t.id)!==String(stale.id));
+    }
+  }
+
+  async function syncEmployerProjects(emp, projects){
+    const desired = (projects||[]).map(projectDefault);
+    const existing = (S.operationalTasks||[]).filter(t=>String(t.context_type||'')==='employer' && String(t.resource_link||'')===EMPLOYER_PROJECT_MARKER && (String(t.employer_id_text||'')===String(emp.id||'') || String(t.employer||'')===String(emp.name||'')));
+    const desiredIds = desired.map(p=>String(p.id));
+    for(const stale of existing.filter(t=>!desiredIds.includes(String(t.id)))){
+      try{ await orgHybridSoftDeleteOperationalTask(stale.id); }catch(err){ console.warn('[T4 Organizacional] soft delete projeto:', err?.message || err); }
+      await softDeleteOperationalMetricByKey(`employer_project_${stale.id}`);
+      S.operationalTasks = (S.operationalTasks||[]).filter(t=>String(t.id)!==String(stale.id));
+    }
+    for(let idx=0; idx<desired.length; idx++){
+      const project = desired[idx];
+      const state = {
+        id: project.id,
+        title: project.title,
+        description: 'Projeto do empregador',
+        status: project.status,
+        priority: project.priority || 'Média',
+        owner: project.owner,
+        team_scope: 'team',
+        employer: emp.name || '',
+        employer_id_text: String(emp.id||''),
+        month: MONTHS[S.currentMonthIdx]?.k || '',
+        start_date: '',
+        due_date: project.due || '',
+        notes: project.comments || '',
+        context_type: 'employer',
+        meeting_id: null,
+        resource_link: EMPLOYER_PROJECT_MARKER
+      };
+      await orgHybridUpsertOperationalTask(state, idx);
+      upsertLocalTask(state);
+      const metric = {
+        id: metricForKey(`employer_project_${project.id}`)?.id || relUuid(),
+        month: MONTHS[S.currentMonthIdx]?.k || '',
+        metric_key: `employer_project_${project.id}`,
+        metric_label: `Projeto ${emp.name}: ${project.title}`,
+        target_value: num(project.target),
+        actual_value: num(project.actual),
+        team_scope: 'team',
+        owner: project.owner || '',
+        notes: emp.name || ''
+      };
+      await orgHybridUpsertOperationalMetric(metric);
+      upsertLocalMetric(metric);
+      project.id = state.id;
+    }
+  }
+
+  async function softDeleteEmployerProjects(emp){
+    const existing = (S.operationalTasks||[]).filter(t=>String(t.context_type||'')==='employer' && String(t.resource_link||'')===EMPLOYER_PROJECT_MARKER && (String(t.employer_id_text||'')===String(emp.id||'') || String(t.employer||'')===String(emp.name||'')));
+    for(const stale of existing){
+      try{ await orgHybridSoftDeleteOperationalTask(stale.id); }catch(err){ console.warn('[T4 Organizacional] soft delete project cascade:', err?.message || err); }
+      await softDeleteOperationalMetricByKey(`employer_project_${stale.id}`);
+      S.operationalTasks = (S.operationalTasks||[]).filter(t=>String(t.id)!==String(stale.id));
+    }
+  }
+
+  const oldOpenMeetModal = window.openMeetModal;
+  window.openMeetModal = function(id){
+    populateAllSelects();
+    ensurePatchedUi();
+    const isEdit = !!id;
+    document.getElementById('modal-meet-title').textContent = isEdit ? 'Editar Reunião' : 'Nova Reunião';
+    document.getElementById('meet-delete-btn').style.display = isEdit ? '' : 'none';
+    document.getElementById('meet-id').value = '';
+    document.getElementById('meet-data').value = '';
+    document.getElementById('meet-mes').value = MONTHS[S.currentMonthIdx].k;
+    document.getElementById('meet-semana').value = '';
+    document.getElementById('meet-scope').value = 'employer';
+    document.getElementById('meet-employer').value = '';
+    document.getElementById('meet-tema').value = '';
+    document.getElementById('meet-decidido').value = '';
+    document.getElementById('meet-pendencias').value = '';
+    document.getElementById('meet-proxacao').value = '';
+    document.getElementById('meet-responsavel').value = '';
+    document.getElementById('meet-status').value = 'A fazer';
+    window.renderMeetingTaskEditor([]);
+    if(isEdit){
+      const m = S.meetings.find(x=>x.id===id);
+      if(m){
+        document.getElementById('meet-id').value = m.id;
+        document.getElementById('meet-data').value = m.data || '';
+        document.getElementById('meet-mes').value = m.mes || MONTHS[S.currentMonthIdx].k;
+        document.getElementById('meet-semana').value = m.semana || '';
+        document.getElementById('meet-scope').value = m.scope || (m.employer ? 'employer' : 'interna_talents');
+        document.getElementById('meet-employer').value = m.employer || '';
+        document.getElementById('meet-tema').value = m.tema || '';
+        document.getElementById('meet-decidido').value = m.decidido || '';
+        document.getElementById('meet-pendencias').value = m.pendencias || '';
+        document.getElementById('meet-proxacao').value = m.proxacao || '';
+        document.getElementById('meet-responsavel').value = m.responsavel || '';
+        document.getElementById('meet-status').value = m.status || 'A fazer';
+        window.renderMeetingTaskEditor((m.tasks && m.tasks.length) ? m.tasks : getMeetingTasksFromOperational(m.id));
+      }
+    }
+    window.toggleMeetingScopeUi();
+    openModal('modal-meet');
+  };
+
+  const oldSaveMeeting = window.saveMeeting;
+  window.saveMeeting = async function(){
+    const id = document.getElementById('meet-id').value;
+    const scope = document.getElementById('meet-scope')?.value || 'employer';
+    const employer = scope==='interna_talents' ? '' : document.getElementById('meet-employer').value;
+    const m = {
+      id:id||relUuid(),
+      data:document.getElementById('meet-data').value,
+      mes:document.getElementById('meet-mes').value,
+      semana:document.getElementById('meet-semana').value,
+      employer,
+      scope,
+      tema:document.getElementById('meet-tema').value,
+      decidido:document.getElementById('meet-decidido').value,
+      pendencias:document.getElementById('meet-pendencias').value,
+      proxacao:document.getElementById('meet-proxacao').value,
+      responsavel:document.getElementById('meet-responsavel').value,
+      status:document.getElementById('meet-status').value,
+      tasks: window.collectMeetingTaskRows()
+    };
+    const existingIndex = id ? S.meetings.findIndex(x=>x.id===id) : -1;
+    if(existingIndex>=0) S.meetings[existingIndex]=m; else S.meetings.push(m);
+    try{
+      await orgHybridUpsertMeeting(m);
+      await syncMeetingOperationalItems(m);
+      save(); closeModal('modal-meet'); renderMeetings(); renderCalendar(); renderOperationalPage?.();
+      toast(id?'Reunião atualizada ✓':'Reunião criada ✓');
+    }catch(err){
+      console.warn('[T4 Organizacional] saveMeeting patch:', err?.message || err);
+      save(); closeModal('modal-meet'); renderMeetings(); renderCalendar();
+      toast('⚠ Reunião salva localmente. Falha na sincronização relacional.');
+    }
+  };
+
+  const oldDeleteMeetFromModal = window.deleteMeetFromModal;
+  window.deleteMeetFromModal = function(){
+    const id=document.getElementById('meet-id').value;
+    if(!id) return;
+    confirm('Excluir esta reunião?', async ()=>{
+      S.meetings = S.meetings.filter(x=>x.id!==id);
+      try{
+        await orgHybridSoftDeleteMeeting(id);
+        await softDeleteMeetingOperationalItems(id);
+        save(); closeModal('modal-meet'); renderMeetings(); renderCalendar(); renderOperationalPage?.(); toast('Reunião removida');
+      }catch(err){
+        console.warn('[T4 Organizacional] delete meeting patch:', err?.message || err);
+        save(); closeModal('modal-meet'); renderMeetings(); renderCalendar(); toast('⚠ Reunião removida localmente. Falha na sincronização relacional.');
+      }
+    });
+  };
+  window.deleteMeetDirect = function(id){
+    if(!id) return;
+    confirm('Excluir esta reunião?', async ()=>{
+      S.meetings = S.meetings.filter(x=>x.id!==id);
+      try{ await orgHybridSoftDeleteMeeting(id); await softDeleteMeetingOperationalItems(id); }catch(err){ console.warn('[T4 Organizacional] deleteMeetDirect patch:', err?.message || err); }
+      save(); refreshVisibleViews({calendar:true}); renderOperationalPage?.(); toast('Reunião removida');
+    });
+  };
+
+  const oldRenderMeetings = window.renderMeetings;
+  window.renderMeetings = function(){
+    ensureUiState();
+    populateAllSelects();
+    const search=(document.getElementById('meet-search')?.value||'').toLowerCase();
+    const empF=document.getElementById('meet-emp-filter')?.value||'';
+    const monF=document.getElementById('meet-month-filter')?.value||'';
+    const tbody=document.getElementById('meet-tbody');
+    let list=(S.meetings||[]).map(m=>{
+      if(!Array.isArray(m.tasks) || !m.tasks.length) m.tasks = getMeetingTasksFromOperational(m.id);
+      if(!m.scope) m.scope = String(m.employer||'').trim() ? 'employer' : 'interna_talents';
+      return m;
+    }).filter(m=>
+      (!search||[meetingDisplayEmployer(m),m.tema,m.decidido,m.responsavel,m.pendencias,m.proxacao].join(' ').toLowerCase().includes(search)) &&
+      (!empF || (empF==='__internal__' ? (m.scope==='interna_talents' || !m.employer) : m.employer===empF)) &&
+      (!monF || m.mes===monF)
+    ).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+    if(!list.length){
+      tbody.innerHTML=`<tr><td colspan="10"><div class="empty"><p>Nenhuma reunião encontrada.</p><small>Clique em "Nova Reunião" para registrar</small></div></td></tr>`;
+      return;
+    }
+    const dot=name=>`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${name===INTERNAL_LABEL?'#64748B':getEmpColor(name)};margin-right:6px;vertical-align:middle"></span>`;
+    tbody.innerHTML=list.map(m=>{
+      const expanded=!!S.ui.meetingExpanded[m.id];
+      const meetId=escapeJsString(m.id);
+      const empName = meetingDisplayEmployer(m) || '—';
+      const tasks=(m.tasks||[]);
+      return `<tr class="expand-row ${expanded?'expanded':''}" data-meet-id="${escapeAttr(m.id)}" onclick="toggleMeeting('${meetId}')">
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${escapeHTML(m.data||'—')}</td>
+        <td style="font-size:11px;color:var(--text2)">${safeText(m.semana,'—')}</td>
+        <td style="font-size:12px;font-weight:700">${dot(empName)}${safeText(empName,'—')}</td>
+        <td style="font-size:11px;max-width:150px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeAttrValue(m.tema||'')}">${safeText(m.tema,'—')}</span></td>
+        <td style="font-size:11px;max-width:180px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeAttrValue(m.decidido||'')}">${safeText(m.decidido,'—')}</span></td>
+        <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeAttrValue(m.pendencias||'')}">${safeText(m.pendencias,'—')}</span></td>
+        <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${safeText(m.proxacao,'—')}</span></td>
+        <td style="font-size:11px">${safeText(m.responsavel,'—')}</td>
+        <td style="position:relative" onclick="event.stopPropagation()"><button class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${meetId}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${escapeHTML(m.status||'—')}</button></td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" onclick="event.stopPropagation();openMeetModal('${meetId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="icon-btn danger" onclick="event.stopPropagation();deleteMeetDirect('${meetId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          </div>
+        </td>
+      </tr>
+      ${expanded?`<tr class="meet-expanded"><td colspan="10">
+        <div class="meet-expand-box">
+          <div class="meet-expand-grid">
+            <div class="meet-expand-card">
+              <div class="ttl">Tema e decisão</div>
+              <div class="txt"><strong>${safeText(m.tema,'Sem tema')}</strong><br>${nl2brSafe(m.decidido,'Sem decisão registrada.')}</div>
+            </div>
+            <div class="meet-expand-card">
+              <div class="ttl">Pendências</div>
+              <div class="txt">${nl2brSafe(m.pendencias,'Nenhuma pendência registrada.')}</div>
+            </div>
+            <div class="meet-expand-card">
+              <div class="ttl">Próxima ação</div>
+              <div class="txt">${nl2brSafe(m.proxacao,'Nenhuma próxima ação registrada.')}</div>
+            </div>
+          </div>
+          <div class="ifield" style="margin-top:12px">
+            <div class="ifield-label">Tarefas alinhadas</div>
+            <div class="ifield-value">${tasks.length?`<div class="compact-list">${tasks.map(t=>`<div class="compact-item"><div class="compact-item-title">${escapeHTML(t.title)}</div><div class="compact-item-sub">${escapeHTML(t.status||'A fazer')}${t.owner?` · ${escapeHTML(t.owner)}`:''}${t.due?` · ${escapeHTML(t.due)}`:''}${num(t.target)||num(t.actual)?` · meta ${escapeHTML(String(t.target||0))} / atual ${escapeHTML(String(t.actual||0))}`:''}</div><div class="compact-item-sub">${t.comments?escapeHTML(t.comments):'Sem comentário'}</div></div>`).join('')}</div>`:'<em style="color:var(--text3)">Nenhuma tarefa vinculada.</em>'}</div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMeetModal('${meetId}')">Editar reunião</button>
+          </div>
+        </div>
+      </td></tr>`:''}`;
+    }).join('');
+  };
+
+  const oldOpenEmpModal = window.openEmpModal;
+  window.openEmpModal = function(name){
+    ensurePatchedUi();
+    const isEdit=!!name;
+    document.getElementById('modal-emp-title').textContent=isEdit?'Editar Empregador':'Novo Empregador';
+    document.getElementById('emp-delete-btn').style.display=isEdit?'':'none';
+    document.getElementById('emp-id').value='';
+    document.getElementById('emp-name').value='';
+    document.getElementById('emp-color').value=DEFAULT_EMP_COLORS[S.employers.length%DEFAULT_EMP_COLORS.length];
+    document.getElementById('emp-descricao').value='';
+    document.getElementById('emp-focusareas').value='';
+    document.getElementById('emp-contato').value='';
+    document.getElementById('emp-pasta').value='';
+    document.getElementById('emp-crm').value='';
+    document.getElementById('emp-saude').value='Estável';
+    renderEmployerOpeningsEditor([]);
+    window.renderEmployerProjectsEditor([]);
+    if(isEdit){
+      const e=getEmpObj(name);
+      document.getElementById('emp-id').value=e.id||e.name;
+      document.getElementById('emp-name').value=e.name;
+      document.getElementById('emp-color').value=e.color||'#2563EB';
+      document.getElementById('emp-descricao').value=e.descricao||'';
+      document.getElementById('emp-focusareas').value=e.focusAreas||'';
+      document.getElementById('emp-contato').value=e.contato||'';
+      document.getElementById('emp-pasta').value=e.pasta||'';
+      document.getElementById('emp-crm').value=e.crm||e.link||'';
+      document.getElementById('emp-saude').value=e.saude||'Estável';
+      renderEmployerOpeningsEditor(e.openings||parseOpeningsText(e.vagas||''));
+      const projects = (Array.isArray(e.projects)&&e.projects.length) ? e.projects : getEmployerProjectsFromOperational(e);
+      e.projects = projects.map(projectDefault);
+      window.renderEmployerProjectsEditor(e.projects);
+    }
+    openModal('modal-emp');
+  };
+
+  const oldSaveEmp = window.saveEmp;
+  window.saveEmp = async function(){
+    const id=document.getElementById('emp-id').value;
+    const name=document.getElementById('emp-name').value.trim();
+    if(!name){toast('⚠ Nome do empregador é obrigatório');return;}
+    const openings=collectOpeningRows();
+    const projects=window.collectEmployerProjectRows();
+    const data={
+      color:document.getElementById('emp-color').value,
+      descricao:document.getElementById('emp-descricao').value,
+      focusAreas:document.getElementById('emp-focusareas').value,
+      openings,
+      vagas:openingsToText(openings),
+      contato:document.getElementById('emp-contato').value,
+      pasta:document.getElementById('emp-pasta').value,
+      crm:document.getElementById('emp-crm').value,
+      link:document.getElementById('emp-crm').value,
+      saude:document.getElementById('emp-saude').value,
+      projects
+    };
+    let renamedPair=null;
+    try{
+      if(id){
+        const existing=S.employers.find(e=>e.id===id||e.name===id);
+        if(existing){
+          const oldName=existing.name;
+          Object.assign(existing,{name,...data});
+          if(oldName!==name&&S.dossiers[oldName]){
+            S.dossiers[name]=S.dossiers[oldName];
+            delete S.dossiers[oldName];
+          }
+          S.planEntries.forEach(e=>{if(e.employer===oldName)e.employer=name;});
+          S.meetings.forEach(m=>{if(m.employer===oldName)m.employer=name;});
+          S.weeklySummaries.forEach(w=>{if(w.employer===oldName)w.employer=name;});
+          (S.dossiers[name]?.reposicao||[]).forEach(r=>{ if(r && r.employer===oldName) r.employer=name; });
+          if(S.currentDossieEmp===oldName)S.currentDossieEmp=name;
+          if(oldName!==name) renamedPair={oldName,newName:name};
+        }
+      } else {
+        if(S.employers.find(e=>e.name===name)){toast('⚠ Já existe um empregador com este nome');return;}
+        const newEmp={id:uid(),name,...data};
+        S.employers.push(newEmp);
+        if(!S.dossiers[name])S.dossiers[name]={candidatos:[],removidos:[],reposicao:[]};
+      }
+      const targetEmp = S.employers.find(e=>e.id===id||e.name===name) || S.employers.find(e=>e.name===name);
+      if(targetEmp){
+        try{ await orgHybridSyncEmployerOpenings(targetEmp.id, targetEmp.openings||[]); } catch(err){ console.warn('[T4 Organizacional] sync vagas employer:', err?.message || err); }
+        try{ await syncEmployerProjects(targetEmp, targetEmp.projects||[]); } catch(err){ console.warn('[T4 Organizacional] sync projetos employer:', err?.message || err); }
+      }
+      if(renamedPair){
+        try{ await orgHybridRenameEmployerSnapshots(renamedPair.oldName, renamedPair.newName); } catch(err){ console.warn('[T4 Organizacional] rename relacional employer:', err?.message || err); }
+      }
+      save();closeModal('modal-emp'); populateAllSelects(); renderEmployers(); if(document.getElementById('page-dossie').classList.contains('active')){renderEmpTabs();renderDossie();} renderOperationalPage?.(); toast('Empregador salvo ✓');
+    }catch(err){
+      console.warn('[T4 Organizacional] saveEmp patch:', err?.message || err);
+      toast('⚠ Empregador salvo localmente, mas houve falha na sincronização complementar');
+      save();closeModal('modal-emp'); populateAllSelects(); renderEmployers();
+    }
+  };
+
+  const oldDeleteEmpById = window.deleteEmpById;
+  window.deleteEmpById = function(){
+    const id=document.getElementById('emp-id').value;
+    const emp=S.employers.find(e=>e.id===id||e.name===id);
+    if(!emp)return;
+    confirm(`Excluir "${emp.name}" e todos os seus dados?`, async ()=>{
+      try{
+        S.employers=S.employers.filter(e=>e!==emp);
+        delete S.dossiers[emp.name];
+        S.planEntries=S.planEntries.filter(e=>e.employer!==emp.name);
+        S.meetings=S.meetings.filter(m=>m.employer!==emp.name);
+        S.weeklySummaries=S.weeklySummaries.filter(w=>w.employer!==emp.name);
+        if(S.currentDossieEmp===emp.name)S.currentDossieEmp=S.employers[0]?.name||'';
+        try{
+          await orgHybridSoftDeleteEmployerSlices(emp.name);
+          await orgHybridSoftDeleteEmployerOpenings(emp.id);
+          await softDeleteEmployerProjects(emp);
+        }catch(err){ console.warn('[T4 Organizacional] soft delete employer slices:', err?.message || err); }
+        save();closeModal('modal-emp');populateAllSelects();renderEmployers();renderOperationalPage?.();toast('Empregador excluído');
+      }catch(err){
+        console.warn('[T4 Organizacional] deleteEmpById patch:', err?.message || err);
+        save();closeModal('modal-emp');populateAllSelects();renderEmployers();toast('⚠ Exclusão local concluída, mas houve falha complementar');
+      }
+    });
+  };
+  window.deleteEmpDirect = function(name){
+    if(!name) return;
+    confirm('Excluir este empregador e todos os dados vinculados?', async ()=>{
+      const emp=S.employers.find(e=>e.name===name);
+      if(!emp){toast('⚠ Empregador não encontrado');return;}
+      S.employers=S.employers.filter(e=>e.id!==emp.id && e.name!==name);
+      delete S.dossiers[emp.name];
+      S.planEntries=S.planEntries.filter(e=>e.employer!==name);
+      S.meetings=S.meetings.filter(m=>m.employer!==name);
+      S.weeklySummaries=S.weeklySummaries.filter(w=>w.employer!==name);
+      if(S.currentDossieEmp===name)S.currentDossieEmp=S.employers[0]?.name||'';
+      try{
+        await orgHybridSoftDeleteEmployerSlices(name);
+        await orgHybridSoftDeleteEmployerOpenings(emp.id);
+        await softDeleteEmployerProjects(emp);
+      }catch(err){ console.warn('[T4 Organizacional] deleteEmpDirect patch:', err?.message || err); }
+      save(); populateAllSelects(); renderEmployers(); if(document.getElementById('page-dossie').classList.contains('active')){renderEmpTabs();renderDossie();} renderOperationalPage?.(); toast('Empregador excluído');
+    });
+  };
+
+  const oldRenderInfo = window.renderInfo;
+  window.renderInfo = function(){
+    oldRenderInfo();
+    const empName = S.currentDossieEmp;
+    const emp = getEmpObj(empName);
+    if(!emp) return;
+    if((!Array.isArray(emp.projects) || !emp.projects.length)){
+      emp.projects = getEmployerProjectsFromOperational(emp);
+    }
+    const box = document.getElementById('info-content');
+    if(!box) return;
+    const projects = (emp.projects||[]).map(projectDefault);
+    const section = document.createElement('div');
+    section.className='ifield';
+    section.style.marginTop='10px';
+    section.innerHTML = `
+      <div class="ifield-label">Projetos</div>
+      <div class="ifield-value">${projects.length?`<div class="compact-list">${projects.map(p=>`<div class="compact-item"><div class="compact-item-title">${escapeHTML(p.title)}</div><div class="compact-item-sub">${escapeHTML(p.status||'A fazer')}${p.owner?` · ${escapeHTML(p.owner)}`:''}${p.due?` · ${escapeHTML(p.due)}`:''}${num(p.target)||num(p.actual)?` · meta ${escapeHTML(String(p.target||0))} / atual ${escapeHTML(String(p.actual||0))}`:''}</div><div class="compact-item-sub">${p.comments?escapeHTML(p.comments):'Sem comentário'}</div></div>`).join('')}</div>`:'<em style="color:var(--text3)">Nenhum projeto registrado para este empregador.</em>'}
+      </div>
+    `;
+    box.appendChild(section);
+  };
+
+  function injectStyle(){
+    if(document.getElementById('t4-patch-style')) return;
+    const st = document.createElement('style');
+    st.id = 't4-patch-style';
+    st.textContent = `
+      #meet-task-editor .opening-row, #emp-projects-editor .opening-row{margin-bottom:8px}
+      #meet-task-editor .ft, #emp-projects-editor .ft{padding:10px 12px}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function initPatch(){
+    injectStyle();
+    ensurePatchedUi();
+    if(typeof populateAllSelects==='function') populateAllSelects();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', initPatch);
+  }else{
+    initPatch();
+  }
+})();
+</script>
+
 </body>
 </html>
