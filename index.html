@@ -2558,6 +2558,47 @@ const SUPABASE_URL = 'https://xcxqtjzlqmncwnhbolnl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
 const ADMIN_USER_LIFECYCLE_URL = `${SUPABASE_URL}/functions/v1/admin-user-lifecycle`;
 
+const DB = Object.freeze({
+  AGENDA: 'agenda',
+  AREA_PROFESSIONS: 'area_professions',
+  AREAS_MASTER: 'areas_master',
+  CANDIDATE_EMPLOYER_LINKS: 'candidate_employer_links',
+  CANDIDATE_EMPLOYER_MATCHES: 'candidate_employer_matches',
+  CANDIDATE_FLOW_SPECIALTIES: 'candidate_flow_specialties',
+  CANDIDATE_PROFESSIONAL_FLOWS: 'candidate_professional_flows',
+  CANDIDATE_PROFESSIONS: 'candidate_professions',
+  CANDIDATE_SPECIALTIES: 'candidate_specialties',
+  CANDIDATE_TRAININGS: 'candidate_trainings',
+  CANDIDATOS: 'candidatos',
+  CRM_AUDIT_LOGS: 'crm_audit_logs',
+  EMPLOYERS: 'employers',
+  ENTREVISTAS_PRELIMINARES: 'entrevistas_preliminares',
+  ENUMS: 'enums',
+  PARSER_AUDIT_LOGS: 'parser_audit_logs',
+  PIPELINE_EVENTS: 'pipeline_events',
+  PROFESSION_SPECIALTIES: 'profession_specialties',
+  PROFESSION_SUBAREAS_MASTER: 'profession_subareas_master',
+  PROFESSIONS_MASTER: 'professions_master',
+  TAXONOMY_ALIASES: 'taxonomy_aliases',
+  TAXONOMY_CHANGE_REQUESTS: 'taxonomy_change_requests',
+  TRAININGS_MASTER: 'trainings_master',
+  USUARIOS: 'usuarios',
+  V_CANDIDATOS_FULL_EMPLOYER: 'v_candidatos_full_employer',
+});
+const DATA_CANON = Object.freeze({
+  CANDIDATES: DB.CANDIDATOS,
+  EMPLOYERS: DB.EMPLOYERS,
+  INTERVIEWS: DB.ENTREVISTAS_PRELIMINARES,
+  MATCHES: DB.CANDIDATE_EMPLOYER_MATCHES,
+  LINKS_LEGACY: DB.CANDIDATE_EMPLOYER_LINKS,
+  SNAPSHOTS_LEGACY: 'org_ui_state_snapshots'
+});
+// Regra operacional:
+// - candidate_employer_matches = vínculo canônico
+// - candidate_employer_links = fallback legado temporário (não expandir)
+// - org_ui_state_snapshots = persistência legado do módulo organizacional (não remover antes da migração)
+
+
 // ── Google Drive OAuth (GIS popup flow) ──
 // Substitua pelo Client ID gerado no Google Cloud Console
 const GOOGLE_CLIENT_ID = '537631107304-oubpdolcprvc8nqpfmibd3oja7ng23ra.apps.googleusercontent.com';
@@ -3089,7 +3130,7 @@ async function doLogin() {
 
     // ── Busca perfil (sem senha) — role, nome, cor ──────────
     const { data: profile, error: profError } = await supa
-      .from('usuarios')
+      .from(DB.USUARIOS)
       .select('username, nome, role, color, ativo')
       .eq('username', username)
       .single();
@@ -3632,7 +3673,7 @@ async function apiGet(params) {
 
   if (route === 'candidates') {
     const { data, error } = await supa
-      .from('v_candidatos_full_employer')
+      .from(DB.V_CANDIDATOS_FULL_EMPLOYER)
       .select('*')
       .order('nome_completo')
       .limit(500);
@@ -3643,7 +3684,7 @@ async function apiGet(params) {
 
   if (route === 'candidate') {
     const { data, error } = await supa
-      .from('v_candidatos_full_employer')
+      .from(DB.V_CANDIDATOS_FULL_EMPLOYER)
       .select('*')
       .eq('id', params.id)
       .single();
@@ -3657,7 +3698,7 @@ async function apiGet(params) {
   }
 
   if (route === 'schema') {
-    const { data, error } = await supa.from('enums').select(ENUM_SELECT).order('campo').order('ordem');
+    const { data, error } = await supa.from(DB.ENUMS).select(ENUM_SELECT).order('campo').order('ordem');
     if (error) throw new Error(error.message);
     const byField = {};
     (data||[]).forEach(e => {
@@ -3669,7 +3710,7 @@ async function apiGet(params) {
 
   if (route === 'users') {
     // Seleciona apenas campos de perfil — senha gerenciada pelo Supabase Auth
-    const { data, error } = await supa.from('usuarios')
+    const { data, error } = await supa.from(DB.USUARIOS)
       .select('username, nome, role, color, ativo')
       .order('nome');
     if (error) throw new Error(error.message);
@@ -3681,7 +3722,7 @@ async function apiGet(params) {
   }
 
   if (route === 'health') {
-    const { error } = await supa.from('candidatos').select('id').limit(1);
+    const { error } = await supa.from(DB.CANDIDATOS).select('id').limit(1);
     return { ok: !error, version: '9.1-supabase-auth', message: error ? error.message : 'Supabase Auth ativo ✓' };
   }
 
@@ -3701,7 +3742,7 @@ async function apiPost(body) {
     snakeFields.atualizado_por = actor;
 
     // ── Save direto: sem auto-healing. Erro de schema aparece de forma clara. ──
-    const { error } = await supa.from('candidatos').update(snakeFields).eq('id', body.id);
+    const { error } = await supa.from(DB.CANDIDATOS).update(snakeFields).eq('id', body.id);
     if (error) {
       const isSchemaErr = /Could not find the '(\w+)' column/i.test(error.message);
       if (isSchemaErr) {
@@ -3730,7 +3771,7 @@ async function apiPost(body) {
     if (!snakeFields.ativo) snakeFields.ativo = 'SIM';
 
     // ── Insert direto: sem auto-healing. Erro de schema aparece de forma clara. ──
-    const { data: inserted, error: insErr } = await supa.from('candidatos').insert(snakeFields).select('id,nome_completo,status_pipeline,ativo,ultima_atualizacao,atualizado_por').single();
+    const { data: inserted, error: insErr } = await supa.from(DB.CANDIDATOS).insert(snakeFields).select('id,nome_completo,status_pipeline,ativo,ultima_atualizacao,atualizado_por').single();
     if (insErr) {
       const isSchemaErr = /Could not find the '(\w+)' column/i.test(insErr.message);
       if (isSchemaErr) {
@@ -3746,7 +3787,7 @@ async function apiPost(body) {
 
   if (action === 'setActive') {
     const exitDate = body.date || new Date().toISOString().split('T')[0];
-    const { error } = await supa.from('candidatos').update({
+    const { error } = await supa.from(DB.CANDIDATOS).update({
       ativo: body.active ? 'SIM' : 'NÃO',
       motivo_inativacao: body.active ? null : (body.reason || ''),
       data_inativacao: body.active ? null : exitDate,
@@ -3764,13 +3805,13 @@ async function apiPost(body) {
     const snakeFields = sanitizeCandidateWritePayload(toSnake(body.data || {}), 'update');
     snakeFields.ultima_atualizacao = new Date().toISOString();
     snakeFields.atualizado_por = actor;
-    const { error } = await supa.from('candidatos').update(snakeFields).eq('id', body.id);
+    const { error } = await supa.from(DB.CANDIDATOS).update(snakeFields).eq('id', body.id);
     if (error) throw new Error(error.message);
     return { ok:true };
   }
 
   if (action === 'advanceStage') {
-    const { error } = await supa.from('candidatos').update({
+    const { error } = await supa.from(DB.CANDIDATOS).update({
       status_pipeline: body.toStage,
       data_entrada_etapa_atual: new Date().toISOString().split('T')[0],
       ultima_atualizacao: new Date().toISOString(),
@@ -3785,18 +3826,18 @@ async function apiPost(body) {
   }
 
   if (action === 'deleteUser') {
-    const { error } = await supa.from('usuarios').update({ ativo:'NÃO' }).eq('username', body.userLogin);
+    const { error } = await supa.from(DB.USUARIOS).update({ ativo:'NÃO' }).eq('username', body.userLogin);
     if (error) throw new Error(error.message);
     return { ok:true };
   }
 
   if (action === 'upsertEnum') {
-    const { error } = await supa.from('enums').upsert({
+    const { error } = await supa.from(DB.ENUMS).upsert({
       campo: body.field, valor: body.value, ordem: 99
     }, { onConflict: 'campo,valor' });
     if (error) throw new Error(error.message);
     // Reload all enums so caller gets fresh data
-    const { data: enumData } = await supa.from('enums').select(ENUM_SELECT).order('campo').order('ordem');
+    const { data: enumData } = await supa.from(DB.ENUMS).select(ENUM_SELECT).order('campo').order('ordem');
     const byField = {};
     (enumData||[]).forEach(e => { if (!byField[e.campo]) byField[e.campo]=[]; byField[e.campo].push(e.valor); });
     S.enums = byField;
@@ -3804,10 +3845,10 @@ async function apiPost(body) {
   }
 
   if (action === 'removeEnum') {
-    const { error } = await supa.from('enums').delete().eq('campo', body.field).eq('valor', body.value);
+    const { error } = await supa.from(DB.ENUMS).delete().eq('campo', body.field).eq('valor', body.value);
     if (error) throw new Error(error.message);
     // Reload all enums so caller gets fresh data
-    const { data: enumData } = await supa.from('enums').select(ENUM_SELECT).order('campo').order('ordem');
+    const { data: enumData } = await supa.from(DB.ENUMS).select(ENUM_SELECT).order('campo').order('ordem');
     const byField = {};
     (enumData||[]).forEach(e => { if (!byField[e.campo]) byField[e.campo]=[]; byField[e.campo].push(e.valor); });
     S.enums = byField;
@@ -4090,7 +4131,7 @@ async function saveActiveInterviewDriveLink(candidateId, inputId) {
     }
     const supa = await getSupa();
     const payload = { meta: nextMeta, updated_at: new Date().toISOString() };
-    const { error } = await supa.from('entrevistas_preliminares').update(payload).eq('id', interview.id);
+    const { error } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).update(payload).eq('id', interview.id);
     if (error) throw error;
     const nextInterview = { ...interview, meta: nextMeta, updated_at: payload.updated_at };
     cacheCandidateInterview(candidateId, nextInterview);
@@ -4360,7 +4401,7 @@ async function loadEmployersIndex(force = false) {
   }
   try {
     const supa = await getSupa();
-    const { data, error } = await supa.from('employers').select(EMPLOYER_LIST_SELECT).eq('ativo', true).order('nome');
+    const { data, error } = await supa.from(DB.EMPLOYERS).select(EMPLOYER_LIST_SELECT).eq('ativo', true).is('deleted_at', null).order('nome');
     if (error) throw error;
     S.employers = (data || []).filter(row => String(row?.status || '').toLowerCase() !== 'inativo');
     markCacheStamp('employersAt');
@@ -4377,7 +4418,7 @@ async function loadParserAuditData(options = {}) {
   try {
     const supa = await getSupa();
     const { data, error } = await supa
-      .from('parser_audit_logs')
+      .from(DB.PARSER_AUDIT_LOGS)
       .select(PARSER_AUDIT_SELECT)
       .order('created_at', { ascending: false })
       .limit(60);
@@ -4399,8 +4440,8 @@ async function loadGovernanceData(options = {}) {
   try {
     const supa = await getSupa();
     const [eventsResp, auditResp] = await Promise.all([
-      supa.from('pipeline_events').select(PIPELINE_EVENTS_SELECT).order('created_at', { ascending:false }).limit(120),
-      supa.from('crm_audit_logs').select(CRM_AUDIT_LOGS_SELECT).order('created_at', { ascending:false }).limit(120),
+      supa.from(DB.PIPELINE_EVENTS).select(PIPELINE_EVENTS_SELECT).order('created_at', { ascending:false }).limit(120),
+      supa.from(DB.CRM_AUDIT_LOGS).select(CRM_AUDIT_LOGS_SELECT).order('created_at', { ascending:false }).limit(120),
     ]);
     S.pipelineEvents = eventsResp?.data || [];
     S.pipelineEventsError = eventsResp?.error?.message || '';
@@ -6653,7 +6694,7 @@ async function saveEmployerModal() {
   const tagsArr = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
   const payload = {
-    nome, nome_normalizado, ativo: true,
+    nome, nome_normalizado, ativo: true, deleted_at: null,
     tipo: document.getElementById('em-tipo')?.value || 'empregador',
     status: document.getElementById('em-status')?.value || 'ativo',
     area_atuacao: document.getElementById('em-area')?.value || null,
@@ -6690,10 +6731,10 @@ async function saveEmployerModal() {
     const supa = await getSupa();
     let data, error;
     if (existingId) {
-      ({ data, error } = await supa.from('employers').update(payload).eq('id', existingId).select('id, nome').single());
+      ({ data, error } = await supa.from(DB.EMPLOYERS).update(payload).eq('id', existingId).select('id, nome').single());
     } else {
       payload.created_at = new Date().toISOString();
-      ({ data, error } = await supa.from('employers').upsert(payload, { onConflict:'nome_normalizado' }).select('id, nome').single());
+      ({ data, error } = await supa.from(DB.EMPLOYERS).upsert(payload, { onConflict:'nome_normalizado' }).select('id, nome').single());
     }
     if (error) throw error;
     closeEmployerModal();
@@ -6726,11 +6767,11 @@ async function deleteEmployerConfirm(employerId, employerName = '') {
       .map(c => String(c.ID || c.id || ''))
       .filter(Boolean);
     if (matches.length) {
-      const { error: matchErr } = await supa.from('candidate_employer_matches').delete().eq('empregador_id', employerId);
+      const { error: matchErr } = await supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).delete().eq('empregador_id', employerId);
       if (matchErr) throw matchErr;
     }
     if (legacyCandidateIds.length) {
-      const { error: legacyErr } = await supa.from('candidatos').update({
+      const { error: legacyErr } = await supa.from(DB.CANDIDATOS).update({
         hospital_alvo: null,
         employer_nome: null,
         status_employer: null,
@@ -6741,18 +6782,13 @@ async function deleteEmployerConfirm(employerId, employerName = '') {
       }).in('id', legacyCandidateIds);
       if (legacyErr) console.warn('[Employer] limpeza de campos legados falhou:', legacyErr.message);
     }
-    const { error } = await supa.from('employers').delete().eq('id', employerId);
+    const { error } = await supa.from(DB.EMPLOYERS).update({
+      ativo: false,
+      status: 'inativo',
+      deleted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }).eq('id', employerId).is('deleted_at', null);
     if (error) throw error;
-    const { data: stillThere, error: verifyErr } = await supa.from('employers').select('id, ativo, status').eq('id', employerId).maybeSingle();
-    if (verifyErr) throw verifyErr;
-    if (stillThere?.id) {
-      const { error: softDeleteErr } = await supa.from('employers').update({
-        ativo: false,
-        status: 'inativo',
-        updated_at: new Date().toISOString()
-      }).eq('id', employerId);
-      if (softDeleteErr) throw softDeleteErr;
-    }
     closeEmployerModal();
     if (S.employerHub?.selectedEmployer === `emp:${employerId}`) {
       S.employerHub.selectedEmployer = '';
@@ -6761,7 +6797,7 @@ async function deleteEmployerConfirm(employerId, employerName = '') {
     invalidateCacheStamps('employersAt', 'matchesAt', 'ticketsAt');
     await loadAll({ force:true, includeDashboardAux: S.view === 'dashboard' });
     renderView();
-    toast('✅ Empregador excluído.', 'ok');
+    toast('✅ Empregador arquivado.', 'ok');
   } catch (e) {
     toast('❌ Erro ao excluir empregador: ' + (e?.message || e), 'err', 5000);
   }
@@ -6770,7 +6806,7 @@ async function deleteEmployerConfirm(employerId, employerName = '') {
 async function editEmployerModal(nomeOrId) {
   try {
     const supa = await getSupa();
-    const q = supa.from('employers').select(EMPLOYER_DETAIL_SELECT);
+    const q = supa.from(DB.EMPLOYERS).select(EMPLOYER_DETAIL_SELECT).is('deleted_at', null);
     let data, error;
     if (String(nomeOrId || '').startsWith('emp:')) nomeOrId = String(nomeOrId).slice(4);
     if (/^[0-9a-fA-F-]{36}$/.test(String(nomeOrId || ''))) {
@@ -6797,7 +6833,7 @@ async function loadMatchesForCandidate(candidatoId) {
   try {
     const supa = await getSupa();
     const { data, error } = await supa
-      .from('candidate_employer_matches')
+      .from(DB.CANDIDATE_EMPLOYER_MATCHES)
       .select(MATCH_WITH_EMPLOYER_SELECT)
       .eq('candidato_id', String(candidatoId))
       .order('is_primary', { ascending: false })
@@ -6821,7 +6857,7 @@ async function loadAllMatches(options = {}) {
     try {
       const supa = await getSupa();
       const { data, error } = await supa
-        .from('candidate_employer_matches')
+        .from(DB.CANDIDATE_EMPLOYER_MATCHES)
         .select(MATCH_WITH_EMPLOYER_SELECT)
         .order('is_primary', { ascending: false })
         .order('prioridade', { ascending: true });
@@ -6890,7 +6926,7 @@ function openMatchModal(candidatoId, matchData = null) {
         </div>
       </div>
       <div class="emp-modal-foot">
-        ${isEdit ? `<button type="button" class="emp-btn btn-danger" onclick="deleteMatchConfirm('${esc(m.id||'')}')">🗑 Remover vínculo</button>` : ''}
+        ${isEdit && canAdmin() ? `<button type="button" class="emp-btn btn-danger" onclick="deleteMatchConfirm('${esc(m.id||'')}')">🗑 Remover vínculo</button>` : ''}
         <button type="button" class="emp-btn" onclick="closeMatchModal()">Cancelar</button>
         <button type="button" class="emp-btn primary" onclick="saveMatchModal()">💾 Salvar vínculo</button>
       </div>
@@ -6949,11 +6985,11 @@ async function saveMatchModal() {
     const supa = await getSupa();
     let error;
     if (matchId) {
-      ({ error } = await supa.from('candidate_employer_matches').update(payload).eq('id', matchId));
+      ({ error } = await supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).update(payload).eq('id', matchId));
     } else {
       payload.created_at = new Date().toISOString();
       payload.created_by = sess?.nome || 'web';
-      ({ error } = await supa.from('candidate_employer_matches').insert(payload));
+      ({ error } = await supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).insert(payload));
     }
     if (error) throw error;
     closeMatchModal();
@@ -6969,10 +7005,11 @@ async function saveMatchModal() {
 
 async function deleteMatchConfirm(matchId) {
   if (!matchId) return;
+  if (!canAdmin()) { toast('🔒 Apenas administradores podem remover vínculo definitivamente.', 'warn'); return; }
   if (!confirm('Remover este vínculo candidato-empregador?')) return;
   try {
     const supa = await getSupa();
-    const { error } = await supa.from('candidate_employer_matches').delete().eq('id', matchId);
+    const { error } = await supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).delete().eq('id', matchId);
     if (error) throw error;
     closeMatchModal();
     invalidateCacheStamps('matchesAt', 'employersAt');
@@ -7008,8 +7045,8 @@ async function exportEmployerXLSX() {
     // 3) Candidatos já carregados do Supabase em S.candidates
     // ─────────────────────────────────────────────────────────
     const [{ data: empRows, error: empErr }, { data: matchRows, error: matchErr }] = await Promise.all([
-      supa.from('employers').select(EMPLOYER_LIST_SELECT).order('nome', { ascending:true }),
-      supa.from('candidate_employer_matches').select(MATCH_WITH_EMPLOYER_SELECT).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }),
+      supa.from(DB.EMPLOYERS).select(EMPLOYER_LIST_SELECT).eq('ativo', true).is('deleted_at', null).order('nome', { ascending:true }),
+      supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).select(MATCH_WITH_EMPLOYER_SELECT).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }),
     ]);
     if (empErr) throw empErr;
     if (matchErr && !/does not exist|relation|not found/i.test(String(matchErr.message || ''))) throw matchErr;
@@ -8846,7 +8883,7 @@ async function loadCandidateInterview(c, options = {}) {
       let interview = null;
       if (linkedId) {
         const { data, error } = await supa
-          .from('entrevistas_preliminares')
+          .from(DB.ENTREVISTAS_PRELIMINARES)
           .select(INTERVIEW_SELECT)
           .eq('id', linkedId)
           .maybeSingle();
@@ -8854,7 +8891,7 @@ async function loadCandidateInterview(c, options = {}) {
         interview = data || null;
       } else {
         const { data, error } = await supa
-          .from('entrevistas_preliminares')
+          .from(DB.ENTREVISTAS_PRELIMINARES)
           .select(INTERVIEW_SELECT)
           .eq('candidate_id', candidateId)
           .eq('ativo', true)
@@ -9561,7 +9598,7 @@ async function loadTicketBoardRows(options = {}) {
     try {
       const supa = await getSupa();
       const { data, error } = await supa
-        .from('v_candidatos_full_employer')
+        .from(DB.V_CANDIDATOS_FULL_EMPLOYER)
         .select('id,nome_completo,status_pipeline,responsavel_interno,prioridade_comercial,ultima_atualizacao,historico_operacional')
         .not('historico_operacional', 'is', null)
         .order('ultima_atualizacao', { ascending:false })
@@ -11221,7 +11258,7 @@ async function saveRhInterviewDraft(candidateId, actor) {
   delete draft.sourceFile;
 
   const { data: existing, error: selErr } = await supa
-    .from('entrevistas_preliminares')
+    .from(DB.ENTREVISTAS_PRELIMINARES)
     .select('id')
     .eq('candidate_id', candidateId)
     .eq('ativo', true)
@@ -11230,16 +11267,16 @@ async function saveRhInterviewDraft(candidateId, actor) {
 
   let interviewId = existing?.[0]?.id || null;
   if (interviewId) {
-    const { error } = await supa.from('entrevistas_preliminares').update(payload).eq('id', interviewId);
+    const { error } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).update(payload).eq('id', interviewId);
     if (error) throw new Error(`Falha ao atualizar entrevista preliminar: ${error.message}`);
   } else {
-    const { data: inserted, error } = await supa.from('entrevistas_preliminares').insert(payload).select('id').single();
+    const { data: inserted, error } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).insert(payload).select('id').single();
     if (error) throw new Error(`Falha ao salvar entrevista preliminar: ${error.message}`);
     interviewId = inserted?.id || null;
   }
 
   if (interviewId) {
-    const { error: linkErr } = await supa.from('candidatos').update({ entrevista_preliminar_id: interviewId }).eq('id', candidateId);
+    const { error: linkErr } = await supa.from(DB.CANDIDATOS).update({ entrevista_preliminar_id: interviewId }).eq('id', candidateId);
     if (linkErr) throw new Error(`Entrevista salva, mas falhou ao vincular no candidato: ${linkErr.message}`);
   }
   return interviewId;
@@ -12169,9 +12206,9 @@ async function loadTaxonomyCatalog(supa) {
   const seed = taxonomySeedClone();
   try {
     const [{ data: areas, error: areasErr }, { data: professions, error: professionsErr }, { data: subareas, error: subareasErr }] = await Promise.all([
-      supa.from('areas_master').select(TAXONOMY_AREA_SELECT).eq('active', true).order('sort_order').order('label_pt'),
-      supa.from('professions_master').select(TAXONOMY_PROFESSION_SELECT).eq('active', true).order('sort_order').order('label_pt'),
-      supa.from('profession_subareas_master').select(TAXONOMY_SUBAREA_SELECT).eq('active', true).order('sort_order').order('label_pt'),
+      supa.from(DB.AREAS_MASTER).select(TAXONOMY_AREA_SELECT).eq('active', true).order('sort_order').order('label_pt'),
+      supa.from(DB.PROFESSIONS_MASTER).select(TAXONOMY_PROFESSION_SELECT).eq('active', true).order('sort_order').order('label_pt'),
+      supa.from(DB.PROFESSION_SUBAREAS_MASTER).select(TAXONOMY_SUBAREA_SELECT).eq('active', true).order('sort_order').order('label_pt'),
     ]);
     if (areasErr || professionsErr || subareasErr) throw (areasErr || professionsErr || subareasErr);
     const merged = mergeTaxonomyCatalog(seed, { areas: areas || [], professions: professions || [], subareas: subareas || [] });
@@ -12216,7 +12253,7 @@ async function requestTaxonomyOption(kind) {
       context_profession_id: document.getElementById('n-prof')?.value || null,
       status: 'pending',
     };
-    const { error } = await supa.from('taxonomy_change_requests').insert(payload);
+    const { error } = await supa.from(DB.TAXONOMY_CHANGE_REQUESTS).insert(payload);
     if (error) throw error;
     toast(uiTranslate('Sugestão enviada para revisão do catálogo.'), 'ok');
   } catch (e) {
@@ -14342,7 +14379,7 @@ function toast(msg, type='ok', duration=3500) {
 
         if (username) {
           const { data: profile } = await supa
-            .from('usuarios')
+            .from(DB.USUARIOS)
             .select('username, nome, role, color')
             .eq('username', username)
             .single();
@@ -14461,7 +14498,7 @@ async function agLoad() {
   try {
     const supa = await getSupa();
     const { data, error } = await supa
-      .from('agenda')
+      .from(DB.AGENDA)
       .select(AGENDA_SELECT)
       .order('data_agendamento')
       .order('hora')
@@ -14489,7 +14526,7 @@ async function agAddEvent(ev) {
   const supa = await getSupa();
   const row = agToDb(ev, sess?.nome || 'web');
   row.criado_em = new Date().toISOString();
-  const { data, error } = await supa.from('agenda').insert(row).select(AGENDA_SELECT).single();
+  const { data, error } = await supa.from(DB.AGENDA).insert(row).select(AGENDA_SELECT).single();
   if (error) throw new Error(error.message);
   const novo = agFromDb(data);
   AG.events.push(novo);
@@ -14501,7 +14538,7 @@ async function agUpdateEvent(id, ev) {
   const sess = getSession();
   const supa = await getSupa();
   const row = agToDb(ev, sess?.nome || 'web');
-  const { data, error } = await supa.from('agenda').update(row).eq('id', id).select(AGENDA_SELECT).single();
+  const { data, error } = await supa.from(DB.AGENDA).update(row).eq('id', id).select(AGENDA_SELECT).single();
   if (error) throw new Error(error.message);
   const updated = agFromDb(data);
   const idx = AG.events.findIndex(e => e.id === id);
@@ -14511,8 +14548,9 @@ async function agUpdateEvent(id, ev) {
 
 // ── CRUD: Excluir evento ──────────────────────────────────────
 async function agDeleteEvent(id) {
+  if (!canAdmin()) throw new Error('Apenas administradores podem excluir agendamentos.');
   const supa = await getSupa();
-  const { error } = await supa.from('agenda').delete().eq('id', id);
+  const { error } = await supa.from(DB.AGENDA).delete().eq('id', id);
   if (error) throw new Error(error.message);
   AG.events = AG.events.filter(e => e.id !== id);
 }
@@ -14604,7 +14642,7 @@ function agOpenModal(dateStr, eventId) {
       </div>
 
       <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
-        ${ev ? `<button id="ag-del-btn" onclick="agDeleteAndClose('${esc(ev.id)}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
+        ${ev && canAdmin() ? `<button id="ag-del-btn" onclick="agDeleteAndClose('${esc(ev.id)}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
         <button onclick="agCloseModal()" class="btn btn-ghost btn-sm">Cancelar</button>
         <button id="ag-save-btn" onclick="agSaveModal('${esc(ev?ev.id:'')}')" style="font-size:12px;color:#0b0d12;background:var(--teal);border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer">
           ${ev ? 'Salvar alterações' : '+ Agendar'}
@@ -16560,7 +16598,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const seed = trainingSeedClone();
     try {
       const supa = await getSupa();
-      const { data, error } = await supa.from('trainings_master').select(TRAININGS_MASTER_SELECT).eq('active', true).order('sort_order').order('label_pt');
+      const { data, error } = await supa.from(DB.TRAININGS_MASTER).select(TRAININGS_MASTER_SELECT).eq('active', true).order('sort_order').order('label_pt');
       if (error) throw error;
       const byCode = new Map(seed.map(r => [String(r.code), r]));
       (data || []).forEach(r => byCode.set(String(r.code || r.id), r));
@@ -16574,9 +16612,9 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try {
       const supa = await getSupa();
       const [{ data: profs, error: profErr }, { data: trainings, error: trErr }, { data: specs, error: spErr }] = await Promise.all([
-        supa.from('candidate_professions').select('profession_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
-        supa.from('candidate_trainings').select('training_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
-        supa.from('candidate_specialties').select('specialty_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
+        supa.from(DB.CANDIDATE_PROFESSIONS).select('profession_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
+        supa.from(DB.CANDIDATE_TRAININGS).select('training_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
+        supa.from(DB.CANDIDATE_SPECIALTIES).select('specialty_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending: false }).order('sort_order'),
       ]);
       if (profErr || trErr || spErr) throw (profErr || trErr || spErr);
       const primaryTraining = (trainings || []).find(r => r.is_primary)?.training_id;
@@ -16639,17 +16677,17 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const professions = relDedupe([primaryProfessionId, ...(snapshot.professions || [])]).filter(Boolean);
     const trainings = relDedupe([primaryTrainingId, ...(snapshot.trainings || [])]).filter(Boolean);
     const specialties = relDedupe([primarySpecialtyId, ...(snapshot.specialties || [])]).filter(Boolean);
-    let q = await supa.from('candidatos').update({ primary_training_id: isPersistableTaxonomyId(primaryTrainingId) ? Number(primaryTrainingId) : null }).eq('id', candidateId);
+    let q = await supa.from(DB.CANDIDATOS).update({ primary_training_id: isPersistableTaxonomyId(primaryTrainingId) ? Number(primaryTrainingId) : null }).eq('id', candidateId);
     if (q.error && !String(q.error.message||'').toLowerCase().includes('primary_training_id')) throw q.error;
     const profRows = professions.map((id, idx) => ({ candidate_id: candidateId, profession_id: Number(id), is_primary: String(id)===String(primaryProfessionId), sort_order: String(id)===String(primaryProfessionId)?0:idx+1, source:'manual', confidence:1 }));
     const trainingRows = trainings.map((id, idx) => ({ candidate_id: candidateId, training_id: Number(id), is_primary: String(id)===String(primaryTrainingId), sort_order: String(id)===String(primaryTrainingId)?0:idx+1, source:'manual', confidence:1 }));
     const specialtyRows = specialties.map((id, idx) => ({ candidate_id: candidateId, specialty_id: Number(id), is_primary: String(id)===String(primarySpecialtyId), sort_order: String(id)===String(primarySpecialtyId)?0:idx+1, source:'manual', confidence:1 }));
-    q = await supa.from('candidate_professions').delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
-    if (profRows.length) { q = await supa.from('candidate_professions').insert(profRows); if (q.error) throw q.error; }
-    q = await supa.from('candidate_trainings').delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
-    if (trainingRows.length) { q = await supa.from('candidate_trainings').insert(trainingRows); if (q.error) throw q.error; }
-    q = await supa.from('candidate_specialties').delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
-    if (specialtyRows.length) { q = await supa.from('candidate_specialties').insert(specialtyRows); if (q.error) throw q.error; }
+    q = await supa.from(DB.CANDIDATE_PROFESSIONS).delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
+    if (profRows.length) { q = await supa.from(DB.CANDIDATE_PROFESSIONS).insert(profRows); if (q.error) throw q.error; }
+    q = await supa.from(DB.CANDIDATE_TRAININGS).delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
+    if (trainingRows.length) { q = await supa.from(DB.CANDIDATE_TRAININGS).insert(trainingRows); if (q.error) throw q.error; }
+    q = await supa.from(DB.CANDIDATE_SPECIALTIES).delete().eq('candidate_id', candidateId); if (q.error) throw q.error;
+    if (specialtyRows.length) { q = await supa.from(DB.CANDIDATE_SPECIALTIES).insert(specialtyRows); if (q.error) throw q.error; }
   }
   function hasPendingRelationChanges(){ return ['professions','trainings','specialties'].some(k => Array.isArray(S.pendingRelationEdits?.[k])); }
   const _buildPanelBase = buildPanel;
@@ -16835,7 +16873,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   async function loadTrainingCatalogV48(){
     try {
       const supa = await getSupa();
-      const { data, error } = await supa.from('trainings_master').select(TRAININGS_MASTER_SELECT).eq('active', true).order('sort_order').order('label_pt');
+      const { data, error } = await supa.from(DB.TRAININGS_MASTER).select(TRAININGS_MASTER_SELECT).eq('active', true).order('sort_order').order('label_pt');
       if (error) throw error;
       S.trainingCatalog = { loaded:true, rows:(data || []).length ? (data || []) : trainingSeed() };
     } catch(_) {
@@ -16874,8 +16912,8 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try {
       const supa = await getSupa();
       const [{ data: ap, error: apErr }, { data: ps, error: psErr }] = await Promise.all([
-        supa.from('area_professions').select(AREA_PROFESSIONS_SELECT).eq('active', true).order('sort_order'),
-        supa.from('profession_specialties').select(PROFESSION_SPECIALTIES_SELECT).eq('active', true).order('sort_order')
+        supa.from(DB.AREA_PROFESSIONS).select(AREA_PROFESSIONS_SELECT).eq('active', true).order('sort_order'),
+        supa.from(DB.PROFESSION_SPECIALTIES).select(PROFESSION_SPECIALTIES_SELECT).eq('active', true).order('sort_order')
       ]);
       if (apErr || psErr) throw (apErr || psErr);
       S.flowCatalog = { loaded:true, areaProfessions:(ap || []).length ? ap : fallbackAreaProf, professionSpecialties:(ps || []).length ? ps : fallbackProfSpec };
@@ -16937,15 +16975,15 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try {
       const supa = await getSupa();
       const [{ data: flowRows, error: flowErr }, { data: trainingRowsDb, error: trErr }] = await Promise.all([
-        supa.from('candidate_professional_flows').select(CANDIDATE_PROFESSIONAL_FLOW_SELECT).eq('candidate_id', candidateId).order('is_primary', { ascending:false }).order('sort_order'),
-        supa.from('candidate_trainings').select('training_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending:false }).order('sort_order')
+        supa.from(DB.CANDIDATE_PROFESSIONAL_FLOWS).select(CANDIDATE_PROFESSIONAL_FLOW_SELECT).eq('candidate_id', candidateId).order('is_primary', { ascending:false }).order('sort_order'),
+        supa.from(DB.CANDIDATE_TRAININGS).select('training_id,is_primary,sort_order').eq('candidate_id', candidateId).order('is_primary', { ascending:false }).order('sort_order')
       ]);
       if (flowErr && !String(flowErr.message||'').toLowerCase().includes('relation')) throw flowErr;
       if (trErr && !String(trErr.message||'').toLowerCase().includes('relation')) throw trErr;
       const flowList = Array.isArray(flowRows) ? flowRows : [];
       let specList = [];
       if (flowList.length) {
-        const { data: specRows, error: specErr } = await supa.from('candidate_flow_specialties').select(CANDIDATE_FLOW_SPECIALTY_SELECT).in('flow_id', flowList.map(r => r.id)).order('sort_order');
+        const { data: specRows, error: specErr } = await supa.from(DB.CANDIDATE_FLOW_SPECIALTIES).select(CANDIDATE_FLOW_SPECIALTY_SELECT).in('flow_id', flowList.map(r => r.id)).order('sort_order');
         if (specErr && !String(specErr.message||'').toLowerCase().includes('relation')) throw specErr;
         specList = Array.isArray(specRows) ? specRows : [];
       }
@@ -17191,12 +17229,12 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       const officialProfIds = [...new Set((state.flows || []).map(f => String(f.profession_id || '')).filter(Boolean))];
       const officialSpecIds = [...new Set((state.flows || []).flatMap(f => (f.specialties || []).map(s => String(s.specialty_id || '')).filter(Boolean)))];
       const trainingIds = [...new Set([String(state.primaryTrainingId || ''), ...(state.trainings || []).map(v => String(v || ''))].filter(Boolean))];
-      let q = await supa.from('candidate_professions').delete().eq('candidate_id', candidateId); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
-      if (officialProfIds.length) { q = await supa.from('candidate_professions').insert(officialProfIds.map((id, idx) => ({ candidate_id: candidateId, profession_id: Number(id), is_primary: idx===0, sort_order: idx, source:'flow_sync', confidence:1 }))); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error; }
-      q = await supa.from('candidate_specialties').delete().eq('candidate_id', candidateId); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
-      if (officialSpecIds.length) { q = await supa.from('candidate_specialties').insert(officialSpecIds.map((id, idx) => ({ candidate_id: candidateId, specialty_id: Number(id), is_primary: idx===0, sort_order: idx, source:'flow_sync', confidence:1 }))); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error; }
-      q = await supa.from('candidate_trainings').delete().eq('candidate_id', candidateId); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
-      if (trainingIds.length) { q = await supa.from('candidate_trainings').insert(trainingIds.map((id, idx) => ({ candidate_id: candidateId, training_id: Number(id), is_primary: String(id)===String(state.primaryTrainingId || ''), sort_order: idx, source:'flow_sync', confidence:1 }))); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error; }
+      let q = await supa.from(DB.CANDIDATE_PROFESSIONS).delete().eq('candidate_id', candidateId); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
+      if (officialProfIds.length) { q = await supa.from(DB.CANDIDATE_PROFESSIONS).insert(officialProfIds.map((id, idx) => ({ candidate_id: candidateId, profession_id: Number(id), is_primary: idx===0, sort_order: idx, source:'flow_sync', confidence:1 }))); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error; }
+      q = await supa.from(DB.CANDIDATE_SPECIALTIES).delete().eq('candidate_id', candidateId); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
+      if (officialSpecIds.length) { q = await supa.from(DB.CANDIDATE_SPECIALTIES).insert(officialSpecIds.map((id, idx) => ({ candidate_id: candidateId, specialty_id: Number(id), is_primary: idx===0, sort_order: idx, source:'flow_sync', confidence:1 }))); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error; }
+      q = await supa.from(DB.CANDIDATE_TRAININGS).delete().eq('candidate_id', candidateId); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
+      if (trainingIds.length) { q = await supa.from(DB.CANDIDATE_TRAININGS).insert(trainingIds.map((id, idx) => ({ candidate_id: candidateId, training_id: Number(id), is_primary: String(id)===String(state.primaryTrainingId || ''), sort_order: idx, source:'flow_sync', confidence:1 }))); if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error; }
     } catch(err) {
       console.warn('[v48] Falha ao sincronizar tabelas legadas:', err?.message || err);
     }
@@ -17220,15 +17258,15 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       atualizado_por: actor || 'web'
     };
     const supa = await getSupa();
-    let q = await supa.from('candidatos').update(payload).eq('id', candidateId);
+    let q = await supa.from(DB.CANDIDATOS).update(payload).eq('id', candidateId);
     if (q.error) throw q.error;
     try {
-      q = await supa.from('candidate_professional_flows').delete().eq('candidate_id', candidateId);
+      q = await supa.from(DB.CANDIDATE_PROFESSIONAL_FLOWS).delete().eq('candidate_id', candidateId);
       if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
       const flowRows = state.flows.map((f, idx) => ({ candidate_id: candidateId, area_id: f.area_id ? Number(f.area_id) : null, profession_id: f.profession_id ? Number(f.profession_id) : null, is_primary: idx===0, sort_order: idx, source_type: (f.area_id || f.profession_id) ? 'official' : 'pending', custom_area_label: f.area_id ? null : (f.area_label || null), custom_profession_label: f.profession_id ? null : (f.profession_label || null) }));
       let insertedFlows = [];
       if (flowRows.length) {
-        q = await supa.from('candidate_professional_flows').insert(flowRows).select('id, sort_order');
+        q = await supa.from(DB.CANDIDATE_PROFESSIONAL_FLOWS).insert(flowRows).select('id, sort_order');
         if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
         insertedFlows = q.data || [];
       }
@@ -17238,7 +17276,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
         (flow?.specialties || []).forEach((s, idx) => specRows.push({ flow_id: row.id, specialty_id: s.specialty_id ? Number(s.specialty_id) : null, is_primary: idx===0, sort_order: idx, source_type: s.specialty_id ? 'official' : 'pending', custom_specialty_label: s.specialty_id ? null : (s.specialty_label || null) }));
       });
       if (specRows.length) {
-        q = await supa.from('candidate_flow_specialties').insert(specRows);
+        q = await supa.from(DB.CANDIDATE_FLOW_SPECIALTIES).insert(specRows);
         if (q.error && !String(q.error.message||'').toLowerCase().includes('relation')) throw q.error;
       }
     } catch(err) {
@@ -18019,7 +18057,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (typeof canAdmin !== 'function' || !canAdmin()) { S.taxonomyAdminRequests = []; return; }
     try {
       const supa = await getSupa();
-      const { data, error } = await supa.from('taxonomy_change_requests').select(TAXONOMY_REQUESTS_SELECT).order('created_at', { ascending:false }).limit(12);
+      const { data, error } = await supa.from(DB.TAXONOMY_CHANGE_REQUESTS).select(TAXONOMY_REQUESTS_SELECT).order('created_at', { ascending:false }).limit(12);
       if (error) throw error;
       S.taxonomyAdminRequests = data || [];
     } catch(_) {
@@ -18090,8 +18128,8 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (typeof loadTaxonomyCatalog === 'function') await loadTaxonomyCatalog(supa);
     try {
       const [{ data: ap }, { data: ps }] = await Promise.all([
-        supa.from('area_professions').select(AREA_PROFESSIONS_SELECT).eq('active', true).order('sort_order'),
-        supa.from('profession_specialties').select(PROFESSION_SPECIALTIES_SELECT).eq('active', true).order('sort_order')
+        supa.from(DB.AREA_PROFESSIONS).select(AREA_PROFESSIONS_SELECT).eq('active', true).order('sort_order'),
+        supa.from(DB.PROFESSION_SPECIALTIES).select(PROFESSION_SPECIALTIES_SELECT).eq('active', true).order('sort_order')
       ]);
       S.flowCatalog = { loaded:true, areaProfessions:ap || [], professionSpecialties:ps || [] };
     } catch(_) {}
@@ -18117,7 +18155,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       const existing = resolveOfficial('area', areaRows(), label);
       if (existing) return toast('Essa área já existe no catálogo.', 'warn');
       const code = await ensureUniqueCode('areas_master', slug(label));
-      const { error } = await supa.from('areas_master').insert({ code, label_pt:label, label_de:labelDe, sort_order:999, active:true });
+      const { error } = await supa.from(DB.AREAS_MASTER).insert({ code, label_pt:label, label_de:labelDe, sort_order:999, active:true });
       if (error) throw error;
       document.getElementById('v53-admin-area-label').value = '';
       document.getElementById('v53-admin-area-label-de').value = '';
@@ -18137,9 +18175,9 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try {
       const supa = await getSupa();
       const code = await ensureUniqueCode('professions_master', `${slug(label)}`);
-      const { data, error } = await supa.from('professions_master').insert({ area_id:Number(area.id), code, label_pt:label, label_de:labelDe, sort_order:999, active:true }).select('id').single();
+      const { data, error } = await supa.from(DB.PROFESSIONS_MASTER).insert({ area_id:Number(area.id), code, label_pt:label, label_de:labelDe, sort_order:999, active:true }).select('id').single();
       if (error) throw error;
-      await supa.from('area_professions').upsert({ area_id:Number(area.id), profession_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
+      await supa.from(DB.AREA_PROFESSIONS).upsert({ area_id:Number(area.id), profession_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
       ['v53-admin-prof-area','v53-admin-prof-label','v53-admin-prof-label-de'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       const hints = document.getElementById('v53-admin-prof-area-hints'); if (hints) hints.innerHTML = '';
       await window.v53AdminRefresh();
@@ -18158,9 +18196,9 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try {
       const supa = await getSupa();
       const code = await ensureUniqueCode('profession_subareas_master', `${slug(label)}`);
-      const { data, error } = await supa.from('profession_subareas_master').insert({ profession_id:Number(profession.id), code, label_pt:label, label_de:labelDe, sort_order:999, active:true }).select('id').single();
+      const { data, error } = await supa.from(DB.PROFESSION_SUBAREAS_MASTER).insert({ profession_id:Number(profession.id), code, label_pt:label, label_de:labelDe, sort_order:999, active:true }).select('id').single();
       if (error) throw error;
-      await supa.from('profession_specialties').upsert({ profession_id:Number(profession.id), specialty_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
+      await supa.from(DB.PROFESSION_SPECIALTIES).upsert({ profession_id:Number(profession.id), specialty_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
       ['v53-admin-spec-prof','v53-admin-spec-label','v53-admin-spec-label-de'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       const hints = document.getElementById('v53-admin-spec-prof-hints'); if (hints) hints.innerHTML = '';
       await window.v53AdminRefresh();
@@ -18176,7 +18214,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (!profession || !area) return toast('Escolha profissão e área oficiais.', 'warn');
     try {
       const supa = await getSupa();
-      const { error } = await supa.from('area_professions').upsert({ area_id:Number(area.id), profession_id:Number(profession.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
+      const { error } = await supa.from(DB.AREA_PROFESSIONS).upsert({ area_id:Number(area.id), profession_id:Number(profession.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
       if (error) throw error;
       ['v53-admin-link-prof','v53-admin-link-area'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       ['v53-admin-link-prof-hints','v53-admin-link-area-hints'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
@@ -18193,7 +18231,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (!specialty || !profession) return toast('Escolha especialidade e profissão oficiais.', 'warn');
     try {
       const supa = await getSupa();
-      const { error } = await supa.from('profession_specialties').upsert({ profession_id:Number(profession.id), specialty_id:Number(specialty.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
+      const { error } = await supa.from(DB.PROFESSION_SPECIALTIES).upsert({ profession_id:Number(profession.id), specialty_id:Number(specialty.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
       if (error) throw error;
       ['v53-admin-link-spec','v53-admin-link-spec-prof'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       ['v53-admin-link-spec-hints','v53-admin-link-spec-prof-hints'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
@@ -18223,7 +18261,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     try {
       const supa = await getSupa();
       const payload = { entity_type:type, entity_id:Number(target.id), alias_label:aliasLabel, active:true };
-      const { error } = await supa.from('taxonomy_aliases').upsert(payload, { onConflict:'entity_type,entity_id,alias_label' });
+      const { error } = await supa.from(DB.TAXONOMY_ALIASES).upsert(payload, { onConflict:'entity_type,entity_id,alias_label' });
       if (error) throw error;
       ['v53-admin-alias-target','v53-admin-alias-label'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       const box = document.getElementById('v53-admin-alias-target-hints'); if (box) box.innerHTML = '';
@@ -18238,7 +18276,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     window.loadTaxonomyCatalog = loadTaxonomyCatalog = async function(supa){
       await prevLoadTaxonomyCatalog(supa);
       try {
-        const { data, error } = await supa.from('taxonomy_aliases').select('entity_type,entity_id,alias_label').eq('active', true).order('alias_label');
+        const { data, error } = await supa.from(DB.TAXONOMY_ALIASES).select('entity_type,entity_id,alias_label').eq('active', true).order('alias_label');
         if (error) throw error;
         S.taxonomy = S.taxonomy || {};
         S.taxonomy.aliases = data || [];
@@ -18369,7 +18407,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       context_profession_id: ctx.profession_id ? Number(ctx.profession_id) : null,
       status: 'pending'
     };
-    const { error } = await supa.from('taxonomy_change_requests').insert(payload);
+    const { error } = await supa.from(DB.TAXONOMY_CHANGE_REQUESTS).insert(payload);
     if (error) throw error;
     return true;
   }
@@ -18381,7 +18419,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       const existing = findByLabel('area', trimmed);
       if (existing) return { kind:'area', row:existing, existed:true };
       const code = await ensureUniqueCode('areas_master', slug(trimmed));
-      const { data, error } = await supa.from('areas_master').insert({ code, label_pt:trimmed, active:true, sort_order:999 }).select(TAXONOMY_AREA_SELECT).single();
+      const { data, error } = await supa.from(DB.AREAS_MASTER).insert({ code, label_pt:trimmed, active:true, sort_order:999 }).select(TAXONOMY_AREA_SELECT).single();
       if (error) throw error;
       return { kind:'area', row:data, existed:false };
     }
@@ -18390,13 +18428,13 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       if (!areaRow) throw new Error('Escolha ou cadastre primeiro uma área oficial.');
       const existing = findByLabel('profession', trimmed);
       if (existing) {
-        await supa.from('area_professions').upsert({ area_id:Number(areaRow.id), profession_id:Number(existing.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
+        await supa.from(DB.AREA_PROFESSIONS).upsert({ area_id:Number(areaRow.id), profession_id:Number(existing.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
         return { kind:'profession', row:existing, existed:true };
       }
       const code = await ensureUniqueCode('professions_master', slug(trimmed));
-      const { data, error } = await supa.from('professions_master').insert({ area_id:Number(areaRow.id), code, label_pt:trimmed, active:true, sort_order:999 }).select(TAXONOMY_PROFESSION_SELECT).single();
+      const { data, error } = await supa.from(DB.PROFESSIONS_MASTER).insert({ area_id:Number(areaRow.id), code, label_pt:trimmed, active:true, sort_order:999 }).select(TAXONOMY_PROFESSION_SELECT).single();
       if (error) throw error;
-      await supa.from('area_professions').upsert({ area_id:Number(areaRow.id), profession_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
+      await supa.from(DB.AREA_PROFESSIONS).upsert({ area_id:Number(areaRow.id), profession_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'area_id,profession_id' });
       return { kind:'profession', row:data, existed:false, area:areaRow };
     }
     if (kind === 'specialty') {
@@ -18404,13 +18442,13 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       if (!profRow) throw new Error('Escolha ou cadastre primeiro uma profissão oficial.');
       const existing = findByLabel('specialty', trimmed);
       if (existing) {
-        await supa.from('profession_specialties').upsert({ profession_id:Number(profRow.id), specialty_id:Number(existing.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
+        await supa.from(DB.PROFESSION_SPECIALTIES).upsert({ profession_id:Number(profRow.id), specialty_id:Number(existing.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
         return { kind:'specialty', row:existing, existed:true };
       }
       const code = await ensureUniqueCode('profession_subareas_master', slug(trimmed));
-      const { data, error } = await supa.from('profession_subareas_master').insert({ profession_id:Number(profRow.id), code, label_pt:trimmed, active:true, sort_order:999 }).select(TAXONOMY_SUBAREA_SELECT).single();
+      const { data, error } = await supa.from(DB.PROFESSION_SUBAREAS_MASTER).insert({ profession_id:Number(profRow.id), code, label_pt:trimmed, active:true, sort_order:999 }).select(TAXONOMY_SUBAREA_SELECT).single();
       if (error) throw error;
-      await supa.from('profession_specialties').upsert({ profession_id:Number(profRow.id), specialty_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
+      await supa.from(DB.PROFESSION_SPECIALTIES).upsert({ profession_id:Number(profRow.id), specialty_id:Number(data.id), active:true, sort_order:999 }, { onConflict:'profession_id,specialty_id' });
       return { kind:'specialty', row:data, existed:false, profession:profRow };
     }
     throw new Error('Tipo inválido.');
@@ -18524,7 +18562,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const chunkSize = 200;
     for (let i=0; i<ids.length; i += chunkSize) {
       const chunk = ids.slice(i, i + chunkSize);
-      const { data, error } = await supa.from('candidate_professional_flows').select('candidate_id,area_id,profession_id,custom_area_label,custom_profession_label,is_primary,sort_order').in('candidate_id', chunk).order('candidate_id').order('is_primary', { ascending:false }).order('sort_order');
+      const { data, error } = await supa.from(DB.CANDIDATE_PROFESSIONAL_FLOWS).select('candidate_id,area_id,profession_id,custom_area_label,custom_profession_label,is_primary,sort_order').in('candidate_id', chunk).order('candidate_id').order('is_primary', { ascending:false }).order('sort_order');
       if (error && !String(error.message||'').toLowerCase().includes('relation')) throw error;
       (data || []).forEach(row => {
         const key = String(row.candidate_id);
@@ -18815,12 +18853,12 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   async function fetchCandidateAugmentsAll(supa){
     const [interviewsResp, linksResp, matchesResp, employersResp] = await Promise.all([
       finalSafeSelect(
-        () => supa.from('entrevistas_preliminares').select(BASE_INTERVIEW_SELECT).eq('ativo', true).order('updated_at', { ascending:false }).limit(FINAL_CANDIDATE_FETCH_LIMIT),
-        () => supa.from('entrevistas_preliminares').select(INTERVIEW_SELECT).eq('ativo', true).order('updated_at', { ascending:false }).limit(FINAL_CANDIDATE_FETCH_LIMIT)
+        () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(BASE_INTERVIEW_SELECT).eq('ativo', true).order('updated_at', { ascending:false }).limit(FINAL_CANDIDATE_FETCH_LIMIT),
+        () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(INTERVIEW_SELECT).eq('ativo', true).order('updated_at', { ascending:false }).limit(FINAL_CANDIDATE_FETCH_LIMIT)
       ),
-      supa.from('candidate_employer_links').select(BASE_ACTIVE_LINK_SELECT).eq('ativo', true).limit(FINAL_CANDIDATE_FETCH_LIMIT),
-      supa.from('candidate_employer_matches').select(MATCH_SELECT).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }).limit(FINAL_CANDIDATE_FETCH_LIMIT),
-      supa.from('employers').select(BASE_EMPLOYER_MIN_SELECT).order('nome', { ascending:true }).limit(FINAL_CANDIDATE_FETCH_LIMIT)
+      supa.from(DB.CANDIDATE_EMPLOYER_LINKS).select(BASE_ACTIVE_LINK_SELECT).eq('ativo', true).limit(FINAL_CANDIDATE_FETCH_LIMIT),
+      supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).select(MATCH_SELECT).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }).limit(FINAL_CANDIDATE_FETCH_LIMIT),
+      supa.from(DB.EMPLOYERS).select(BASE_EMPLOYER_MIN_SELECT).eq('ativo', true).is('deleted_at', null).order('nome', { ascending:true }).limit(FINAL_CANDIDATE_FETCH_LIMIT)
     ]);
 
     return buildAugmentContext({
@@ -18834,11 +18872,11 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   async function fetchCandidateAugmentsSingle(supa, candidateId){
     const [interviewResp, linkResp, matchResp] = await Promise.all([
       finalSafeSelect(
-        () => supa.from('entrevistas_preliminares').select(BASE_INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1),
-        () => supa.from('entrevistas_preliminares').select(INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1)
+        () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(BASE_INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1),
+        () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1)
       ),
-      supa.from('candidate_employer_links').select(BASE_ACTIVE_LINK_SELECT).eq('candidate_id', candidateId).eq('ativo', true).limit(1),
-      supa.from('candidate_employer_matches').select(MATCH_SELECT).eq('candidato_id', candidateId).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }).limit(1)
+      supa.from(DB.CANDIDATE_EMPLOYER_LINKS).select(BASE_ACTIVE_LINK_SELECT).eq('candidate_id', candidateId).eq('ativo', true).limit(1),
+      supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).select(MATCH_SELECT).eq('candidato_id', candidateId).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }).limit(1)
     ]);
 
     const employerIds = new Set();
@@ -18847,7 +18885,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
 
     let employers = [];
     if (employerIds.size) {
-      const empResp = await supa.from('employers').select(BASE_EMPLOYER_MIN_SELECT).in('id', Array.from(employerIds));
+      const empResp = await supa.from(DB.EMPLOYERS).select(BASE_EMPLOYER_MIN_SELECT).in('id', Array.from(employerIds)).eq('ativo', true).is('deleted_at', null);
       employers = empResp?.data || [];
     }
 
@@ -18885,8 +18923,8 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       const requested = Number(params.pageSize || 0);
       const limit = Math.max(200, Math.min(Number.isFinite(requested) && requested > 0 ? requested : FINAL_CANDIDATE_FETCH_LIMIT, FINAL_CANDIDATE_FETCH_LIMIT));
 
-      const primary = () => supa.from('candidatos').select(BASE_CANDIDATE_LIST_SELECT).order('nome_completo', { ascending:true }).limit(limit);
-      const fallback = () => supa.from('candidatos').select('*').order('nome_completo', { ascending:true }).limit(limit);
+      const primary = () => supa.from(DB.CANDIDATOS).select(BASE_CANDIDATE_LIST_SELECT).order('nome_completo', { ascending:true }).limit(limit);
+      const fallback = () => supa.from(DB.CANDIDATOS).select('*').order('nome_completo', { ascending:true }).limit(limit);
 
       const [{ data, error }, ctx] = await Promise.all([finalSafeSelect(primary, fallback), fetchCandidateAugmentsAll(supa)]);
       if (error) throw new Error(error.message || error);
@@ -18899,7 +18937,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       const candidateId = String(params.id || '').trim();
       if (!candidateId) throw new Error('ID do candidato não informado.');
 
-      const primary = () => supa.from('candidatos').select('*').eq('id', candidateId).maybeSingle();
+      const primary = () => supa.from(DB.CANDIDATOS).select('*').eq('id', candidateId).maybeSingle();
       const { data, error } = await primary();
       if (error) throw new Error(error.message || error);
       if (!data) throw new Error('Candidato não encontrado.');
@@ -18980,8 +19018,8 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       S.ticketBoardLoading = true;
       try {
         const supa = await getSupa();
-        const primary = () => supa.from('candidatos').select(BASE_TICKET_SELECT).not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(FINAL_TICKET_INDEX_LIMIT);
-        const fallback = () => supa.from('candidatos').select('id,nome_completo,status_pipeline,responsavel_interno,prioridade_comercial,ultima_atualizacao,historico_operacional').not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(FINAL_TICKET_INDEX_LIMIT);
+        const primary = () => supa.from(DB.CANDIDATOS).select(BASE_TICKET_SELECT).not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(FINAL_TICKET_INDEX_LIMIT);
+        const fallback = () => supa.from(DB.CANDIDATOS).select('id,nome_completo,status_pipeline,responsavel_interno,prioridade_comercial,ultima_atualizacao,historico_operacional').not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(FINAL_TICKET_INDEX_LIMIT);
         const { data, error } = await finalSafeSelect(primary, fallback);
         if (error) throw error;
 
@@ -19080,15 +19118,15 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
         let interview = null;
         if (linkedId) {
           const { data, error } = await finalSafeSelect(
-            () => supa.from('entrevistas_preliminares').select(PATCHED_INTERVIEW_SELECT).eq('id', linkedId).maybeSingle(),
-            () => supa.from('entrevistas_preliminares').select(INTERVIEW_SELECT).eq('id', linkedId).maybeSingle()
+            () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(PATCHED_INTERVIEW_SELECT).eq('id', linkedId).maybeSingle(),
+            () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(INTERVIEW_SELECT).eq('id', linkedId).maybeSingle()
           );
           if (error) throw error;
           interview = data || null;
         } else {
           const { data, error } = await finalSafeSelect(
-            () => supa.from('entrevistas_preliminares').select(PATCHED_INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1),
-            () => supa.from('entrevistas_preliminares').select(INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1)
+            () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(PATCHED_INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1),
+            () => supa.from(DB.ENTREVISTAS_PRELIMINARES).select(INTERVIEW_SELECT).eq('candidate_id', candidateId).eq('ativo', true).order('updated_at', { ascending:false }).limit(1)
           );
           if (error) throw error;
           interview = Array.isArray(data) ? (data[0] || null) : (data || null);
@@ -19139,7 +19177,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
         formulario_rh_drive_upload_at: url ? (interview.formulario_rh_drive_upload_at || nextMeta.drive_docx_uploaded_at || new Date().toISOString()) : null,
         updated_at: new Date().toISOString()
       };
-      const { error } = await supa.from('entrevistas_preliminares').update(payload).eq('id', interview.id);
+      const { error } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).update(payload).eq('id', interview.id);
       if (error) throw error;
       const nextInterview = normalizeInterviewRow({ ...interview, ...payload, meta: nextMeta });
       cacheCandidateInterview(candidateId, nextInterview);
@@ -19216,21 +19254,21 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     };
     delete draft.sourceFile;
 
-    const { data: existing, error: selErr } = await supa.from('entrevistas_preliminares').select('id').eq('candidate_id', candidateId).eq('ativo', true).limit(1);
+    const { data: existing, error: selErr } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).select('id').eq('candidate_id', candidateId).eq('ativo', true).limit(1);
     if (selErr) throw new Error(`Falha ao consultar a entrevista preliminar no banco: ${selErr.message}`);
 
     let interviewId = existing?.[0]?.id || null;
     if (interviewId) {
-      const { error } = await supa.from('entrevistas_preliminares').update(payload).eq('id', interviewId);
+      const { error } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).update(payload).eq('id', interviewId);
       if (error) throw new Error(`Falha ao atualizar entrevista preliminar: ${error.message}`);
     } else {
-      const { data: inserted, error } = await supa.from('entrevistas_preliminares').insert(payload).select('id').single();
+      const { data: inserted, error } = await supa.from(DB.ENTREVISTAS_PRELIMINARES).insert(payload).select('id').single();
       if (error) throw new Error(`Falha ao salvar entrevista preliminar: ${error.message}`);
       interviewId = inserted?.id || null;
     }
 
     if (interviewId) {
-      const { error: linkErr } = await supa.from('candidatos').update({ entrevista_preliminar_id: interviewId }).eq('id', candidateId);
+      const { error: linkErr } = await supa.from(DB.CANDIDATOS).update({ entrevista_preliminar_id: interviewId }).eq('id', candidateId);
       if (linkErr) throw new Error(`Entrevista salva, mas falhou ao vincular no candidato: ${linkErr.message}`);
     }
     cacheCandidateInterview(candidateId, normalizeInterviewRow({ ...payload, id: interviewId, candidate_id: candidateId }));
@@ -19379,8 +19417,8 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (route === 'candidates') {
       const requested = Number(params.pageSize || 0);
       const limit = Math.max(60, Math.min(Number.isFinite(requested) && requested > 0 ? requested : PERF_CANDIDATE_LIMIT, PERF_CANDIDATE_LIMIT));
-      const primary = () => supa.from('candidatos').select(PERF_BASE_CANDIDATE_LIST_SELECT).order('nome_completo', { ascending:true }).limit(limit);
-      const fallback = () => supa.from('candidatos').select('*').order('nome_completo', { ascending:true }).limit(limit);
+      const primary = () => supa.from(DB.CANDIDATOS).select(PERF_BASE_CANDIDATE_LIST_SELECT).order('nome_completo', { ascending:true }).limit(limit);
+      const fallback = () => supa.from(DB.CANDIDATOS).select('*').order('nome_completo', { ascending:true }).limit(limit);
       const { data, error } = await perfSafeSelect(primary, fallback);
       if (error) throw new Error(error.message || error);
       const cands = (data || []).map((row) => ({ ...perfNormalizeCandidateRow(row), __partial:true }));
@@ -19390,13 +19428,13 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     if (route === 'candidate') {
       const candidateId = String(params.id || '').trim();
       if (!candidateId) throw new Error('ID do candidato não informado.');
-      const { data, error } = await supa.from('candidatos').select('*').eq('id', candidateId).maybeSingle();
+      const { data, error } = await supa.from(DB.CANDIDATOS).select('*').eq('id', candidateId).maybeSingle();
       if (error) throw new Error(error.message || error);
       if (!data) throw new Error('Candidato não encontrado.');
 
       const [linkResp, matchResp] = await Promise.all([
-        supa.from('candidate_employer_links').select(PERF_LINK_MIN_SELECT).eq('candidate_id', candidateId).eq('ativo', true).limit(1),
-        supa.from('candidate_employer_matches').select(PERF_MATCH_MIN_SELECT).eq('candidato_id', candidateId).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }).limit(1)
+        supa.from(DB.CANDIDATE_EMPLOYER_LINKS).select(PERF_LINK_MIN_SELECT).eq('candidate_id', candidateId).eq('ativo', true).limit(1),
+        supa.from(DB.CANDIDATE_EMPLOYER_MATCHES).select(PERF_MATCH_MIN_SELECT).eq('candidato_id', candidateId).order('is_primary', { ascending:false }).order('prioridade', { ascending:true }).limit(1)
       ]);
       const employerIds = [];
       (linkResp?.data || []).forEach((row) => row?.employer_id && employerIds.push(String(row.employer_id)));
@@ -19404,7 +19442,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       let employers = [];
       const uniqIds = Array.from(new Set(employerIds.filter(Boolean)));
       if (uniqIds.length) {
-        const empResp = await supa.from('employers').select(PERF_EMPLOYER_MIN_SELECT).in('id', uniqIds);
+        const empResp = await supa.from(DB.EMPLOYERS).select(PERF_EMPLOYER_MIN_SELECT).in('id', uniqIds).eq('ativo', true).is('deleted_at', null);
         employers = empResp?.data || [];
       }
       const c = { ...data };
@@ -19479,8 +19517,8 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       S.ticketBoardLoading = true;
       try {
         const supa = await getSupa();
-        const primary = () => supa.from('candidatos').select(PERF_BASE_TICKET_SELECT).not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(PERF_TICKET_LIMIT);
-        const fallback = () => supa.from('candidatos').select('id,nome_completo,status_pipeline,responsavel_interno,prioridade_comercial,ultima_atualizacao,historico_operacional').not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(PERF_TICKET_LIMIT);
+        const primary = () => supa.from(DB.CANDIDATOS).select(PERF_BASE_TICKET_SELECT).not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(PERF_TICKET_LIMIT);
+        const fallback = () => supa.from(DB.CANDIDATOS).select('id,nome_completo,status_pipeline,responsavel_interno,prioridade_comercial,ultima_atualizacao,historico_operacional').not('historico_operacional', 'is', null).order('ultima_atualizacao', { ascending:false }).limit(PERF_TICKET_LIMIT);
         const { data, error } = await perfSafeSelect(primary, fallback);
         if (error) throw error;
 
