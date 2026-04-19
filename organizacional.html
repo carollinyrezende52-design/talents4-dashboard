@@ -5766,5 +5766,533 @@ async function softDeleteMeetingOperationalItems(meetingId){
 })();
 </script>
 
+
+<script>
+(function(){
+  const PRIMARY_KEYS = ['planEntries','meetings','weeklySummaries','operationalTasks','operationalMetrics'];
+  let remoteBackupPayload = null;
+
+  function clone(v){ try{return JSON.parse(JSON.stringify(v));}catch(_){ return v; } }
+  function normalizeText(v){ return String(v||'').trim().toLowerCase(); }
+  function readBackupObj(raw){ try{return raw?JSON.parse(raw):null;}catch(_){return null;} }
+  function writeBackupToDownload(data, filename){
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function mergeNonPrimaryBackup(payload){
+    if(!payload || typeof payload!=='object') return false;
+    let touched=false;
+    if((!Array.isArray(S.employers) || !S.employers.length) && Array.isArray(payload.employers) && payload.employers.length){
+      S.employers = clone(payload.employers);
+      touched=true;
+    }
+    if((!S.dossiers || !Object.keys(S.dossiers||{}).length) && payload.dossiers && typeof payload.dossiers==='object'){
+      S.dossiers = clone(payload.dossiers);
+      touched=true;
+    }
+    if(!S.currentDossieEmp && payload.currentDossieEmp){ S.currentDossieEmp = payload.currentDossieEmp; touched=true; }
+    if(!S.currentPage && payload.currentPage){ S.currentPage = payload.currentPage; touched=true; }
+    if(typeof ensureOpeningsIds==='function') ensureOpeningsIds();
+    return touched;
+  }
+  function applyOpeningsFromRelational(rows){
+    if(!Array.isArray(S.employers)) S.employers=[];
+    const grouped = new Map();
+    (rows||[]).forEach(r=>{
+      const k = String(r.employer_id||'').trim();
+      if(!k) return;
+      if(!grouped.has(k)) grouped.set(k, []);
+      grouped.get(k).push({
+        id: r.id,
+        title: String(r.title||'').trim(),
+        qty: Number(r.quantity||1) || 1,
+        status: String(r.status||'Aberta').trim() || 'Aberta'
+      });
+    });
+    S.employers = (S.employers||[]).map(emp=>{
+      const key = String(emp?.id||'').trim();
+      if(!key || !grouped.has(key)) return emp;
+      const openings = grouped.get(key);
+      return Object.assign({}, emp, {
+        openings,
+        vagas: typeof openingsToText==='function' ? openingsToText(openings) : openings.map(o=>o.title).join('\n')
+      });
+    });
+    if(typeof ensureOpeningsIds==='function') ensureOpeningsIds();
+  }
+
+  const _oldLoadRemoteState = window.loadRemoteState;
+  window.loadRemoteState = async function(){
+    try{
+      const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+      if(!session) return false;
+      const client = getSupa();
+      const {data,error} = await withTimeout(
+        client.from('org_ui_state_snapshots').select('payload,updated_at').eq('app_key', REMOTE_APP_KEY).limit(1).maybeSingle(),
+        5000,
+        'Leitura remota do snapshot'
+      );
+      if(error) throw error;
+      remoteBackupPayload = data?.payload || null;
+      _remoteReady = !!data?.payload;
+      _remoteSnapshotUpdatedAt = data?.updated_at || null;
+      const touched = mergeNonPrimaryBackup(remoteBackupPayload);
+      if(touched){
+        localStorage.setItem('t4crm_v5', JSON.stringify(S));
+        localStorage.setItem('t4crm_v2', JSON.stringify(S));
+      }
+      return !!data?.payload;
+    }catch(err){
+      _remoteReady = false;
+      console.warn('[T4 Hardening] Snapshot remoto tratado apenas como backup:', err?.message || err);
+      return false;
+    }
+  };
+
+  window.saveRemoteNow = async function(){ return false; };
+  window.scheduleRemoteSave = function(){};
+  window.flushRemoteSave = async function(){ return false; };
+  window.save = function(){
+    localStorage.setItem('t4crm_v5', JSON.stringify(S));
+    localStorage.setItem('t4crm_v2', JSON.stringify(S));
+  };
+
+  window.orgHybridLoadRelationalSlices = async function(){
+    try{
+      const client = getSupa();
+      const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+      if(!client || !session) return {loaded:false};
+      const [planResp, meetResp, weekResp, replResp, openResp, taskResp, metricResp] = await Promise.all([
+        withTimeout(client.from(ORG_HYBRID.PLAN).select('*').is('deleted_at', null).order('month_ref',{ascending:true}).order('order_index',{ascending:true}), 5000, 'Leitura plan'),
+        withTimeout(client.from(ORG_HYBRID.MEET).select('*').is('deleted_at', null).order('scheduled_at',{ascending:false}), 5000, 'Leitura meetings'),
+        withTimeout(client.from(ORG_HYBRID.WEEK).select('*').is('deleted_at', null).order('month_ref',{ascending:true}).order('week_label',{ascending:true}).order('order_index',{ascending:true}), 5000, 'Leitura weekly'),
+        withTimeout(client.from(ORG_HYBRID.REPL).select('*').is('deleted_at', null).order('created_at',{ascending:false}), 5000, 'Leitura reposicao'),
+        withTimeout(client.from(ORG_HYBRID.OPEN).select('*').is('deleted_at', null).order('employer_id',{ascending:true}).order('order_index',{ascending:true}), 5000, 'Leitura vagas'),
+        withTimeout(client.from(ORG_HYBRID.OPTASK).select('*').is('deleted_at', null).order('month_ref',{ascending:true}).order('sort_index',{ascending:true}).order('due_date',{ascending:true}), 5000, 'Leitura tarefas operacionais'),
+        withTimeout(client.from(ORG_HYBRID.OPMET).select('*').is('deleted_at', null).order('month_ref',{ascending:true}).order('metric_label',{ascending:true}), 5000, 'Leitura métricas operacionais')
+      ]);
+
+      S.planEntries = !planResp.error && Array.isArray(planResp.data) ? planResp.data.map(planRelToState) : [];
+      S.meetings = !meetResp.error && Array.isArray(meetResp.data) ? meetResp.data.map(meetingRelToState).map(m=>Object.assign({}, m, { tasks:Array.isArray(m.tasks)?m.tasks:[] })) : [];
+      S.weeklySummaries = !weekResp.error && Array.isArray(weekResp.data) ? weekResp.data.map(weeklyRelToState) : [];
+      if(!S.dossiers || typeof S.dossiers!=='object') S.dossiers={};
+      Object.keys(S.dossiers).forEach(k=>{
+        if(!S.dossiers[k] || typeof S.dossiers[k] !== 'object') S.dossiers[k]={candidatos:[],removidos:[],reposicao:[]};
+        S.dossiers[k].reposicao = [];
+      });
+      if(!replResp.error && Array.isArray(replResp.data)){
+        replResp.data.map(replacementRelToState).forEach(r=>{
+          const empName = r.employer || '';
+          if(!empName) return;
+          if(!S.dossiers[empName] || typeof S.dossiers[empName] !== 'object') S.dossiers[empName]={candidatos:[],removidos:[],reposicao:[]};
+          if(!Array.isArray(S.dossiers[empName].reposicao)) S.dossiers[empName].reposicao=[];
+          S.dossiers[empName].reposicao.push(r);
+        });
+      }
+      S.operationalTasks = !taskResp.error && Array.isArray(taskResp.data) ? taskResp.data.map(opTaskRelToState) : [];
+      S.operationalMetrics = !metricResp.error && Array.isArray(metricResp.data) ? metricResp.data.map(opMetricRelToState) : [];
+      if(!openResp.error && Array.isArray(openResp.data)) applyOpeningsFromRelational(openResp.data);
+      mergeNonPrimaryBackup(remoteBackupPayload);
+      save();
+      return {
+        loaded:true,
+        planCount:S.planEntries.length,
+        meetCount:S.meetings.length,
+        weekCount:S.weeklySummaries.length,
+        taskCount:S.operationalTasks.length,
+        metricCount:S.operationalMetrics.length,
+        openingsCount: Array.isArray(openResp.data) ? openResp.data.length : 0
+      };
+    }catch(err){
+      console.warn('[T4 Hardening] Falha no load relacional principal:', err?.message || err);
+      return {loaded:false, error:err};
+    }
+  };
+
+  function injectHardeningButtons(){
+    const target = document.querySelector('.ph-right');
+    if(!target || document.getElementById('hardening-export-backup')) return;
+    const file = document.createElement('input');
+    file.type = 'file';
+    file.accept = 'application/json';
+    file.id = 'hardening-import-backup-input';
+    file.style.display = 'none';
+    file.addEventListener('change', async (ev)=>{
+      const f = ev.target.files?.[0];
+      if(!f) return;
+      try{
+        const txt = await f.text();
+        const parsed = JSON.parse(txt);
+        if(!parsed || typeof parsed!=='object') throw new Error('Backup inválido');
+        const next = parsed.state && typeof parsed.state==='object' ? parsed.state : parsed;
+        const keepPrimary = {
+          planEntries: clone(S.planEntries||[]),
+          meetings: clone(S.meetings||[]),
+          weeklySummaries: clone(S.weeklySummaries||[]),
+          operationalTasks: clone(S.operationalTasks||[]),
+          operationalMetrics: clone(S.operationalMetrics||[])
+        };
+        S = Object.assign(defaultState(), next);
+        Object.assign(S, keepPrimary);
+        ensureUiState();
+        if(typeof ensureOpeningsIds==='function') ensureOpeningsIds();
+        save();
+        renderBootstrap?.();
+        toast('Backup importado. Fatias relacionais principais foram preservadas.');
+      }catch(err){
+        console.warn('[T4 Hardening] import backup:', err?.message || err);
+        toast('⚠ Falha ao importar backup');
+      }finally{
+        ev.target.value='';
+      }
+    });
+    document.body.appendChild(file);
+
+    const exportBtn = document.createElement('button');
+    exportBtn.id = 'hardening-export-backup';
+    exportBtn.className = 'btn btn-ghost';
+    exportBtn.type = 'button';
+    exportBtn.textContent = 'Exportar backup';
+    exportBtn.onclick = ()=>{
+      writeBackupToDownload({
+        exported_at: new Date().toISOString(),
+        app: 'talents4_organizacional_v7_hardening',
+        state: S
+      }, `t4_organizacional_backup_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`);
+    };
+
+    const importBtn = document.createElement('button');
+    importBtn.id = 'hardening-import-backup';
+    importBtn.className = 'btn btn-ghost';
+    importBtn.type = 'button';
+    importBtn.textContent = 'Importar backup';
+    importBtn.onclick = ()=> file.click();
+
+    const remoteBtn = document.createElement('button');
+    remoteBtn.id = 'hardening-remote-backup';
+    remoteBtn.className = 'btn btn-ghost';
+    remoteBtn.type = 'button';
+    remoteBtn.textContent = 'Backup remoto';
+    remoteBtn.onclick = async ()=>{
+      try{
+        const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+        if(!session) throw new Error('Sem sessão');
+        const client = getSupa();
+        const payload = clone(S);
+        const stamp = new Date().toISOString();
+        const {error} = await withTimeout(client.from('org_ui_state_snapshots').upsert({ app_key: REMOTE_APP_KEY, payload, updated_at: stamp }, { onConflict:'app_key' }), 5000, 'Backup remoto manual');
+        if(error) throw error;
+        remoteBackupPayload = payload;
+        _remoteReady = true;
+        _remoteSnapshotUpdatedAt = stamp;
+        toast('Backup remoto manual concluído ✓');
+      }catch(err){
+        console.warn('[T4 Hardening] backup remoto manual:', err?.message || err);
+        toast('⚠ Falha no backup remoto manual');
+      }
+    };
+
+    target.prepend(remoteBtn);
+    target.prepend(importBtn);
+    target.prepend(exportBtn);
+  }
+
+  async function failClosedMutation(execute, onSuccess, successMsg, failMsg){
+    try{
+      await execute();
+      onSuccess?.();
+      save();
+      successMsg && toast(successMsg);
+      return true;
+    }catch(err){
+      console.warn('[T4 Hardening] mutação abortada:', err?.message || err);
+      failMsg && toast(failMsg || '⚠ Falha no banco. Alteração não confirmada.');
+      return false;
+    }
+  }
+
+  window.savePlanEntry = async function(){
+    const id = document.getElementById('plan-id').value;
+    const emp = document.getElementById('plan-employer').value;
+    if(!emp){ toast('⚠ Selecione um empregador'); return; }
+    const activityValue = getPlanActivityValue();
+    if(!activityValue){ toast('⚠ Informe a atividade'); return; }
+    const entry = {
+      id:id||relUuid(),
+      month:document.getElementById('plan-month').value,
+      employer:emp,
+      activity:activityValue,
+      responsavel:document.getElementById('plan-responsavel').value,
+      status:document.getElementById('plan-status').value,
+      obs:document.getElementById('plan-obs').value,
+      inicio:document.getElementById('plan-inicio').value,
+      fim:document.getElementById('plan-fim').value,
+    };
+    const existingIndex=id?S.planEntries.findIndex(x=>x.id===id):-1;
+    const targetIndex=existingIndex>=0?existingIndex:S.planEntries.length;
+    await failClosedMutation(
+      ()=>orgHybridUpsertPlan(entry, targetIndex),
+      ()=>{
+        if(existingIndex>=0) S.planEntries[existingIndex]=entry; else S.planEntries.push(entry);
+        closeModal('modal-plan'); renderPlanTable(); renderCalendar();
+      },
+      id?'Atividade atualizada ✓':'Atividade criada ✓',
+      '⚠ Falha no banco. Atividade não foi confirmada.'
+    );
+  };
+  window.deletePlanEntryFromModal = function(){
+    const id=document.getElementById('plan-id').value; if(!id) return;
+    confirm('Excluir esta atividade?', async ()=>{
+      const prev = clone(S.planEntries||[]);
+      await failClosedMutation(
+        ()=>orgHybridSoftDeletePlan(id),
+        ()=>{ S.planEntries = prev.filter(x=>x.id!==id); closeModal('modal-plan'); renderPlanTable(); renderCalendar(); },
+        'Atividade removida',
+        '⚠ Falha no banco. A atividade não foi removida.'
+      );
+    });
+  };
+  window.deletePlanDirect = function(id){
+    if(!id) return;
+    confirm('Excluir esta atividade?', async ()=>{
+      const prev = clone(S.planEntries||[]);
+      await failClosedMutation(
+        ()=>orgHybridSoftDeletePlan(id),
+        ()=>{ S.planEntries = prev.filter(x=>x.id!==id); refreshVisibleViews({calendar:true}); },
+        'Atividade removida',
+        '⚠ Falha no banco. A atividade não foi removida.'
+      );
+    });
+  };
+
+  window.saveMeeting = async function(){
+    const id = document.getElementById('meet-id').value;
+    const scope = document.getElementById('meet-scope')?.value || 'employer';
+    const employer = scope==='interna_talents' ? '' : document.getElementById('meet-employer').value;
+    const m = {
+      id:id||relUuid(),
+      data:document.getElementById('meet-data').value,
+      mes:document.getElementById('meet-mes').value,
+      semana:document.getElementById('meet-semana').value,
+      employer,
+      scope,
+      tema:document.getElementById('meet-tema').value,
+      decidido:document.getElementById('meet-decidido').value,
+      pendencias:document.getElementById('meet-pendencias').value,
+      proxacao:document.getElementById('meet-proxacao').value,
+      responsavel:document.getElementById('meet-responsavel').value,
+      status:document.getElementById('meet-status').value,
+      tasks: window.collectMeetingTaskRows()
+    };
+    const existingIndex = id ? S.meetings.findIndex(x=>x.id===id) : -1;
+    await failClosedMutation(
+      async ()=>{ await orgHybridUpsertMeeting(m); await syncMeetingOperationalItems(m); },
+      ()=>{ if(existingIndex>=0) S.meetings[existingIndex]=m; else S.meetings.push(m); closeModal('modal-meet'); renderMeetings(); renderCalendar(); renderOperationalPage?.(); },
+      id?'Reunião atualizada ✓':'Reunião criada ✓',
+      '⚠ Falha no banco. A reunião não foi confirmada.'
+    );
+  };
+  window.deleteMeetFromModal = function(){
+    const id=document.getElementById('meet-id').value; if(!id) return;
+    confirm('Excluir esta reunião?', async ()=>{
+      const prev = clone(S.meetings||[]);
+      await failClosedMutation(
+        async ()=>{ await orgHybridSoftDeleteMeeting(id); await softDeleteMeetingOperationalItems(id); },
+        ()=>{ S.meetings = prev.filter(x=>x.id!==id); closeModal('modal-meet'); renderMeetings(); renderCalendar(); renderOperationalPage?.(); },
+        'Reunião removida',
+        '⚠ Falha no banco. A reunião não foi removida.'
+      );
+    });
+  };
+  window.deleteMeetDirect = function(id){
+    if(!id) return;
+    confirm('Excluir esta reunião?', async ()=>{
+      const prev = clone(S.meetings||[]);
+      await failClosedMutation(
+        async ()=>{ await orgHybridSoftDeleteMeeting(id); await softDeleteMeetingOperationalItems(id); },
+        ()=>{ S.meetings = prev.filter(x=>x.id!==id); refreshVisibleViews({calendar:true}); renderOperationalPage?.(); },
+        'Reunião removida',
+        '⚠ Falha no banco. A reunião não foi removida.'
+      );
+    });
+  };
+
+  window.saveWeekly = async function(){
+    ensureWeeklySummaries();
+    const id=document.getElementById('weekly-id').value;
+    const row={
+      id:id||relUuid(),
+      month:document.getElementById('weekly-month').value,
+      week:document.getElementById('weekly-week').value,
+      period:document.getElementById('weekly-period').value,
+      employer:document.getElementById('weekly-employer').value,
+      done:document.getElementById('weekly-done').value,
+      result:document.getElementById('weekly-result').value,
+      next:document.getElementById('weekly-next').value,
+      owner:document.getElementById('weekly-owner').value,
+      status:document.getElementById('weekly-status').value,
+      notes:document.getElementById('weekly-notes').value,
+    };
+    const existingIndex=id?S.weeklySummaries.findIndex(x=>x.id===id):-1;
+    const targetIndex=existingIndex>=0?existingIndex:S.weeklySummaries.length;
+    await failClosedMutation(
+      ()=>orgHybridUpsertWeekly(row, targetIndex),
+      ()=>{ if(existingIndex>=0) S.weeklySummaries[existingIndex]=row; else S.weeklySummaries.push(row); closeModal('modal-weekly'); renderResumo(); },
+      id?'Linha semanal atualizada ✓':'Linha semanal criada ✓',
+      '⚠ Falha no banco. A linha semanal não foi confirmada.'
+    );
+  };
+  window.deleteWeeklyFromModal = function(){
+    const id=document.getElementById('weekly-id').value; if(!id) return;
+    confirm('Excluir esta linha semanal?', async ()=>{
+      const prev = clone(S.weeklySummaries||[]);
+      await failClosedMutation(
+        ()=>orgHybridSoftDeleteWeekly(id),
+        ()=>{ S.weeklySummaries = prev.filter(x=>x.id!==id); closeModal('modal-weekly'); renderResumo(); },
+        'Linha semanal removida',
+        '⚠ Falha no banco. A linha semanal não foi removida.'
+      );
+    });
+  };
+
+  window.saveOperationalTask = async function(){
+    const id=document.getElementById('op-task-id').value;
+    const row={
+      id:id||relUuid(),
+      title:document.getElementById('op-task-title').value.trim(),
+      description:document.getElementById('op-task-description').value,
+      due_date:document.getElementById('op-task-due').value,
+      start_date:document.getElementById('op-task-start').value,
+      owner:document.getElementById('op-task-owner').value,
+      notes:document.getElementById('op-task-notes').value,
+      priority:document.getElementById('op-task-priority').value,
+      status:document.getElementById('op-task-status').value,
+      team_scope:document.getElementById('op-task-scope').value,
+      month:document.getElementById('op-task-month').value,
+      employer:document.getElementById('op-task-employer').value
+    };
+    if(!row.title){ toast('Informe o título da tarefa'); return; }
+    const existingIndex=id?S.operationalTasks.findIndex(x=>x.id===id):-1;
+    const targetIndex=existingIndex>=0?existingIndex:S.operationalTasks.length;
+    await failClosedMutation(
+      ()=>orgHybridUpsertOperationalTask(row, targetIndex),
+      ()=>{ if(existingIndex>=0) S.operationalTasks[existingIndex]=row; else S.operationalTasks.push(row); closeModal('modal-op-task'); renderOperationalPage(); },
+      id?'Tarefa atualizada ✓':'Tarefa criada ✓',
+      '⚠ Falha no banco. A tarefa não foi confirmada.'
+    );
+  };
+  window.deleteOperationalTaskDirect = function(id, fromModal=false){
+    confirm('Excluir esta tarefa operacional?', async ()=>{
+      const prev = clone(S.operationalTasks||[]);
+      await failClosedMutation(
+        ()=>orgHybridSoftDeleteOperationalTask(id),
+        ()=>{ S.operationalTasks = prev.filter(x=>x.id!==id); if(fromModal) closeModal('modal-op-task'); renderOperationalPage(); },
+        'Tarefa removida',
+        '⚠ Falha no banco. A tarefa não foi removida.'
+      );
+    });
+  };
+  window.saveOperationalMetric = async function(){
+    const id=document.getElementById('op-metric-id').value;
+    const row={
+      id:id||relUuid(),
+      month:document.getElementById('op-metric-month').value,
+      metric_key:document.getElementById('op-metric-key').value.trim(),
+      metric_label:document.getElementById('op-metric-label').value.trim(),
+      target_value:document.getElementById('op-metric-target').value,
+      actual_value:document.getElementById('op-metric-actual').value,
+      team_scope:document.getElementById('op-metric-scope').value,
+      owner:document.getElementById('op-metric-owner').value,
+      notes:document.getElementById('op-metric-notes').value
+    };
+    if(!row.metric_label){ toast('Informe o nome da métrica'); return; }
+    if(!row.metric_key){ row.metric_key = (row.metric_label||'metrica').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || `metric_${Date.now()}`; }
+    const existingIndex=id?S.operationalMetrics.findIndex(x=>x.id===id):-1;
+    await failClosedMutation(
+      ()=>orgHybridUpsertOperationalMetric(row),
+      ()=>{ if(existingIndex>=0) S.operationalMetrics[existingIndex]=row; else S.operationalMetrics.push(row); closeModal('modal-op-metric'); renderOperationalPage(); },
+      id?'Métrica atualizada ✓':'Métrica criada ✓',
+      '⚠ Falha no banco. A métrica não foi confirmada.'
+    );
+  };
+  window.deleteOperationalMetricDirect = function(id, fromModal=false){
+    confirm('Excluir esta métrica?', async ()=>{
+      const prev = clone(S.operationalMetrics||[]);
+      await failClosedMutation(
+        ()=>orgHybridSoftDeleteOperationalMetric(id),
+        ()=>{ S.operationalMetrics = prev.filter(x=>x.id!==id); if(fromModal) closeModal('modal-op-metric'); renderOperationalPage(); },
+        'Métrica removida',
+        '⚠ Falha no banco. A métrica não foi removida.'
+      );
+    });
+  };
+  window.setStatus = async function(id,status,type){
+    let ok=false;
+    if(type==='plan'){
+      const e=S.planEntries.find(x=>x.id===id); if(!e) return;
+      const prev=e.status;
+      ok = await failClosedMutation(
+        ()=>orgHybridUpdatePlanStatus(id,status),
+        ()=>{ e.status=status; renderPlanTable(); },
+        '',
+        '⚠ Falha no banco. O status da atividade não mudou.'
+      );
+      if(!ok) e.status=prev;
+    } else if(type==='meet'){
+      const e=S.meetings.find(x=>x.id===id); if(!e) return;
+      const prev=e.status;
+      ok = await failClosedMutation(
+        ()=>orgHybridUpdateMeetingStatus(id,status),
+        ()=>{ e.status=status; renderMeetings(); },
+        '',
+        '⚠ Falha no banco. O status da reunião não mudou.'
+      );
+      if(!ok) e.status=prev;
+    } else if(type==='optask'){
+      const t=S.operationalTasks.find(x=>x.id===id); if(!t) return;
+      const prev = clone(t);
+      const next = Object.assign({}, t, { status });
+      if(status==='Pronto' && !next.completed_at) next.completed_at=new Date().toISOString();
+      ok = await failClosedMutation(
+        ()=>orgHybridUpsertOperationalTask(next, S.operationalTasks.findIndex(x=>x.id===id)),
+        ()=>{ Object.assign(t,next); renderOperationalPage(); },
+        '',
+        '⚠ Falha no banco. O status da tarefa não mudou.'
+      );
+      if(!ok) Object.assign(t,prev);
+    } else if(type==='cand'){
+      const emp=S.currentDossieEmp; const c=S.dossiers[emp]?.candidatos.find(x=>x.id===id); if(c){ c.etapa=status; save(); renderPipeline(); toast('Status atualizado ✓'); }
+      document.querySelectorAll('.status-picker').forEach(p=>p.remove());
+      return;
+    }
+    document.querySelectorAll('.status-picker').forEach(p=>p.remove());
+    if(ok) toast('Status atualizado ✓');
+  };
+
+  function initHardening(){
+    injectHardeningButtons();
+    setTimeout(async ()=>{
+      try{
+        await window.loadRemoteState();
+        const res = await window.orgHybridLoadRelationalSlices();
+        renderBootstrap?.();
+        renderOperationalPage?.();
+        refreshVisibleViews?.({calendar:true});
+        if(res?.loaded) toast('Modo seguro ativo: leitura principal relacional, sem auto-gravação em snapshot ✓');
+      }catch(err){
+        console.warn('[T4 Hardening] init:', err?.message || err);
+      }
+    }, 0);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initHardening);
+  else initHardening();
+})();
+</script>
+
 </body>
 </html>
