@@ -2286,6 +2286,20 @@ details.bi-secondary {
 .emp-employer-pill-badge{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(96,165,250,.18);color:#7eb3ff;border:1px solid rgba(96,165,250,.3)}
 
 
+
+/* v1 institucional fluidez */
+.topbar-utility{display:inline-flex;align-items:center;gap:6px}
+.dense-mode #topbar{padding-top:10px;padding-bottom:10px}
+.dense-mode .card{padding:12px 13px;border-radius:12px}
+.dense-mode .kpi,.dense-mode .kpi-card,.dense-mode .bi-card,.dense-mode .emp-card{padding:12px}
+.dense-mode .filters-bar,.dense-mode .emp-toolbar,.dense-mode .ticket-board-toolbar,.dense-mode .ag-toolbar{gap:6px}
+.dense-mode table th,.dense-mode table td{padding-top:7px;padding-bottom:7px}
+.dense-mode .table-wrap table td,.dense-mode .table-wrap table th{font-size:12px}
+.dense-mode .search-wrap{padding-top:4px;padding-bottom:4px}
+.dense-mode .tb-title{font-size:18px}
+.dense-mode .pill,.dense-mode .op-chip,.dense-mode .chip{padding:4px 8px}
+.dense-mode .bi-card-sub,.dense-mode .muted,.dense-mode .sub{line-height:1.35}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"></script>
@@ -2386,6 +2400,10 @@ details.bi-secondary {
         <span id="sync-lbl">sincronizado</span>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="forceSync()" title="Sincronizar dados">↻ Sync</button>
+      <div class="topbar-utility">
+        <button class="btn btn-ghost btn-sm" id="btn-clear-workspace" onclick="clearInstitutionalWorkspaceState()" title="Limpar filtros e contexto operacional">✕ Limpar</button>
+        <button class="btn btn-ghost btn-sm" id="btn-dense-mode" onclick="toggleInstitutionalDenseMode()" title="Alternar modo denso">▤ Denso</button>
+      </div>
     </div>
     <div id="admin-mfa-banner" class="admin-mfa-banner"></div>
     <div id="content"></div>
@@ -2720,6 +2738,7 @@ const DASHBOARD_SCOPE_KEY = 't4_dashboard_scope';
 const EMPLOYER_HUB_KEY = 't4_employer_hub';
 const FILTERS_KEY = 't4_candidate_filters';
 const TICKETS_BOARD_KEY = 't4_ticket_board';
+const INSTITUTIONAL_DENSE_KEY = 't4_institutional_dense_mode';
 const TICKET_STATUS_OPTIONS = ['Aberto', 'Aguardando candidato', 'Follow-up agendado', 'Resolvido', 'Encerrado'];
 const TICKET_PRIORITY_OPTIONS = ['Alta', 'Média', 'Baixa'];
 const INACTIVATION_REASON_OPTIONS = [
@@ -2796,6 +2815,53 @@ function readUiState(key, fallback) {
   } catch(_) {
     return fallback;
   }
+}
+
+function isInstitutionalDenseModeEnabled() {
+  return !!readUiState(INSTITUTIONAL_DENSE_KEY, false);
+}
+function applyInstitutionalDenseMode(enabled) {
+  const on = !!enabled;
+  document.documentElement.classList.toggle('dense-mode', on);
+  persistUiState(INSTITUTIONAL_DENSE_KEY, on);
+  const btn = document.getElementById('btn-dense-mode');
+  if (btn) {
+    btn.classList.toggle('active', on);
+    btn.textContent = on ? '▤ Denso on' : '▤ Denso';
+  }
+}
+function toggleInstitutionalDenseMode() {
+  applyInstitutionalDenseMode(!document.documentElement.classList.contains('dense-mode'));
+}
+function clearInstitutionalWorkspaceState() {
+  S.filter = normalizeCandidateFilterState(defaultCandidateFilterState());
+  S.page = 1;
+  S.ticketBoard = defaultTicketBoardState();
+  persistUiState(TICKETS_BOARD_KEY, S.ticketBoard);
+  S.employerHub = { selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' };
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
+  syncTopbarSearchInputs();
+  try {
+    const g = document.getElementById('global-search'); if (g) g.value = '';
+    const n = document.getElementById('nlp-search-input'); if (n) n.value = '';
+  } catch(_) {}
+  toast('Filtros e contexto operacional limpos.', 'ok', 1600);
+  renderView();
+}
+function refreshInstitutionalUtilityButtons() {
+  const clearBtn = document.getElementById('btn-clear-workspace');
+  if (clearBtn) {
+    const candidateViews = ['dashboard','kanban','candidates','prioritarios','triagem','entrevistas','analise','alemao','documentacao','inativos'];
+    const employerView = S.view === 'employer';
+    const ticketView = S.view === 'tickets';
+    const hasCandidateFilters = !!(S.filter?.q || S.filter?.status || S.filter?.perfil || S.filter?.alemao || S.filter?.profissao || S.filter?.empregador || S.filter?.substatus || S.filter?.prioridade || S.filter?._nlpQuery || S.filter?._customLabel);
+    const hasEmployerCtx = !!(S.employerHub && (S.employerHub.employerSearch || S.employerHub.candidateSearch || (S.employerHub.quickFilter && S.employerHub.quickFilter !== 'todos') || (S.employerHub.tab && S.employerHub.tab !== 'todos')));
+    const hasTicketCtx = !!(S.ticketBoard && (S.ticketBoard.q || S.ticketBoard.status || S.ticketBoard.prioridade || S.ticketBoard.responsavel || S.ticketBoard.stage || (S.ticketBoard.due && S.ticketBoard.due !== 'todos') || (S.ticketBoard.sort && S.ticketBoard.sort !== 'followup_asc')));
+    clearBtn.style.display = (candidateViews.includes(S.view) || employerView || ticketView) ? 'inline-flex' : 'none';
+    clearBtn.disabled = !(hasCandidateFilters || hasEmployerCtx || hasTicketCtx);
+  }
+  const denseBtn = document.getElementById('btn-dense-mode');
+  if (denseBtn) denseBtn.style.display = (S.view === 'settings') ? 'none' : 'inline-flex';
 }
 
 function getMfaState() { return S.mfa || { loaded:false, currentLevel:'aal1', nextLevel:'aal1', factors:[], verifiedFactors:[] }; }
@@ -4280,7 +4346,10 @@ function syncTopbarSearchInputs() {
   if (globalSearch) globalSearch.value = S.filter.q || '';
   const nlpSearch = document.getElementById('nlp-search-input');
   if (nlpSearch) nlpSearch.value = S.filter._nlpQuery || '';
+  refreshInstitutionalUtilityButtons();
 }
+
+applyInstitutionalDenseMode(isInstitutionalDenseModeEnabled());
 async function stopRealtime() {
   if (S.realtimeFlushTimer) {
     clearTimeout(S.realtimeFlushTimer);
@@ -4645,6 +4714,8 @@ function renderView() {
     case 'inativos':     renderInativo(el);                  break;
     case 'settings':     renderSettings(el);                 break;
   }
+
+  refreshInstitutionalUtilityButtons();
 }
 
 // ── filterByMetric: deep-link real do dashboard ───────────────
@@ -8359,6 +8430,8 @@ function renderView() {
     }
     bindCandidateTableInteractions(el);
   }
+
+  refreshInstitutionalUtilityButtons();
 }
 
 function renderInativo(el) {
@@ -14176,6 +14249,7 @@ function clearFilters() {
   S.page = 1;
   syncTopbarSearchInputs();
   persistCandidateFilters();
+  refreshInstitutionalUtilityButtons();
 }
 
 function clearFilterKey(key) {
