@@ -1625,6 +1625,33 @@ function relTsOrNull(v){
   if(/T/.test(s)) return s;
   return `${s}T12:00:00`;
 }
+function relSlug(v){
+  return String(v||'')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'_')
+    .replace(/^_+|_+$/g,'')
+    .toLowerCase();
+}
+function relPlanCatalog(){
+  return [
+    'Pesquisa de perfis',
+    'Triagem / qualificação',
+    'Envio de currículos',
+    'Feedback / próximos passos',
+    'Reunião / alinhamento',
+    'Formulário / documentação'
+  ];
+}
+function relPlanActivityType(label){
+  return relPlanCatalog().includes(String(label||'').trim()) ? 'standard' : 'custom';
+}
+function relEmployerIdByName(name){
+  const target = String(name||'').trim();
+  if(!target) return null;
+  const match = (S.employers||[]).find(e=>String(e?.name||'').trim()===target);
+  return match?.id ? String(match.id) : null;
+}
 function parsePeriodRange(period, monthRef){
   const txt=String(period||'').trim();
   const m=txt.match(/^(\d{2})\/(\d{2})\s+a\s+(\d{2})\/(\d{2})$/i);
@@ -1640,14 +1667,16 @@ function formatPeriodRange(start,end){
 }
 function planStateToRel(entry, idx=0){
   const id=relUuid(entry?.id);
+  const employerName=String(entry?.employer||'').trim();
+  const activityLabel=String(entry?.activity||'').trim() || 'Atividade manual';
   return {
     id,
-    employer_id:null,
-    employer_name_snapshot:entry?.employer || null,
+    employer_id:relEmployerIdByName(employerName),
+    employer_name_snapshot:employerName || null,
     month_ref:entry?.month || MONTHS[S.currentMonthIdx]?.k || '',
-    activity_type:'manual',
-    activity_key:null,
-    activity_label:entry?.activity || 'Atividade manual',
+    activity_type:relPlanActivityType(activityLabel),
+    activity_key:relSlug(activityLabel) || 'atividade_manual',
+    activity_label:activityLabel,
     responsavel:entry?.responsavel || null,
     status:entry?.status || 'A fazer',
     obs:entry?.obs || null,
@@ -2753,11 +2782,13 @@ async function savePlanEntry(){
   const id=document.getElementById('plan-id').value;
   const emp=document.getElementById('plan-employer').value;
   if(!emp){toast('⚠ Selecione um empregador');return;}
+  const activityValue=getPlanActivityValue();
+  if(!activityValue){toast('⚠ Informe a atividade');return;}
   const entry={
     id:id||relUuid(),
     month:document.getElementById('plan-month').value,
     employer:emp,
-    activity:document.getElementById('plan-activity').value,
+    activity:activityValue,
     responsavel:document.getElementById('plan-responsavel').value,
     status:document.getElementById('plan-status').value,
     obs:document.getElementById('plan-obs').value,
