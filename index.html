@@ -2286,16 +2286,78 @@ details.bi-secondary {
 .emp-employer-pill-badge{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(96,165,250,.18);color:#7eb3ff;border:1px solid rgba(96,165,250,.3)}
 
 
+
+/* v1 institucional fluidez */
+.topbar-utility{display:inline-flex;align-items:center;gap:6px}
+.dense-mode #topbar{padding-top:10px;padding-bottom:10px}
+.dense-mode .card{padding:12px 13px;border-radius:12px}
+.dense-mode .kpi,.dense-mode .kpi-card,.dense-mode .bi-card,.dense-mode .emp-card{padding:12px}
+.dense-mode .filters-bar,.dense-mode .emp-toolbar,.dense-mode .ticket-board-toolbar,.dense-mode .ag-toolbar{gap:6px}
+.dense-mode table th,.dense-mode table td{padding-top:7px;padding-bottom:7px}
+.dense-mode .table-wrap table td,.dense-mode .table-wrap table th{font-size:12px}
+.dense-mode .search-wrap{padding-top:4px;padding-bottom:4px}
+.dense-mode .tb-title{font-size:18px}
+.dense-mode .pill,.dense-mode .op-chip,.dense-mode .chip{padding:4px 8px}
+.dense-mode .bi-card-sub,.dense-mode .muted,.dense-mode .sub{line-height:1.35}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style id="t4-early-light-theme">
+:root{
+  --bg:#f4f7fb; --bg2:#ffffff; --bg3:#f7f9fc; --bg4:#eef3f8;
+  --card:#ffffff; --card2:#f7f9fc; --surface:#ffffff; --surface2:#f7f9fc;
+  --txt:#122033; --txt2:#42546b; --txt3:#71839a;
+  --border:#d9e2ec; --border2:#cbd6e2; --border3:#b8c6d6; --line:#d9e2ec;
+  --shadow:0 10px 28px rgba(15,23,42,.08); --sh:0 16px 42px rgba(15,23,42,.14); --sh2:0 8px 24px rgba(15,23,42,.10);
+  --accent:#2563eb; --accent2:#1d4ed8; --accent-bg:#eaf1ff;
+  --gold:#eab308; --gold-bg:#fff6d8; --red:#dc2626; --red-bg:#feecec; --green:#16a34a; --green-bg:#e9f8ee;
+  --blue:#2563eb; --blue-bg:#eaf1ff; --purple:#7c3aed; --purple-bg:#f1ebff; --yellow:#ca8a04; --yellow-bg:#fff7db;
+  --orange:#ea580c; --orange-bg:#fff0e7; --teal:#0f766e; --teal-bg:#e8fbf8;
+}
+html,body{background:var(--bg)!important;color:var(--txt)!important}
+#login-screen{
+  display:flex!important;
+  background:
+    radial-gradient(900px 420px at 10% -10%, rgba(37,99,235,.08), transparent 60%),
+    radial-gradient(900px 420px at 90% 110%, rgba(234,179,8,.08), transparent 60%),
+    var(--bg)!important;
+}
+#app{display:none}
+</style>
+
 </head>
+
 <body>
+<script>
+(function(){
+  try{
+    document.documentElement.style.background = '#f4f7fb';
+    document.body.style.background = '#f4f7fb';
+  }catch(_){}
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      var login = document.getElementById('login-screen');
+      var app = document.getElementById('app');
+      if (login && app && login.style.display === 'none' && app.style.display === 'none') {
+        login.style.display = 'flex';
+      }
+      setTimeout(function(){
+        if (login && app && login.style.display === 'none' && app.style.display === 'none') {
+          login.style.display = 'flex';
+        }
+      }, 1200);
+    }catch(_){}
+  });
+})();
+</script>
+
 
 <!-- ════════════════════ LOGIN ════════════════════ -->
-<div id="login-screen" style="display:none">
+<div id="login-screen" style="display:flex">
   <div class="login-card">
     <div class="login-flag-strip"></div>
     <div class="login-body">
@@ -2386,6 +2448,10 @@ details.bi-secondary {
         <span id="sync-lbl">sincronizado</span>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="forceSync()" title="Sincronizar dados">↻ Sync</button>
+      <div class="topbar-utility">
+        <button class="btn btn-ghost btn-sm" id="btn-clear-workspace" onclick="clearInstitutionalWorkspaceState()" title="Limpar filtros e contexto operacional">✕ Limpar</button>
+        <button class="btn btn-ghost btn-sm" id="btn-dense-mode" onclick="toggleInstitutionalDenseMode()" title="Alternar modo denso">▤ Denso</button>
+      </div>
     </div>
     <div id="admin-mfa-banner" class="admin-mfa-banner"></div>
     <div id="content"></div>
@@ -2720,6 +2786,7 @@ const DASHBOARD_SCOPE_KEY = 't4_dashboard_scope';
 const EMPLOYER_HUB_KEY = 't4_employer_hub';
 const FILTERS_KEY = 't4_candidate_filters';
 const TICKETS_BOARD_KEY = 't4_ticket_board';
+const INSTITUTIONAL_DENSE_KEY = 't4_institutional_dense_mode';
 const TICKET_STATUS_OPTIONS = ['Aberto', 'Aguardando candidato', 'Follow-up agendado', 'Resolvido', 'Encerrado'];
 const TICKET_PRIORITY_OPTIONS = ['Alta', 'Média', 'Baixa'];
 const INACTIVATION_REASON_OPTIONS = [
@@ -2796,6 +2863,53 @@ function readUiState(key, fallback) {
   } catch(_) {
     return fallback;
   }
+}
+
+function isInstitutionalDenseModeEnabled() {
+  return !!readUiState(INSTITUTIONAL_DENSE_KEY, false);
+}
+function applyInstitutionalDenseMode(enabled) {
+  const on = !!enabled;
+  document.documentElement.classList.toggle('dense-mode', on);
+  persistUiState(INSTITUTIONAL_DENSE_KEY, on);
+  const btn = document.getElementById('btn-dense-mode');
+  if (btn) {
+    btn.classList.toggle('active', on);
+    btn.textContent = on ? '▤ Denso on' : '▤ Denso';
+  }
+}
+function toggleInstitutionalDenseMode() {
+  applyInstitutionalDenseMode(!document.documentElement.classList.contains('dense-mode'));
+}
+function clearInstitutionalWorkspaceState() {
+  S.filter = normalizeCandidateFilterState(defaultCandidateFilterState());
+  S.page = 1;
+  S.ticketBoard = defaultTicketBoardState();
+  persistUiState(TICKETS_BOARD_KEY, S.ticketBoard);
+  S.employerHub = { selectedEmployer:'', selectedCandidateId:'', tab:'todos', employerSearch:'', candidateSearch:'', quickFilter:'todos' };
+  persistUiState(EMPLOYER_HUB_KEY, S.employerHub);
+  syncTopbarSearchInputs();
+  try {
+    const g = document.getElementById('global-search'); if (g) g.value = '';
+    const n = document.getElementById('nlp-search-input'); if (n) n.value = '';
+  } catch(_) {}
+  toast('Filtros e contexto operacional limpos.', 'ok', 1600);
+  renderView();
+}
+function refreshInstitutionalUtilityButtons() {
+  const clearBtn = document.getElementById('btn-clear-workspace');
+  if (clearBtn) {
+    const candidateViews = ['dashboard','kanban','candidates','prioritarios','triagem','entrevistas','analise','alemao','documentacao','inativos'];
+    const employerView = S.view === 'employer';
+    const ticketView = S.view === 'tickets';
+    const hasCandidateFilters = !!(S.filter?.q || S.filter?.status || S.filter?.perfil || S.filter?.alemao || S.filter?.profissao || S.filter?.empregador || S.filter?.substatus || S.filter?.prioridade || S.filter?._nlpQuery || S.filter?._customLabel);
+    const hasEmployerCtx = !!(S.employerHub && (S.employerHub.employerSearch || S.employerHub.candidateSearch || (S.employerHub.quickFilter && S.employerHub.quickFilter !== 'todos') || (S.employerHub.tab && S.employerHub.tab !== 'todos')));
+    const hasTicketCtx = !!(S.ticketBoard && (S.ticketBoard.q || S.ticketBoard.status || S.ticketBoard.prioridade || S.ticketBoard.responsavel || S.ticketBoard.stage || (S.ticketBoard.due && S.ticketBoard.due !== 'todos') || (S.ticketBoard.sort && S.ticketBoard.sort !== 'followup_asc')));
+    clearBtn.style.display = (candidateViews.includes(S.view) || employerView || ticketView) ? 'inline-flex' : 'none';
+    clearBtn.disabled = !(hasCandidateFilters || hasEmployerCtx || hasTicketCtx);
+  }
+  const denseBtn = document.getElementById('btn-dense-mode');
+  if (denseBtn) denseBtn.style.display = (S.view === 'settings') ? 'none' : 'inline-flex';
 }
 
 function getMfaState() { return S.mfa || { loaded:false, currentLevel:'aal1', nextLevel:'aal1', factors:[], verifiedFactors:[] }; }
@@ -4280,7 +4394,10 @@ function syncTopbarSearchInputs() {
   if (globalSearch) globalSearch.value = S.filter.q || '';
   const nlpSearch = document.getElementById('nlp-search-input');
   if (nlpSearch) nlpSearch.value = S.filter._nlpQuery || '';
+  refreshInstitutionalUtilityButtons();
 }
+
+applyInstitutionalDenseMode(isInstitutionalDenseModeEnabled());
 async function stopRealtime() {
   if (S.realtimeFlushTimer) {
     clearTimeout(S.realtimeFlushTimer);
@@ -4364,35 +4481,72 @@ async function startRealtime() {
 // ══════════════════════════════════════════════════════════════
 // INIT & LOAD
 // ══════════════════════════════════════════════════════════════
+
 async function initApp() {
-  setSyncStatus('loading');
-  populateNewForm();
-  initGermanGreeting();
-  try {
-    await loadAll();
+  if (S.initAppPromise) return S.initAppPromise;
+  const run = (async () => {
+    const initialView = (typeof readUiState === 'function' ? readUiState(VIEW_KEY, 'dashboard') : 'dashboard') || 'dashboard';
+
+    const paintShell = () => {
+      try {
+        _navSetupUI(initialView);
+        clearSort();
+        syncTopbarSearchInputs();
+        if (!Array.isArray(S.candidates)) S.candidates = [];
+        if (!Array.isArray(S.employers)) S.employers = [];
+        renderView();
+      } catch (e) {
+        console.warn('[T4 quick boot] shell paint', e?.message || e);
+      }
+    };
+
+    setSyncStatus('loading');
     populateNewForm();
-    await refreshAdminMfaState();
-    agLoad().catch(e => console.warn('[Agenda] Load falhou na init:', e.message));
-    startRealtime().catch(e => console.warn('[Realtime]', e));
-    _navSetupUI(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
-    clearSort();
-    syncTopbarSearchInputs();
-    renderView();
-    startAutoSync();
-    applyViewerRestrictions();
-    const sess = getSession();
-    const mfa = getMfaState();
-    if (sess?.role === 'admin' && mfa.currentLevel !== 'aal2') {
-      setTimeout(() => openAdminMfaFlow().catch(e => console.warn('[MFA]', e?.message || e)), 150);
+    initGermanGreeting();
+    paintShell();
+
+    try {
+      await loadAll({ pageSize: 90, includeDashboardAux: false });
+      populateNewForm();
+      _navSetupUI(initialView);
+      clearSort();
+      syncTopbarSearchInputs();
+      renderView();
+      setSyncStatus('ok');
+
+      refreshAdminMfaState().catch(e => console.warn('[MFA state]', e?.message || e));
+      agLoad().then(() => { if (S.view === 'agenda') renderView(); }).catch(e => console.warn('[Agenda quick]', e?.message || e));
+      startRealtime().catch(e => console.warn('[Realtime]', e));
+      startAutoSync();
+      applyViewerRestrictions();
+
+      const schedule = ('requestIdleCallback' in window)
+        ? (fn => requestIdleCallback(fn, { timeout: 900 }))
+        : (fn => setTimeout(fn, 900));
+
+      schedule(async () => {
+        try {
+          await loadAll({ force: true, pageSize: 220, includeDashboardAux: true });
+          if (['dashboard','candidatos','kanban','tickets','employer'].includes(S.view)) renderView();
+        } catch (e) {
+          console.warn('[T4 quick boot] warmup', e?.message || e);
+        }
+      });
+
+      const sess = getSession();
+      const mfa = getMfaState();
+      if (sess?.role === 'admin' && mfa?.currentLevel !== 'aal2') {
+        setTimeout(() => openAdminMfaFlow().catch(e => console.warn('[MFA]', e?.message || e)), 180);
+      }
+    } catch (e) {
+      setSyncStatus('err');
+      toast('⚠ Erro ao carregar dados: ' + (e?.message || e), 'err');
+      paintShell();
     }
-  } catch(e) {
-    setSyncStatus('err');
-    toast('⚠ Erro ao carregar dados: ' + e.message, 'err');
-    _navSetupUI(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
-    clearSort();
-    syncTopbarSearchInputs();
-    renderView();
-  }
+  })();
+
+  S.initAppPromise = run.finally(() => { S.initAppPromise = null; });
+  return S.initAppPromise;
 }
 
 async function loadEmployersIndex(force = false) {
@@ -4486,7 +4640,7 @@ async function loadAll(options = {}) {
         ? !!options.includeDashboardAux
         : S.view === 'dashboard';
       const supa = await getSupa();
-      const candResp = await apiGet({ route:'candidates', includeHidden:'true', pageSize:500 });
+      const candResp = await apiGet({ route:'candidates', includeHidden:'true', pageSize: Math.max(50, Number(options.pageSize || 500)) });
       S.candidates = candResp.items || candResp.candidates || [];
       S.dashboard = buildDashboardPayload(S.candidates || []);
 
@@ -4645,6 +4799,8 @@ function renderView() {
     case 'inativos':     renderInativo(el);                  break;
     case 'settings':     renderSettings(el);                 break;
   }
+
+  refreshInstitutionalUtilityButtons();
 }
 
 // ── filterByMetric: deep-link real do dashboard ───────────────
@@ -8359,6 +8515,8 @@ function renderView() {
     }
     bindCandidateTableInteractions(el);
   }
+
+  refreshInstitutionalUtilityButtons();
 }
 
 function renderInativo(el) {
@@ -14176,6 +14334,7 @@ function clearFilters() {
   S.page = 1;
   syncTopbarSearchInputs();
   persistCandidateFilters();
+  refreshInstitutionalUtilityButtons();
 }
 
 function clearFilterKey(key) {
@@ -19557,5 +19716,818 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
 })();
 </script>
 
+
+<style>
+/* ===== Institucional v2: dashboard + kanban UX ===== */
+.inst-action-strip{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin:0 0 14px;
+}
+.inst-action-card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, transparent), color-mix(in srgb, var(--card2) 88%, transparent));
+  border-radius:16px;
+  padding:12px 14px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+.inst-action-card:hover{
+  transform:translateY(-1px);
+  border-color:color-mix(in srgb, var(--accent) 35%, var(--line));
+  box-shadow:0 10px 30px rgba(0,0,0,.10);
+}
+.inst-action-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.inst-action-title{font-weight:800;font-size:13px;color:var(--txt)}
+.inst-action-count{font-weight:900;font-size:20px;line-height:1;color:var(--txt)}
+.inst-action-sub{font-size:12px;color:var(--txt2);line-height:1.35}
+.inst-action-tag{
+  border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;letter-spacing:.02em;
+  background:var(--chip); color:var(--txt2); border:1px solid var(--line);
+}
+.inst-action-card.warn .inst-action-tag{background:var(--warn-bg);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 20%, var(--line))}
+.inst-action-card.risk .inst-action-tag{background:var(--red-bg);color:var(--red);border-color:color-mix(in srgb,var(--red) 20%, var(--line))}
+.inst-action-card.good .inst-action-tag{background:var(--green-bg);color:var(--green);border-color:color-mix(in srgb,var(--green) 20%, var(--line))}
+.inst-dashboard-tight .bi-premium,
+.inst-dashboard-tight .bi-card,
+.inst-dashboard-tight .bi-glass{
+  border-radius:18px;
+}
+.inst-dashboard-tight .bi-kpi,
+.inst-dashboard-tight .bi-chip,
+.inst-dashboard-tight .bi-card,
+.inst-dashboard-tight .bi-glass{
+  box-shadow:none !important;
+}
+.inst-dashboard-tight .bi-action-row{
+  padding-top:8px;
+  padding-bottom:8px;
+}
+.inst-dashboard-tight .bi-data-note{
+  font-size:11px;
+}
+.inst-dashboard-tight .bi-premium-title{
+  letter-spacing:-.01em;
+}
+.inst-kanban-shell{display:flex;flex-direction:column;gap:12px}
+.inst-kanban-toolbar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  padding:12px 14px;border:1px solid var(--line);background:var(--card);border-radius:16px;box-shadow:var(--shadow);
+}
+.inst-kanban-search{
+  min-width:220px; flex:1 1 260px; max-width:360px;
+  border:1px solid var(--line); background:var(--bg2); color:var(--txt);
+  border-radius:12px; padding:10px 12px; outline:none;
+}
+.inst-kanban-search:focus{border-color:color-mix(in srgb,var(--accent) 38%, var(--line))}
+.inst-chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.inst-chip{
+  border:1px solid var(--line); background:var(--chip); color:var(--txt2);
+  border-radius:999px; padding:8px 10px; font-size:12px; font-weight:800; cursor:pointer;
+}
+.inst-chip.active{
+  background:color-mix(in srgb,var(--accent) 16%, var(--chip));
+  color:var(--accent-ink); border-color:color-mix(in srgb,var(--accent) 28%, var(--line));
+}
+.inst-kanban-kpis{display:flex;flex-wrap:wrap;gap:8px}
+.inst-mini-kpi{
+  border:1px solid var(--line); background:var(--bg2); border-radius:12px; padding:8px 10px; min-width:110px;
+}
+.inst-mini-kpi .label{display:block;font-size:11px;color:var(--txt3);margin-bottom:2px}
+.inst-mini-kpi .value{font-size:16px;font-weight:900;color:var(--txt)}
+.inst-toggle{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2);font-weight:700}
+.inst-toggle input{accent-color:var(--accent)}
+#kanban-wrap.inst-kanban-board{gap:12px}
+#kanban-wrap.inst-kanban-board .k-col{
+  min-width:300px;max-width:340px;border-radius:18px;border:1px solid var(--line);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--card) 94%, transparent), color-mix(in srgb, var(--card2) 88%, transparent));
+  box-shadow:var(--shadow);
+}
+#kanban-wrap.inst-kanban-board .k-hdr{
+  position:sticky; top:0; z-index:2; backdrop-filter:blur(8px);
+  background:color-mix(in srgb, var(--card) 88%, transparent);
+  border-bottom:1px solid var(--line);
+}
+.inst-stage-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.inst-stage-meta .tag{font-size:10px}
+#kanban-wrap.inst-kanban-board .k-card{
+  border-radius:14px; border:1px solid var(--line); box-shadow:none;
+}
+#kanban-wrap.inst-kanban-board .k-card:hover{
+  border-color:color-mix(in srgb,var(--accent) 28%, var(--line));
+  transform:translateY(-1px);
+}
+.inst-kc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.inst-kc-age{font-size:10px;font-weight:800;border-radius:999px;padding:4px 7px;border:1px solid var(--line);background:var(--chip);color:var(--txt2);white-space:nowrap}
+.inst-kc-sub{font-size:11px;color:var(--txt2);line-height:1.35;display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.inst-kc-sub strong{color:var(--txt)}
+.inst-kanban-empty{
+  text-align:center;padding:28px 10px;color:var(--txt3);font-size:12px
+}
+body.dense-mode #kanban-wrap.inst-kanban-board .k-col{min-width:280px;max-width:320px}
+body.dense-mode #kanban-wrap.inst-kanban-board .k-card{padding:10px}
+body.dense-mode .inst-action-card{padding:10px 12px}
+@media (max-width: 1100px){
+  .inst-action-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 760px){
+  .inst-action-strip{grid-template-columns:1fr}
+  .inst-kanban-toolbar{padding:10px}
+  .inst-kanban-search{max-width:none}
+}
+</style>
+<script>
+(function(){
+  const DASH_ACTIONS_ID = 'inst-dashboard-action-strip';
+  const KANBAN_UX_KEY = 't4_inst_kanban_v2_state';
+
+  function readKanbanUxState(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(KANBAN_UX_KEY) || '{}');
+      return Object.assign({ quick:'todos', q:'', hideEmpty:false }, raw || {});
+    }catch(_){
+      return { quick:'todos', q:'', hideEmpty:false };
+    }
+  }
+  function writeKanbanUxState(patch){
+    const next = Object.assign(readKanbanUxState(), patch || {});
+    try{ localStorage.setItem(KANBAN_UX_KEY, JSON.stringify(next)); }catch(_){}
+    return next;
+  }
+  window.setInstKanbanQuick = function(v){ writeKanbanUxState({ quick:v || 'todos' }); if(window.S && S.view === 'kanban') renderView(); };
+  window.setInstKanbanSearch = function(v){ writeKanbanUxState({ q:String(v||'') }); if(window.S && S.view === 'kanban') renderView(); };
+  window.setInstKanbanHideEmpty = function(flag){ writeKanbanUxState({ hideEmpty:!!flag }); if(window.S && S.view === 'kanban') renderView(); };
+
+  function candidateStageAge(c){
+    const dt = fv(c,'Data entrada etapa atual','Última atualização','updated_at','created_at');
+    const days = daysSince(dt);
+    return Number.isFinite(days) ? days : null;
+  }
+  function candidateSearchBlob(c){
+    return normalizeSearchToken([
+      fv(c,'Nome completo','nome_completo'),
+      candidateProfessionLabel(c),
+      getEmployerDisplay(c),
+      fv(c,'Responsável interno','responsavel_interno','Avaliador'),
+      fv(c,'Nível de alemão','nivel_alemao'),
+      fv(c,'Resumo RH curto','resumo_rh_curto'),
+      fv(c,'Próxima ação','proxima_acao')
+    ].filter(Boolean).join(' '));
+  }
+  function candidateDocsBlocked(c){
+    return !!(String(fv(c,'Pendência documental crítica','pendencia_documental_critica') || '').trim()) || !isYes(fv(c,'Documentação completa','documentacao_completa'));
+  }
+  function candidateNoOwner(c){
+    return !String(fv(c,'Responsável interno','responsavel_interno','Avaliador') || '').trim();
+  }
+  function kanbanQuickMatch(c, quick){
+    switch(quick){
+      case 'prioridade':
+        return String(fv(c,'Prioridade comercial','prioridade_comercial') || '').trim() === 'Alta';
+      case 'ready':
+        return isEmployerReadyDashboard(c);
+      case 'docs':
+        return candidateDocsBlocked(c);
+      case 'employer':
+        return ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline')) || !!getEmployerDisplay(c).trim();
+      case 'sem_responsavel':
+        return candidateNoOwner(c);
+      default:
+        return true;
+    }
+  }
+  function kanbanCardV2(c){
+    const score = Number(c['_score'] || 0);
+    const al = fv(c,'Nível de alemão','nivel_alemao') || '';
+    const perf = fv(c,'Perfil','Perfil do candidato','perfil') || '';
+    const pc = PERFIL_BADGE[perf] || '';
+    const alColor = ALEMAO_COLORS[al] || 'var(--txt3)';
+    const age = candidateStageAge(c);
+    const owner = fv(c,'Responsável interno','responsavel_interno','Avaliador') || 'Sem responsável';
+    const emp = getEmployerDisplay(c) || 'Sem employer';
+    const prof = candidateProfessionLabel(c) || 'Profissão não definida';
+    const docOk = isYes(fv(c,'Documentação completa','documentacao_completa'));
+    const priorityHigh = String(fv(c,'Prioridade comercial','prioridade_comercial') || '').trim() === 'Alta';
+    return `<div class="k-card" onclick="openCand('${esc(c.ID || c.id || '')}')">
+      <div class="inst-kc-top">
+        <div class="kc-name">${esc(fv(c,'Nome completo','nome_completo') || '—')}</div>
+        <div class="inst-kc-age">${age === null ? 'sem data' : age + 'd'}</div>
+      </div>
+      <div class="kc-tags">
+        ${perf && pc ? `<span class="tag ${pc}">${esc(perf.replace('Candidato ',''))}</span>` : ''}
+        ${al && al!=='Nenhum' ? `<span class="tag" style="background:rgba(${hex2rgb(alColor)},.15);color:${alColor}">🇩🇪 ${esc(al)}</span>` : ''}
+        ${docOk ? `<span class="tag" style="background:var(--green-bg);color:var(--green)">📋 ok</span>` : `<span class="tag" style="background:var(--warn-bg);color:var(--warn)">📋 pend.</span>`}
+        ${priorityHigh ? `<span class="tag" style="background:var(--red-bg);color:var(--red)">🔥 alta</span>` : ''}
+      </div>
+      <div class="kc-meta">
+        <div class="score-bar-mini"><div class="score-fill-mini" style="width:${score}%"></div></div>
+        <span>${score}/100</span>
+      </div>
+      <div class="inst-kc-sub">
+        <div><strong>${esc(prof)}</strong></div>
+        <div>Employer: <strong>${esc(emp)}</strong></div>
+        <div>Responsável: <strong>${esc(owner)}</strong></div>
+      </div>
+    </div>`;
+  }
+
+  const __origRenderKanban = window.renderKanban;
+  window.renderKanban = function(el){
+    const state = readKanbanUxState();
+    const base = filterCands(S.candidates, false);
+    const searched = String(state.q || '').trim()
+      ? base.filter(c => candidateSearchBlob(c).includes(normalizeSearchToken(state.q)))
+      : base.slice();
+
+    const filtered = searched.filter(c => kanbanQuickMatch(c, state.quick));
+    const byStage = {};
+    PIPELINE_STAGES.forEach(s => byStage[s] = []);
+    filtered.forEach(c => {
+      const st = c['STATUS PIPELINE'] || 'Triagem';
+      if(!byStage[st]) byStage[st] = [];
+      byStage[st].push(c);
+    });
+
+    const total = filtered.length;
+    const high = filtered.filter(c => String(fv(c,'Prioridade comercial','prioridade_comercial') || '').trim() === 'Alta').length;
+    const ready = filtered.filter(c => isEmployerReadyDashboard(c)).length;
+    const docs = filtered.filter(c => candidateDocsBlocked(c)).length;
+    const noOwner = filtered.filter(c => candidateNoOwner(c)).length;
+
+    const cols = PIPELINE_STAGES.map((stage,i) => {
+      let cards = byStage[stage] || [];
+      let title = stage;
+      if (stage === 'Novo candidato') {
+        cards = cards.filter(isTalentCandidate);
+        title = 'Talentos novos';
+      }
+      if (state.hideEmpty && !cards.length) return '';
+      const col = STAGE_COLORS[i] || 'var(--accent)';
+      const stageReady = cards.filter(c => isEmployerReadyDashboard(c)).length;
+      const stageHigh = cards.filter(c => String(fv(c,'Prioridade comercial','prioridade_comercial') || '').trim() === 'Alta').length;
+      return `<div class="k-col">
+        <div class="k-hdr">
+          <div class="k-dot" style="background:${col}"></div>
+          <div class="k-title">${title}</div>
+          <div class="k-cnt">${cards.length}</div>
+          <div class="inst-stage-meta">
+            ${stageHigh ? `<span class="tag" style="background:var(--red-bg);color:var(--red)">🔥 ${stageHigh}</span>` : ''}
+            ${stageReady ? `<span class="tag" style="background:var(--green-bg);color:var(--green)">ready ${stageReady}</span>` : ''}
+          </div>
+        </div>
+        <div class="k-cards">
+          ${cards.length ? cards.map(kanbanCardV2).join('') : '<div class="inst-kanban-empty">Vazio</div>'}
+        </div>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    el.innerHTML = `<div class="inst-kanban-shell">
+      <div class="inst-kanban-toolbar">
+        <div class="inst-chip-row">
+          <button class="inst-chip ${state.quick==='todos'?'active':''}" onclick="setInstKanbanQuick('todos')">Todos</button>
+          <button class="inst-chip ${state.quick==='prioridade'?'active':''}" onclick="setInstKanbanQuick('prioridade')">Alta prioridade</button>
+          <button class="inst-chip ${state.quick==='ready'?'active':''}" onclick="setInstKanbanQuick('ready')">Ready</button>
+          <button class="inst-chip ${state.quick==='docs'?'active':''}" onclick="setInstKanbanQuick('docs')">Docs pendentes</button>
+          <button class="inst-chip ${state.quick==='employer'?'active':''}" onclick="setInstKanbanQuick('employer')">Employer</button>
+          <button class="inst-chip ${state.quick==='sem_responsavel'?'active':''}" onclick="setInstKanbanQuick('sem_responsavel')">Sem responsável</button>
+        </div>
+        <input class="inst-kanban-search" type="search" placeholder="Buscar nome, profissão, employer, responsável..." value="${esc(state.q || '')}" oninput="setInstKanbanSearch(this.value)">
+        <label class="inst-toggle"><input type="checkbox" ${state.hideEmpty ? 'checked' : ''} onchange="setInstKanbanHideEmpty(this.checked)"> Ocultar colunas vazias</label>
+      </div>
+      <div class="inst-kanban-kpis">
+        <div class="inst-mini-kpi"><span class="label">Itens visíveis</span><span class="value">${total}</span></div>
+        <div class="inst-mini-kpi"><span class="label">Alta prioridade</span><span class="value">${high}</span></div>
+        <div class="inst-mini-kpi"><span class="label">Ready</span><span class="value">${ready}</span></div>
+        <div class="inst-mini-kpi"><span class="label">Docs pendentes</span><span class="value">${docs}</span></div>
+        <div class="inst-mini-kpi"><span class="label">Sem responsável</span><span class="value">${noOwner}</span></div>
+      </div>
+      <div id="kanban-wrap" class="inst-kanban-board">${cols || '<div class="inst-kanban-empty">Nenhum item encontrado com os filtros atuais.</div>'}</div>
+    </div>`;
+  };
+
+  function buildDashboardActionStrip(){
+    const cands = (window.S && Array.isArray(S.candidates)) ? S.candidates : [];
+    const ativos = cands.filter(c => isActiveCand(c));
+    const readyWithoutEmployer = ativos.filter(c => isEmployerReadyDashboard(c) && !getEmployerDisplay(c).trim());
+    const docsBlocking = ativos.filter(c => candidateDocsBlocked(c) && isTalentCandidate(c));
+    const employerMissing = ativos.filter(c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline')) && !getEmployerDisplay(c).trim());
+    const rhPending = ativos.filter(c => hasInterviewData(c) && !fv(c,'decisao_operacional_rh','Decisão operacional RH'));
+
+    const items = [
+      { label:'Ready sem employer', sub:'Talentos prontos sem vínculo operacional', count:readyWithoutEmployer.length, tag:'Ação', cls:'warn', action:"dashboardDrill('ready_without_employer')" },
+      { label:'Docs travando', sub:'Talentos bloqueados por documentação', count:docsBlocking.length, tag:'Crítico', cls:'risk', action:"dashboardDrill('critical')" },
+      { label:'Employer sem empresa', sub:'Pipeline employer sem conta vinculada', count:employerMissing.length, tag:'Ajustar', cls:'warn', action:"dashboardDrill('employer_unassigned')" },
+      { label:'RH sem decisão', sub:'Entrevistas importadas sem decisão operacional', count:rhPending.length, tag:'Cobrar', cls:'good', action:"dashboardDrill('rh_pending')" },
+    ];
+    return `<div class="inst-action-strip" id="${DASH_ACTIONS_ID}">
+      ${items.map(item => `<div class="inst-action-card ${item.cls}" onclick="${item.action}">
+        <div class="inst-action-top">
+          <div class="inst-action-title">${item.label}</div>
+          <div class="inst-action-tag">${item.tag}</div>
+        </div>
+        <div class="inst-action-top">
+          <div class="inst-action-count">${item.count}</div>
+        </div>
+        <div class="inst-action-sub">${item.sub}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  const __origRenderDashboard = window.renderDashboard;
+  window.renderDashboard = function(el){
+    __origRenderDashboard(el);
+    try{
+      if(!el) return;
+      el.classList.add('inst-dashboard-tight');
+      if(!el.querySelector('#' + DASH_ACTIONS_ID)){
+        el.insertAdjacentHTML('afterbegin', buildDashboardActionStrip());
+      }
+    }catch(e){
+      console.error('[T4 institucional v2] dashboard enhance', e);
+    }
+  };
+
+  console.log('[T4 institucional v2] dashboard BI e kanban compactados e orientados à ação.');
+})();
+</script>
+
+
+<style>
+/* ===== Institucional v3: Tickets + Agenda UX ===== */
+.inst-ticket-v3 .ticket-composer,
+.inst-ticket-v3 .ticket-board-toolbar,
+.inst-ticket-v3 .ticket-card,
+.inst-ticket-v3 .ag-toolbar,
+.inst-ticket-v3 .ag-sidebar{
+  border-radius:18px;
+}
+.inst-ticket-strip{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin:0 0 14px;
+}
+.inst-ticket-action{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--card) 95%, transparent), color-mix(in srgb, var(--card2) 90%, transparent));
+  border-radius:16px;
+  padding:12px 14px;
+  cursor:pointer;
+  transition:transform .14s ease, border-color .14s ease;
+  box-shadow:var(--shadow);
+}
+.inst-ticket-action:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 35%, var(--line))}
+.inst-ticket-action .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.inst-ticket-action .label{font-size:12px;font-weight:800;color:var(--txt)}
+.inst-ticket-action .value{font-size:22px;font-weight:900;color:var(--txt);line-height:1}
+.inst-ticket-action .sub{font-size:11px;color:var(--txt3);line-height:1.35}
+.inst-ticket-action .tag{
+  border-radius:999px;padding:4px 8px;border:1px solid var(--line);background:var(--chip);color:var(--txt2);
+  font-size:10px;font-weight:800;letter-spacing:.02em
+}
+.inst-ticket-action.risk .tag{background:var(--red-bg);color:var(--red);border-color:color-mix(in srgb,var(--red) 20%, var(--line))}
+.inst-ticket-action.warn .tag{background:var(--warn-bg);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 20%, var(--line))}
+.inst-ticket-action.good .tag{background:var(--green-bg);color:var(--green);border-color:color-mix(in srgb,var(--green) 20%, var(--line))}
+.inst-ticket-quickbar{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  padding:10px 12px;border:1px solid var(--line);background:var(--card);border-radius:14px;margin-top:12px;
+}
+.inst-chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.inst-quick-chip{
+  border:1px solid var(--line);background:var(--chip);color:var(--txt2);
+  border-radius:999px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;
+}
+.inst-quick-chip.active{
+  background:color-mix(in srgb,var(--accent) 16%, var(--chip));
+  color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 30%, var(--line));
+}
+.inst-switch{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2);font-weight:700}
+.inst-switch input{accent-color:var(--accent)}
+.inst-ticket-v3.compact-mode .ticket-card{padding:12px}
+.inst-ticket-v3.compact-mode .ticket-summary-preview{-webkit-line-clamp:1}
+.inst-ticket-v3.compact-mode .ticket-expanded{gap:10px}
+.inst-ticket-v3.compact-mode .ticket-card-body{gap:10px}
+.inst-ticket-v3.compact-mode .ticket-card-block{padding:8px 10px}
+.inst-ticket-v3 .ticket-card-head,
+.inst-ticket-v3 .ticket-expanded-head{gap:10px}
+.inst-ticket-v3 .ticket-card-meta{row-gap:6px}
+.inst-agenda-strip{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+.inst-agenda-card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--card) 94%, transparent), color-mix(in srgb, var(--card2) 90%, transparent));
+  border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);
+}
+.inst-agenda-card .label{font-size:12px;font-weight:800;color:var(--txt);margin-bottom:6px}
+.inst-agenda-card .value{font-size:22px;font-weight:900;color:var(--txt);line-height:1}
+.inst-agenda-card .sub{font-size:11px;color:var(--txt3);margin-top:6px;line-height:1.35}
+.inst-agenda-quickbar{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+  padding:10px 12px;border:1px solid var(--line);background:var(--card);border-radius:14px;margin-top:12px;
+}
+.inst-agenda-btn{
+  border:1px solid var(--line);background:var(--chip);color:var(--txt2);
+  border-radius:999px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer;
+}
+.inst-agenda-btn.active{
+  background:color-mix(in srgb,var(--accent) 16%, var(--chip));
+  color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 30%, var(--line));
+}
+.inst-agenda-kpis{display:flex;flex-wrap:wrap;gap:8px}
+.inst-agenda-mini{
+  border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:8px 10px;min-width:108px
+}
+.inst-agenda-mini .k{display:block;font-size:11px;color:var(--txt3);margin-bottom:2px}
+.inst-agenda-mini .v{font-size:15px;font-weight:900;color:var(--txt)}
+.inst-agenda-v3 .ag-sidebar{display:flex;flex-direction:column;gap:12px}
+.inst-agenda-v3 .ag-upcoming{border-radius:12px;background:color-mix(in srgb,var(--bg2) 82%, transparent);padding:10px 10px 10px 12px}
+.inst-agenda-v3 .ag-toolbar{padding:12px 14px}
+.inst-agenda-v3 .ag-main{display:flex;flex-direction:column;gap:0}
+@media (max-width: 1050px){
+  .inst-ticket-strip,.inst-agenda-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 720px){
+  .inst-ticket-strip,.inst-agenda-strip{grid-template-columns:1fr}
+}
+</style>
+<script>
+(function(){
+  const TICKET_UX_KEY = 't4_inst_ticket_v3_state';
+  const AGENDA_UX_KEY = 't4_inst_agenda_v3_state';
+
+  function readUx(key, fallback){
+    try{ return Object.assign({}, fallback, JSON.parse(localStorage.getItem(key) || '{}') || {}); }
+    catch(_){ return Object.assign({}, fallback); }
+  }
+  function writeUx(key, patch, fallback){
+    const next = Object.assign({}, readUx(key, fallback), patch || {});
+    try{ localStorage.setItem(key, JSON.stringify(next)); }catch(_){}
+    return next;
+  }
+
+  function readTicketUx(){ return readUx(TICKET_UX_KEY, { quick:'todos', compact:false }); }
+  function writeTicketUx(p){ return writeUx(TICKET_UX_KEY, p, { quick:'todos', compact:false }); }
+  function readAgendaUx(){ return readUx(AGENDA_UX_KEY, { focus:'todos' }); }
+  function writeAgendaUx(p){ return writeUx(AGENDA_UX_KEY, p, { focus:'todos' }); }
+
+  const __origSetTicketBoardFilter = window.setTicketBoardFilter;
+  window.setTicketBoardFilter = function(key, value){
+    if (['status','prioridade','responsavel','stage','due','sort'].includes(key)) writeTicketUx({ quick:'todos' });
+    return __origSetTicketBoardFilter(key, value);
+  };
+
+  window.setTicketQuick = function(mode){
+    writeTicketUx({ quick: mode || 'todos' });
+    const base = defaultTicketBoardState ? defaultTicketBoardState() : { q:'',status:'',prioridade:'',responsavel:'',stage:'',due:'todos',sort:'followup_asc' };
+    const current = Object.assign({}, S.ticketBoard || {});
+    let next = Object.assign({}, current);
+    if(mode === 'atrasados'){
+      next.due = 'atrasados'; next.prioridade = ''; next.status = '';
+    }else if(mode === 'hoje'){
+      next.due = 'hoje'; next.prioridade = ''; next.status = '';
+    }else if(mode === 'sem_data'){
+      next.due = 'sem_data'; next.prioridade = ''; next.status = '';
+    }else if(mode === 'alta'){
+      next.due = 'todos'; next.prioridade = 'Alta'; next.status = '';
+    }else if(mode === 'abertos'){
+      next.due = 'abertos'; next.prioridade = ''; next.status = '';
+    }else{
+      next = Object.assign({}, current, { due:'todos', prioridade:'', status:'' });
+    }
+    S.ticketBoard = normalizeTicketBoardState(next);
+    S.page = 1;
+    persistTicketBoardState();
+    renderView();
+  };
+  window.setTicketCompactMode = function(flag){
+    writeTicketUx({ compact: !!flag });
+    if(S.view === 'tickets') renderView();
+  };
+
+  window.setAgendaFocus = function(mode){
+    writeAgendaUx({ focus: mode || 'todos' });
+    if(mode === 'hoje'){
+      AG.date = new Date();
+      AG.view = 'week';
+    }else if(mode === '7dias'){
+      AG.date = new Date();
+      AG.view = 'week';
+    }else if(mode === 'sem_link'){
+      AG.date = new Date();
+    }else if(mode === 'sem_responsavel'){
+      AG.date = new Date();
+    }
+    renderView();
+  };
+
+  function ticketStripHtml(rows, filtered){
+    const overdue = filtered.filter(r => ticketIsOverdue(r)).length;
+    const today = filtered.filter(r => ticketDueMatches(r, 'hoje')).length;
+    const noDate = filtered.filter(r => ticketDueMatches(r, 'sem_data')).length;
+    const high = filtered.filter(r => normalizeSearchToken(r.prioridade) === normalizeSearchToken('Alta')).length;
+    const items = [
+      {label:'Atrasados', value:overdue, sub:'Follow-up vencido', tag:'Urgente', cls:'risk', click:"setTicketQuick('atrasados')"},
+      {label:'Hoje', value:today, sub:'Pedem ação no dia', tag:'Hoje', cls:'warn', click:"setTicketQuick('hoje')"},
+      {label:'Sem data', value:noDate, sub:'Sem follow-up definido', tag:'Ajustar', cls:'warn', click:"setTicketQuick('sem_data')"},
+      {label:'Alta prioridade', value:high, sub:'Prioridade declarada alta', tag:'Foco', cls:'good', click:"setTicketQuick('alta')"},
+    ];
+    return `<div class="inst-ticket-strip">${items.map(item => `<div class="inst-ticket-action ${item.cls}" onclick="${item.click}">
+      <div class="top"><div class="label">${item.label}</div><div class="tag">${item.tag}</div></div>
+      <div class="value">${item.value}</div>
+      <div class="sub">${item.sub}</div>
+    </div>`).join('')}</div>`;
+  }
+
+  function injectTicketUx(root){
+    if(!root || root.querySelector('.inst-ticket-strip')) return;
+    const rows = Array.isArray(S.ticketBoardRows) ? S.ticketBoardRows : [];
+    const filtered = typeof filterTicketBoardRows === 'function' ? filterTicketBoardRows(rows) : rows;
+    root.classList.add('inst-ticket-v3');
+    const ticketUx = readTicketUx();
+    if(ticketUx.compact) root.classList.add('compact-mode'); else root.classList.remove('compact-mode');
+
+    const composer = root.querySelector('.ticket-composer');
+    if(composer){
+      composer.insertAdjacentHTML('beforebegin', ticketStripHtml(rows, filtered));
+      composer.insertAdjacentHTML('beforeend', `<div class="inst-ticket-quickbar">
+        <div class="inst-chip-row">
+          <button class="inst-quick-chip ${ticketUx.quick==='todos'?'active':''}" onclick="setTicketQuick('todos')">Todos</button>
+          <button class="inst-quick-chip ${ticketUx.quick==='abertos'?'active':''}" onclick="setTicketQuick('abertos')">Somente abertos</button>
+          <button class="inst-quick-chip ${ticketUx.quick==='atrasados'?'active':''}" onclick="setTicketQuick('atrasados')">Atrasados</button>
+          <button class="inst-quick-chip ${ticketUx.quick==='hoje'?'active':''}" onclick="setTicketQuick('hoje')">Hoje</button>
+          <button class="inst-quick-chip ${ticketUx.quick==='sem_data'?'active':''}" onclick="setTicketQuick('sem_data')">Sem data</button>
+          <button class="inst-quick-chip ${ticketUx.quick==='alta'?'active':''}" onclick="setTicketQuick('alta')">Alta prioridade</button>
+        </div>
+        <label class="inst-switch"><input type="checkbox" ${ticketUx.compact ? 'checked' : ''} onchange="setTicketCompactMode(this.checked)"> Modo compacto</label>
+      </div>`);
+    }
+  }
+
+  const __origRenderTicketBoard = window.renderTicketBoard;
+  window.renderTicketBoard = function(el){
+    __origRenderTicketBoard(el);
+    try{ injectTicketUx(el); }catch(e){ console.error('[T4 institucional v3] tickets ux', e); }
+  };
+
+  function agendaCounts(){
+    const events = Array.isArray(AG?.events) ? AG.events : [];
+    const now = new Date();
+    const today = agFmtDateStr(now);
+    const next7 = new Date(now); next7.setDate(next7.getDate() + 7);
+    const next7str = agFmtDateStr(next7);
+    const upcoming = events.filter(e => e.date >= today);
+    return {
+      today: upcoming.filter(e => e.date === today).length,
+      next7: upcoming.filter(e => e.date >= today && e.date <= next7str).length,
+      noLink: upcoming.filter(e => !String(e.link || '').trim()).length,
+      noOwner: upcoming.filter(e => !String(e.responsavel || '').trim()).length,
+      upcoming,
+    };
+  }
+
+  function injectAgendaUx(root){
+    if(!root || root.querySelector('.inst-agenda-strip')) return;
+    root.classList.add('inst-agenda-v3');
+    const counts = agendaCounts();
+    const focus = readAgendaUx().focus;
+    const main = root.querySelector('.ag-main');
+    if(main){
+      main.insertAdjacentHTML('afterbegin', `<div class="inst-agenda-strip">
+        <div class="inst-agenda-card"><div class="label">Hoje</div><div class="value">${counts.today}</div><div class="sub">Agendamentos do dia atual.</div></div>
+        <div class="inst-agenda-card"><div class="label">Próximos 7 dias</div><div class="value">${counts.next7}</div><div class="sub">Janela operacional imediata.</div></div>
+        <div class="inst-agenda-card"><div class="label">Sem link</div><div class="value">${counts.noLink}</div><div class="sub">Entrevistas sem link anexado.</div></div>
+        <div class="inst-agenda-card"><div class="label">Sem responsável</div><div class="value">${counts.noOwner}</div><div class="sub">Precisam de dono definido.</div></div>
+      </div>`);
+      const toolbar = main.querySelector('.ag-toolbar');
+      if(toolbar && !toolbar.nextElementSibling?.classList?.contains('inst-agenda-quickbar')){
+        toolbar.insertAdjacentHTML('afterend', `<div class="inst-agenda-quickbar">
+          <div class="inst-chip-row">
+            <button class="inst-agenda-btn ${focus==='todos'?'active':''}" onclick="setAgendaFocus('todos')">Visão atual</button>
+            <button class="inst-agenda-btn ${focus==='hoje'?'active':''}" onclick="setAgendaFocus('hoje')">Hoje</button>
+            <button class="inst-agenda-btn ${focus==='7dias'?'active':''}" onclick="setAgendaFocus('7dias')">Próximos 7 dias</button>
+            <button class="inst-agenda-btn ${focus==='sem_link'?'active':''}" onclick="setAgendaFocus('sem_link')">Sem link</button>
+            <button class="inst-agenda-btn ${focus==='sem_responsavel'?'active':''}" onclick="setAgendaFocus('sem_responsavel')">Sem responsável</button>
+          </div>
+          <div class="inst-agenda-kpis">
+            <div class="inst-agenda-mini"><span class="k">View</span><span class="v">${AG.view === 'month' ? 'Mês' : 'Semana'}</span></div>
+            <div class="inst-agenda-mini"><span class="k">Futuros</span><span class="v">${counts.upcoming.length}</span></div>
+          </div>
+        </div>`);
+      }
+    }
+  }
+
+  const __origRenderAgenda = window.renderAgenda;
+  window.renderAgenda = function(el){
+    __origRenderAgenda(el);
+    try{ injectAgendaUx(el); }catch(e){ console.error('[T4 institucional v3] agenda ux', e); }
+  };
+
+  console.log('[T4 institucional v3] tickets e agenda compactados e orientados à ação.');
+})();
+</script>
+
+
+<style>
+/* ===== Institucional v4: tema claro forçado + boot rápido ===== */
+:root{
+  --bg:#f4f7fb !important;
+  --bg2:#ffffff !important;
+  --bg3:#f7f9fc !important;
+  --bg4:#eef3f8 !important;
+  --card:#ffffff !important;
+  --card2:#f7f9fc !important;
+  --surface:#ffffff !important;
+  --surface2:#f7f9fc !important;
+  --txt:#122033 !important;
+  --txt2:#42546b !important;
+  --txt3:#71839a !important;
+  --border:#d9e2ec !important;
+  --border2:#cbd6e2 !important;
+  --border3:#b8c6d6 !important;
+  --line:#d9e2ec !important;
+  --shadow:0 10px 28px rgba(15,23,42,.08) !important;
+  --sh:0 16px 42px rgba(15,23,42,.14) !important;
+  --sh2:0 8px 24px rgba(15,23,42,.10) !important;
+  --accent:#2563eb !important;
+  --accent2:#1d4ed8 !important;
+  --accent-bg:#eaf1ff !important;
+  --gold:#eab308 !important;
+  --gold-bg:#fff6d8 !important;
+  --red:#dc2626 !important;
+  --red-bg:#feecec !important;
+  --green:#16a34a !important;
+  --green-bg:#e9f8ee !important;
+  --blue:#2563eb !important;
+  --blue-bg:#eaf1ff !important;
+  --purple:#7c3aed !important;
+  --purple-bg:#f1ebff !important;
+  --yellow:#ca8a04 !important;
+  --yellow-bg:#fff7db !important;
+  --orange:#ea580c !important;
+  --orange-bg:#fff0e7 !important;
+  --teal:#0f766e !important;
+  --teal-bg:#e8fbf8 !important;
+}
+html,body,#app,.app-shell,.main,.content{background:var(--bg) !important;color:var(--txt) !important}
+.sidebar,.topbar,.tbl-wrap,.modal,.chart-card,.quality-card,.aging-card,.settings-card,.login-card,
+.ticket-composer,.ticket-board-toolbar,.ticket-card,.ticket-collapsible-card,.ag-toolbar,.ag-sidebar,
+.k-col,.bi-premium,.bi-card,.bi-glass,.bento-kpi,.mc,.small-stat,.card,.detail-tabs,.tabs,.tab,.detail-tab{
+  background:var(--bg2) !important;
+  color:var(--txt) !important;
+  border-color:var(--border) !important;
+  box-shadow:var(--shadow) !important;
+}
+.topbar,.sidebar,.modal-footer,.modal-header,.k-hdr,.ticket-board-toolbar,.ticket-composer,.ag-toolbar{
+  backdrop-filter:none !important;
+}
+.nav-item,.search-wrap,.field-input,.field-select,.field-textarea,.btn-ghost,.filter-chip,.filter-select,
+.user-pill,.modal-close,.pg-btn,.inst-mini-kpi,.inst-agenda-mini,.inst-quick-chip,.inst-chip,.inst-agenda-btn{
+  background:var(--bg3) !important;
+  color:var(--txt2) !important;
+  border-color:var(--border) !important;
+}
+.nav-item:hover,.data-tbl tr:hover td,.k-card:hover,.ticket-card:hover,.filter-chip:hover,.inst-quick-chip:hover,.inst-chip:hover,.inst-agenda-btn:hover{
+  background:var(--bg4) !important;
+}
+.nav-item.active{
+  background:var(--accent-bg) !important;
+  color:var(--accent2) !important;
+  border-left-color:var(--accent) !important;
+}
+.nav-badge,.k-cnt,.ticket-badge,.badge,.tag,.active-filter-chip,.bi-chip-inline,.bi-pill,.bi-kpi-chip{
+  border-color:var(--border2) !important;
+}
+.filters-bar{
+  background:linear-gradient(180deg,rgba(244,247,251,.98),rgba(244,247,251,.94) 78%,rgba(244,247,251,0)) !important;
+}
+.data-tbl thead th,.data-tbl tbody td,.data-tbl tbody tr:nth-child(2n) td{
+  background:transparent !important;
+  color:var(--txt) !important;
+  border-color:var(--border) !important;
+}
+.data-tbl tbody tr:nth-child(2n) td{background:#fbfcfe !important}
+.data-tbl tbody tr:hover td{background:#f1f5f9 !important}
+.overlay{
+  background:rgba(15,23,42,.36) !important;
+}
+.login-screen{
+  background:
+    radial-gradient(900px 420px at 10% -10%, rgba(37,99,235,.08), transparent 60%),
+    radial-gradient(900px 420px at 90% 110%, rgba(234,179,8,.08), transparent 60%),
+    var(--bg) !important;
+}
+.ticket-badge.status-open{background:var(--blue-bg) !important;color:var(--blue) !important;border-color:rgba(37,99,235,.18) !important}
+.ticket-badge.status-wait{background:var(--yellow-bg) !important;color:var(--yellow) !important;border-color:rgba(202,138,4,.18) !important}
+.ticket-badge.status-done{background:var(--green-bg) !important;color:var(--green) !important;border-color:rgba(22,163,74,.18) !important}
+.ticket-badge.status-closed{background:#eef2f7 !important;color:#64748b !important;border-color:#d7dee8 !important}
+.ticket-badge.priority-high{background:var(--red-bg) !important;color:var(--red) !important;border-color:rgba(220,38,38,.18) !important}
+.ticket-badge.priority-medium{background:var(--yellow-bg) !important;color:var(--yellow) !important;border-color:rgba(202,138,4,.18) !important}
+.ticket-badge.priority-low{background:var(--green-bg) !important;color:var(--green) !important;border-color:rgba(22,163,74,.18) !important}
+.sb-ok,.bi-tag.good{background:var(--green-bg) !important;color:var(--green) !important}
+.sb-warn,.bi-tag.warn{background:var(--yellow-bg) !important;color:var(--yellow) !important}
+.sb-risk,.bi-tag.risk{background:var(--red-bg) !important;color:var(--red) !important}
+.sb-blue,.bi-tag.info{background:var(--blue-bg) !important;color:var(--blue) !important}
+.inst-ticket-action,.inst-action-card,.inst-agenda-card{
+  background:linear-gradient(180deg,#ffffff,#f8fbff) !important;
+  border-color:var(--border) !important;
+}
+.score-bar-mini,.score-track,.bar-bg,.funnel-bg{background:#e7edf5 !important}
+.bi-empty-soft,.inst-kanban-empty,.empty{background:#fafcff !important;border-color:var(--border2) !important;color:var(--txt3) !important}
+#loading-splash,.loading-screen{background:var(--bg) !important;color:var(--txt) !important}
+</style>
+
+<script>
+(function(){
+  const QUICK_BOOT_KEY = 't4_inst_quickboot_v4';
+  const FIRST_PAINT_LIMIT = 90;
+  const FULL_WARM_LIMIT = 220;
+  let __bootStarted = false;
+  let __fullWarmStarted = false;
+
+  function idleRun(fn, timeout=450){
+    if('requestIdleCallback' in window){
+      return requestIdleCallback(fn, { timeout });
+    }
+    return setTimeout(fn, timeout);
+  }
+
+  function setupShellFirstPaint(){
+    try{
+      const initialView = (typeof readUiState === 'function' ? readUiState(VIEW_KEY, 'dashboard') : 'dashboard') || 'dashboard';
+      if (typeof _navSetupUI === 'function') _navSetupUI(initialView);
+      if (typeof clearSort === 'function') clearSort();
+      if (typeof syncTopbarSearchInputs === 'function') syncTopbarSearchInputs();
+      if (!Array.isArray(S.candidates)) S.candidates = [];
+      if (!Array.isArray(S.employers)) S.employers = [];
+      if (typeof renderView === 'function') renderView();
+    } catch (e) {
+      console.warn('[T4 institucional v4] shell first paint', e?.message || e);
+    }
+  }
+
+  async function runQuickBoot(){
+    if (__bootStarted) return;
+    __bootStarted = true;
+    setSyncStatus('loading');
+    populateNewForm?.();
+    initGermanGreeting?.();
+    setupShellFirstPaint();
+
+    try{
+      await loadAll({ pageSize: FIRST_PAINT_LIMIT, includeDashboardAux: false });
+      populateNewForm?.();
+      _navSetupUI?.(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
+      syncTopbarSearchInputs?.();
+      renderView?.();
+      setSyncStatus('ok');
+
+      refreshAdminMfaState?.().catch(e => console.warn('[MFA state]', e?.message || e));
+      agLoad?.().then(() => { if (S.view === 'agenda') renderView?.(); }).catch(e => console.warn('[Agenda quick]', e?.message || e));
+      startRealtime?.().catch(e => console.warn('[Realtime quick]', e?.message || e));
+      startAutoSync?.();
+      applyViewerRestrictions?.();
+
+      idleRun(async () => {
+        if (__fullWarmStarted) return;
+        __fullWarmStarted = true;
+        try{
+          await loadAll({ force: true, pageSize: FULL_WARM_LIMIT, includeDashboardAux: true });
+          if (S.view === 'dashboard' || S.view === 'candidatos' || S.view === 'kanban' || S.view === 'tickets' || S.view === 'employer') {
+            renderView?.();
+          }
+          try{ localStorage.setItem(QUICK_BOOT_KEY, String(Date.now())); }catch(_){}
+        }catch(e){
+          console.warn('[T4 institucional v4] full warm', e?.message || e);
+        }
+      }, 900);
+
+      const sess = getSession?.();
+      const mfa = getMfaState?.();
+      if (sess?.role === 'admin' && mfa?.currentLevel !== 'aal2') {
+        setTimeout(() => openAdminMfaFlow?.().catch(e => console.warn('[MFA]', e?.message || e)), 220);
+      }
+    }catch(e){
+      setSyncStatus('err');
+      toast?.('⚠ Erro ao carregar dados: ' + (e?.message || e), 'err');
+      setupShellFirstPaint();
+    }
+  }
+
+  window.initApp = runQuickBoot;
+  console.log('[T4 institucional v4] tema claro aplicado e boot inicial progressivo ativado.');
+})();
+</script>
+
+
+<script>
+console.log('[T4 institucional v5] login imediato + boot progressivo real + tema claro antecipado.');
+</script>
 </body>
 </html>
