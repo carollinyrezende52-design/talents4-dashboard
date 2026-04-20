@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talents 4 — CRM v8</title>
+<title>Talents 4 — Organizacional</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -6291,6 +6291,510 @@ async function softDeleteMeetingOperationalItems(meetingId){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initHardening);
   else initHardening();
+})();
+</script>
+
+
+<style>
+/* ===== T4 Organizacional v8: timezone + candidate lookup + CV quick link ===== */
+.cand-lookup-row{
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;
+}
+.cand-lookup-note{
+  font-size:11px; color:var(--text3);
+}
+.cand-lookup-status{
+  font-size:11px; color:var(--text2);
+  border:1px dashed var(--border);
+  border-radius:10px;
+  padding:6px 10px;
+  background:var(--surface2);
+}
+.cand-lookup-status.ok{
+  color:var(--green-700, #166534);
+  border-color:rgba(22,101,52,.18);
+  background:rgba(34,197,94,.08);
+}
+.cand-lookup-actions{
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+}
+.row-actions .icon-btn.cv-link{
+  color:#2563EB;
+}
+.row-actions .icon-btn.cv-link:hover{
+  border-color:rgba(37,99,235,.25);
+  background:rgba(37,99,235,.08);
+}
+.row-actions .icon-btn.cv-link.disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  pointer-events:none;
+}
+</style>
+
+<script>
+(function(){
+  const BERLIN_TZ = 'Europe/Berlin';
+  let _crmCandidateCatalog = [];
+  let _crmCandidateCatalogReady = false;
+  let _crmCandidateCatalogLoading = false;
+
+  function berlinTodayStr(){
+    const fmt = new Intl.DateTimeFormat('en-CA', {
+      timeZone: BERLIN_TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const parts = Object.fromEntries(fmt.formatToParts(new Date()).filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+  function utcNoonFromYMD(ymd){
+    const m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return null;
+    return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12, 0, 0));
+  }
+  function ymdFromUtcDate(dt){
+    return dt instanceof Date && !Number.isNaN(dt.getTime()) ? dt.toISOString().slice(0,10) : '';
+  }
+  function addDaysYMD(ymd, days){
+    const dt = utcNoonFromYMD(ymd);
+    if(!dt) return '';
+    dt.setUTCDate(dt.getUTCDate() + Number(days || 0));
+    return ymdFromUtcDate(dt);
+  }
+  function normalizeLoose(v){
+    return String(v || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .replace(/\s+/g,' ')
+      .trim()
+      .toLowerCase();
+  }
+  function crmCandidateDisplayArea(rec){
+    const main = String(rec?.profissao_principal || '').trim();
+    const area = String(rec?.area_profissional || '').trim();
+    if(main && area && normalizeLoose(main) !== normalizeLoose(area)) return `${main} / ${area}`;
+    return main || area || '';
+  }
+  function crmCandidateGermanLevel(rec){
+    return String(rec?.nivel_alemao || rec?.nivel_alemao_declarado || '').trim();
+  }
+  function crmCandidateSummary(rec){
+    return String(rec?.resumo_rh_curto || rec?.resumo_profissional || rec?.ai_summary || '').trim();
+  }
+  function crmCandidateDriveLink(rec){
+    return String(rec?.cv_drive_web_link || '').trim();
+  }
+  function crmCandidateDriveName(rec){
+    return String(rec?.cv_drive_file_name || '').trim() || 'Abrir currículo';
+  }
+  function crmCandidateByRef(ref){
+    const wanted = String(ref || '').trim();
+    if(!wanted) return null;
+    return _crmCandidateCatalog.find(c => String(c.id || '') === wanted) || null;
+  }
+  function crmCandidateByName(name){
+    const wanted = normalizeLoose(name);
+    if(!wanted) return null;
+    return _crmCandidateCatalog.find(c => normalizeLoose(c.nome_completo) === wanted) || null;
+  }
+  function crmCandidateForPipelineItem(c){
+    if(!c) return null;
+    return crmCandidateByRef(c.sourceCandidateId) || crmCandidateByName(c.nome);
+  }
+  async function loadCrmCandidateCatalog(force=false){
+    if(_crmCandidateCatalogLoading) return _crmCandidateCatalog;
+    if(_crmCandidateCatalogReady && !force) return _crmCandidateCatalog;
+    _crmCandidateCatalogLoading = true;
+    try{
+      const session = await withTimeout(getSessionSafe(), 3500, 'Sessão candidatos CRM');
+      if(!session){
+        _crmCandidateCatalogLoading = false;
+        return _crmCandidateCatalog;
+      }
+      const client = getSupa();
+      const { data, error } = await withTimeout(
+        client
+          .from('candidatos')
+          .select('id,nome_completo,idade,nivel_alemao,nivel_alemao_declarado,profissao_principal,area_profissional,resumo_profissional,resumo_rh_curto,ai_summary,cv_drive_web_link,cv_drive_file_name')
+          .order('nome_completo', { ascending: true }),
+        7000,
+        'Leitura candidatos CRM'
+      );
+      if(error) throw error;
+      _crmCandidateCatalog = Array.isArray(data) ? data : [];
+      _crmCandidateCatalogReady = true;
+      hydrateCandidateLookupUi();
+      return _crmCandidateCatalog;
+    }catch(err){
+      console.error('[T4 Organizacional v8] Falha ao carregar catálogo de candidatos:', err);
+      return _crmCandidateCatalog;
+    }finally{
+      _crmCandidateCatalogLoading = false;
+    }
+  }
+
+  function hydrateCandidateLookupUi(){
+    const input = document.getElementById('cand-nome');
+    if(!input) return;
+    input.setAttribute('list', 'crm-candidates-datalist');
+    if(!document.getElementById('crm-candidates-datalist')){
+      const dl = document.createElement('datalist');
+      dl.id = 'crm-candidates-datalist';
+      document.body.appendChild(dl);
+    }
+    const dl = document.getElementById('crm-candidates-datalist');
+    dl.innerHTML = _crmCandidateCatalog.map(rec => {
+      const area = crmCandidateDisplayArea(rec);
+      const de = crmCandidateGermanLevel(rec);
+      return `<option value="${escapeAttr(rec.nome_completo || '')}" label="${escapeAttr([area, de && ('DE ' + de)].filter(Boolean).join(' · '))}"></option>`;
+    }).join('');
+    if(!document.getElementById('cand-source-id')){
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.id = 'cand-source-id';
+      const modalBody = input.closest('.modal-card') || document.getElementById('modal-cand');
+      modalBody?.appendChild(hidden);
+    }
+    if(!document.getElementById('cand-lookup-ui')){
+      const wrap = document.createElement('div');
+      wrap.id = 'cand-lookup-ui';
+      wrap.className = 'cand-lookup-row';
+      wrap.innerHTML = `
+        <div class="cand-lookup-note">Busque pelo nome de um candidato já cadastrado no CRM institucional.</div>
+        <div class="cand-lookup-actions">
+          <button type="button" class="btn btn-ghost btn-sm" id="cand-apply-db-btn">Puxar do CRM</button>
+          <a id="cand-cv-link" class="btn btn-ghost btn-sm" href="#" target="_blank" rel="noopener noreferrer" style="display:none">Abrir currículo</a>
+        </div>
+        <div id="cand-lookup-status" class="cand-lookup-status">Nenhum cadastro vinculado.</div>
+      `;
+      input.parentElement?.appendChild(wrap);
+      document.getElementById('cand-apply-db-btn')?.addEventListener('click', () => applyCrmCandidateSelection(true));
+    }
+    input.removeEventListener('change', __candLookupChange);
+    input.removeEventListener('blur', __candLookupChange);
+    input.addEventListener('change', __candLookupChange);
+    input.addEventListener('blur', __candLookupChange);
+    refreshCandidateLookupStatus();
+  }
+
+  function refreshCandidateLookupStatus(){
+    const statusEl = document.getElementById('cand-lookup-status');
+    const linkEl = document.getElementById('cand-cv-link');
+    const input = document.getElementById('cand-nome');
+    const sourceId = document.getElementById('cand-source-id')?.value || '';
+    if(!statusEl || !linkEl || !input) return;
+    const rec = crmCandidateByRef(sourceId) || crmCandidateByName(input.value);
+    if(rec){
+      const area = crmCandidateDisplayArea(rec) || 'Área não definida';
+      const de = crmCandidateGermanLevel(rec) || 'DE —';
+      statusEl.classList.add('ok');
+      statusEl.textContent = `${rec.nome_completo} · ${area} · ${de}`;
+      const cv = crmCandidateDriveLink(rec);
+      if(cv){
+        linkEl.style.display = '';
+        linkEl.href = safeUrl(cv) || '#';
+        linkEl.textContent = crmCandidateDriveName(rec);
+      }else{
+        linkEl.style.display = 'none';
+        linkEl.href = '#';
+      }
+    }else{
+      statusEl.classList.remove('ok');
+      statusEl.textContent = 'Nenhum cadastro vinculado.';
+      linkEl.style.display = 'none';
+      linkEl.href = '#';
+    }
+  }
+
+  function fillCandidateFieldsFromCrm(rec){
+    if(!rec) return false;
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if(el && !String(el.value || '').trim()) el.value = value || '';
+    };
+    const setForce = (id, value) => {
+      const el = document.getElementById(id);
+      if(el) el.value = value || '';
+    };
+    setForce('cand-source-id', rec.id || '');
+    set('cand-idade', String(rec.idade || '').replace(/[^\d]/g,''));
+    const area = crmCandidateDisplayArea(rec);
+    set('cand-area', area);
+    set('cand-encaixe', area);
+    set('cand-alemao', crmCandidateGermanLevel(rec));
+    set('cand-kurzprofil', crmCandidateSummary(rec));
+    refreshCandidateLookupStatus();
+    return true;
+  }
+
+  function applyCrmCandidateSelection(showToast=false){
+    const input = document.getElementById('cand-nome');
+    if(!input) return false;
+    const rec = crmCandidateByName(input.value);
+    if(!rec){
+      const sourceIdEl = document.getElementById('cand-source-id');
+      if(sourceIdEl) sourceIdEl.value = '';
+      refreshCandidateLookupStatus();
+      if(showToast) toast('⚠ Candidato não encontrado no CRM institucional');
+      return false;
+    }
+    fillCandidateFieldsFromCrm(rec);
+    if(showToast) toast('Cadastro do CRM aplicado ✓');
+    return true;
+  }
+  function __candLookupChange(){ applyCrmCandidateSelection(false); }
+
+  // Timezone-safe calendar for Europe/Berlin
+  window.renderCalendar = function(){
+    const headerEl=document.getElementById('cal-header');
+    const gridEl=document.getElementById('cal-grid');
+    if(!headerEl||!gridEl)return;
+    const empF=document.getElementById('cal-emp-filter')?.value||'';
+    const monthKey=MONTHS[S.currentMonthIdx].k;
+    const [year,month]=monthKey.split('-').map(Number);
+    const todayStr = berlinTodayStr();
+
+    const dayNames=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+    headerEl.style.gridTemplateColumns='repeat(7,1fr)';
+    headerEl.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);background:#F8FAFC;border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;overflow:hidden';
+    headerEl.innerHTML=dayNames.map(d=>`<div class="cal-day-name">${escapeHTML(d)}</div>`).join('');
+
+    const firstDay=new Date(Date.UTC(year,month-1,1,12,0,0));
+    const startDow=(firstDay.getUTCDay()+6)%7;
+    const daysInMonth=new Date(Date.UTC(year,month,0,12,0,0)).getUTCDate();
+
+    const entries=S.planEntries.filter(e=>e.month===monthKey&&(!empF||e.employer===empF));
+    const meetings=S.meetings.filter(m=>m.mes===monthKey&&(!empF||m.employer===empF));
+
+    const byDate={};
+    const pushByDate=(dateStr,item)=>{ if(!byDate[dateStr]) byDate[dateStr]=[]; byDate[dateStr].push(item); };
+
+    entries.forEach(e=>{
+      const startRaw=String(e.inicio||e.fim||'').slice(0,10);
+      const endRaw=String(e.fim||e.inicio||'').slice(0,10);
+      if(!startRaw || !/^\d{4}-\d{2}-\d{2}$/.test(startRaw) || !/^\d{4}-\d{2}-\d{2}$/.test(endRaw)) return;
+      const rangeStart=startRaw < `${monthKey}-01` ? `${monthKey}-01` : startRaw;
+      const monthEnd=`${monthKey}-${String(daysInMonth).padStart(2,'0')}`;
+      const rangeEnd=endRaw > monthEnd ? monthEnd : endRaw;
+      if(rangeStart>rangeEnd) return;
+      let cur = rangeStart;
+      let guard=0;
+      while(cur && cur<=rangeEnd && guard<62){
+        pushByDate(cur,{type:'plan',data:e});
+        cur = addDaysYMD(cur, 1);
+        guard++;
+      }
+    });
+
+    meetings.forEach(m=>{
+      if(m.data && /^\d{4}-\d{2}-\d{2}$/.test(m.data)) pushByDate(m.data,{type:'meet',data:m});
+    });
+
+    const totalCells=Math.ceil((startDow+daysInMonth)/7)*7;
+    let cells='';
+    for(let i=0;i<totalCells;i++){
+      let dayNum,dateStr,isOther=false;
+      if(i<startDow){
+        dayNum=new Date(Date.UTC(year,month-1,0,12,0,0)).getUTCDate()-startDow+i+1;
+        dateStr = ymdFromUtcDate(new Date(Date.UTC(year,month-2,dayNum,12,0,0)));
+        isOther=true;
+      } else if(i>=startDow+daysInMonth){
+        dayNum=i-startDow-daysInMonth+1;
+        dateStr = ymdFromUtcDate(new Date(Date.UTC(year,month,dayNum,12,0,0)));
+        isOther=true;
+      } else {
+        dayNum=i-startDow+1;
+        dateStr=`${year}-${String(month).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+      }
+
+      const isToday=!isOther && dateStr===todayStr;
+      const evts=(byDate[dateStr]||[]).sort((a,b)=>{
+        const ao=a.type==='meet'?0:1;
+        const bo=b.type==='meet'?0:1;
+        return ao-bo;
+      });
+      const MAX=3;
+      const shown=evts.slice(0,MAX);
+      const extra=evts.length-MAX;
+
+      cells+=`<div class="cal-cell${isOther?' other-month':''}${isToday?' today':''}" onclick="calDayClick('${escapeJsString(dateStr)}')">
+        <div class="cal-date">${dayNum}</div>
+        ${shown.map(ev=>{
+          if(ev.type==='meet'){
+            const label=escapeHTML(ev.data.tema||`Reunião · ${ev.data.employer||''}`);
+            return `<div class="cal-event cal-meet" onclick="event.stopPropagation();openMeetModal('${escapeJsString(ev.data.id)}')" title="${safeAttrValue(ev.data.decidido||ev.data.tema||'')}">
+              <span class="cal-event-title">${label}</span>
+              <div class="cal-event-meta">
+                <span class="cal-mini-badge">${safeText(ev.data.employer,'Reunião')}</span>
+                <span class="cal-mini-badge">${safeText(ev.data.status||'A fazer','A fazer')}</span>
+              </div>
+            </div>`;
+          }
+          const cls=calendarStatusClass(ev.data.status);
+          return `<div class="cal-event ${cls}" onclick="event.stopPropagation();openPlanModal('${escapeJsString(ev.data.id)}')" title="${safeAttrValue(ev.data.obs||'')}">
+            <span class="cal-event-title">${safeText(ev.data.activity,'—')}</span>
+            <div class="cal-event-meta">
+              <span class="cal-mini-badge">${safeText(ev.data.employer,'—')}</span>
+              <span class="cal-mini-badge">${safeText(ev.data.status,'—')}</span>
+            </div>
+          </div>`;
+        }).join('')}
+        ${extra>0?`<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escapeJsString(dateStr)}')">+${extra} mais</div>`:''}
+        <button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
+      </div>`;
+    }
+
+    gridEl.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;background:var(--surface)';
+    gridEl.innerHTML=cells;
+  };
+
+  const _origOpenCandModal = window.openCandModal;
+  window.openCandModal = function(id){
+    _origOpenCandModal(id);
+    hydrateCandidateLookupUi();
+    const sourceIdEl = document.getElementById('cand-source-id');
+    if(sourceIdEl) sourceIdEl.value = '';
+    const emp = S.currentDossieEmp;
+    const existing = id ? ((S.dossiers[emp]?.candidatos||[]).find(x=>x.id===id) || (S.dossiers[emp]?.removidos||[]).find(x=>x.id===id)) : null;
+    if(existing){
+      if(sourceIdEl) sourceIdEl.value = existing.sourceCandidateId || '';
+      const rec = crmCandidateForPipelineItem(existing);
+      if(rec){
+        if(sourceIdEl && !sourceIdEl.value) sourceIdEl.value = rec.id || '';
+        refreshCandidateLookupStatus();
+      }else{
+        applyCrmCandidateSelection(false);
+      }
+    }else{
+      applyCrmCandidateSelection(false);
+    }
+  };
+
+  window.saveCandidate = function(){
+    const emp=S.currentDossieEmp;
+    if(!S.dossiers[emp])S.dossiers[emp]={candidatos:[],removidos:[],reposicao:[]};
+    const id=document.getElementById('cand-id').value;
+    const etapa=document.getElementById('cand-etapa').value;
+    const sourceId = document.getElementById('cand-source-id')?.value || '';
+    const exactRec = crmCandidateByRef(sourceId) || crmCandidateByName(document.getElementById('cand-nome').value.trim());
+
+    const c={
+      id:id||uid(),
+      seq:parseInt(document.getElementById('cand-seq').value)||undefined,
+      nome:document.getElementById('cand-nome').value.trim(),
+      idade:parseInt(document.getElementById('cand-idade').value)||undefined,
+      area:document.getElementById('cand-area').value,
+      encaixe:document.getElementById('cand-encaixe').value,
+      idiomas:document.getElementById('cand-idiomas').value,
+      alemao:document.getElementById('cand-alemao').value,
+      kurzprofil:document.getElementById('cand-kurzprofil').value,
+      justif:document.getElementById('cand-justif').value,
+      rodada:parseInt(document.getElementById('cand-rodada').value)||1,
+      dataEnvio:document.getElementById('cand-dataenvio').value,
+      responsavel:document.getElementById('cand-responsavel').value,
+      etapa,
+      proxacao:document.getElementById('cand-proxacao').value,
+      dataRetorno:document.getElementById('cand-dataretorno').value,
+      dataReuniao:document.getElementById('cand-datareuniao').value,
+      apresentado:document.getElementById('cand-apresentado').checked,
+      reposicao:document.getElementById('cand-reposicao').checked,
+      obs:document.getElementById('cand-obs').value,
+      motivoRemocao:document.getElementById('cand-motivo').value,
+      sourceCandidateId: exactRec?.id || sourceId || null,
+      crmCvLink: exactRec ? crmCandidateDriveLink(exactRec) : null,
+      crmCvFileName: exactRec ? crmCandidateDriveName(exactRec) : null
+    };
+    if(!c.nome){toast('⚠ Nome do candidato é obrigatório');return;}
+
+    S.dossiers[emp].candidatos=S.dossiers[emp].candidatos.filter(x=>x.id!==id);
+    S.dossiers[emp].removidos=S.dossiers[emp].removidos.filter(x=>x.id!==id);
+
+    if(etapa==='Removido'){S.dossiers[emp].removidos.push(c);}
+    else{S.dossiers[emp].candidatos.push(c);}
+
+    save();closeModal('modal-cand');renderPipeline();renderRemovidos();renderInfo();
+    toast(id?'Candidato atualizado ✓':'Candidato adicionado ✓');
+  };
+
+  window.renderPipeline = function(){
+    const emp=S.currentDossieEmp;
+    const search=(document.getElementById('pipe-search')?.value||'').toLowerCase();
+    const etapaF=document.getElementById('pipe-etapa-filter')?.value||'';
+    let list=(S.dossiers[emp]?.candidatos||[])
+      .filter(c=>{
+        const hay=[c.nome,c.area,c.encaixe,c.proxacao,c.responsavel,c.alemao].map(v=>String(v||'')).join(' ').toLowerCase();
+        return (!search || hay.includes(search)) && (!etapaF || c.etapa===etapaF);
+      })
+      .sort((a,b)=>(a.seq||99)-(b.seq||99));
+
+    const pipeStats=document.getElementById('pipe-stats');
+    if(pipeStats){
+      const aguardando=list.filter(c=>c.etapa==='Aguardando resposta').length;
+      const gostou=list.filter(c=>c.etapa==='Gostou').length;
+      const emProcesso=list.filter(c=>c.etapa==='Em processo').length;
+      const contratados=list.filter(c=>c.etapa==='Contratado').length;
+      const respostaRapida=list.filter(c=>['Gostou','Não gostou','Reunião marcada'].includes(String(c.etapa||''))).length;
+      pipeStats.innerHTML=`
+        <div class="small-stat accent-blue"><div class="lbl">Total filtrado</div><div class="val" style="color:var(--blue)">${list.length}</div><div class="sub">recorte atual</div></div>
+        <div class="small-stat accent-amber"><div class="lbl">Aguardando resposta</div><div class="val" style="color:var(--amber)">${aguardando}</div><div class="sub">retorno do employer</div></div>
+        <div class="small-stat accent-green"><div class="lbl">Gostou / reunião</div><div class="val" style="color:var(--green)">${gostou}</div><div class="sub">${respostaRapida} com avanço de retorno</div></div>
+        <div class="small-stat"><div class="lbl">Em processo</div><div class="val">${emProcesso}</div><div class="sub">follow-up ativo</div></div>
+        <div class="small-stat accent-green"><div class="lbl">Contratados</div><div class="val" style="color:var(--green)">${contratados}</div><div class="sub">pipeline finalizado</div></div>`;
+    }
+
+    const tbody=document.getElementById('pipe-tbody');
+    if(!list.length){
+      tbody.innerHTML=`<tr><td colspan="8"><div class="empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Nenhum candidato no pipeline.</p><small>Clique em "Adicionar Candidato" para começar</small></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML=list.map(c=>{
+      const candId=escapeJsString(c.id);
+      const rec = crmCandidateForPipelineItem(c);
+      const cvLink = rec ? safeUrl(crmCandidateDriveLink(rec)) : safeUrl(c.crmCvLink || '');
+      const cvTitle = rec ? crmCandidateDriveName(rec) : (c.crmCvFileName || 'Abrir currículo');
+      const cvBtn = cvLink
+        ? `<a class="icon-btn cv-link" href="${cvLink}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${escapeAttr(cvTitle)}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v7h-7"/><path d="M3 10v11h11"/></svg></a>`
+        : `<span class="icon-btn cv-link disabled" title="Sem link de currículo"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v7h-7"/><path d="M3 10v11h11"/></svg></span>`;
+      return `<tr onclick="openCandModal('${candId}')">
+        <td style="font-size:11px;color:var(--text3);font-weight:700">${c.seq||'—'}</td>
+        <td>
+          <div class="cell-title">${safeText(c.nome,'—')}</div>
+          <div class="cell-sub">${c.idade?escapeHTML(`${c.idade} anos`):'idade —'} · Alemão ${safeText(c.alemao,'—')}</div>
+        </td>
+        <td><div class="cell-title">${safeText(c.area,'—')}</div><div class="cell-sub clamp-2">${safeText(c.encaixe,'—')}</div></td>
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(c.dataEnvio||'—')}</td>
+        <td style="position:relative"><button class="badge ${STATUS_COLORS[c.etapa]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${candId}','cand',['Aguardando envio','Aguardando resposta','Gostou','Não gostou','Reunião marcada','Em processo','Contratado','Removido'])">${escapeHTML(c.etapa||'—')}</button></td>
+        <td><div class="clamp-2">${safeText(c.proxacao,'—')}</div></td>
+        <td>${safeText(c.responsavel,'—')}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="row-actions">
+            ${cvBtn}
+            <button class="icon-btn" onclick="openCandModal('${candId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="icon-btn danger" onclick="event.stopPropagation();deleteCandDirect('${candId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  };
+
+  const _origRenderRemovidos = window.renderRemovidos;
+  window.renderRemovidos = function(){
+    _origRenderRemovidos();
+    try{
+      loadCrmCandidateCatalog(false);
+    }catch(_){}
+  };
+
+  // startup
+  document.addEventListener('DOMContentLoaded', () => {
+    hydrateCandidateLookupUi();
+    setTimeout(() => { loadCrmCandidateCatalog(false); }, 0);
+  });
+
+  console.log('[T4 Organizacional v8] Fuso Alemanha fixado no calendário, candidato busca CRM institucional e link rápido do currículo ativados.');
 })();
 </script>
 
