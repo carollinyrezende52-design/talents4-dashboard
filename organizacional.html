@@ -6798,5 +6798,673 @@ async function softDeleteMeetingOperationalItems(meetingId){
 })();
 </script>
 
+
+<script>
+(function(){
+  const EMPLOYER_TABLE = 'employers';
+  const LINK_TABLE = 'candidate_employer_links';
+  const MATCH_TABLE = 'candidate_employer_matches';
+  const CANDIDATE_TABLE = 'candidatos';
+  let _orgXlsxPromise = null;
+  let _orgCanonicalBootDone = false;
+
+  function orgNormalizeName(v){
+    return String(v || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .replace(/\s+/g,' ')
+      .trim()
+      .toLowerCase();
+  }
+  function orgEmployerSlug(v){
+    return orgNormalizeName(v).replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  }
+  function orgExtractEmail(v){
+    const m = String(v || '').match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+    return m ? m[0] : null;
+  }
+  function orgPriorityText(c){
+    if ((c?.seq || 999) <= 3) return 'Alta';
+    if ((c?.seq || 999) <= 8) return 'Média';
+    return 'Baixa';
+  }
+  function orgPriorityNumber(c){
+    if ((c?.seq || 999) <= 3) return 1;
+    if ((c?.seq || 999) <= 8) return 2;
+    return 3;
+  }
+  function orgCandidateActive(c){
+    return String(c?.etapa || '').trim() !== 'Removido';
+  }
+  function orgCandidateStatusPipeline(c){
+    const etapa = String(c?.etapa || '').trim();
+    if (etapa === 'Contratado') return 'Contratado';
+    if (etapa === 'Removido') return 'Inativo / Arquivado';
+    return 'Employer / Matching';
+  }
+  function orgCandidateStatusVinculo(c){
+    const etapa = String(c?.etapa || '').trim();
+    if (!etapa) return 'Aguardando resposta';
+    return etapa;
+  }
+  function orgCandidateMatchStrength(c){
+    if ((c?.seq || 999) <= 3) return 'forte';
+    if ((c?.seq || 999) <= 8) return 'bom';
+    return 'mediano';
+  }
+  function orgDateTs(v){
+    const txt = String(v || '').trim();
+    if (!txt) return new Date().toISOString();
+    if (/T/.test(txt)) return txt;
+    return txt + 'T12:00:00+00:00';
+  }
+  function orgDateOnly(v){
+    const txt = String(v || '').trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(txt) ? txt : null;
+  }
+  function orgSoftText(v){
+    const txt = String(v == null ? '' : v).trim();
+    return txt || null;
+  }
+  function orgGetEmployerByName(name){
+    return (S.employers || []).find(e => orgNormalizeName(e?.name) === orgNormalizeName(name)) || null;
+  }
+  function orgDeduplicateEmployersState(){
+    const merged = [];
+    const dossiers = S.dossiers && typeof S.dossiers === 'object' ? S.dossiers : {};
+    const byName = new Map();
+    (S.employers || []).forEach((emp, idx) => {
+      if (!emp || !emp.name) return;
+      const key = orgNormalizeName(emp.name);
+      if (!byName.has(key)) {
+        const clone = { ...emp };
+        if (!relLooksUuid(clone.id)) clone.id = relUuid(clone.id || clone.name || ('emp_' + idx));
+        clone.openings = normalizeOpenings(clone.openings || clone.vagas || []);
+        clone.vagas = openingsToText(clone.openings || []);
+        byName.set(key, clone);
+        merged.push(clone);
+        return;
+      }
+      const target = byName.get(key);
+      target.id = relLooksUuid(target.id) ? target.id : (relLooksUuid(emp.id) ? emp.id : relUuid(target.id || emp.id || emp.name));
+      target.color = target.color || emp.color;
+      target.descricao = target.descricao || emp.descricao || '';
+      target.focusAreas = target.focusAreas || emp.focusAreas || '';
+      target.contato = target.contato || emp.contato || '';
+      target.pasta = target.pasta || emp.pasta || '';
+      target.crm = target.crm || emp.crm || emp.link || '';
+      target.link = target.link || emp.link || emp.crm || '';
+      target.saude = target.saude || emp.saude || 'Estável';
+      const openings = normalizeOpenings([...(target.openings || []), ...(emp.openings || [])]);
+      target.openings = openings;
+      target.vagas = openingsToText(openings);
+      const oldName = emp.name;
+      if (oldName && oldName !== target.name && dossiers[oldName]) {
+        const existing = dossiers[target.name] || { candidatos:[], removidos:[], reposicao:[] };
+        existing.candidatos = [...(existing.candidatos || []), ...(dossiers[oldName].candidatos || [])];
+        existing.removidos = [...(existing.removidos || []), ...(dossiers[oldName].removidos || [])];
+        existing.reposicao = [...(existing.reposicao || []), ...(dossiers[oldName].reposicao || [])];
+        dossiers[target.name] = existing;
+        delete dossiers[oldName];
+      }
+    });
+    S.employers = merged;
+    if (!S.dossiers || typeof S.dossiers !== 'object') S.dossiers = {};
+    S.employers.forEach(emp => {
+      if (!S.dossiers[emp.name]) S.dossiers[emp.name] = { candidatos:[], removidos:[], reposicao:[] };
+      if (!Array.isArray(S.dossiers[emp.name].candidatos)) S.dossiers[emp.name].candidatos = [];
+      if (!Array.isArray(S.dossiers[emp.name].removidos)) S.dossiers[emp.name].removidos = [];
+      if (!Array.isArray(S.dossiers[emp.name].reposicao)) S.dossiers[emp.name].reposicao = [];
+    });
+    Object.keys(S.dossiers).forEach(name => {
+      if (!S.employers.find(e => e.name === name)) delete S.dossiers[name];
+    });
+  }
+
+  async function ensureOrgXlsx(){
+    if (window.XLSX) return window.XLSX;
+    if (_orgXlsxPromise) return _orgXlsxPromise;
+    _orgXlsxPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js';
+      s.onload = () => resolve(window.XLSX);
+      s.onerror = () => reject(new Error('Não foi possível carregar a biblioteca XLSX.'));
+      document.head.appendChild(s);
+    });
+    try{ return await _orgXlsxPromise; } finally { _orgXlsxPromise = null; }
+  }
+
+  function sanitizeSheetName(name){
+    return String(name || 'Planilha').replace(/[\\\/\?\*\[\]\:]/g,' ').slice(0,31) || 'Planilha';
+  }
+
+  async function orgExportEmployerWorkbook(){
+    const employerName = S.currentDossieEmp || '';
+    const employer = orgGetEmployerByName(employerName);
+    if (!employer) { toast('⚠ Employer não encontrado'); return; }
+    const dossier = S.dossiers[employerName] || { candidatos:[], removidos:[], reposicao:[] };
+    const XLSX = await ensureOrgXlsx().catch(err => { toast('❌ ' + (err?.message || err)); return null; });
+    if (!XLSX) return;
+
+    const wb = XLSX.utils.book_new();
+    const today = new Date().toISOString().slice(0,10);
+
+    const resumo = [
+      ['Employer', employer.name || '—'],
+      ['Data base', today],
+      ['Saúde', employer.saude || '—'],
+      ['Contato', employer.contato || '—'],
+      ['CRM / Link', employer.crm || employer.link || '—'],
+      ['Focus areas', employer.focusAreas || '—'],
+      ['Vagas abertas', (employer.openings || []).filter(o => String(o.status || 'Aberta') !== 'Fechada').length],
+      ['Pipeline ativo', (dossier.candidatos || []).length],
+      ['Removidos', (dossier.removidos || []).length],
+      ['Reposição', (dossier.reposicao || []).length],
+    ];
+    const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
+    wsResumo['!cols'] = [{ wch: 24 }, { wch: 56 }];
+    XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+
+    const pipelineRows = [['Seq','Nome','Idade','Área','Encaixe','Alemão','Etapa','Data envio','Próxima ação','Responsável','Observações','Link currículo']];
+    (dossier.candidatos || []).sort((a,b)=>(a.seq||999)-(b.seq||999)).forEach(c => {
+      pipelineRows.push([
+        c.seq || '',
+        c.nome || '',
+        c.idade || '',
+        c.area || '',
+        c.encaixe || '',
+        c.alemao || '',
+        c.etapa || '',
+        c.dataEnvio || '',
+        c.proxacao || '',
+        c.responsavel || '',
+        c.obs || c.justif || '',
+        c.crmCvLink || ''
+      ]);
+    });
+    const wsPipeline = XLSX.utils.aoa_to_sheet(pipelineRows);
+    wsPipeline['!cols'] = [{wch:6},{wch:28},{wch:8},{wch:26},{wch:36},{wch:12},{wch:22},{wch:14},{wch:28},{wch:18},{wch:38},{wch:34}];
+    XLSX.utils.book_append_sheet(wb, wsPipeline, 'Pipeline');
+
+    const removedRows = [['Nome','Área','Etapa','Motivo','Observações']];
+    (dossier.removidos || []).forEach(c => removedRows.push([c.nome || '', c.area || '', c.etapa || '', c.motivoRemocao || '', c.obs || '']));
+    const wsRemoved = XLSX.utils.aoa_to_sheet(removedRows);
+    wsRemoved['!cols'] = [{wch:28},{wch:24},{wch:18},{wch:24},{wch:36}];
+    XLSX.utils.book_append_sheet(wb, wsRemoved, 'Removidos');
+
+    const replRows = [['Data','Perfil','Substitui','Qtd','Prioridade','Status','Novo envio','Obs']];
+    (dossier.reposicao || []).forEach(r => replRows.push([r.dataSolicitacao || r.data || '', r.perfil || '', r.substitui || '', r.qtd || '', r.prioridade || '', r.status || '', r.dataNovoEnvio || '', r.obs || '']));
+    const wsRepl = XLSX.utils.aoa_to_sheet(replRows);
+    wsRepl['!cols'] = [{wch:14},{wch:24},{wch:24},{wch:8},{wch:12},{wch:18},{wch:14},{wch:36}];
+    XLSX.utils.book_append_sheet(wb, wsRepl, 'Reposicao');
+
+    const planRows = [['Atividade','Status','Responsável','Início','Fim','Obs']];
+    (S.planEntries || []).filter(p => orgNormalizeName(p.employer) === orgNormalizeName(employerName)).forEach(p => {
+      planRows.push([p.activity || '', p.status || '', p.responsavel || '', p.inicio || '', p.fim || '', p.obs || '']);
+    });
+    const wsPlan = XLSX.utils.aoa_to_sheet(planRows);
+    wsPlan['!cols'] = [{wch:28},{wch:16},{wch:18},{wch:12},{wch:12},{wch:42}];
+    XLSX.utils.book_append_sheet(wb, wsPlan, 'Planejamento');
+
+    const meetRows = [['Data','Semana','Tema','Status','Responsável','Pendências','Próxima ação']];
+    (S.meetings || []).filter(m => orgNormalizeName(m.employer) === orgNormalizeName(employerName)).forEach(m => {
+      meetRows.push([m.data || '', m.semana || '', m.tema || '', m.status || '', m.responsavel || '', m.pendencias || '', m.proxacao || '']);
+    });
+    const wsMeet = XLSX.utils.aoa_to_sheet(meetRows);
+    wsMeet['!cols'] = [{wch:12},{wch:12},{wch:28},{wch:16},{wch:18},{wch:34},{wch:34}];
+    XLSX.utils.book_append_sheet(wb, wsMeet, 'Reunioes');
+
+    XLSX.writeFile(wb, `Organizacional_${sanitizeSheetName(employer.name)}_${today}.xlsx`);
+    toast('Planilha exportada ✓');
+  }
+
+  function orgEmployerRowFromState(emp){
+    const openings = normalizeOpenings(emp.openings || emp.vagas || []);
+    const email = orgExtractEmail(emp.contato || '');
+    return {
+      id: relLooksUuid(emp.id) ? emp.id : relUuid(emp.id || emp.name),
+      nome: emp.name,
+      nome_normalizado: orgEmployerSlug(emp.name),
+      ativo: true,
+      tipo: 'empregador',
+      status: 'ativo',
+      area_atuacao: emp.focusAreas || null,
+      descricao_resumida: emp.descricao || null,
+      descricao_operacional: emp.descricao || null,
+      contato_principal: emp.contato || null,
+      email_principal: email,
+      site: emp.crm || emp.link || null,
+      vagas_abertas: openings.filter(o => String(o.status || 'Aberta') !== 'Fechada').length,
+      nivel_alemao_minimo: null,
+      cidade: null,
+      responsavel_interno: null,
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  async function orgCanonicalUpsertEmployer(emp){
+    const client = getSupa();
+    const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if (!client || !session) throw new Error('Sessão expirada.');
+    if (!emp || !emp.name) throw new Error('Employer inválido.');
+
+    const normalized = orgEmployerSlug(emp.name);
+    let canonicalId = relLooksUuid(emp.id) ? emp.id : null;
+    if (!canonicalId) {
+      const existing = await withTimeout(
+        client.from(EMPLOYER_TABLE).select('id,nome').eq('nome_normalizado', normalized).limit(1).maybeSingle(),
+        5000,
+        'Leitura employer canônico'
+      );
+      if (!existing.error && existing.data?.id) canonicalId = existing.data.id;
+    }
+    if (!canonicalId) canonicalId = relUuid(emp.id || emp.name);
+    emp.id = canonicalId;
+
+    const row = orgEmployerRowFromState(emp);
+    row.id = canonicalId;
+    const resp = await withTimeout(
+      client.from(EMPLOYER_TABLE).upsert(row, { onConflict:'id' }).select('id,nome').single(),
+      6000,
+      'Upsert employer canônico'
+    );
+    if (resp.error) throw resp.error;
+    emp.id = resp.data?.id || canonicalId;
+    return emp.id;
+  }
+
+  async function orgCanonicalDeactivateEmployerCandidateLinks(candidateId, employerId){
+    const client = getSupa();
+    if (!candidateId) return;
+    await withTimeout(
+      client.from(LINK_TABLE).update({ ativo:false, updated_at:new Date().toISOString() }).eq('candidate_id', candidateId).neq('employer_id', employerId).eq('ativo', true),
+      5000,
+      'Desativação de vínculos paralelos'
+    ).catch(err => console.warn('[T4 Organizacional sync] desativação paralela:', err?.message || err));
+    await withTimeout(
+      client.from(MATCH_TABLE).update({ is_primary:false, updated_at:new Date().toISOString() }).eq('candidato_id', candidateId).neq('empregador_id', employerId),
+      5000,
+      'Desativação de matches paralelos'
+    ).catch(err => console.warn('[T4 Organizacional sync] matches paralelos:', err?.message || err));
+  }
+
+  function orgCandidateCanonicalRow(c, emp){
+    const candidateId = String(c.sourceCandidateId || c.id || '').trim();
+    return {
+      id: candidateId,
+      nome_completo: c.nome,
+      ativo: orgCandidateActive(c),
+      idade: Number(c.idade || 0) || null,
+      area_profissional: orgSoftText(c.area),
+      profissao_principal: orgSoftText(c.area),
+      resumo_profissional: orgSoftText(c.kurzprofil),
+      resumo_rh_curto: orgSoftText(c.kurzprofil || c.justif),
+      nivel_alemao: orgSoftText(c.alemao),
+      status_pipeline: orgCandidateStatusPipeline(c),
+      substatus: orgSoftText(emp?.name),
+      responsavel_interno: orgSoftText(c.responsavel),
+      prioridade_comercial: orgPriorityText(c),
+      employer_atual_exibicao: orgCandidateActive(c) ? orgSoftText(emp?.name) : null,
+      employer_nome: orgCandidateActive(c) ? orgSoftText(emp?.name) : null,
+      status_vinculo: orgCandidateActive(c) ? orgCandidateStatusVinculo(c) : null,
+      status_employer: orgCandidateStatusVinculo(c),
+      data_envio_employer: orgDateOnly(c.dataEnvio),
+      retorno_employer: orgSoftText(c.dataRetorno),
+      elegivel_para_employer: orgCandidateActive(c),
+      pronto_para_employer: orgCandidateActive(c),
+      cv_drive_web_link: orgSoftText(c.crmCvLink),
+      cv_drive_file_name: orgSoftText(c.crmCvFileName),
+      ultima_atualizacao: new Date().toISOString()
+    };
+  }
+
+  async function orgCanonicalUpsertCandidate(c, emp){
+    const client = getSupa();
+    const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if (!client || !session) throw new Error('Sessão expirada.');
+    if (!c?.nome) throw new Error('Candidato sem nome.');
+    const candidateId = String(c.sourceCandidateId || c.id || '').trim();
+    if (!candidateId) throw new Error('Candidato sem ID canônico.');
+    c.sourceCandidateId = candidateId;
+    const row = orgCandidateCanonicalRow(c, emp);
+    const resp = await withTimeout(
+      client.from(CANDIDATE_TABLE).upsert(row, { onConflict:'id' }).select('id').single(),
+      6000,
+      'Upsert candidato canônico'
+    );
+    if (resp.error) throw resp.error;
+    c.sourceCandidateId = resp.data?.id || candidateId;
+    return c.sourceCandidateId;
+  }
+
+  async function orgCanonicalUpsertLink(c, emp, candidateId){
+    const client = getSupa();
+    const active = orgCandidateActive(c);
+    await orgCanonicalDeactivateEmployerCandidateLinks(candidateId, emp.id);
+    const lookup = await withTimeout(
+      client.from(LINK_TABLE).select('id').eq('candidate_id', candidateId).eq('employer_id', emp.id).limit(1).maybeSingle(),
+      5000,
+      'Leitura vínculo legado'
+    );
+    if (lookup.error) throw lookup.error;
+    const row = {
+      id: lookup.data?.id || relUuid(candidateId + '_' + emp.id + '_link'),
+      candidate_id: candidateId,
+      employer_id: emp.id,
+      status_vinculo: orgCandidateStatusVinculo(c),
+      origem_vinculo: 'organizacional_dossie',
+      legado_substatus_origem: orgCandidateStatusVinculo(c),
+      data_vinculo: orgDateTs(c.dataEnvio || new Date().toISOString().slice(0,10)),
+      apresentado_em: c.apresentado ? orgDateTs(c.dataEnvio || new Date().toISOString().slice(0,10)) : null,
+      ultima_interacao_em: new Date().toISOString(),
+      proxima_acao: orgSoftText(c.proxacao),
+      proximo_followup_em: orgDateTs(c.dataRetorno || ''),
+      responsavel_interno: orgSoftText(c.responsavel),
+      prioridade: orgPriorityText(c),
+      motivo_match: orgSoftText(c.encaixe),
+      observacao_rh: orgSoftText(c.justif || c.obs),
+      resultado: orgCandidateStatusVinculo(c),
+      ativo: active,
+      updated_at: new Date().toISOString()
+    };
+    const upsert = await withTimeout(
+      client.from(LINK_TABLE).upsert(row, { onConflict:'id' }).select('id').single(),
+      6000,
+      'Upsert vínculo legado'
+    );
+    if (upsert.error) throw upsert.error;
+  }
+
+  async function orgCanonicalUpsertMatch(c, emp, candidateId){
+    const client = getSupa();
+    const active = orgCandidateActive(c);
+    const lookup = await withTimeout(
+      client.from(MATCH_TABLE).select('id').eq('candidato_id', candidateId).eq('empregador_id', emp.id).limit(1).maybeSingle(),
+      5000,
+      'Leitura match canônico'
+    );
+    if (lookup.error) throw lookup.error;
+    const row = {
+      id: lookup.data?.id || relUuid(candidateId + '_' + emp.id + '_match'),
+      candidato_id: candidateId,
+      empregador_id: emp.id,
+      status_vinculo: orgCandidateStatusVinculo(c),
+      prioridade: orgPriorityNumber(c),
+      data_envio: orgDateOnly(c.dataEnvio),
+      data_retorno: orgDateOnly(c.dataRetorno),
+      elegivel: active,
+      motivo_encaixe: orgSoftText(c.encaixe),
+      riscos_ressalvas: null,
+      proxima_acao: orgSoftText(c.proxacao),
+      observacoes: orgSoftText(c.obs || c.justif),
+      match_strength: orgCandidateMatchStrength(c),
+      is_primary: active,
+      updated_at: new Date().toISOString()
+    };
+    const upsert = await withTimeout(
+      client.from(MATCH_TABLE).upsert(row, { onConflict:'id' }).select('id').single(),
+      6000,
+      'Upsert match canônico'
+    );
+    if (upsert.error) throw upsert.error;
+  }
+
+  async function orgCanonicalSyncCandidate(c, employerName){
+    const emp = orgGetEmployerByName(employerName);
+    if (!emp) throw new Error('Employer não encontrado para sincronização.');
+    await orgCanonicalUpsertEmployer(emp);
+    if (Array.isArray(emp.openings) && emp.openings.length) {
+      await orgHybridSyncEmployerOpenings(emp.id, emp.openings || []);
+    }
+    const candidateId = await orgCanonicalUpsertCandidate(c, emp);
+    await orgCanonicalUpsertLink(c, emp, candidateId);
+    await orgCanonicalUpsertMatch(c, emp, candidateId);
+    return candidateId;
+  }
+
+  async function orgCanonicalDetachCandidate(candidateLike, employerName, finalStatus='Removido'){
+    const emp = orgGetEmployerByName(employerName);
+    if (!emp) return;
+    const candidateId = String(candidateLike?.sourceCandidateId || candidateLike?.id || '').trim();
+    if (!candidateId) return;
+    const client = getSupa();
+    const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if (!client || !session) return;
+
+    await withTimeout(
+      client.from(LINK_TABLE).update({ ativo:false, resultado:finalStatus, status_vinculo:finalStatus, updated_at:new Date().toISOString() }).eq('candidate_id', candidateId).eq('employer_id', emp.id),
+      6000,
+      'Desativação vínculo legado'
+    ).catch(err => console.warn('[T4 Organizacional sync] detach link:', err?.message || err));
+
+    await withTimeout(
+      client.from(MATCH_TABLE).update({ status_vinculo:finalStatus, elegivel:false, is_primary:false, updated_at:new Date().toISOString() }).eq('candidato_id', candidateId).eq('empregador_id', emp.id),
+      6000,
+      'Desativação match canônico'
+    ).catch(err => console.warn('[T4 Organizacional sync] detach match:', err?.message || err));
+
+    await withTimeout(
+      client.from(CANDIDATE_TABLE).update({
+        employer_atual_exibicao:null,
+        employer_nome:null,
+        status_vinculo:null,
+        status_employer:finalStatus,
+        elegivel_para_employer:false,
+        pronto_para_employer:false,
+        ultima_atualizacao:new Date().toISOString()
+      }).eq('id', candidateId),
+      6000,
+      'Limpeza employer candidato'
+    ).catch(err => console.warn('[T4 Organizacional sync] clear candidate employer:', err?.message || err));
+  }
+
+  async function orgLoadCanonicalEmployers(){
+    const client = getSupa();
+    const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if (!client || !session) return false;
+    const [empResp, openResp] = await Promise.all([
+      withTimeout(client.from(EMPLOYER_TABLE).select('id,nome,descricao_resumida,area_atuacao,contato_principal,site,status,vagas_abertas').eq('ativo', true).order('nome',{ascending:true}), 6000, 'Leitura employers canônicos'),
+      withTimeout(client.from('employer_openings').select('id,employer_id,title,status,order_index,is_active,deleted_at').is('deleted_at', null).order('order_index',{ascending:true}), 6000, 'Leitura vagas canônicas')
+    ]);
+    if (empResp.error) throw empResp.error;
+    if (openResp.error) throw openResp.error;
+
+    const openingsByEmployer = new Map();
+    (openResp.data || []).forEach(row => {
+      const key = String(row.employer_id || '');
+      if (!openingsByEmployer.has(key)) openingsByEmployer.set(key, []);
+      openingsByEmployer.get(key).push({
+        id: row.id,
+        title: row.title || '',
+        status: row.status || 'Aberta',
+        is_active: row.is_active !== false
+      });
+    });
+
+    const currentByName = new Map((S.employers || []).filter(Boolean).map(emp => [orgNormalizeName(emp.name), emp]));
+    const nextEmployers = [];
+    (empResp.data || []).forEach((row, idx) => {
+      const key = orgNormalizeName(row.nome);
+      const local = currentByName.get(key) || {};
+      const merged = {
+        id: row.id,
+        name: row.nome,
+        color: local.color || DEFAULT_EMP_COLORS[idx % DEFAULT_EMP_COLORS.length],
+        descricao: local.descricao || row.descricao_resumida || '',
+        focusAreas: local.focusAreas || row.area_atuacao || '',
+        contato: local.contato || row.contato_principal || '',
+        pasta: local.pasta || '',
+        crm: local.crm || row.site || '',
+        link: local.link || row.site || '',
+        saude: local.saude || (String(row.status || '').toLowerCase() === 'ativo' ? 'Estável' : (row.status || 'Estável')),
+        openings: normalizeOpenings((openingsByEmployer.get(String(row.id)) || []).map(o => ({ id:o.id, title:o.title, status:o.status }))),
+        vagas: ''
+      };
+      merged.vagas = openingsToText(merged.openings);
+      nextEmployers.push(merged);
+    });
+
+    (S.employers || []).forEach(local => {
+      const key = orgNormalizeName(local?.name);
+      if (!key || nextEmployers.find(e => orgNormalizeName(e.name) === key)) return;
+      const clone = { ...local };
+      if (!relLooksUuid(clone.id)) clone.id = relUuid(clone.id || clone.name);
+      clone.openings = normalizeOpenings(clone.openings || clone.vagas || []);
+      clone.vagas = openingsToText(clone.openings);
+      nextEmployers.push(clone);
+    });
+
+    S.employers = nextEmployers;
+    orgDeduplicateEmployersState();
+    if (!S.currentDossieEmp || !S.employers.find(e => e.name === S.currentDossieEmp)) {
+      S.currentDossieEmp = S.employers[0]?.name || '';
+    }
+    save();
+    return true;
+  }
+
+  const _origRenderDossieActionsV8 = window.renderDossieActions;
+  window.renderDossieActions = function(){
+    _origRenderDossieActionsV8();
+    const el = document.getElementById('dossie-actions');
+    if (!el) return;
+    if (!document.getElementById('btn-export-org-xlsx')) {
+      const btn = document.createElement('button');
+      btn.id = 'btn-export-org-xlsx';
+      btn.className = 'btn btn-ghost';
+      btn.type = 'button';
+      btn.textContent = 'Exportar planilha';
+      btn.onclick = orgExportEmployerWorkbook;
+      el.appendChild(btn);
+    }
+  };
+
+  const _origSaveEmpV8 = window.saveEmp;
+  window.saveEmp = async function(){
+    const id=document.getElementById('emp-id').value;
+    const oldEmp = id ? ((S.employers || []).find(e => e.id === id || e.name === id) || null) : null;
+    const oldName = oldEmp?.name || null;
+    await _origSaveEmpV8();
+    try{
+      orgDeduplicateEmployersState();
+      const newName = document.getElementById('emp-name')?.value.trim() || oldName;
+      const targetEmp = orgGetEmployerByName(newName);
+      if (!targetEmp) return;
+      const canonicalId = await orgCanonicalUpsertEmployer(targetEmp);
+      targetEmp.id = canonicalId;
+      await orgHybridSyncEmployerOpenings(canonicalId, targetEmp.openings || []);
+      if (oldName && oldName !== targetEmp.name && S.dossiers[targetEmp.name]) {
+        const all = [
+          ...(S.dossiers[targetEmp.name].candidatos || []),
+          ...(S.dossiers[targetEmp.name].removidos || [])
+        ];
+        for (const c of all) {
+          if (c?.sourceCandidateId || c?.nome) {
+            await orgCanonicalSyncCandidate(c, targetEmp.name).catch(err => console.warn('[T4 Organizacional sync] recandidate rename:', err?.message || err));
+          }
+        }
+      }
+      save();
+      if (document.getElementById('page-dossie')?.classList.contains('active')) {
+        renderEmpTabs();
+        renderDossie();
+      }
+    }catch(err){
+      console.warn('[T4 Organizacional] employer canonical sync:', err?.message || err);
+      toast('⚠ Employer salvo localmente, mas a sincronização institucional falhou.');
+    }
+  };
+
+  const _origSaveCandidateV8 = window.saveCandidate;
+  window.saveCandidate = async function(){
+    const employerName = S.currentDossieEmp;
+    const existingId = document.getElementById('cand-id')?.value || '';
+    const before = existingId ? ((S.dossiers[employerName]?.candidatos || []).find(x => x.id === existingId) || (S.dossiers[employerName]?.removidos || []).find(x => x.id === existingId) || null) : null;
+    _origSaveCandidateV8();
+    try{
+      const after = existingId
+        ? ((S.dossiers[employerName]?.candidatos || []).find(x => x.id === existingId) || (S.dossiers[employerName]?.removidos || []).find(x => x.id === existingId) || null)
+        : ((S.dossiers[employerName]?.candidatos || []).slice(-1)[0] || (S.dossiers[employerName]?.removidos || []).slice(-1)[0] || null);
+      if (!after) return;
+      await orgCanonicalSyncCandidate(after, employerName);
+      save();
+    }catch(err){
+      console.warn('[T4 Organizacional] saveCandidate canonical sync:', err?.message || err);
+      toast('⚠ Candidato salvo no organizacional, mas falhou a sincronização com o CRM institucional.');
+    }
+  };
+
+  const _origSetStatusV8 = window.setStatus;
+  window.setStatus = async function(id, status, type){
+    await _origSetStatusV8(id, status, type);
+    if (type !== 'cand') return;
+    const emp = S.currentDossieEmp;
+    const cand = (S.dossiers[emp]?.candidatos || []).find(x => x.id === id) || (S.dossiers[emp]?.removidos || []).find(x => x.id === id);
+    if (!cand) return;
+    try{
+      if (String(status).trim() === 'Removido') await orgCanonicalDetachCandidate(cand, emp, 'Removido');
+      else await orgCanonicalSyncCandidate(cand, emp);
+    }catch(err){
+      console.warn('[T4 Organizacional] status cand canonical sync:', err?.message || err);
+      toast('⚠ Status alterado localmente, mas a atualização institucional falhou.');
+    }
+  };
+
+  const _origDeleteCandDirectV8 = window.deleteCandDirect;
+  window.deleteCandDirect = function(id){
+    const emp = S.currentDossieEmp;
+    const cand = (S.dossiers[emp]?.candidatos || []).find(x => x.id === id) || null;
+    confirm('Excluir este candidato?', async ()=>{
+      try{ await orgCanonicalDetachCandidate(cand || { id }, emp, 'Excluído'); }catch(err){ console.warn('[T4 Organizacional] detach delete direct:', err?.message || err); }
+      _origDeleteCandDirectV8(id);
+    });
+  };
+
+  const _origDeleteCandFromModalV8 = window.deleteCandFromModal;
+  window.deleteCandFromModal = function(){
+    const id = document.getElementById('cand-id').value;
+    const emp = S.currentDossieEmp;
+    const cand = (S.dossiers[emp]?.candidatos || []).find(x => x.id === id) || (S.dossiers[emp]?.removidos || []).find(x => x.id === id) || null;
+    confirm('Excluir este candidato permanentemente?', async ()=>{
+      try{ await orgCanonicalDetachCandidate(cand || { id }, emp, 'Excluído'); }catch(err){ console.warn('[T4 Organizacional] detach modal delete:', err?.message || err); }
+      _origDeleteCandFromModalV8();
+    });
+  };
+
+  const _origRestoreCandidateV8 = window.restoreCandidate;
+  window.restoreCandidate = function(id){
+    const emp = S.currentDossieEmp;
+    _origRestoreCandidateV8(id);
+    const cand = (S.dossiers[emp]?.candidatos || []).find(x => x.id === id) || null;
+    if (!cand) return;
+    orgCanonicalSyncCandidate(cand, emp).catch(err => {
+      console.warn('[T4 Organizacional] restore candidate sync:', err?.message || err);
+      toast('⚠ Candidato restaurado localmente, mas falhou a sincronização institucional.');
+    });
+  };
+
+  async function orgBootstrapCanonicalLayer(){
+    if (_orgCanonicalBootDone) return;
+    _orgCanonicalBootDone = true;
+    try{
+      await orgLoadCanonicalEmployers();
+      if (document.getElementById('page-employers')?.classList.contains('active')) renderEmployers();
+      if (document.getElementById('page-dossie')?.classList.contains('active')) {
+        renderEmpTabs();
+        renderDossie();
+      }
+    }catch(err){
+      console.warn('[T4 Organizacional] bootstrap canonical layer:', err?.message || err);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { orgBootstrapCanonicalLayer(); }, 0);
+  });
+
+  console.log('[T4 Organizacional v9] export de planilha restaurado e sincronização canônica employer/candidato ativada.');
+})();
+</script>
+
 </body>
 </html>
