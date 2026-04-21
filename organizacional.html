@@ -7258,6 +7258,175 @@ async function softDeleteMeetingOperationalItems(meetingId){
     ).catch(err => console.warn('[T4 Organizacional sync] clear candidate employer:', err?.message || err));
   }
 
+  function orgDateInputFromCanonical(v){
+    const txt = String(v || '').trim();
+    if (!txt) return '';
+    return /^\d{4}-\d{2}-\d{2}/.test(txt) ? txt.slice(0,10) : '';
+  }
+
+  function orgCanonicalStatusText(match, link, candidate){
+    const raw = match?.status_vinculo || link?.status_vinculo || link?.resultado || candidate?.status_vinculo || candidate?.status_employer || candidate?.status_pipeline || '';
+    const txt = String(raw || '').trim();
+    if (!txt) return 'Aguardando resposta';
+    const low = orgNormalizeName(txt);
+    if (low.includes('contrat')) return 'Contratado';
+    if (low.includes('removid') || low.includes('excluid') || low.includes('inativ') || low.includes('arquiv')) return 'Removido';
+    if (low.includes('nao gost') || low.includes('nao_gost')) return 'Não gostou';
+    if (low.includes('gost')) return 'Gostou';
+    if (low.includes('reuniao') || low.includes('reuni')) return 'Reunião marcada';
+    if (low.includes('process')) return 'Em processo';
+    if (low.includes('envio')) return 'Aguardando envio';
+    if (low.includes('aguard')) return 'Aguardando resposta';
+    return txt;
+  }
+
+  function orgCanonicalSeq(match, link){
+    const raw = match?.prioridade ?? link?.prioridade ?? '';
+    const n = Number(raw);
+    if (Number.isFinite(n) && n > 0) return n;
+    const low = orgNormalizeName(raw);
+    if (low.includes('alta')) return 1;
+    if (low.includes('media') || low.includes('média')) return 2;
+    if (low.includes('baixa')) return 3;
+    return 99;
+  }
+
+  function orgCanonicalCandidateToDossier(candidate, employer, match=null, link=null){
+    const status = orgCanonicalStatusText(match, link, candidate);
+    const removed = status === 'Removido' || match?.elegivel === false || link?.ativo === false || candidate?.ativo === false;
+    const area = candidate?.area_profissional || candidate?.profissao_principal || '';
+    const resumo = candidate?.resumo_profissional || candidate?.resumo_rh_curto || candidate?.ai_summary || '';
+    const obs = match?.observacoes || link?.observacao_rh || '';
+    return {
+      id: String(candidate?.id || match?.candidato_id || link?.candidate_id || '').trim(),
+      sourceCandidateId: String(candidate?.id || match?.candidato_id || link?.candidate_id || '').trim(),
+      matchId: match?.id || null,
+      linkId: link?.id || null,
+      __canonicalSource: match ? 'candidate_employer_matches' : 'candidate_employer_links',
+      seq: orgCanonicalSeq(match, link),
+      nome: candidate?.nome_completo || 'Candidato sem nome',
+      idade: Number(candidate?.idade || 0) || undefined,
+      area,
+      encaixe: match?.motivo_encaixe || link?.motivo_match || area,
+      idiomas: '',
+      alemao: candidate?.nivel_alemao || candidate?.nivel_alemao_declarado || '',
+      kurzprofil: resumo,
+      justif: match?.motivo_encaixe || link?.motivo_match || resumo,
+      rodada: 1,
+      dataEnvio: orgDateInputFromCanonical(match?.data_envio || link?.apresentado_em || link?.data_vinculo || candidate?.data_envio_employer),
+      responsavel: match?.responsavel_interno || link?.responsavel_interno || candidate?.responsavel_interno || '',
+      etapa: removed ? 'Removido' : status,
+      proxacao: match?.proxima_acao || link?.proxima_acao || '',
+      dataRetorno: orgDateInputFromCanonical(match?.data_retorno || link?.proximo_followup_em || candidate?.retorno_employer),
+      dataReuniao: '',
+      apresentado: !!(match?.data_envio || link?.apresentado_em || link?.data_vinculo),
+      reposicao: false,
+      obs,
+      motivoRemocao: removed ? (status || 'Removido') : '',
+      crmCvLink: candidate?.cv_drive_web_link || '',
+      crmCvFileName: candidate?.cv_drive_file_name || '',
+      employerId: employer?.id || match?.empregador_id || link?.employer_id || null,
+      employerName: employer?.name || employer?.nome || ''
+    };
+  }
+
+  function orgApplyCanonicalDossiers(canonicalItems){
+    if (!Array.isArray(canonicalItems) || !canonicalItems.length) return false;
+    if (!S.dossiers || typeof S.dossiers !== 'object') S.dossiers = {};
+
+    const grouped = new Map();
+    canonicalItems.forEach(item => {
+      const emp = item.employer;
+      const cand = item.candidate;
+      if (!emp?.name || !cand?.id) return;
+      const key = String(emp.id || emp.name);
+      if (!grouped.has(key)) grouped.set(key, { employer: emp, candidatos: [], removidos: [] });
+      const dossierCand = orgCanonicalCandidateToDossier(cand, emp, item.match, item.link);
+      if (dossierCand.etapa === 'Removido') grouped.get(key).removidos.push(dossierCand);
+      else grouped.get(key).candidatos.push(dossierCand);
+    });
+
+    if (!grouped.size) return false;
+
+    (S.employers || []).forEach(emp => {
+      const key = String(emp.id || emp.name);
+      const prev = S.dossiers[emp.name] || { candidatos: [], removidos: [], reposicao: [] };
+      const next = grouped.get(key) || { candidatos: [], removidos: [] };
+      const sortBySeq = (a,b) => (Number(a.seq || 99) - Number(b.seq || 99)) || String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR');
+      S.dossiers[emp.name] = {
+        ...prev,
+        candidatos: [...next.candidatos].sort(sortBySeq),
+        removidos: [...next.removidos].sort(sortBySeq),
+        reposicao: Array.isArray(prev.reposicao) ? prev.reposicao : []
+      };
+    });
+
+    save();
+    return true;
+  }
+
+  async function orgLoadCanonicalDossiers(){
+    const client = getSupa();
+    const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
+    if (!client || !session) return false;
+
+    const [matchResp, linkResp] = await Promise.all([
+      withTimeout(
+        client.from(MATCH_TABLE).select('id,candidato_id,empregador_id,status_vinculo,prioridade,data_envio,data_retorno,elegivel,motivo_encaixe,proxima_acao,observacoes,match_strength,is_primary,updated_at').limit(1000),
+        7000,
+        'Leitura matches canônicos'
+      ),
+      withTimeout(
+        client.from(LINK_TABLE).select('id,candidate_id,employer_id,status_vinculo,ativo,data_vinculo,apresentado_em,ultima_interacao_em,proxima_acao,proximo_followup_em,responsavel_interno,prioridade,motivo_match,observacao_rh,resultado,updated_at').limit(1000),
+        7000,
+        'Leitura vínculos legados'
+      )
+    ]);
+    if (matchResp.error) throw matchResp.error;
+    if (linkResp.error) throw linkResp.error;
+
+    const matches = Array.isArray(matchResp.data) ? matchResp.data : [];
+    const links = Array.isArray(linkResp.data) ? linkResp.data : [];
+    if (!matches.length && !links.length) return false;
+
+    const candidateIds = new Set();
+    matches.forEach(row => row?.candidato_id && candidateIds.add(String(row.candidato_id)));
+    links.forEach(row => row?.candidate_id && candidateIds.add(String(row.candidate_id)));
+    if (!candidateIds.size) return false;
+
+    const candResp = await withTimeout(
+      client.from(CANDIDATE_TABLE).select('id,nome_completo,idade,area_profissional,profissao_principal,resumo_profissional,resumo_rh_curto,ai_summary,nivel_alemao,nivel_alemao_declarado,status_pipeline,ativo,substatus,responsavel_interno,prioridade_comercial,employer_atual_exibicao,employer_nome,status_vinculo,status_employer,data_envio_employer,retorno_employer,cv_drive_web_link,cv_drive_file_name,ultima_atualizacao').in('id', Array.from(candidateIds)).limit(1000),
+      7000,
+      'Leitura candidatos vinculados'
+    );
+    if (candResp.error) throw candResp.error;
+
+    const candidatesById = new Map((candResp.data || []).map(row => [String(row.id), row]));
+    const employersById = new Map((S.employers || []).map(emp => [String(emp.id || ''), emp]));
+    const canonicalItems = [];
+    const seen = new Set();
+
+    matches.forEach(match => {
+      const candidate = candidatesById.get(String(match?.candidato_id || ''));
+      const employer = employersById.get(String(match?.empregador_id || ''));
+      if (!candidate || !employer) return;
+      const key = `${candidate.id}:${employer.id}`;
+      seen.add(key);
+      canonicalItems.push({ candidate, employer, match, link: null });
+    });
+
+    links.forEach(link => {
+      const candidate = candidatesById.get(String(link?.candidate_id || ''));
+      const employer = employersById.get(String(link?.employer_id || ''));
+      if (!candidate || !employer) return;
+      const key = `${candidate.id}:${employer.id}`;
+      if (seen.has(key)) return;
+      canonicalItems.push({ candidate, employer, match: null, link });
+    });
+
+    return orgApplyCanonicalDossiers(canonicalItems);
+  }
+
   async function orgLoadCanonicalEmployers(){
     const client = getSupa();
     const session = await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase');
@@ -7448,6 +7617,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
     _orgCanonicalBootDone = true;
     try{
       await orgLoadCanonicalEmployers();
+      try{ await orgLoadCanonicalDossiers(); }catch(err){ console.warn('[T4 Organizacional] load canonical dossiers:', err?.message || err); }
       if (document.getElementById('page-employers')?.classList.contains('active')) renderEmployers();
       if (document.getElementById('page-dossie')?.classList.contains('active')) {
         renderEmpTabs();
@@ -7461,6 +7631,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { orgBootstrapCanonicalLayer(); }, 0);
   });
+  try { window.orgLoadCanonicalDossiers = orgLoadCanonicalDossiers; } catch(_) {}
 
   console.log('[T4 Organizacional v9] export de planilha restaurado e sincronização canônica employer/candidato ativada.');
 })();
