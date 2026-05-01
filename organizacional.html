@@ -7637,6 +7637,488 @@ async function softDeleteMeetingOperationalItems(meetingId){
 })();
 </script>
 
+
+
+<!-- T4 ORGANIZACIONAL FINAL PATCH 2026-05-01: banco único, exclusão fail-closed, fuso Alemanha e calendário compacto -->
+<style id="t4-org-final-fixes-style">
+  .cal-event.cal-continuation{
+    min-height:20px!important;
+    padding:2px 5px 2px 6px!important;
+    border-left:3px solid #CBD5E1!important;
+    background:#F8FAFC!important;
+    color:#475569!important;
+    box-shadow:none!important;
+    opacity:.92;
+    line-height:1.12!important;
+  }
+  .cal-event.cal-continuation:hover{opacity:1;background:#EEF2F7!important}
+  .cal-event.cal-continuation .cal-event-title{font-size:9.5px!important;font-weight:800!important;color:#334155!important;line-height:1.12!important}
+  .cal-event.cal-continuation .cal-event-meta{margin-top:1px!important;gap:3px!important}
+  .cal-event.cal-continuation .cal-mini-badge{font-size:8.5px!important;padding:1px 4px!important;background:#E2E8F0!important;color:#475569!important;border-color:#CBD5E1!important}
+  .cal-progress-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.02em;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.18);color:#fff;margin-bottom:2px;width:max-content;max-width:100%}
+  .cal-event.cal-continuation .cal-progress-badge{background:#E2E8F0!important;color:#475569!important;border-color:#CBD5E1!important;font-size:8.5px!important;margin-bottom:1px!important}
+</style>
+<script id="t4-org-final-fixes-script">
+(function(){
+  'use strict';
+  const T4_FINAL_PATCH_VERSION = '2026-05-01-db-calendar-fixes-v1';
+  const BERLIN_TZ_FINAL = 'Europe/Berlin';
+  const CANON = Object.freeze({
+    EMP: 'employers',
+    MATCH: 'candidate_employer_matches',
+    LINK: 'candidate_employer_links',
+    CAND: 'candidatos',
+    OPEN: 'employer_openings',
+    PLAN: 'organizational_plan_entries',
+    MEET: 'organizational_meetings',
+    WEEK: 'organizational_weekly_summaries',
+    REPL: 'organizational_replacement_requests',
+    OPTASK: 'operational_tasks',
+    OPMET: 'operational_metrics'
+  });
+
+  function dateOnlyFinal(v){
+    const s = String(v || '').trim();
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : '';
+  }
+  function parseYmdFinal(ymd){
+    const m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return null;
+    return { y:Number(m[1]), m:Number(m[2]), d:Number(m[3]) };
+  }
+  function ymdToUtcNoonFinal(ymd){
+    const p = parseYmdFinal(ymd);
+    if(!p) return null;
+    return new Date(Date.UTC(p.y, p.m - 1, p.d, 12, 0, 0));
+  }
+  function ymdFromUtcFinal(dt){
+    return dt instanceof Date && !Number.isNaN(dt.getTime())
+      ? `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}-${String(dt.getUTCDate()).padStart(2,'0')}`
+      : '';
+  }
+  function addDaysYmdFinal(ymd, days){
+    const dt = ymdToUtcNoonFinal(ymd);
+    if(!dt) return '';
+    dt.setUTCDate(dt.getUTCDate() + Number(days || 0));
+    return ymdFromUtcFinal(dt);
+  }
+  function diffDaysYmdFinal(startYmd, endYmd){
+    const a = ymdToUtcNoonFinal(startYmd);
+    const b = ymdToUtcNoonFinal(endYmd);
+    if(!a || !b) return 0;
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+  function berlinTodayFinal(){
+    try{
+      const fmt = new Intl.DateTimeFormat('en-CA', {timeZone:BERLIN_TZ_FINAL, year:'numeric', month:'2-digit', day:'2-digit'});
+      const parts = Object.fromEntries(fmt.formatToParts(new Date()).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }catch(_){
+      return new Date().toISOString().slice(0,10);
+    }
+  }
+  function normNameFinal(v){
+    return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+  }
+  function isUuidFinal(v){
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v || '').trim());
+  }
+  function cloneFinal(v){
+    try{return JSON.parse(JSON.stringify(v));}catch(_){return Array.isArray(v)?v.slice():Object.assign({},v||{});}
+  }
+  async function requireClientFinal(label){
+    const client = typeof getSupa === 'function' ? getSupa() : null;
+    if(!client) throw new Error(`${label || 'Operação'} sem cliente Supabase.`);
+    const session = typeof getSessionSafe === 'function' ? await withTimeout(getSessionSafe(), 3500, 'Sessão Supabase') : null;
+    if(!session) throw new Error('Sessão expirada. Entre novamente pelo módulo institucional.');
+    return client;
+  }
+  async function tryUpdateFinal(queryPromise, label){
+    const resp = await withTimeout(queryPromise, 7000, label || 'Atualização Supabase');
+    if(resp && resp.error) throw resp.error;
+    return resp;
+  }
+  function localRemoveEmployerFinal(emp){
+    const name = emp?.name || '';
+    const id = emp?.id || '';
+    S.employers = (S.employers || []).filter(e => String(e?.id || '') !== String(id) && normNameFinal(e?.name) !== normNameFinal(name));
+    if(S.dossiers && name) delete S.dossiers[name];
+    S.planEntries = (S.planEntries || []).filter(e => normNameFinal(e?.employer) !== normNameFinal(name));
+    S.meetings = (S.meetings || []).filter(m => normNameFinal(m?.employer) !== normNameFinal(name));
+    S.weeklySummaries = (S.weeklySummaries || []).filter(w => normNameFinal(w?.employer) !== normNameFinal(name));
+    S.operationalTasks = (S.operationalTasks || []).filter(t => normNameFinal(t?.employer) !== normNameFinal(name));
+    if(S.currentDossieEmp && normNameFinal(S.currentDossieEmp) === normNameFinal(name)) S.currentDossieEmp = S.employers[0]?.name || '';
+  }
+  function rerenderAfterEmployerFinal(){
+    if(typeof ensureUiState === 'function') ensureUiState();
+    if(typeof save === 'function') save();
+    if(typeof populateAllSelects === 'function') populateAllSelects();
+    if(typeof renderEmployers === 'function') renderEmployers();
+    if(typeof renderOperationalPage === 'function') renderOperationalPage();
+    if(document.getElementById('page-dossie')?.classList.contains('active')){
+      if(typeof renderEmpTabs === 'function') renderEmpTabs();
+      if(typeof renderDossie === 'function') renderDossie();
+    }
+    if(document.getElementById('page-calendario')?.classList.contains('active') && typeof renderCalendar === 'function') renderCalendar();
+  }
+
+  async function softDeleteCanonicalEmployerFinal(emp){
+    const client = await requireClientFinal('Excluir empregador');
+    const stamp = new Date().toISOString();
+    const id = String(emp?.id || '').trim();
+    const name = String(emp?.name || '').trim();
+    let deletedEmployerRows = [];
+
+    if(id && isUuidFinal(id)){
+      const resp = await tryUpdateFinal(
+        client.from(CANON.EMP).update({ativo:false,status:'inativo',deleted_at:stamp,updated_at:stamp}).eq('id', id).is('deleted_at', null).select('id,nome'),
+        'Arquivar empregador por ID'
+      );
+      deletedEmployerRows = Array.isArray(resp?.data) ? resp.data : [];
+    }
+    if(!deletedEmployerRows.length && name){
+      const resp = await tryUpdateFinal(
+        client.from(CANON.EMP).update({ativo:false,status:'inativo',deleted_at:stamp,updated_at:stamp}).eq('nome', name).is('deleted_at', null).select('id,nome'),
+        'Arquivar empregador por nome'
+      );
+      deletedEmployerRows = Array.isArray(resp?.data) ? resp.data : [];
+    }
+    if(!deletedEmployerRows.length && name){
+      const resp = await tryUpdateFinal(
+        client.from(CANON.EMP).update({ativo:false,status:'inativo',deleted_at:stamp,updated_at:stamp}).ilike('nome', name).is('deleted_at', null).select('id,nome'),
+        'Arquivar empregador por nome aproximado'
+      );
+      deletedEmployerRows = Array.isArray(resp?.data) ? resp.data : [];
+    }
+    if(!deletedEmployerRows.length){
+      throw new Error('O empregador não foi arquivado na tabela canônica employers. Exclusão local abortada para evitar retorno após atualização.');
+    }
+
+    const canonicalIds = Array.from(new Set(deletedEmployerRows.map(r => String(r.id || '')).filter(Boolean)));
+    const canonicalNames = Array.from(new Set([name, ...deletedEmployerRows.map(r => String(r.nome || '').trim())].filter(Boolean)));
+
+    for(const employerId of canonicalIds){
+      const matchDel = await withTimeout(client.from(CANON.MATCH).delete().eq('empregador_id', employerId), 7000, 'Excluir vínculos canônicos');
+      if(matchDel?.error) console.warn('[T4 Final Patch] vínculos matches:', matchDel.error.message);
+      const linkUpd = await withTimeout(client.from(CANON.LINK).update({ativo:false,status_vinculo:'Excluído'}).eq('employer_id', employerId), 7000, 'Arquivar vínculos legados');
+      if(linkUpd?.error) console.warn('[T4 Final Patch] vínculos links:', linkUpd.error.message);
+      const openUpd = await withTimeout(client.from(CANON.OPEN).update({deleted_at:stamp,is_active:false}).eq('employer_id', employerId).is('deleted_at', null), 7000, 'Arquivar vagas canônicas');
+      if(openUpd?.error) throw openUpd.error;
+      const taskById = await withTimeout(client.from(CANON.OPTASK).update({deleted_at:stamp}).eq('employer_id', employerId).is('deleted_at', null), 7000, 'Arquivar tarefas por employer_id');
+      if(taskById?.error && !/column .*employer_id/i.test(taskById.error.message || '')) console.warn('[T4 Final Patch] tarefas employer_id:', taskById.error.message);
+      const metricById = await withTimeout(client.from(CANON.OPMET).update({deleted_at:stamp}).eq('employer_id', employerId).is('deleted_at', null), 7000, 'Arquivar métricas por employer_id');
+      if(metricById?.error && !/column .*employer_id/i.test(metricById.error.message || '')) console.warn('[T4 Final Patch] métricas employer_id:', metricById.error.message);
+    }
+    for(const empName of canonicalNames){
+      const ops = [
+        client.from(CANON.PLAN).update({deleted_at:stamp}).eq('employer_name_snapshot', empName).is('deleted_at', null),
+        client.from(CANON.MEET).update({deleted_at:stamp}).eq('employer_name_snapshot', empName).is('deleted_at', null),
+        client.from(CANON.WEEK).update({deleted_at:stamp}).eq('employer_name_snapshot', empName).is('deleted_at', null),
+        client.from(CANON.REPL).update({deleted_at:stamp}).eq('employer_name_snapshot', empName).is('deleted_at', null),
+        client.from(CANON.OPTASK).update({deleted_at:stamp}).eq('employer_name_snapshot', empName).is('deleted_at', null),
+        client.from(CANON.OPMET).update({deleted_at:stamp}).eq('employer_name_snapshot', empName).is('deleted_at', null)
+      ];
+      const settled = await Promise.allSettled(ops.map((p,idx)=>withTimeout(p, 7000, `Arquivar fatia ${idx}`)));
+      settled.forEach(res => {
+        if(res.status === 'fulfilled' && res.value?.error && !/column .*employer_name_snapshot/i.test(res.value.error.message || '')){
+          console.warn('[T4 Final Patch] fatia por nome:', res.value.error.message);
+        }
+      });
+    }
+    return true;
+  }
+
+  window.t4OrgStrictLoadCanonicalEmployers = async function(){
+    const client = await requireClientFinal('Carregar empregadores');
+    const [empResp, openResp] = await Promise.all([
+      withTimeout(client.from(CANON.EMP).select('id,nome,descricao_resumida,area_atuacao,contato_principal,site,status,vagas_abertas,ativo,deleted_at').eq('ativo', true).is('deleted_at', null).order('nome',{ascending:true}), 7000, 'Leitura estrita de employers'),
+      withTimeout(client.from(CANON.OPEN).select('id,employer_id,title,status,order_index,is_active,deleted_at').is('deleted_at', null).order('order_index',{ascending:true}), 7000, 'Leitura estrita de vagas')
+    ]);
+    if(empResp?.error) throw empResp.error;
+    if(openResp?.error) throw openResp.error;
+    const openingsByEmployer = new Map();
+    (openResp.data || []).forEach(row=>{
+      if(row?.is_active === false) return;
+      const k = String(row.employer_id || '');
+      if(!k) return;
+      if(!openingsByEmployer.has(k)) openingsByEmployer.set(k, []);
+      openingsByEmployer.get(k).push({id:row.id,title:row.title || '',status:row.status || 'Aberta'});
+    });
+    const localByName = new Map((S.employers || []).map(emp=>[normNameFinal(emp?.name), emp]));
+    const activeRows = (empResp.data || []).filter(row => String(row?.status || '').trim().toLowerCase() !== 'inativo');
+    S.employers = activeRows.map((row, idx)=>{
+      const local = localByName.get(normNameFinal(row.nome)) || {};
+      const openings = typeof normalizeOpenings === 'function' ? normalizeOpenings(openingsByEmployer.get(String(row.id)) || []) : (openingsByEmployer.get(String(row.id)) || []);
+      return {
+        id: row.id,
+        name: row.nome,
+        color: local.color || DEFAULT_EMP_COLORS[idx % DEFAULT_EMP_COLORS.length],
+        descricao: local.descricao || row.descricao_resumida || '',
+        focusAreas: local.focusAreas || row.area_atuacao || '',
+        vagas: typeof openingsToText === 'function' ? openingsToText(openings) : openings.map(o=>o.title).join('\n'),
+        openings,
+        contato: local.contato || row.contato_principal || '',
+        pasta: local.pasta || '',
+        crm: local.crm || row.site || '',
+        link: local.link || row.site || '',
+        saude: local.saude || 'Estável'
+      };
+    });
+    if(typeof ensureUiState === 'function') ensureUiState();
+    if(typeof save === 'function') save();
+    if(typeof populateAllSelects === 'function') populateAllSelects();
+    return true;
+  };
+
+  window.deleteEmpById = function(){
+    const id = document.getElementById('emp-id')?.value || '';
+    const emp = (S.employers || []).find(e => String(e?.id || '') === String(id) || String(e?.name || '') === String(id));
+    if(!emp) return;
+    confirm(`Excluir "${emp.name}" e todos os seus dados vinculados?`, async ()=>{
+      try{
+        await softDeleteCanonicalEmployerFinal(emp);
+        localRemoveEmployerFinal(emp);
+        if(typeof closeModal === 'function') closeModal('modal-emp');
+        rerenderAfterEmployerFinal();
+        toast('Empregador excluído no banco e removido da operação');
+      }catch(err){
+        console.error('[T4 Final Patch] exclusão de empregador abortada:', err);
+        toast('⚠ Falha no banco. O empregador não foi removido para evitar retorno após atualizar.');
+      }
+    });
+  };
+
+  window.deleteEmpDirect = function(name){
+    if(!name) return;
+    const emp = (S.employers || []).find(e => normNameFinal(e?.name) === normNameFinal(name));
+    if(!emp){ toast('⚠ Empregador não encontrado'); return; }
+    confirm(`Excluir "${emp.name}" e todos os dados vinculados?`, async ()=>{
+      try{
+        await softDeleteCanonicalEmployerFinal(emp);
+        localRemoveEmployerFinal(emp);
+        rerenderAfterEmployerFinal();
+        toast('Empregador excluído no banco e removido da operação');
+      }catch(err){
+        console.error('[T4 Final Patch] exclusão direta de empregador abortada:', err);
+        toast('⚠ Falha no banco. O empregador não foi removido para evitar retorno após atualizar.');
+      }
+    });
+  };
+
+  function getActivityProgressMetaFinal(entry, dayYmd){
+    let start = dateOnlyFinal(entry?.inicio || entry?.fim || '');
+    let end = dateOnlyFinal(entry?.fim || entry?.inicio || '');
+    const day = dateOnlyFinal(dayYmd);
+    if(!start || !end || !day) return null;
+    if(end < start){ const tmp = start; start = end; end = tmp; }
+    const total = Math.max(1, diffDaysYmdFinal(start, end) + 1);
+    const current = Math.min(total, Math.max(1, diffDaysYmdFinal(start, day) + 1));
+    return {
+      start, end, day,
+      isMultiDay: total > 1,
+      isStart: day === start,
+      isEnd: day === end,
+      isMiddle: total > 1 && day !== start && day !== end,
+      current,
+      total,
+      label: `Dia ${String(current).padStart(2,'0')}/${String(total).padStart(2,'0')}`,
+      edgeLabel: total <= 1 ? 'Dia 01/01' : (day === start ? `Início · Dia 01/${String(total).padStart(2,'0')}` : (day === end ? `Fim · Dia ${String(total).padStart(2,'0')}/${String(total).padStart(2,'0')}` : `Dia ${String(current).padStart(2,'0')}/${String(total).padStart(2,'0')}`))
+    };
+  }
+  function occursOnDateFinal(entry, dateStr){
+    const target = dateOnlyFinal(dateStr);
+    if(!target) return false;
+    let start = dateOnlyFinal(entry?.inicio || entry?.fim || '');
+    let end = dateOnlyFinal(entry?.fim || entry?.inicio || '');
+    if(!start || !end) return false;
+    if(end < start){ const tmp = start; start = end; end = tmp; }
+    return target >= start && target <= end;
+  }
+  window.t4OrgGetActivityProgressMeta = getActivityProgressMetaFinal;
+  window.occursOnDate = occursOnDateFinal;
+
+  function renderLargePlanFinal(ev){
+    const e = ev.data;
+    const meta = ev.progress || getActivityProgressMetaFinal(e, ev.dateStr);
+    const cls = typeof calendarStatusClass === 'function' ? calendarStatusClass(e.status) : '';
+    const progress = meta?.isMultiDay ? `<span class="cal-progress-badge">${escapeHTML(meta.edgeLabel)}</span>` : '';
+    return `<div class="cal-event ${cls}" onclick="event.stopPropagation();openPlanModal('${escapeJsString(e.id)}')" title="${safeAttrValue(e.obs || '')}">
+      ${progress}
+      <span class="cal-event-title">${safeText(e.activity,'—')}</span>
+      <div class="cal-event-meta">
+        <span class="cal-mini-badge">${safeText(e.employer,'—')}</span>
+        <span class="cal-mini-badge">${safeText(e.status,'—')}</span>
+      </div>
+    </div>`;
+  }
+  function renderCompactPlanFinal(ev){
+    const e = ev.data;
+    const meta = ev.progress || getActivityProgressMetaFinal(e, ev.dateStr) || {label:'Dia --/--'};
+    return `<div class="cal-event cal-continuation" onclick="event.stopPropagation();openPlanModal('${escapeJsString(e.id)}')" title="${safeAttrValue((e.activity || '') + ' · ' + (e.obs || ''))}">
+      <span class="cal-progress-badge">${escapeHTML(meta.label)}</span>
+      <span class="cal-event-title">${safeText(e.activity,'Atividade')}</span>
+      <div class="cal-event-meta">
+        <span class="cal-mini-badge">${safeText(e.employer,'—')}</span>
+        <span class="cal-mini-badge">${safeText(e.status,'—')}</span>
+      </div>
+    </div>`;
+  }
+  function renderMeetFinal(ev){
+    const m = ev.data;
+    const label = escapeHTML(m.tema || `Reunião · ${m.employer || ''}`);
+    return `<div class="cal-event cal-meet" onclick="event.stopPropagation();openMeetModal('${escapeJsString(m.id)}')" title="${safeAttrValue(m.decidido || m.tema || '')}">
+      <span class="cal-event-title">${label}</span>
+      <div class="cal-event-meta">
+        <span class="cal-mini-badge">${safeText(m.employer || 'Talents 4','Reunião')}</span>
+        <span class="cal-mini-badge">${safeText(m.status || 'A fazer','A fazer')}</span>
+      </div>
+    </div>`;
+  }
+
+  window.renderCalendar = function(){
+    const headerEl = document.getElementById('cal-header');
+    const gridEl = document.getElementById('cal-grid');
+    if(!headerEl || !gridEl) return;
+    const empF = document.getElementById('cal-emp-filter')?.value || '';
+    const monthKey = MONTHS[S.currentMonthIdx].k;
+    const [year, month] = monthKey.split('-').map(Number);
+    const todayStr = berlinTodayFinal();
+
+    const dayNames = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+    headerEl.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);background:#F8FAFC;border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;overflow:hidden';
+    headerEl.innerHTML = dayNames.map(d=>`<div class="cal-day-name">${escapeHTML(d)}</div>`).join('');
+
+    const firstDay = new Date(Date.UTC(year, month - 1, 1, 12, 0, 0));
+    const startDow = (firstDay.getUTCDay() + 6) % 7;
+    const daysInMonth = new Date(Date.UTC(year, month, 0, 12, 0, 0)).getUTCDate();
+    const monthEnd = `${monthKey}-${String(daysInMonth).padStart(2,'0')}`;
+
+    const entries = (S.planEntries || []).filter(e => e.month === monthKey && (!empF || e.employer === empF));
+    const meetings = (S.meetings || []).filter(m => m.mes === monthKey && (!empF || m.employer === empF));
+    const byDate = {};
+    const pushByDate = (dateStr, item) => { if(!byDate[dateStr]) byDate[dateStr] = []; byDate[dateStr].push(item); };
+
+    entries.forEach(e=>{
+      let startRaw = dateOnlyFinal(e.inicio || e.fim || '');
+      let endRaw = dateOnlyFinal(e.fim || e.inicio || '');
+      if(!startRaw || !endRaw) return;
+      if(endRaw < startRaw){ const tmp = startRaw; startRaw = endRaw; endRaw = tmp; }
+      const rangeStart = startRaw < `${monthKey}-01` ? `${monthKey}-01` : startRaw;
+      const rangeEnd = endRaw > monthEnd ? monthEnd : endRaw;
+      if(rangeStart > rangeEnd) return;
+      let cur = rangeStart;
+      let guard = 0;
+      while(cur && cur <= rangeEnd && guard < 93){
+        pushByDate(cur, {type:'plan', data:e, dateStr:cur, progress:getActivityProgressMetaFinal(e, cur)});
+        cur = addDaysYmdFinal(cur, 1);
+        guard++;
+      }
+    });
+    meetings.forEach(m=>{
+      const date = dateOnlyFinal(m.data);
+      if(date) pushByDate(date, {type:'meet', data:m, dateStr:date});
+    });
+
+    const totalCells = Math.ceil((startDow + daysInMonth) / 7) * 7;
+    let cells = '';
+    for(let i = 0; i < totalCells; i++){
+      let dayNum, dateStr, isOther = false;
+      if(i < startDow){
+        const prevMonthDays = new Date(Date.UTC(year, month - 1, 0, 12, 0, 0)).getUTCDate();
+        dayNum = prevMonthDays - startDow + i + 1;
+        dateStr = ymdFromUtcFinal(new Date(Date.UTC(year, month - 2, dayNum, 12, 0, 0)));
+        isOther = true;
+      }else if(i >= startDow + daysInMonth){
+        dayNum = i - startDow - daysInMonth + 1;
+        dateStr = ymdFromUtcFinal(new Date(Date.UTC(year, month, dayNum, 12, 0, 0)));
+        isOther = true;
+      }else{
+        dayNum = i - startDow + 1;
+        dateStr = `${year}-${String(month).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+      }
+      const isToday = !isOther && dateStr === todayStr;
+      const evts = (byDate[dateStr] || []).sort((a,b)=>{
+        const priority = ev => ev.type === 'meet' ? 0 : ((ev.progress?.isMiddle) ? 2 : 1);
+        return priority(a) - priority(b);
+      });
+      const large = evts.filter(ev => ev.type === 'meet' || !ev.progress?.isMiddle).slice(0,2);
+      const compactSlots = Math.max(0, 3 - large.length);
+      const compact = evts.filter(ev => ev.type === 'plan' && ev.progress?.isMiddle).slice(0, compactSlots);
+      const shown = [...large, ...compact];
+      const extra = Math.max(0, evts.length - shown.length);
+      cells += `<div class="cal-cell${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}" onclick="calDayClick('${escapeJsString(dateStr)}')">
+        <div class="cal-date">${dayNum}</div>
+        ${shown.map(ev => ev.type === 'meet' ? renderMeetFinal(ev) : (ev.progress?.isMiddle ? renderCompactPlanFinal(ev) : renderLargePlanFinal(ev))).join('')}
+        ${extra > 0 ? `<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escapeJsString(dateStr)}')">+${extra} mais</div>` : ''}
+        <button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
+      </div>`;
+    }
+    gridEl.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;background:var(--surface)';
+    gridEl.innerHTML = cells;
+  };
+
+  window.openDayModal = function(dateStr){
+    const day = dateOnlyFinal(dateStr);
+    const plans = (S.planEntries || [])
+      .filter(e => occursOnDateFinal(e, day))
+      .map(e => {
+        const meta = getActivityProgressMetaFinal(e, day);
+        const progressLine = meta ? `Progressão: ${meta.label}${meta.isStart ? ' · início' : ''}${meta.isEnd ? ' · fim' : ''}` : '';
+        return {
+          type:'Atividade',
+          title:`${e.employer || 'Sem empregador'} · ${e.activity || 'Atividade'}`,
+          meta:e.status || '—',
+          owner:e.responsavel || 'Sem responsável',
+          body:[e.obs && `Observação: ${e.obs}`, progressLine, e.inicio && `Início: ${e.inicio}`, e.fim && `Fim: ${e.fim}`].filter(Boolean).join('\n'),
+          id:e.id,
+          target:'plan'
+        };
+      });
+    const meetings = (S.meetings || [])
+      .filter(m => dateOnlyFinal(m.data) === day)
+      .map(m => ({
+        type:'Reunião',
+        title:`${m.employer || 'Talents 4'} · ${m.tema || 'Sem tema'}`,
+        meta:m.status || '—',
+        owner:m.responsavel || 'Sem responsável',
+        body:[m.decidido && `Decidido: ${m.decidido}`, m.pendencias && `Pendências: ${m.pendencias}`, m.proxacao && `Próxima ação: ${m.proxacao}`, m.data && `Data: ${m.data}`].filter(Boolean).join('\n'),
+        id:m.id,
+        target:'meet'
+      }));
+    const items = [...meetings, ...plans];
+    const modal = document.getElementById('modal-day');
+    const title = document.getElementById('modal-day-title');
+    const body = document.getElementById('modal-day-body');
+    if(!modal || !title || !body) return;
+    modal.dataset.date = day;
+    title.textContent = `Itens do dia ${day}`;
+    body.innerHTML = items.length
+      ? `<div class="day-list">${items.map(it=>`<div class="day-item">
+          <h4>${escapeHTML(it.title)}</h4>
+          <div class="meta"><span class="badge ${STATUS_COLORS[it.meta] || 'b-gray'}">${escapeHTML(it.type)}</span><span class="badge ${STATUS_COLORS[it.meta] || 'b-gray'}">${escapeHTML(it.meta)}</span><span>${escapeHTML(it.owner)}</span></div>
+          <div class="body">${nl2brSafe(it.body, 'Sem detalhe.')}</div>
+          <div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="${it.target === 'plan' ? `goToPlanEntry('${escapeJsString(it.id)}')` : `goToMeeting('${escapeJsString(it.id)}')`};closeModal('modal-day')">Abrir</button></div>
+        </div>`).join('')}</div>`
+      : `<div class="empty"><p>Nenhum item lançado neste dia.</p><small>Use “Nova atividade neste dia” para registrar algo.</small></div>`;
+    openModal('modal-day');
+  };
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    setTimeout(async ()=>{
+      try{
+        await window.t4OrgStrictLoadCanonicalEmployers();
+        if(document.getElementById('page-employers')?.classList.contains('active')) renderEmployers();
+        if(document.getElementById('page-calendario')?.classList.contains('active')) renderCalendar();
+      }catch(err){
+        console.warn('[T4 Final Patch] carga canônica estrita não aplicada:', err?.message || err);
+      }
+    }, 250);
+  });
+  console.log('[T4 Organizacional Final Patch]', T4_FINAL_PATCH_VERSION, 'ativado.');
+})();
+</script>
+
 </body>
 </html>
 
