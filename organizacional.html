@@ -8265,6 +8265,30 @@ async function softDeleteMeetingOperationalItems(meetingId){
 })();
 </script>
 
+
+<!-- T4 ORGANIZACIONAL FINAL PATCH 2026-05-01 v4: calendario responsivo 100% zoom -->
+<style id="t4-org-calendar-100pct-fix">
+  #cal-header,#cal-grid,.cal-header,.cal-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important;width:100%!important;max-width:100%!important}
+  #page-calendario .pb{padding:16px 14px!important;overflow-x:hidden!important}
+  #page-calendario .toolbar{gap:8px!important;overflow-x:auto!important}
+  .cal-day-name{min-width:0!important;padding:7px 4px!important}
+  .cal-cell{min-width:0!important;overflow:hidden!important;padding:6px 6px 5px!important;min-height:118px!important}
+  .cal-date{margin-bottom:4px!important;flex-shrink:0!important}
+  .cal-event:not(.cal-continuation){display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:30px!important;padding:4px 6px 5px 7px!important;margin-bottom:3px!important;overflow:hidden!important;white-space:normal!important;line-height:1.08!important}
+  .cal-event:not(.cal-continuation) .cal-progress-badge{display:inline-flex!important;max-width:100%!important;margin:0 0 2px 0!important;padding:1px 6px!important;font-size:8.5px!important;line-height:1.05!important;white-space:normal!important}
+  .cal-event-title{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+  .cal-event:not(.cal-continuation) .cal-event-title{font-size:10px!important;line-height:1.08!important;max-height:22px!important}
+  .cal-event-meta{display:flex!important;align-items:center!important;gap:3px!important;flex-wrap:wrap!important;min-width:0!important;max-width:100%!important;margin-top:2px!important;overflow:hidden!important}
+  .cal-mini-badge{min-width:0!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;padding:1px 5px!important;font-size:8.5px!important;line-height:1.15!important}
+  .cal-event.cal-continuation{display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;grid-template-rows:auto auto!important;column-gap:5px!important;row-gap:1px!important;align-items:center!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:28px!important;padding:3px 5px!important;margin-bottom:3px!important;overflow:hidden!important;white-space:normal!important}
+  .cal-event.cal-continuation .cal-progress-badge{grid-column:1!important;grid-row:1 / 3!important;width:40px!important;max-width:40px!important;justify-content:center!important;text-align:center!important;white-space:normal!important;line-height:1.02!important;padding:2px 3px!important;font-size:8px!important;margin:0!important}
+  .cal-event.cal-continuation .cal-event-title{grid-column:2!important;grid-row:1!important;font-size:9px!important;line-height:1.05!important;max-height:19px!important}
+  .cal-event.cal-continuation .cal-event-meta{grid-column:2!important;grid-row:2!important;margin-top:0!important;flex-wrap:nowrap!important}
+  .cal-event.cal-continuation .cal-mini-badge{font-size:7.8px!important;padding:1px 4px!important;max-width:82px!important}
+  .cal-more{font-size:10px!important;font-weight:800!important;padding:1px 4px!important;line-height:1.2!important;color:#2563EB!important}
+  @media (max-width:1366px){#page-calendario .pb{padding:12px 8px!important}.cal-cell{padding:5px!important;min-height:112px!important}.cal-event:not(.cal-continuation){padding:3px 5px!important}.cal-event.cal-continuation{grid-template-columns:40px minmax(0,1fr)!important;column-gap:4px!important}.cal-event.cal-continuation .cal-progress-badge{width:36px!important;max-width:36px!important;font-size:7.6px!important}.cal-event.cal-continuation .cal-mini-badge{max-width:70px!important}}
+</style>
+
 </body>
 </html>
 
