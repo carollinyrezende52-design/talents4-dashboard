@@ -4795,9 +4795,9 @@ document.addEventListener('DOMContentLoaded', async()=>{
     if(remoteLoaded || hybridLoaded?.loaded){
       renderBootstrap();
       try{
-        if(remoteLoaded && hybridLoaded?.loaded) toast('Dados híbridos sincronizados do Supabase ✓');
-        else if(remoteLoaded) toast('Dados sincronizados do Supabase ✓');
-        else if(hybridLoaded?.loaded) toast('Planejamento, reuniões, resumo, reposição, vagas e operacional carregados do banco relacional ✓');
+        if(remoteLoaded && hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados híbridos sincronizados do Supabase.');
+        else if(remoteLoaded) console.info('[T4 Organizacional] Dados sincronizados do Supabase.');
+        else if(hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados relacionais carregados.');
       }catch(_){ }
     }
   },0);
@@ -6283,7 +6283,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
         renderBootstrap?.();
         renderOperationalPage?.();
         refreshVisibleViews?.({calendar:true});
-        if(res?.loaded) toast('Modo seguro ativo: leitura principal relacional, sem auto-gravação em snapshot ✓');
+        if(res?.loaded) console.info('[T4 Hardening] Modo seguro ativo: leitura principal relacional, sem auto-gravação em snapshot.');
       }catch(err){
         console.warn('[T4 Hardening] init:', err?.message || err);
       }
@@ -7661,7 +7661,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
 <script id="t4-org-final-fixes-script">
 (function(){
   'use strict';
-  const T4_FINAL_PATCH_VERSION = '2026-05-01-db-calendar-fixes-v1';
+  const T4_FINAL_PATCH_VERSION = '2026-05-01-db-calendar-fixes-v2-cross-month-no-init-toasts';
   const BERLIN_TZ_FINAL = 'Europe/Berlin';
   const CANON = Object.freeze({
     EMP: 'employers',
@@ -7992,10 +7992,22 @@ async function softDeleteMeetingOperationalItems(meetingId){
     const firstDay = new Date(Date.UTC(year, month - 1, 1, 12, 0, 0));
     const startDow = (firstDay.getUTCDay() + 6) % 7;
     const daysInMonth = new Date(Date.UTC(year, month, 0, 12, 0, 0)).getUTCDate();
+    const monthStart = `${monthKey}-01`;
     const monthEnd = `${monthKey}-${String(daysInMonth).padStart(2,'0')}`;
 
-    const entries = (S.planEntries || []).filter(e => e.month === monthKey && (!empF || e.employer === empF));
-    const meetings = (S.meetings || []).filter(m => m.mes === monthKey && (!empF || m.employer === empF));
+    const planOverlapsVisibleMonth = (e)=>{
+      let start = dateOnlyFinal(e?.inicio || e?.fim || '');
+      let end = dateOnlyFinal(e?.fim || e?.inicio || '');
+      if(!start || !end) return false;
+      if(end < start){ const tmp = start; start = end; end = tmp; }
+      return start <= monthEnd && end >= monthStart;
+    };
+
+    const entries = (S.planEntries || []).filter(e => (!empF || e.employer === empF) && planOverlapsVisibleMonth(e));
+    const meetings = (S.meetings || []).filter(m => {
+      const d = dateOnlyFinal(m?.data || '');
+      return d >= monthStart && d <= monthEnd && (!empF || m.employer === empF);
+    });
     const byDate = {};
     const pushByDate = (dateStr, item) => { if(!byDate[dateStr]) byDate[dateStr] = []; byDate[dateStr].push(item); };
 
