@@ -8131,6 +8131,140 @@ async function softDeleteMeetingOperationalItems(meetingId){
 })();
 </script>
 
+<script>
+(function(){
+  const PATCH_VERSION = 'calendar_alignment_v3_2026-05-01';
+  const USER_MONTH_MARKER = 't4org_calendar_user_selected_month_v3';
+  function d2(n){ return String(n).padStart(2,'0'); }
+  function dateOnlyV3(v){
+    const s = String(v || '').trim();
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+    const br = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if(br) return `${br[3]}-${br[2]}-${br[1]}`;
+    return '';
+  }
+  function ymdToUtcNoonV3(ymd){
+    const d = dateOnlyV3(ymd);
+    if(!d) return null;
+    const [y,m,day] = d.split('-').map(Number);
+    if(!y || !m || !day) return null;
+    return new Date(Date.UTC(y, m - 1, day, 12, 0, 0));
+  }
+  function ymdFromUtcV3(dt){ return `${dt.getUTCFullYear()}-${d2(dt.getUTCMonth()+1)}-${d2(dt.getUTCDate())}`; }
+  function addDaysYmdV3(ymd, days){ const dt = ymdToUtcNoonV3(ymd); if(!dt) return ''; dt.setUTCDate(dt.getUTCDate() + Number(days || 0)); return ymdFromUtcV3(dt); }
+  function diffDaysYmdV3(a,b){ const da = ymdToUtcNoonV3(a), db = ymdToUtcNoonV3(b); if(!da || !db) return 0; return Math.round((db - da) / 86400000); }
+  function daysInMonthV3(year, month){ return new Date(Date.UTC(year, month, 0, 12, 0, 0)).getUTCDate(); }
+  function dowMondayFirstV3(ymd){ const dt = ymdToUtcNoonV3(ymd); if(!dt) return 0; return (dt.getUTCDay() + 6) % 7; }
+  function berlinTodayYmdV3(){
+    const parts = new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Berlin', year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(new Date()).reduce((acc,p)=>{ acc[p.type]=p.value; return acc; }, {});
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+  function berlinMonthKeyV3(){ return berlinTodayYmdV3().slice(0,7); }
+  function getArrStateV3(){
+    const arr = window.MONTHS || (typeof MONTHS !== 'undefined' ? MONTHS : null);
+    const state = window.S || (typeof S !== 'undefined' ? S : null);
+    return {arr, state};
+  }
+  function setVisibleMonthLabelsV3(){
+    const {arr,state} = getArrStateV3();
+    if(!Array.isArray(arr) || !state) return;
+    const obj = arr[state.currentMonthIdx] || arr[0];
+    if(!obj) return;
+    const monthLbl = document.getElementById('month-label');
+    const calLbl = document.getElementById('cal-month-label');
+    if(monthLbl) monthLbl.textContent = obj.l;
+    if(calLbl) calLbl.textContent = obj.l;
+  }
+  function syncInitialMonthV3(){
+    try{
+      const {arr,state} = getArrStateV3();
+      if(!Array.isArray(arr) || !state) return;
+      const idxNow = arr.findIndex(m => m.k === berlinMonthKeyV3());
+      if(idxNow < 0) return;
+      const userSelected = localStorage.getItem(USER_MONTH_MARKER) === '1';
+      const invalid = typeof state.currentMonthIdx !== 'number' || state.currentMonthIdx < 0 || state.currentMonthIdx >= arr.length;
+      if(invalid || !userSelected) state.currentMonthIdx = idxNow;
+      setVisibleMonthLabelsV3();
+    }catch(err){ console.warn('[T4 calendar v3] syncInitialMonth falhou:', err); }
+  }
+  const oldChangeMonth = (typeof window.changeMonth === 'function' ? window.changeMonth : (typeof changeMonth === 'function' ? changeMonth : null));
+  if(oldChangeMonth){
+    const wrappedChangeMonth = function(d){
+      try{ localStorage.setItem(USER_MONTH_MARKER, '1'); }catch(_){ }
+      const result = oldChangeMonth.apply(this, arguments);
+      try{ setVisibleMonthLabelsV3(); }catch(_){ }
+      return result;
+    };
+    try{ window.changeMonth = wrappedChangeMonth; changeMonth = wrappedChangeMonth; }catch(_){ window.changeMonth = wrappedChangeMonth; }
+  }
+  const oldRenderBootstrap = (typeof window.renderBootstrap === 'function' ? window.renderBootstrap : (typeof renderBootstrap === 'function' ? renderBootstrap : null));
+  if(oldRenderBootstrap){
+    const wrappedBootstrap = function(){ syncInitialMonthV3(); return oldRenderBootstrap.apply(this, arguments); };
+    try{ window.renderBootstrap = wrappedBootstrap; renderBootstrap = wrappedBootstrap; }catch(_){ window.renderBootstrap = wrappedBootstrap; }
+  }
+  function progressMetaV3(entry, dayYmd){
+    let start = dateOnlyV3(entry?.inicio || entry?.start_date || entry?.dataInicio || entry?.fim || entry?.end_date || '');
+    let end = dateOnlyV3(entry?.fim || entry?.end_date || entry?.dataFim || entry?.inicio || entry?.start_date || '');
+    const day = dateOnlyV3(dayYmd);
+    if(!start || !end || !day) return null;
+    if(end < start){ const tmp = start; start = end; end = tmp; }
+    const total = Math.max(1, diffDaysYmdV3(start, end) + 1);
+    const current = Math.min(total, Math.max(1, diffDaysYmdV3(start, day) + 1));
+    return { start, end, day, isMultiDay: total > 1, isStart: day === start, isEnd: day === end, isMiddle: total > 1 && day !== start && day !== end, current, total, label: `Dia ${d2(current)}/${d2(total)}`, edgeLabel: total <= 1 ? 'Dia 01/01' : (day === start ? `Início · Dia 01/${d2(total)}` : (day === end ? `Fim · Dia ${d2(total)}/${d2(total)}` : `Dia ${d2(current)}/${d2(total)}`)) };
+  }
+  function occursOnDateV3(entry, ymd){
+    let start = dateOnlyV3(entry?.inicio || entry?.start_date || entry?.dataInicio || entry?.fim || entry?.end_date || '');
+    let end = dateOnlyV3(entry?.fim || entry?.end_date || entry?.dataFim || entry?.inicio || entry?.start_date || '');
+    const day = dateOnlyV3(ymd);
+    if(!start || !end || !day) return false;
+    if(end < start){ const tmp = start; start = end; end = tmp; }
+    return day >= start && day <= end;
+  }
+  window.t4OrgGetActivityProgressMeta = progressMetaV3;
+  window.occursOnDate = occursOnDateV3;
+  function esc(v){ return typeof escapeHTML === 'function' ? escapeHTML(v) : String(v ?? '').replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function escJs(v){ return typeof escapeJsString === 'function' ? escapeJsString(v) : String(v ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+  function safe(v, fb='—'){ return typeof safeText === 'function' ? safeText(v, fb) : esc(String(v || fb)); }
+  function attr(v){ return typeof safeAttrValue === 'function' ? safeAttrValue(v) : esc(String(v || '')); }
+  function renderLargePlanV3(ev){
+    const e = ev.data; const meta = ev.progress || progressMetaV3(e, ev.dateStr); const cls = typeof calendarStatusClass === 'function' ? calendarStatusClass(e.status) : ''; const progress = meta?.isMultiDay ? `<span class="cal-progress-badge">${esc(meta.edgeLabel)}</span>` : '';
+    return `<div class="cal-event ${cls}" onclick="event.stopPropagation();openPlanModal('${escJs(e.id)}')" title="${attr(e.obs || '')}">${progress}<span class="cal-event-title">${safe(e.activity,'—')}</span><div class="cal-event-meta"><span class="cal-mini-badge">${safe(e.employer,'—')}</span><span class="cal-mini-badge">${safe(e.status,'—')}</span></div></div>`;
+  }
+  function renderCompactPlanV3(ev){
+    const e = ev.data; const meta = ev.progress || progressMetaV3(e, ev.dateStr) || {label:'Dia --/--'};
+    return `<div class="cal-event cal-continuation" onclick="event.stopPropagation();openPlanModal('${escJs(e.id)}')" title="${attr((e.activity || '') + ' · ' + (e.obs || ''))}"><span class="cal-progress-badge">${esc(meta.label)}</span><span class="cal-event-title">${safe(e.activity,'Atividade')}</span><div class="cal-event-meta"><span class="cal-mini-badge">${safe(e.employer,'—')}</span><span class="cal-mini-badge">${safe(e.status,'—')}</span></div></div>`;
+  }
+  function renderMeetV3(ev){
+    const m = ev.data; const label = esc(m.tema || `Reunião · ${m.employer || ''}`);
+    return `<div class="cal-event cal-meet" onclick="event.stopPropagation();openMeetModal('${escJs(m.id)}')" title="${attr(m.decidido || m.tema || '')}"><span class="cal-event-title">${label}</span><div class="cal-event-meta"><span class="cal-mini-badge">${safe(m.employer || 'Talents 4','Reunião')}</span><span class="cal-mini-badge">${safe(m.status || 'A fazer','A fazer')}</span></div></div>`;
+  }
+  function renderCalendarV3(){
+    const headerEl = document.getElementById('cal-header'); const gridEl = document.getElementById('cal-grid'); if(!headerEl || !gridEl) return;
+    const {arr,state} = getArrStateV3(); if(!Array.isArray(arr) || !state) return;
+    if(typeof state.currentMonthIdx !== 'number' || state.currentMonthIdx < 0 || state.currentMonthIdx >= arr.length) state.currentMonthIdx = 0;
+    const monthObj = arr[state.currentMonthIdx]; const monthKey = monthObj?.k || berlinMonthKeyV3(); const match = String(monthKey).match(/^(\d{4})-(\d{2})$/); if(!match) return;
+    const year = Number(match[1]); const month = Number(match[2]); const monthStart = `${monthKey}-01`; const dim = daysInMonthV3(year, month); const monthEnd = `${monthKey}-${d2(dim)}`; const todayStr = berlinTodayYmdV3(); const empF = document.getElementById('cal-emp-filter')?.value || '';
+    setVisibleMonthLabelsV3();
+    const dayNames = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
+    headerEl.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);background:#F8FAFC;border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;overflow:hidden';
+    headerEl.innerHTML = dayNames.map(d=>`<div class="cal-day-name">${esc(d)}</div>`).join('');
+    const byDate = {}; const push = (ymd, item)=>{ if(!byDate[ymd]) byDate[ymd] = []; byDate[ymd].push(item); };
+    const planEntries = Array.isArray(state.planEntries) ? state.planEntries : [];
+    planEntries.filter(e => !empF || e.employer === empF).forEach(e=>{ let start = dateOnlyV3(e?.inicio || e?.start_date || e?.dataInicio || e?.fim || e?.end_date || ''); let end = dateOnlyV3(e?.fim || e?.end_date || e?.dataFim || e?.inicio || e?.start_date || ''); if(!start || !end) return; if(end < start){ const tmp = start; start = end; end = tmp; } if(!(start <= monthEnd && end >= monthStart)) return; let cur = start < monthStart ? monthStart : start; const stop = end > monthEnd ? monthEnd : end; let guard = 0; while(cur && cur <= stop && guard < 62){ push(cur, {type:'plan', data:e, dateStr:cur, progress:progressMetaV3(e, cur)}); cur = addDaysYmdV3(cur, 1); guard++; } });
+    const meetings = Array.isArray(state.meetings) ? state.meetings : [];
+    meetings.filter(m => !empF || m.employer === empF).forEach(m=>{ const d = dateOnlyV3(m?.data || m?.scheduled_at || m?.date || ''); if(d && d >= monthStart && d <= monthEnd) push(d, {type:'meet', data:m, dateStr:d}); });
+    const startDow = dowMondayFirstV3(monthStart); const gridStart = addDaysYmdV3(monthStart, -startDow); const totalCells = 42; let cells = '';
+    for(let i = 0; i < totalCells; i++){ const dateStr = addDaysYmdV3(gridStart, i); const dayNum = Number(dateStr.slice(8,10)); const isOther = dateStr.slice(0,7) !== monthKey; const isToday = dateStr === todayStr; const evts = (byDate[dateStr] || []).sort((a,b)=>{ const pa = a.type === 'meet' ? 0 : (a.progress?.isMiddle ? 2 : 1); const pb = b.type === 'meet' ? 0 : (b.progress?.isMiddle ? 2 : 1); return pa - pb; }); const large = evts.filter(ev => ev.type === 'meet' || !ev.progress?.isMiddle).slice(0,2); const compactSlots = Math.max(0, 3 - large.length); const compact = evts.filter(ev => ev.type === 'plan' && ev.progress?.isMiddle).slice(0, compactSlots); const shown = [...large, ...compact]; const extra = Math.max(0, evts.length - shown.length); cells += `<div class="cal-cell${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}" data-date="${esc(dateStr)}" onclick="calDayClick('${escJs(dateStr)}')"><div class="cal-date">${dayNum}</div>${shown.map(ev => ev.type === 'meet' ? renderMeetV3(ev) : (ev.progress?.isMiddle ? renderCompactPlanV3(ev) : renderLargePlanV3(ev))).join('')}${extra > 0 ? `<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escJs(dateStr)}')">+${extra} mais</div>` : ''}<button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escJs(dateStr)}')" title="Adicionar atividade">+</button></div>`; }
+    gridEl.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;background:var(--surface)';
+    gridEl.innerHTML = cells;
+  }
+  window.renderCalendar = renderCalendarV3; try{ renderCalendar = renderCalendarV3; }catch(_){ }
+  document.addEventListener('DOMContentLoaded', ()=>{ syncInitialMonthV3(); setTimeout(()=>{ try{ if(document.getElementById('page-calendario')?.classList.contains('active')) renderCalendarV3(); }catch(err){ console.warn('[T4 calendar v3] render pós-load falhou:', err); } }, 80); });
+  console.log('[T4 Organizacional]', PATCH_VERSION, 'ativado.');
+})();
+</script>
+
 </body>
 </html>
 
