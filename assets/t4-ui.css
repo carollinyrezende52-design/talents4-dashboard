@@ -305,7 +305,20 @@ body.t4-ui-ready *::-webkit-scrollbar-thumb:hover{background:#91a4bb;background-
   html[data-t4-module="organizacional"] .sb-item,
   html[data-t4-module="alemao"] .nav-item{min-height:31px!important;font-size:10.2px!important}
 }
-@media(max-width:1100px){
+/* Em janelas reduzidas (inclusive DevTools acoplado), conserva os nomes da
+   navegação. A largura diminui de forma fluida sem transformar tudo em ícones. */
+@media(max-width:1100px) and (min-width:721px){
+  html[data-t4-module="crm"]{--sidebar:clamp(184px,22vw,216px)!important}
+  html[data-t4-module="crm"] #sidebar,
+  html[data-t4-module="organizacional"] .sb,
+  html[data-t4-module="alemao"] .sidebar{width:clamp(184px,22vw,216px)!important;min-width:clamp(184px,22vw,216px)!important}
+  html[data-t4-module="alemao"] .main{margin-left:clamp(184px,22vw,216px)!important;width:calc(100% - clamp(184px,22vw,216px))!important}
+  html[data-t4-module="crm"] #content,
+  html[data-t4-module="organizacional"] .pb,
+  html[data-t4-module="alemao"] .content{padding:18px!important}
+}
+/* Apenas uma viewport realmente estreita usa navegação por ícones. */
+@media(max-width:720px){
   html[data-t4-module="crm"]{--sidebar:76px!important}
   html[data-t4-module="crm"] #sidebar,
   html[data-t4-module="organizacional"] .sb,

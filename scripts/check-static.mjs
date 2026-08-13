@@ -62,10 +62,14 @@ check(!organizational.includes('rows.push({act,entry:null})'), 'Planejamento men
 check(organizational.includes('plan-empty-state'), 'Planejamento mensal possui estado vazio orientado à ação');
 check(organizational.includes('openPlanForEmployer'), 'Planejamento mantém inclusão rápida por empregador');
 check(organizational.includes('readStoredSessionSnapshot'), 'Organizacional inicia pela sessão local sem travar a interface');
+check(organizational.includes('readCrmProfileSession'), 'Organizacional reconhece a sessão de perfil criada pelo CRM');
+check(/\^sb-\.\+-auth-token\$/.test(organizational), 'Organizacional localiza a chave real de autenticação do Supabase');
 check(/getSession\(\),2500/.test(organizational), 'Organizacional limita a espera da autenticação');
+check(/if\(!storedSession && !crmProfileSession\)\{\s*window\.location\.replace\('index\.html'\);\s*return;/.test(organizational), 'Organizacional redireciona imediatamente quando não existe login');
 const sharedCss = fs.readFileSync('assets/t4-ui.css', 'utf8');
 check(sharedCss.includes('@media(max-height:980px)'), 'Barra lateral responde à altura e ao zoom');
-check(sharedCss.includes('@media(max-width:1100px)'), 'Barra lateral compacta em largura reduzida');
+check(sharedCss.includes('@media(max-width:1100px) and (min-width:721px)'), 'Barra lateral mantém os textos em janela reduzida');
+check(sharedCss.includes('@media(max-width:720px)'), 'Barra lateral usa ícones somente em tela estreita');
 check(/overflow-y:auto!important/.test(sharedCss), 'Barra lateral permanece rolável');
 
 const legacy = fs.readFileSync('talents.html', 'utf8');

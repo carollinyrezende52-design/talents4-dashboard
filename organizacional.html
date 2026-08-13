@@ -1458,11 +1458,24 @@ function getSupa(){
 }
 function readStoredSessionSnapshot(){
   try{
-    const raw=localStorage.getItem(SUPABASE_AUTH_STORAGE_KEY);
-    if(!raw) return null;
-    const parsed=JSON.parse(raw);
-    const session=parsed?.currentSession||parsed?.session||parsed;
-    return session?.access_token && session?.user ? session : null;
+    const authKeys=[
+      SUPABASE_AUTH_STORAGE_KEY,
+      ...Object.keys(localStorage).filter(key=>/^sb-.+-auth-token$/.test(key))
+    ];
+    for(const key of [...new Set(authKeys)]){
+      const raw=localStorage.getItem(key);
+      if(!raw) continue;
+      const parsed=JSON.parse(raw);
+      const session=parsed?.currentSession||parsed?.session||parsed?.data?.session||parsed;
+      if(session?.access_token && session?.user) return session;
+    }
+    return null;
+  }catch{return null;}
+}
+function readCrmProfileSession(){
+  try{
+    const profile=JSON.parse(sessionStorage.getItem('t4_session')||'null');
+    return profile?.user ? profile : null;
   }catch{return null;}
 }
 async function getSessionSafe(){
@@ -4799,19 +4812,24 @@ function renderBootstrap(){
 document.addEventListener('DOMContentLoaded', async()=>{
   resetTransientUi();
   const storedSession=readStoredSessionSnapshot();
-  if(storedSession) renderBootstrap();
-  let session=null;
-  try{
-    session=await withTimeout(checkAuthAndRedirect(),3500,'Validação de sessão');
-  }catch(err){
-    logUiError('Validação de sessão',err);
-    session=storedSession;
-    if(!session){ window.location.replace('index.html'); return; }
+  const crmProfileSession=readCrmProfileSession();
+  // O módulo contém dados internos: sem a sessão criada no login do CRM,
+  // não exibe uma tela vazia nem tenta consultar o banco como anônimo.
+  if(!storedSession && !crmProfileSession){
+    window.location.replace('index.html');
+    return;
   }
-  if(!session) return;
-  safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
-  if(!storedSession) renderBootstrap();
+  // Renderiza antes de qualquer chamada ao cliente de autenticação. Assim um
+  // lock/refresh pendente do Supabase nunca bloqueia a interface autenticada.
+  renderBootstrap();
   setTimeout(async()=>{
+    const session=storedSession || await getSessionSafe();
+    if(!session){
+      try{ sessionStorage.removeItem('t4_session'); }catch(_){ }
+      window.location.replace('index.html');
+      return;
+    }
+    safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
     const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
     const hybridLoaded = await safeInvoke('Leitura híbrida relacional', ()=>orgHybridLoadRelationalSlices(), {loaded:false});
     if(remoteLoaded || hybridLoaded?.loaded){
