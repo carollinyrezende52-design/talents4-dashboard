@@ -4809,41 +4809,77 @@ function renderBootstrap(){
 }
 
 // ─── INIT ───
-document.addEventListener('DOMContentLoaded', async()=>{
+let _organizationalSyncStarted=false;
+let _organizationalRedirectStarted=false;
+
+function organizationalUiIsBlank(){
+  const monthLabel=document.getElementById('month-label');
+  const planBody=document.getElementById('plan-tbody');
+  return !monthLabel?.textContent?.trim() || !planBody?.children?.length;
+}
+
+function redirectToInstitutional(){
+  if(_organizationalRedirectStarted) return;
+  _organizationalRedirectStarted=true;
+  window.location.replace('index.html');
+}
+
+async function syncOrganizationalOnce(storedSession){
+  if(_organizationalSyncStarted) return;
+  _organizationalSyncStarted=true;
+  const session=storedSession || await getSessionSafe();
+  if(!session){
+    try{ sessionStorage.removeItem('t4_session'); }catch(_){ }
+    redirectToInstitutional();
+    return;
+  }
+  safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
+  const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
+  const hybridLoaded = await safeInvoke('Leitura híbrida relacional', ()=>orgHybridLoadRelationalSlices(), {loaded:false});
+  if(remoteLoaded || hybridLoaded?.loaded){
+    renderBootstrap();
+    try{
+      if(remoteLoaded && hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados híbridos sincronizados do Supabase.');
+      else if(remoteLoaded) console.info('[T4 Organizacional] Dados sincronizados do Supabase.');
+      else if(hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados relacionais carregados.');
+    }catch(_){ }
+  }
+}
+
+function startOrganizational(reason='startup'){
+  if(_organizationalRedirectStarted) return false;
   resetTransientUi();
   const storedSession=readStoredSessionSnapshot();
   const crmProfileSession=readCrmProfileSession();
   // O módulo contém dados internos: sem a sessão criada no login do CRM,
   // não exibe uma tela vazia nem tenta consultar o banco como anônimo.
   if(!storedSession && !crmProfileSession){
-    window.location.replace('index.html');
-    return;
+    redirectToInstitutional();
+    return false;
   }
-  // Renderiza antes de qualquer chamada ao cliente de autenticação. Assim um
-  // lock/refresh pendente do Supabase nunca bloqueia a interface autenticada.
-  renderBootstrap();
-  setTimeout(async()=>{
-    const session=storedSession || await getSessionSafe();
-    if(!session){
-      try{ sessionStorage.removeItem('t4_session'); }catch(_){ }
-      window.location.replace('index.html');
-      return;
-    }
-    safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
-    const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
-    const hybridLoaded = await safeInvoke('Leitura híbrida relacional', ()=>orgHybridLoadRelationalSlices(), {loaded:false});
-    if(remoteLoaded || hybridLoaded?.loaded){
-      renderBootstrap();
-      try{
-        if(remoteLoaded && hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados híbridos sincronizados do Supabase.');
-        else if(remoteLoaded) console.info('[T4 Organizacional] Dados sincronizados do Supabase.');
-        else if(hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados relacionais carregados.');
-      }catch(_){ }
-    }
-  },0);
-});
+  // A renderização é idempotente e independe do momento em que o navegador
+  // entrega DOMContentLoaded (navegação normal, cache de retorno ou restauração).
+  if(organizationalUiIsBlank()) renderBootstrap();
+  setTimeout(()=>syncOrganizationalOnce(storedSession),0);
+  try{ document.documentElement.dataset.t4OrgBoot=reason; }catch(_){ }
+  return true;
+}
 
-window.addEventListener('pageshow', ()=>resetTransientUi());
+function ensureOrganizationalStarted(reason){
+  safeInvoke(`Inicialização organizacional (${reason})`, ()=>startOrganizational(reason), false);
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', ()=>ensureOrganizationalStarted('domcontentloaded'), {once:true});
+}else{
+  queueMicrotask(()=>ensureOrganizationalStarted('ready'));
+}
+window.addEventListener('load', ()=>ensureOrganizationalStarted('load'), {once:true});
+window.addEventListener('pageshow', ()=>ensureOrganizationalStarted('pageshow'));
+// Salvaguarda para navegadores que restauram a página sem repetir os eventos
+// usuais. Não duplica a sincronização e só renderiza quando a UI está vazia.
+setTimeout(()=>ensureOrganizationalStarted('failsafe'),250);
+
 document.querySelectorAll('.modal-ov').forEach(ov=>{
   ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');});
 });

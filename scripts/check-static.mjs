@@ -65,7 +65,10 @@ check(organizational.includes('readStoredSessionSnapshot'), 'Organizacional inic
 check(organizational.includes('readCrmProfileSession'), 'Organizacional reconhece a sessão de perfil criada pelo CRM');
 check(/\^sb-\.\+-auth-token\$/.test(organizational), 'Organizacional localiza a chave real de autenticação do Supabase');
 check(/getSession\(\),2500/.test(organizational), 'Organizacional limita a espera da autenticação');
-check(/if\(!storedSession && !crmProfileSession\)\{\s*window\.location\.replace\('index\.html'\);\s*return;/.test(organizational), 'Organizacional redireciona imediatamente quando não existe login');
+check(/if\(!storedSession && !crmProfileSession\)\{\s*redirectToInstitutional\(\);\s*return false;/.test(organizational), 'Organizacional redireciona imediatamente quando não existe login');
+check(organizational.includes("document.readyState==='loading'"), 'Organizacional inicia mesmo quando o DOM já está pronto');
+check(organizational.includes("ensureOrganizationalStarted('failsafe')"), 'Organizacional possui salvaguarda contra perda do evento inicial');
+check(organizational.includes('if(_organizationalSyncStarted) return;'), 'Organizacional evita sincronizações duplicadas');
 const sharedCss = fs.readFileSync('assets/t4-ui.css', 'utf8');
 check(sharedCss.includes('@media(max-height:980px)'), 'Barra lateral responde à altura e ao zoom');
 check(sharedCss.includes('@media(max-width:1100px) and (min-width:721px)'), 'Barra lateral mantém os textos em janela reduzida');
