@@ -1445,6 +1445,7 @@ function defaultState(){
 // ─── STATE MANAGEMENT ───
 const SUPABASE_URL='https://xcxqtjzlqmncwnhbolnl.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
+const SUPABASE_AUTH_STORAGE_KEY='sb-xcxqtjzlqmncwnhbolnl-auth-token';
 const REMOTE_APP_KEY='talents4_crm_v5';
 let _supa=null,_remoteSaveTimer=null,_remoteReady=false,_remoteSyncErrorShown=false,_hydratingRemote=false,_remoteSnapshotUpdatedAt=null,_remoteConflictShown=false,_authWatchdogInit=false;
 let S;
@@ -1455,11 +1456,22 @@ function getSupa(){
   }
   return _supa;
 }
+function readStoredSessionSnapshot(){
+  try{
+    const raw=localStorage.getItem(SUPABASE_AUTH_STORAGE_KEY);
+    if(!raw) return null;
+    const parsed=JSON.parse(raw);
+    const session=parsed?.currentSession||parsed?.session||parsed;
+    return session?.access_token && session?.user ? session : null;
+  }catch{return null;}
+}
 async function getSessionSafe(){
+  const stored=readStoredSessionSnapshot();
+  if(stored) return stored;
   try{
     const client=getSupa();
     if(!client) return null;
-    const {data,error}=await client.auth.getSession();
+    const {data,error}=await withTimeout(client.auth.getSession(),2500,'Validação de sessão');
     if(error || !data?.session) return null;
     return data.session;
   }catch{return null;}
@@ -4786,10 +4798,19 @@ function renderBootstrap(){
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded', async()=>{
   resetTransientUi();
-  const session = await safeInvoke('Validação de sessão', ()=>checkAuthAndRedirect(), null);
+  const storedSession=readStoredSessionSnapshot();
+  if(storedSession) renderBootstrap();
+  let session=null;
+  try{
+    session=await withTimeout(checkAuthAndRedirect(),3500,'Validação de sessão');
+  }catch(err){
+    logUiError('Validação de sessão',err);
+    session=storedSession;
+    if(!session){ window.location.replace('index.html'); return; }
+  }
   if(!session) return;
   safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
-  renderBootstrap();
+  if(!storedSession) renderBootstrap();
   setTimeout(async()=>{
     const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
     const hybridLoaded = await safeInvoke('Leitura híbrida relacional', ()=>orgHybridLoadRelationalSlices(), {loaded:false});

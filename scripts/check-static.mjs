@@ -61,6 +61,12 @@ check(index.includes("await loadRuntimeScript('pdfjs')"), 'PDF.js é carregado s
 check(!organizational.includes('rows.push({act,entry:null})'), 'Planejamento mensal não cria linhas vazias');
 check(organizational.includes('plan-empty-state'), 'Planejamento mensal possui estado vazio orientado à ação');
 check(organizational.includes('openPlanForEmployer'), 'Planejamento mantém inclusão rápida por empregador');
+check(organizational.includes('readStoredSessionSnapshot'), 'Organizacional inicia pela sessão local sem travar a interface');
+check(/getSession\(\),2500/.test(organizational), 'Organizacional limita a espera da autenticação');
+const sharedCss = fs.readFileSync('assets/t4-ui.css', 'utf8');
+check(sharedCss.includes('@media(max-height:980px)'), 'Barra lateral responde à altura e ao zoom');
+check(sharedCss.includes('@media(max-width:1100px)'), 'Barra lateral compacta em largura reduzida');
+check(/overflow-y:auto!important/.test(sharedCss), 'Barra lateral permanece rolável');
 
 const legacy = fs.readFileSync('talents.html', 'utf8');
 check(!legacy.includes('docs.google.com/spreadsheets'), 'painel legado não expõe planilha pública');

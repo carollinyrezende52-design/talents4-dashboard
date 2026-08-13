@@ -82,6 +82,7 @@ html[data-t4-module="crm"] #sidebar,
 html[data-t4-module="organizacional"] .sb,
 html[data-t4-module="alemao"] .sidebar{
   width:232px!important;min-width:232px!important;background:rgba(248,251,255,.98)!important;border-right:1px solid var(--t4-line)!important;
+  height:100vh!important;height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;
   box-shadow:7px 0 25px rgba(26,47,74,.035)!important;color:var(--t4-text)!important;
 }
 html[data-t4-module="crm"] #sidebar::before{height:3px!important;background:linear-gradient(90deg,var(--t4-primary),#4f8df7 62%,var(--t4-teal))!important}
@@ -273,7 +274,38 @@ body.t4-ui-ready *::-webkit-scrollbar{width:9px;height:9px}
 body.t4-ui-ready *::-webkit-scrollbar-thumb{background:#b8c6d8;border:2px solid transparent;border-radius:999px;background-clip:padding-box}
 body.t4-ui-ready *::-webkit-scrollbar-thumb:hover{background:#91a4bb;background-clip:padding-box}
 
-@media(max-width:900px){
+/* O navegador recalcula estas faixas com o zoom. A interface responde ao espaço
+   útil disponível, sem depender de uma detecção imprecisa do percentual. */
+@media(max-height:980px) and (min-width:1101px){
+  html[data-t4-module="crm"] .logo,
+  html[data-t4-module="organizacional"] .sb-logo,
+  html[data-t4-module="alemao"] .brand{min-height:64px!important;padding:11px 14px!important}
+  html[data-t4-module="crm"] .nav-sec{padding:9px 16px 4px!important}
+  html[data-t4-module="organizacional"] .sb-section{padding-top:8px!important}
+  html[data-t4-module="alemao"] .nav-section{padding-top:10px!important}
+  html[data-t4-module="crm"] .nav-item,
+  html[data-t4-module="organizacional"] .sb-item,
+  html[data-t4-module="alemao"] .nav-item{min-height:34px!important;padding-top:3px!important;padding-bottom:3px!important;margin-top:1px!important;margin-bottom:1px!important;font-size:11px!important}
+  html[data-t4-module="crm"] .nav-item .ico,
+  html[data-t4-module="alemao"] .nav-icon,
+  html[data-t4-module="organizacional"] .sb-item svg{width:25px!important;height:25px!important;min-width:25px!important;padding:5px!important}
+  html[data-t4-module="organizacional"] .sb-divider{margin-top:5px!important;margin-bottom:5px!important}
+  html[data-t4-module="crm"] .sidebar-bottom{padding:6px 8px!important}
+}
+@media(max-height:760px) and (min-width:1101px){
+  html[data-t4-module="crm"] #sidebar,
+  html[data-t4-module="organizacional"] .sb,
+  html[data-t4-module="alemao"] .sidebar{width:204px!important;min-width:204px!important}
+  html[data-t4-module="crm"]{--sidebar:204px!important}
+  html[data-t4-module="alemao"] .main{margin-left:204px!important;width:calc(100% - 204px)!important}
+  html[data-t4-module="crm"] .nav-sec,
+  html[data-t4-module="organizacional"] .sb-label,
+  html[data-t4-module="alemao"] .nav-label{font-size:8.5px!important}
+  html[data-t4-module="crm"] .nav-item,
+  html[data-t4-module="organizacional"] .sb-item,
+  html[data-t4-module="alemao"] .nav-item{min-height:31px!important;font-size:10.2px!important}
+}
+@media(max-width:1100px){
   html[data-t4-module="crm"]{--sidebar:76px!important}
   html[data-t4-module="crm"] #sidebar,
   html[data-t4-module="organizacional"] .sb,
@@ -287,6 +319,17 @@ body.t4-ui-ready *::-webkit-scrollbar-thumb:hover{background:#91a4bb;background-
   html[data-t4-module="organizacional"] .sb-logo{display:flex!important;justify-content:center!important;padding-inline:12px!important}
   html[data-t4-module="organizacional"] .sb-emp-add{font-size:0!important;justify-content:center!important;padding:8px!important;margin-inline:10px!important}
   html[data-t4-module="organizacional"] .sb-emp-add svg{width:18px!important;height:18px!important;margin:0!important}
+  html[data-t4-module="crm"] .sidebar-bottom{padding:6px!important}
+  html[data-t4-module="crm"] .sidebar-bottom>.btn{width:44px!important;min-width:44px!important;margin-inline:auto!important;font-size:0!important;padding:6px!important}
+  html[data-t4-module="crm"] .sidebar-bottom>.btn::before{content:"+";font-size:18px;line-height:1}
+  html[data-t4-module="crm"] .user-pill{justify-content:center!important;padding:6px!important}
+  html[data-t4-module="crm"] .user-pill>div:not(.user-av),
+  html[data-t4-module="crm"] .user-pill>button{display:none!important}
+  html[data-t4-module="alemao"] .switch-link{justify-content:center!important;padding:7px!important}
+  html[data-t4-module="alemao"] .switch-link span:not(.nav-icon),
+  html[data-t4-module="alemao"] .user-card>div:not(.avatar){display:none!important}
+  html[data-t4-module="alemao"] .switch-link .nav-icon{display:grid!important}
+  html[data-t4-module="alemao"] .user-card{justify-content:center!important;padding:7px!important}
   html[data-t4-module="crm"] .nav-item,
   html[data-t4-module="organizacional"] .sb-item,
   html[data-t4-module="alemao"] .nav-item{font-size:0!important;justify-content:center!important;padding:6px!important;margin-inline:10px!important}
