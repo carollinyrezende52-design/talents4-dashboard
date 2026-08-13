@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-t4-module="crm">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>T4 Operations — CRM Enterprise</title>
+<meta name="theme-color" content="#1d4ed8">
+<title>Talents 4 — CRM Institucional</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/t4-ui.css">
+<script src="assets/t4-ui.js" defer></script>
 <style>
 /* ══════════════════════════════════ TOKENS ══════════════════════════════════ */
 :root{
@@ -851,16 +855,6 @@ a{color:inherit;text-decoration:none}
    V9.0 — MICROINTERAÇÕES, SKELETONS, PERMISSÕES, IDENTIDADE
 ══════════════════════════════════════════════════════════════ */
 
-/* ── Saudação alemã no topbar ── */
-.de-greeting {
-  font-size: 11px;
-  color: var(--txt3);
-  font-style: italic;
-  letter-spacing: .02em;
-  transition: opacity .4s;
-}
-.de-greeting strong { color: var(--gold); font-style: normal; font-weight: 600; }
-
 /* ── Fade-in staggered para cards do dashboard ── */
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -935,22 +929,6 @@ a{color:inherit;text-decoration:none}
   top: 6px; right: 8px;
   font-size: 11px;
   opacity: .6;
-}
-
-/* ── Toast premium (wunderbar) ── */
-.toast-wunderbar {
-  border-color: var(--gold) !important;
-  background: linear-gradient(135deg, var(--bg2) 0%, rgba(245,192,0,.06) 100%) !important;
-}
-.toast-wunderbar #t-ico { color: var(--gold); }
-
-/* ── Confetti canvas ── */
-#confetti-canvas {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 9990;
 }
 
 /* ── Agenda loading state ── */
@@ -2302,9 +2280,6 @@ details.bi-secondary {
 
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -2329,7 +2304,7 @@ details.bi-secondary {
         <label class="login-label">Senha</label>
         <input class="login-input" type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;font-size:14px;font-weight:700" onclick="doLogin()" id="li-btn">Entrar no Sistema</button>
+      <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;font-size:14px;font-weight:700" onclick="doLogin()" id="li-btn">Entrar no Sistema</button>
       <div class="login-err" id="li-err">Usuário ou senha incorretos.</div>
       <div class="login-footer">T4 Operations v8.0<br><span style="color:var(--txt3)">Plataforma operacional interna</span></div>
     </div>
@@ -2362,20 +2337,20 @@ details.bi-secondary {
       <span class="ico">
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" style="display:block"><path fill="currentColor" d="M16 3h5v5h-2V6.41l-4.29 4.3-1.42-1.42 4.3-4.29H16V3Zm-8 18H3v-5h2v1.59l4.29-4.3 1.42 1.42-4.3 4.29H8V21Zm11-8h2v8h-8v-2h6v-6ZM3 3h8v2H5v6H3V3Z"/></svg>
       </span>
-      Switch para Curso de Alemão
+      Curso de Alemão
     </div>
     <div class="nav-item" onclick="window.location.href='organizacional.html'" data-v="organizacional_switch">
       <span class="ico">
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" style="display:block"><path fill="currentColor" d="M16 3h5v5h-2V6.41l-4.29 4.3-1.42-1.42 4.3-4.29H16V3Zm-8 18H3v-5h2v1.59l4.29-4.3 1.42 1.42-4.3 4.29H8V21Zm11-8h2v8h-8v-2h6v-6ZM3 3h8v2H5v6H3V3Z"/></svg>
       </span>
-      Switch para Organizacional
+      Organizacional
     </div>
     <div class="sidebar-bottom">
-      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;padding:9px 12px;font-size:12px" onclick="openNewCandidate()">+ Novo Candidato</button>
+      <button type="button" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;padding:9px 12px;font-size:12px" onclick="openNewCandidate()">+ Novo Candidato</button>
       <div class="user-pill">
         <div class="user-av" id="user-av">?</div>
         <div style="flex:1;min-width:0"><div class="user-name" id="user-name">—</div><div class="user-role" id="user-role">—</div></div>
-        <button class="btn btn-xs btn-ghost" style="margin-left:auto" onclick="doLogout()" title="Sair">↩</button>
+        <button type="button" class="btn btn-xs btn-ghost" style="margin-left:auto" onclick="doLogout()" title="Sair">↩</button>
       </div>
     </div>
   </nav>
@@ -2383,7 +2358,6 @@ details.bi-secondary {
   <div id="main">
     <div id="topbar">
       <div class="tb-title" id="tb-title">Dashboard BI</div>
-      <div class="de-greeting" id="de-greeting"></div>
       <div class="tb-space"></div>
       <div class="search-wrap" id="search-wrap" style="display:none">
         <span style="color:var(--txt3);font-size:13px">⌕</span>
@@ -2395,17 +2369,17 @@ details.bi-secondary {
         <span style="color:var(--gold);font-size:12px">✦</span>
         <input type="text" placeholder="ex: enfermeiros com B2..." id="nlp-search-input"
                oninput="applyNlpSearch(this.value)" autocomplete="off">
-        <button style="font-size:10px;color:var(--txt3);padding:0 2px" title="Limpar busca inteligente"
+        <button type="button" style="font-size:10px;color:var(--txt3);padding:0 2px" title="Limpar busca inteligente"
                 onclick="document.getElementById('nlp-search-input').value='';applyNlpSearch('')">✕</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt3)" id="sync-status">
         <div class="sync-dot" id="sync-dot"></div>
         <span id="sync-lbl">sincronizado</span>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="forceSync()" title="Sincronizar dados">↻ Sync</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="forceSync()" title="Sincronizar dados">↻ Sync</button>
       <div class="topbar-utility">
-        <button class="btn btn-ghost btn-sm" id="btn-clear-workspace" onclick="clearInstitutionalWorkspaceState()" title="Limpar filtros e contexto operacional">✕ Limpar</button>
-        <button class="btn btn-ghost btn-sm" id="btn-dense-mode" onclick="toggleInstitutionalDenseMode()" title="Alternar modo denso">▤ Denso</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-clear-workspace" onclick="clearInstitutionalWorkspaceState()" title="Limpar filtros e contexto operacional">✕ Limpar</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-dense-mode" onclick="toggleInstitutionalDenseMode()" title="Alternar modo denso">▤ Denso</button>
       </div>
     </div>
     <div id="admin-mfa-banner" class="admin-mfa-banner"></div>
@@ -2422,14 +2396,14 @@ details.bi-secondary {
         <div class="modal-title" id="cm-name">—</div>
         <div class="modal-meta-row" id="cm-meta"></div>
       </div>
-      <button class="btn btn-sm btn-ghost" id="cm-rh-btn" onclick="triggerRhDocImport()" title="Preencher entrevista e análise RH a partir do formulário DOCX" style="gap:5px">
+      <button type="button" class="btn btn-sm btn-ghost" id="cm-rh-btn" onclick="triggerRhDocImport()" title="Preencher entrevista e análise RH a partir do formulário DOCX" style="gap:5px">
         📄 Formulário RH
       </button>
-      <button class="btn btn-sm btn-ghost" id="cm-pdf-btn" onclick="downloadCandidatePdf()" title="Baixar dossiê do candidato em PDF" style="gap:5px">
+      <button type="button" class="btn btn-sm btn-ghost" id="cm-pdf-btn" onclick="downloadCandidatePdf()" title="Baixar dossiê do candidato em PDF" style="gap:5px">
         🧾 PDF
       </button>
       <input type="file" id="cm-rh-docx-input" accept=".docx" style="display:none" onchange="handleRhDocxFile(this)">
-      <button class="modal-close" onclick="closeCand()">✕</button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeCand()">✕</button>
     </div>
     <div id="cm-tabs" class="detail-tabs"></div>
     <div id="cm-summary" class="ops-summary" style="display:none"></div>
@@ -2438,11 +2412,11 @@ details.bi-secondary {
     <div id="cm-hist" class="hist-block" style="display:none"></div>
     <div class="modal-body" id="cm-body" style="padding:0"></div>
     <div class="modal-footer">
-      <button class="btn btn-primary" id="cm-save" onclick="saveCandidate()">💾 Salvar</button>
-      <button class="btn btn-ghost" onclick="closeCand()">Fechar</button>
+      <button type="button" class="btn btn-primary" id="cm-save" onclick="saveCandidate()">💾 Salvar</button>
+      <button type="button" class="btn btn-ghost" onclick="closeCand()">Fechar</button>
       <div style="flex:1"></div>
       <span id="cm-last-updated" style="font-size:10.5px;color:var(--txt3);font-family:var(--mono);align-self:center"></span>
-      <button class="btn btn-sm" id="cm-active-btn" onclick="toggleActive()"></button>
+      <button type="button" class="btn btn-sm" id="cm-active-btn" aria-label="Alterar status do candidato" onclick="toggleActive()"></button>
     </div>
   </div>
 </div>
@@ -2453,33 +2427,33 @@ details.bi-secondary {
     <div class="modal-hdr">
       <div class="modal-av" style="background:var(--green-bg);color:var(--green)">+</div>
       <div style="flex:1"><div class="modal-title">Novo Candidato</div><div style="font-size:12px;color:var(--txt3)">Somente o nome é necessário</div></div>
-      <button class="btn btn-sm btn-ghost" id="n-cv-btn" onclick="triggerCurriculumImport()" title="Preencher campos a partir de um PDF de currículo" style="gap:5px">
+      <button type="button" class="btn btn-sm btn-ghost" id="n-cv-btn" onclick="triggerCurriculumImport()" title="Preencher campos a partir de um PDF de currículo" style="gap:5px">
         📎 Currículo PDF
       </button>
       <input type="file" id="n-pdf-input" accept=".pdf" style="display:none" onchange="handleCurriculumFile(this)">
-      <button class="modal-close" onclick="closeNew()">✕</button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeNew()">✕</button>
     </div>
     <div class="modal-body" style="padding:16px 22px 20px;overflow-y:auto">
       <div id="n-cv-status" style="display:none;margin:-4px -22px 14px;padding:0 22px 12px;border-bottom:1px solid var(--border)"></div>
       <div class="field-grid">
-        <div class="field-group fg-full"><label class="field-lbl">Nome completo *</label><input class="field-input" id="n-nome" placeholder="Nome completo" autocomplete="off"></div>
+        <div class="field-group fg-full"><label class="field-lbl">Nome completo *</label><input type="text" class="field-input" id="n-nome" placeholder="Nome completo" autocomplete="off"></div>
         <div class="field-group"><label class="field-lbl">E-mail</label><input class="field-input" id="n-email" type="email" placeholder="email@exemplo.com" autocomplete="off"></div>
-        <div class="field-group"><label class="field-lbl">Telefone</label><input class="field-input" id="n-tel" placeholder="+55 11 99999-9999" autocomplete="off"></div>
-        <div class="field-group"><label class="field-lbl">País de origem</label><input class="field-input" id="n-pais" placeholder="Brasil" value="BRASIL" autocomplete="off"></div>
-        <div class="field-group"><label class="field-lbl">Cidade atual</label><input class="field-input" id="n-cidade" placeholder="São Paulo - SP" autocomplete="off"></div>
-        <div class="field-group"><label class="field-lbl">Área profissional</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-area" onchange="markNewTaxonomySelection('area')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','area',this)" title="Buscar área">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('area')" title="Adicionar nova área">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" id="n-area-search" placeholder="Digite para filtrar áreas" oninput="filterNewTaxonomySelect('area')"></div><div class="field-taxonomy-hint">Selecione uma área oficial. Se não existir, clique em + para sugerir nova.</div></div></div>
-        <div class="field-group"><label class="field-lbl">Profissão</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-prof" onchange="markNewTaxonomySelection('profession')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','profession',this)" title="Buscar profissão">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('profession')" title="Adicionar nova profissão">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" id="n-prof-search" placeholder="Digite para filtrar profissões" oninput="filterNewTaxonomySelect('profession')"></div><div class="field-taxonomy-hint">Filtrada pela área escolhida. Use a busca para localizar mais rápido.</div></div></div>
-        <div class="field-group"><label class="field-lbl">Subárea</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-subarea" onchange="markNewTaxonomySelection('subarea')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','subarea',this)" title="Buscar subárea">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('subarea')" title="Adicionar nova subárea">+</button></div><div class="field-taxonomy-search-wrap"><input class="field-input field-taxonomy-search" id="n-subarea-search" placeholder="Digite para filtrar subáreas" oninput="filterNewTaxonomySelect('subarea')"></div><div class="field-taxonomy-hint">Opcional. A lista acompanha a profissão selecionada.</div></div></div>
+        <div class="field-group"><label class="field-lbl">Telefone</label><input type="text" class="field-input" id="n-tel" placeholder="+55 11 99999-9999" autocomplete="off"></div>
+        <div class="field-group"><label class="field-lbl">País de origem</label><input type="text" class="field-input" id="n-pais" placeholder="Brasil" value="BRASIL" autocomplete="off"></div>
+        <div class="field-group"><label class="field-lbl">Cidade atual</label><input type="text" class="field-input" id="n-cidade" placeholder="São Paulo - SP" autocomplete="off"></div>
+        <div class="field-group"><label class="field-lbl">Área profissional</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-area" onchange="markNewTaxonomySelection('area')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','area',this)" title="Buscar área">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('area')" title="Adicionar nova área">+</button></div><div class="field-taxonomy-search-wrap"><input type="text" class="field-input field-taxonomy-search" id="n-area-search" placeholder="Digite para filtrar áreas" oninput="filterNewTaxonomySelect('area')"></div><div class="field-taxonomy-hint">Selecione uma área oficial. Se não existir, clique em + para sugerir nova.</div></div></div>
+        <div class="field-group"><label class="field-lbl">Profissão</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-prof" onchange="markNewTaxonomySelection('profession')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','profession',this)" title="Buscar profissão">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('profession')" title="Adicionar nova profissão">+</button></div><div class="field-taxonomy-search-wrap"><input type="text" class="field-input field-taxonomy-search" id="n-prof-search" placeholder="Digite para filtrar profissões" oninput="filterNewTaxonomySelect('profession')"></div><div class="field-taxonomy-hint">Filtrada pela área escolhida. Use a busca para localizar mais rápido.</div></div></div>
+        <div class="field-group"><label class="field-lbl">Subárea</label><div class="field-taxonomy"><div class="field-select-wrap"><select class="field-select" id="n-subarea" onchange="markNewTaxonomySelection('subarea')"><option value="">Selecionar</option></select><button type="button" class="field-select-searchbtn" onclick="toggleTaxonomySearch('new','subarea',this)" title="Buscar subárea">⌕</button><button type="button" class="field-select-add" onclick="requestTaxonomyOption('subarea')" title="Adicionar nova subárea">+</button></div><div class="field-taxonomy-search-wrap"><input type="text" class="field-input field-taxonomy-search" id="n-subarea-search" placeholder="Digite para filtrar subáreas" oninput="filterNewTaxonomySelect('subarea')"></div><div class="field-taxonomy-hint">Opcional. A lista acompanha a profissão selecionada.</div></div></div>
         <div class="field-group"><label class="field-lbl">Nível de alemão</label><div class="field-select-wrap"><select class="field-select" id="n-alemao"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="quickAddEnum('Nível de alemão',this,'n-alemao')">+</button></div></div>
         <div class="field-group"><label class="field-lbl">Status inicial</label><div class="field-select-wrap"><select class="field-select" id="n-status"><option value="">Selecionar</option></select><button type="button" class="field-select-add" onclick="quickAddEnum('STATUS PIPELINE',this,'n-status')">+</button></div></div>
-        <div class="field-group"><label class="field-lbl">Referência / Origem</label><input class="field-input" id="n-origem" placeholder="Instagram, Indicação..."></div>
-        <div class="field-group"><label class="field-lbl">Responsável</label><input class="field-input" id="n-resp" placeholder="Nome do responsável"></div>
+        <div class="field-group"><label class="field-lbl">Referência / Origem</label><input type="text" class="field-input" id="n-origem" placeholder="Instagram, Indicação..."></div>
+        <div class="field-group"><label class="field-lbl">Responsável</label><input type="text" class="field-input" id="n-resp" placeholder="Nome do responsável"></div>
         <div class="field-group fg-full"><label class="field-lbl">Observação</label><textarea class="field-textarea" id="n-obs" placeholder="Observações..." style="min-height:50px"></textarea></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" id="n-btn" onclick="submitNew()">✓ Criar Candidato</button>
-      <button class="btn btn-ghost" onclick="closeNew()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="n-btn" onclick="submitNew()">✓ Criar Candidato</button>
+      <button type="button" class="btn btn-ghost" onclick="closeNew()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -2490,14 +2464,14 @@ details.bi-secondary {
     <div class="modal-hdr">
       <div class="modal-av">👤</div>
       <div style="flex:1"><div class="modal-title" id="um-title">Novo Usuário</div></div>
-      <button class="modal-close" onclick="closeUserModal()">✕</button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeUserModal()">✕</button>
     </div>
     <div class="modal-body" style="padding:16px 22px 20px">
       <div class="field-grid">
-        <div class="field-group fg-full"><label class="field-lbl">Nome completo</label><input class="field-input" id="um-nome" placeholder="Nome do colaborador"></div>
-        <div class="field-group fg-full"><label class="field-lbl">Usuário (login) *</label><input class="field-input" id="um-user" placeholder="usuario"></div>
-        <div class="field-group"><label class="field-lbl">Senha *</label><input class="field-input" type="password" id="um-pass" placeholder="Mínimo 10 caracteres"></div>
-        <div class="field-group"><label class="field-lbl">Confirmar senha</label><input class="field-input" type="password" id="um-pass2" placeholder="Repetir senha"></div>
+        <div class="field-group fg-full"><label class="field-lbl">Nome completo</label><input type="text" class="field-input" id="um-nome" placeholder="Nome do colaborador"></div>
+        <div class="field-group fg-full"><label class="field-lbl">Usuário (login) *</label><input class="field-input" type="text" id="um-user" placeholder="usuario" autocomplete="username"></div>
+        <div class="field-group"><label class="field-lbl">Senha *</label><input class="field-input" type="password" id="um-pass" placeholder="Mínimo 10 caracteres" autocomplete="new-password"></div>
+        <div class="field-group"><label class="field-lbl">Confirmar senha</label><input class="field-input" type="password" id="um-pass2" placeholder="Repetir senha" autocomplete="new-password"></div>
         <div class="field-group fg-full"><label class="field-lbl">Perfil de acesso</label>
           <select class="field-select" id="um-role">
             <option value="admin">Administrador (acesso total)</option>
@@ -2509,8 +2483,8 @@ details.bi-secondary {
       <div id="um-err" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" onclick="saveUser()">Salvar Usuário</button>
-      <button class="btn btn-ghost" onclick="closeUserModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="saveUser()">Salvar Usuário</button>
+      <button type="button" class="btn btn-ghost" onclick="closeUserModal()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -2524,7 +2498,7 @@ details.bi-secondary {
         <div class="modal-title" id="mfa-title">Segurança adicional para administrador</div>
         <div style="font-size:12px;color:var(--txt3)" id="mfa-subtitle">Configure ou valide o app autenticador para liberar ações administrativas.</div>
       </div>
-      <button class="modal-close" onclick="closeMfaOverlay(true)">✕</button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeMfaOverlay(true)">✕</button>
     </div>
     <div class="modal-body" style="padding:16px 22px 20px;overflow-y:auto">
       <div id="mfa-alert" style="font-size:12px;color:var(--txt3);margin-bottom:14px"></div>
@@ -2537,7 +2511,7 @@ details.bi-secondary {
             <div class="mfa-secret" id="mfa-secret">—</div>
             <div class="field-group fg-full" style="margin-top:12px">
               <label class="field-lbl">Código do autenticador</label>
-              <input class="field-input" id="mfa-code-setup" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
+              <input type="text" class="field-input" id="mfa-code-setup" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
             </div>
           </div>
         </div>
@@ -2546,7 +2520,7 @@ details.bi-secondary {
         <div class="mfa-status-list" id="mfa-factor-list"></div>
         <div class="field-group fg-full" style="margin-top:14px">
           <label class="field-lbl">Código do autenticador</label>
-          <input class="field-input" id="mfa-code-verify" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
+          <input type="text" class="field-input" id="mfa-code-verify" inputmode="numeric" autocomplete="one-time-code" placeholder="000000">
         </div>
       </div>
       <div id="mfa-manage-view" style="display:none">
@@ -2555,22 +2529,17 @@ details.bi-secondary {
       <div id="mfa-err" style="color:var(--red);font-size:12px;margin-top:10px;display:none"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" id="mfa-primary-btn" onclick="handleMfaPrimaryAction()">Continuar</button>
-      <button class="btn btn-ghost" id="mfa-secondary-btn" onclick="handleMfaSecondaryAction()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="mfa-primary-btn" onclick="handleMfaPrimaryAction()">Continuar</button>
+      <button type="button" class="btn btn-ghost" id="mfa-secondary-btn" onclick="handleMfaSecondaryAction()">Cancelar</button>
     </div>
   </div>
 </div>
-
-<!-- CONFETTI -->
-<canvas id="confetti-canvas" style="display:none"></canvas>
 
 <!-- TOAST -->
 <div class="toast" id="toast"><span id="t-ico">✓</span><span id="t-msg"></span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIG
@@ -2631,11 +2600,67 @@ const SYNC_INTERVAL = 300000;
 
 // ── Supabase client ──
 let _supa = null;
+let _supaPromise = null;
 async function getSupa() {
   if (_supa) return _supa;
-  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-  _supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  return _supa;
+  if (_supaPromise) return _supaPromise;
+  _supaPromise = import('https://esm.sh/@supabase/supabase-js@2.112.3')
+    .then(({ createClient }) => {
+      _supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+      });
+      return _supa;
+    })
+    .catch(error => {
+      _supaPromise = null;
+      throw error;
+    });
+  return _supaPromise;
+}
+
+const RUNTIME_SCRIPTS = Object.freeze({
+  mammoth: {
+    src:'https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js',
+    ready:() => typeof window.mammoth !== 'undefined'
+  },
+  xlsx: {
+    src:'https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js',
+    ready:() => typeof window.XLSX !== 'undefined'
+  },
+  html2pdf: {
+    src:'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+    ready:() => typeof window.html2pdf !== 'undefined'
+  },
+  pdfjs: {
+    src:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    ready:() => typeof window.pdfjsLib !== 'undefined'
+  },
+  googleIdentity: {
+    src:'https://accounts.google.com/gsi/client',
+    ready:() => !!window.google?.accounts?.oauth2
+  }
+});
+const _runtimeScriptPromises = new Map();
+function loadRuntimeScript(name) {
+  const config = RUNTIME_SCRIPTS[name];
+  if (!config) return Promise.reject(new Error(`Dependência desconhecida: ${name}`));
+  if (config.ready()) return Promise.resolve();
+  if (_runtimeScriptPromises.has(name)) return _runtimeScriptPromises.get(name);
+  const promise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = config.src;
+    script.async = true;
+    script.dataset.t4Runtime = name;
+    script.onload = () => config.ready() ? resolve() : reject(new Error(`A dependência ${name} não inicializou.`));
+    script.onerror = () => reject(new Error(`Não foi possível carregar ${name}. Verifique a conexão.`));
+    document.head.appendChild(script);
+  }).catch(error => {
+    _runtimeScriptPromises.delete(name);
+    document.querySelector(`script[data-t4-runtime="${name}"]`)?.remove();
+    throw error;
+  });
+  _runtimeScriptPromises.set(name, promise);
+  return promise;
 }
 
 async function invokeAdminUserLifecycle(action, payload) {
@@ -2732,7 +2757,6 @@ const DEFAULT_USERS = [
 ];
 
 function getUsers()    { return (Array.isArray(S.users) && S.users.length) ? S.users : DEFAULT_USERS; }
-function saveUsers(_)  { /* usuários gerenciados pelo Supabase Auth */ }
 function getSession()  { try { return JSON.parse(sessionStorage.getItem('t4_session') || 'null'); } catch { return null; } }
 function setSession(u) { try { sessionStorage.setItem('t4_session', JSON.stringify(u)); } catch(_) {} }
 function clearSession(){ try { sessionStorage.removeItem('t4_session'); } catch(_) {} }
@@ -2941,7 +2965,7 @@ function renderAdminMfaBanner() {
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <div class="admin-mfa-chip">${mfa.currentLevel === 'aal2' ? 'AAL2 ativo' : 'AAL1'}</div>
-      <button class="btn btn-sm btn-primary" onclick="openAdminMfaFlow()">${hasFactor ? 'Validar MFA' : 'Configurar MFA'}</button>
+      <button type="button" class="btn btn-sm btn-primary" onclick="openAdminMfaFlow()">${hasFactor ? 'Validar MFA' : 'Configurar MFA'}</button>
     </div>`;
 }
 function requireAdminMfa() {
@@ -3159,17 +3183,6 @@ async function handleMfaPrimaryAction() {
 }
 function handleMfaSecondaryAction() {
   closeMfaOverlay(true);
-}
-
-// Carrega perfis de usuário (sem senhas — auth é do Supabase)
-async function fetchUsersForAuth() {
-  try {
-    const resp = await apiGet({ route:'users' });
-    const users = Array.isArray(resp.users) ? resp.users : [];
-    if (users.length) { S.users = users; return users; }
-  } catch(e) { console.warn('[Auth] Falha ao carregar perfis de usuário:', e.message); }
-  S.users = DEFAULT_USERS;
-  return DEFAULT_USERS;
 }
 
 async function doLogin() {
@@ -4003,7 +4016,8 @@ function _driveGetClient() {
 }
 
 // Obtém token válido — abre popup GIS se necessário
-function driveGetToken() {
+async function driveGetToken() {
+  await loadRuntimeScript('googleIdentity');
   return new Promise((resolve, reject) => {
     if (_drive.token && Date.now() < _drive.expiry - 60000) {
       console.log('[Drive] Token válido em cache, expira em', Math.round((_drive.expiry - Date.now()) / 1000) + 's');
@@ -4339,9 +4353,9 @@ function _driveUpdateSettingsUI() {
   if (!el) return;
   el.innerHTML = driveIsConnected()
     ? `<span style="color:var(--green)">✓ Drive autorizado</span>
-       <button class="btn btn-xs btn-ghost" onclick="driveSignOut()" style="margin-left:8px">Desconectar</button>`
+       <button type="button" class="btn btn-xs btn-ghost" onclick="driveSignOut()" style="margin-left:8px">Desconectar</button>`
     : `<span style="color:var(--txt3)">Não conectado</span>
-       <button class="btn btn-xs btn-ghost" onclick="driveGetToken().then(_driveUpdateSettingsUI).catch(e=>toast('❌ '+e.message,'err'))" style="margin-left:8px">Conectar agora</button>`;
+       <button type="button" class="btn btn-xs btn-ghost" onclick="driveGetToken().then(_driveUpdateSettingsUI).catch(e=>toast('❌ '+e.message,'err'))" style="margin-left:8px">Conectar agora</button>`;
 }
 
 function syncTopbarSearchInputs() {
@@ -4439,7 +4453,6 @@ async function startRealtime() {
 async function initApp() {
   setSyncStatus('loading');
   populateNewForm();
-  initGermanGreeting();
   try {
     await loadAll();
     populateNewForm();
@@ -5788,11 +5801,11 @@ function renderDashboard(el) {
         </div>
 
         <div class="bi-scope-row">
-          <button class="bi-scope-btn ${currentScope==='all'?'active':''}" onclick="dashboardSetScope('all')">Geral</button>
-          <button class="bi-scope-btn ${currentScope==='talents'?'active':''}" onclick="dashboardSetScope('talents')">Talentos</button>
-          <button class="bi-scope-btn ${currentScope==='employers'?'active':''}" onclick="dashboardSetScope('employers')">Employers</button>
-          <button class="bi-scope-btn ${currentScope==='course'?'active':''}" onclick="dashboardSetScope('course')">Curso de alemão</button>
-          <button class="bi-scope-btn ${currentScope==='rh'?'active':''}" onclick="dashboardSetScope('rh')">RH readiness</button>
+          <button type="button" class="bi-scope-btn ${currentScope==='all'?'active':''}" onclick="dashboardSetScope('all')">Geral</button>
+          <button type="button" class="bi-scope-btn ${currentScope==='talents'?'active':''}" onclick="dashboardSetScope('talents')">Talentos</button>
+          <button type="button" class="bi-scope-btn ${currentScope==='employers'?'active':''}" onclick="dashboardSetScope('employers')">Employers</button>
+          <button type="button" class="bi-scope-btn ${currentScope==='course'?'active':''}" onclick="dashboardSetScope('course')">Curso de alemão</button>
+          <button type="button" class="bi-scope-btn ${currentScope==='rh'?'active':''}" onclick="dashboardSetScope('rh')">RH readiness</button>
         </div>
 
         <div class="bi-exec-strip" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px">
@@ -6725,28 +6738,28 @@ function openEmployerModal(employerData = null) {
         <input type="hidden" id="em-id" value="${esc(d.id||'')}">
         <div class="emp-form-grid">
           <div class="emp-form-sec">Identificação</div>
-          <div class="emp-field full"><label class="emp-label">Nome *</label><input class="emp-input" id="em-nome" value="${esc(d.nome||'')}" placeholder="Nome do empregador"></div>
+          <div class="emp-field full"><label class="emp-label">Nome *</label><input type="text" class="emp-input" id="em-nome" value="${esc(d.nome||'')}" placeholder="Nome do empregador"></div>
           <div class="emp-field"><label class="emp-label">Tipo</label><select class="emp-fselect" id="em-tipo"><option value="">Selecionar...</option>${sel(tipoOpts,'tipo')}</select></div>
           <div class="emp-field"><label class="emp-label">Status</label><select class="emp-fselect" id="em-status"><option value="">Selecionar...</option>${sel(statusOpts,'status')}</select></div>
-          <div class="emp-field"><label class="emp-label">Área de atuação</label><input class="emp-input" id="em-area" value="${esc(d.area_atuacao||'')}" placeholder="Ex: Indústria, Saúde, Construção"></div>
-          <div class="emp-field"><label class="emp-label">Subsetor / Especialidade</label><input class="emp-input" id="em-subsetor" value="${esc(d.subsetor||'')}" placeholder="Ex: Metalurgia, CNC, Montagem"></div>
-          <div class="emp-field full"><label class="emp-label">Descrição resumida</label><input class="emp-input" id="em-desc" value="${esc(d.descricao_resumida||'')}" placeholder="Descrição curta do empregador"></div>
+          <div class="emp-field"><label class="emp-label">Área de atuação</label><input type="text" class="emp-input" id="em-area" value="${esc(d.area_atuacao||'')}" placeholder="Ex: Indústria, Saúde, Construção"></div>
+          <div class="emp-field"><label class="emp-label">Subsetor / Especialidade</label><input type="text" class="emp-input" id="em-subsetor" value="${esc(d.subsetor||'')}" placeholder="Ex: Metalurgia, CNC, Montagem"></div>
+          <div class="emp-field full"><label class="emp-label">Descrição resumida</label><input type="text" class="emp-input" id="em-desc" value="${esc(d.descricao_resumida||'')}" placeholder="Descrição curta do empregador"></div>
           <div class="emp-field full"><label class="emp-label">Descrição operacional interna</label><textarea class="emp-textarea" id="em-desc-op" placeholder="Contexto operacional interno, perfis buscados historicamente...">${esc(d.descricao_operacional||'')}</textarea></div>
 
           <div class="emp-form-sec">Localização</div>
-          <div class="emp-field"><label class="emp-label">País</label><input class="emp-input" id="em-pais" value="${esc(d.pais||'Alemanha')}" placeholder="Alemanha"></div>
-          <div class="emp-field"><label class="emp-label">Região / Estado</label><input class="emp-input" id="em-regiao" value="${esc(d.regiao||'')}" placeholder="Ex: Baden-Württemberg"></div>
-          <div class="emp-field"><label class="emp-label">Cidade</label><input class="emp-input" id="em-cidade" value="${esc(d.cidade||'')}" placeholder="Ex: Stuttgart, Freiburg"></div>
-          <div class="emp-field"><label class="emp-label">Site</label><input class="emp-input" id="em-site" value="${esc(d.site||'')}" placeholder="https://..."></div>
+          <div class="emp-field"><label class="emp-label">País</label><input type="text" class="emp-input" id="em-pais" value="${esc(d.pais||'Alemanha')}" placeholder="Alemanha"></div>
+          <div class="emp-field"><label class="emp-label">Região / Estado</label><input type="text" class="emp-input" id="em-regiao" value="${esc(d.regiao||'')}" placeholder="Ex: Baden-Württemberg"></div>
+          <div class="emp-field"><label class="emp-label">Cidade</label><input type="text" class="emp-input" id="em-cidade" value="${esc(d.cidade||'')}" placeholder="Ex: Stuttgart, Freiburg"></div>
+          <div class="emp-field"><label class="emp-label">Site</label><input type="text" class="emp-input" id="em-site" value="${esc(d.site||'')}" placeholder="https://..."></div>
 
           <div class="emp-form-sec">Contato</div>
-          <div class="emp-field"><label class="emp-label">Contato principal</label><input class="emp-input" id="em-contato" value="${esc(d.contato_principal||'')}" placeholder="Nome do contato"></div>
+          <div class="emp-field"><label class="emp-label">Contato principal</label><input type="text" class="emp-input" id="em-contato" value="${esc(d.contato_principal||'')}" placeholder="Nome do contato"></div>
           <div class="emp-field"><label class="emp-label">E-mail principal</label><input class="emp-input" id="em-email" type="email" value="${esc(d.email_principal||'')}" placeholder="contato@empresa.de"></div>
-          <div class="emp-field"><label class="emp-label">Telefone</label><input class="emp-input" id="em-tel" value="${esc(d.telefone||'')}" placeholder="+49 ..."></div>
+          <div class="emp-field"><label class="emp-label">Telefone</label><input type="text" class="emp-input" id="em-tel" value="${esc(d.telefone||'')}" placeholder="+49 ..."></div>
           <div class="emp-field"><label class="emp-label">Data último contato</label><input class="emp-input" id="em-dt-contato" type="date" value="${esc(d.data_ultimo_contato||'')}"></div>
 
           <div class="emp-form-sec">Perfil de vaga</div>
-          <div class="emp-field"><label class="emp-label">Idioma exigido</label><input class="emp-input" id="em-idioma" value="${esc(d.idioma_exigido||'')}" placeholder="Ex: Alemão, Inglês"></div>
+          <div class="emp-field"><label class="emp-label">Idioma exigido</label><input type="text" class="emp-input" id="em-idioma" value="${esc(d.idioma_exigido||'')}" placeholder="Ex: Alemão, Inglês"></div>
           <div class="emp-field"><label class="emp-label">Nível mínimo de alemão</label><select class="emp-fselect" id="em-alemao"><option value="">Selecionar...</option>${sel(alemaoOpts,'nivel_alemao_minimo')}</select></div>
           <div class="emp-field"><label class="emp-label">Vagas em aberto</label><input class="emp-input" id="em-vagas" type="number" min="0" value="${esc(String(d.vagas_abertas||0))}"></div>
           <div class="emp-field full"><label class="emp-label">Perfis buscados</label><textarea class="emp-textarea" id="em-perfis" placeholder="Descreva os perfis que o empregador busca...">${esc(d.perfis_buscados||'')}</textarea></div>
@@ -6755,14 +6768,14 @@ function openEmployerModal(employerData = null) {
 
           <div class="emp-form-sec">Comercial</div>
           <div class="emp-field"><label class="emp-label">Prioridade comercial</label><select class="emp-fselect" id="em-prio"><option value="">Selecionar...</option>${sel(prioOpts,'prioridade_comercial')}</select></div>
-          <div class="emp-field"><label class="emp-label">Origem do lead</label><input class="emp-input" id="em-origem" value="${esc(d.origem_lead||'')}" placeholder="Ex: indicação, evento, prospecção"></div>
+          <div class="emp-field"><label class="emp-label">Origem do lead</label><input type="text" class="emp-input" id="em-origem" value="${esc(d.origem_lead||'')}" placeholder="Ex: indicação, evento, prospecção"></div>
           <div class="emp-field"><label class="emp-label">Responsável interno</label>
             <select class="emp-fselect" id="em-resp">
               <option value="">Selecionar...</option>
               ${(S.users||[]).map(u => `<option value="${esc(u.nome||u.user)}" ${(d.responsavel_interno||'')===(u.nome||u.user)?'selected':''}>${esc(u.nome||u.user)}</option>`).join('')}
             </select>
           </div>
-          <div class="emp-field"><label class="emp-label">Tags (separadas por vírgula)</label><input class="emp-input" id="em-tags" value="${esc(Array.isArray(d.tags)?d.tags.join(', '):(d.tags||''))}" placeholder="Ex: construção, CNC, prioritário"></div>
+          <div class="emp-field"><label class="emp-label">Tags (separadas por vírgula)</label><input type="text" class="emp-input" id="em-tags" value="${esc(Array.isArray(d.tags)?d.tags.join(', '):(d.tags||''))}" placeholder="Ex: construção, CNC, prioritário"></div>
           <div class="emp-field full"><label class="emp-label">Observações internas</label><textarea class="emp-textarea" id="em-obs" placeholder="Notas internas sobre o empregador...">${esc(d.observacoes_internas||'')}</textarea></div>
         </div>
       </div>
@@ -7023,7 +7036,7 @@ function openMatchModal(candidatoId, matchData = null) {
           <div class="emp-field"><label class="emp-label">Elegível</label><select class="emp-fselect" id="mm-elegivel"><option value="">Não definido</option><option value="true" ${m.elegivel===true?'selected':''}>Sim</option><option value="false" ${m.elegivel===false?'selected':''}>Não</option></select></div>
           <div class="emp-field full"><label class="emp-label">Motivo do encaixe</label><textarea class="emp-textarea" id="mm-motivo" placeholder="Por que este candidato é adequado para este empregador...">${esc(m.motivo_encaixe||'')}</textarea></div>
           <div class="emp-field full"><label class="emp-label">Riscos / Ressalvas</label><textarea class="emp-textarea" id="mm-riscos" placeholder="Pontos de atenção, riscos ou ressalvas...">${esc(m.riscos_ressalvas||'')}</textarea></div>
-          <div class="emp-field full"><label class="emp-label">Próxima ação</label><input class="emp-input" id="mm-acao" value="${esc(m.proxima_acao||'')}" placeholder="Ex: Agendar entrevista, enviar CV"></div>
+          <div class="emp-field full"><label class="emp-label">Próxima ação</label><input type="text" class="emp-input" id="mm-acao" value="${esc(m.proxima_acao||'')}" placeholder="Ex: Agendar entrevista, enviar CV"></div>
           <div class="emp-field full"><label class="emp-label">Observações</label><textarea class="emp-textarea" id="mm-obs" placeholder="Notas adicionais sobre este vínculo...">${esc(m.observacoes||'')}</textarea></div>
         </div>
       </div>
@@ -7130,13 +7143,7 @@ async function exportEmployerXLSX() {
   const btn = document.getElementById('btn-export-employer-xlsx');
   if (btn) { btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
   try {
-    // Biblioteca usada no frontend:
-    // Biblioteca XLSX via CDN já deve estar carregada no HTML principal.
-    // Se você mover este export para outro HTML, copie essa linha também.
-    if (typeof XLSX === 'undefined') {
-      toast('❌ Biblioteca XLSX não carregada. Recarregue a página.', 'err');
-      return;
-    }
+    await loadRuntimeScript('xlsx');
 
     const supa = await getSupa();
 
@@ -7442,8 +7449,8 @@ function renderEmployerHub(el) {
           <div class="empty-sub">${esc(uiTranslate('Crie o primeiro empregador para começar o mapeamento.'))}</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-          <button class="emp-btn primary" onclick="createEmployerHubEmployer()">${esc(uiTranslate('➕ Novo empregador'))}</button>
-          <button class="emp-btn" id="btn-export-employer-xlsx" onclick="exportEmployerXLSX()">${esc(uiTranslate('📥 Exportar Excel'))}</button>
+          <button type="button" class="emp-btn primary" onclick="createEmployerHubEmployer()">${esc(uiTranslate('➕ Novo empregador'))}</button>
+          <button type="button" class="emp-btn" id="btn-export-employer-xlsx" onclick="exportEmployerXLSX()">${esc(uiTranslate('📥 Exportar Excel'))}</button>
         </div>
       </div>`;
     return;
@@ -7819,7 +7826,7 @@ function renderEmployerHub(el) {
           </div>
         </div>
         <div class="emp-controls">
-          <input class="emp-search" data-emp-input="employers" placeholder="${esc(uiTranslate('Pesquisar empregador...'))}" value="${esc(S.employerHub?.employerSearch || '')}">
+          <input type="text" class="emp-search" data-emp-input="employers" placeholder="${esc(uiTranslate('Pesquisar empregador...'))}" value="${esc(S.employerHub?.employerSearch || '')}">
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button type="button" class="emp-link" data-emp-action="open-filtered" data-employer="__ALL_LINKED__">${esc(uiTranslate('Ver lista geral'))}</button>
             <button type="button" class="emp-btn" id="btn-export-employer-xlsx" data-emp-action="export-xlsx" style="padding:6px 10px;font-size:11px">${esc(uiTranslate('📥 Exportar Excel'))}</button>
@@ -7868,7 +7875,7 @@ function renderEmployerHub(el) {
           </div>` : ''}
           ${employerBrief}
           <div class="emp-toolbar">
-            <input class="emp-search" data-emp-input="candidates" placeholder="${esc(uiTranslate('Pesquisar candidato, profissão, cidade...'))}" value="${esc(S.employerHub?.candidateSearch || '')}">
+            <input type="text" class="emp-search" data-emp-input="candidates" placeholder="${esc(uiTranslate('Pesquisar candidato, profissão, cidade...'))}" value="${esc(S.employerHub?.candidateSearch || '')}">
             <select class="emp-select" data-emp-select="quickFilter">
               <option value="todos" ${(S.employerHub?.quickFilter||'todos')==='todos'?'selected':''}>${esc(uiTranslate('Filtro rápido: todos'))}</option>
               <option value="sem_responsavel" ${(S.employerHub?.quickFilter||'todos')==='sem_responsavel'?'selected':''}>${esc(uiTranslate('Sem responsável'))}</option>
@@ -8009,9 +8016,9 @@ function renderTable(el, filterStatus) {
   const opChipHtml = `<div class="op-filters-bar">
     ${opChips.map(ch => {
       const active = S.filter._customFn && S.filter._customFn.toString() === ch.fn.toString();
-      return `<button class="op-chip${active?' active':''}" onclick="applyOpFilter(${opChips.indexOf(ch)})">${esc(ch.label)}</button>`;
+      return `<button type="button" class="op-chip${active?' active':''}" onclick="applyOpFilter(${opChips.indexOf(ch)})">${esc(ch.label)}</button>`;
     }).join('')}
-    ${S.filter._customFn ? `<button class="op-chip" onclick="clearFilters();renderView()" style="color:var(--txt3)">✕ Limpar</button>` : ''}
+    ${S.filter._customFn ? `<button type="button" class="op-chip" onclick="clearFilters();renderView()" style="color:var(--txt3)">✕ Limpar</button>` : ''}
   </div>`;
   window._opChips = opChips;
 
@@ -8020,7 +8027,7 @@ function renderTable(el, filterStatus) {
     ${S.filter._customFn ? `
     <div style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid var(--accent);border-radius:var(--r);padding:3px 9px;font-size:11.5px;color:var(--accent2)">
       <span>Filtro ativo</span>
-      <button onclick="clearFilters();setFilter('status','')" style="font-size:13px;color:var(--accent2);line-height:1;background:none;border:none;cursor:pointer" title="Limpar filtro">✕</button>
+      <button type="button" onclick="clearFilters();setFilter('status','')" style="font-size:13px;color:var(--accent2);line-height:1;background:none;border:none;cursor:pointer" title="Limpar filtro">✕</button>
     </div>` : ''}
     <div style="flex:1"></div>
     <select class="filter-select" onchange="setFilter('status',this.value)">
@@ -8285,12 +8292,12 @@ function renderTable(el, filterStatus) {
   const colCount = filterStatus === '__entrevistas' ? 8 : filterStatus === '__analise' ? 8 : filterStatus === '__prioritarios' ? 9 : filterStatus === 'Curso de alemão' ? 9 : filterStatus === '__documentacao' ? 8 : 10;
 
   const pg = pages > 1 ? `<div class="pagination">
-    <button class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>‹</button>
+    <button type="button" class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>‹</button>
     ${Array.from({length:Math.min(pages,7)},(_,i)=>{
       const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i));
-      return `<button class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`;
+      return `<button type="button" class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`;
     }).join('')}
-    <button class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>›</button>
+    <button type="button" class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>›</button>
     <span class="pg-info">pág ${S.page}/${pages}</span>
   </div>` : '';
 
@@ -8484,9 +8491,9 @@ function renderInativo(el) {
       <td>${esc(fv(c,'Perfil','Perfil do candidato','perfil')||'â€”')}</td>
     </tr>`).join('');
   const pg = pages > 1 ? `<div class="pagination">
-    <button class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>â€¹</button>
-    ${Array.from({length:Math.min(pages,7)},(_,i)=>{ const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i)); return `<button class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`; }).join('')}
-    <button class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>â€º</button>
+    <button type="button" class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>â€¹</button>
+    ${Array.from({length:Math.min(pages,7)},(_,i)=>{ const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i)); return `<button type="button" class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`; }).join('')}
+    <button type="button" class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>â€º</button>
     <span class="pg-info">pÃ¡g ${S.page}/${pages}</span>
   </div>` : '';
   el.innerHTML = `
@@ -8672,9 +8679,6 @@ function renderSortableTh(label, key, viewKey, extra='') {
   const active = S.sort && S.sort.view === viewKey && S.sort.key === key;
   const arrow = active ? (S.sort.dir === 'asc' ? '↑' : '↓') : '↕';
   return `<th ${extra}><button type="button" class="th-sort ${active?'active':''}" onclick="cycleSort('${viewKey}','${key}')"><span>${esc(label)}</span><span class="th-arrow">${arrow}</span></button></th>`;
-}
-function clearSortForView(viewKey) {
-  if (S.sort && S.sort.view === viewKey) clearSort();
 }
 function cycleSort(viewKey, key) {
   const curr = S.sort || {};
@@ -9576,7 +9580,7 @@ function buildTicketPanel(c) {
       <div class="field-grid">
         <div class="field-group fg-full">
           <label class="field-lbl">Assunto do ticket *</label>
-          <input class="field-input" data-ticket-field="assunto" value="${esc(draft.assunto || '')}" oninput="updateTicketDraft(this)" placeholder="Ex: follow-up da proposta, dúvida sobre documentos">
+          <input type="text" class="field-input" data-ticket-field="assunto" value="${esc(draft.assunto || '')}" oninput="updateTicketDraft(this)" placeholder="Ex: follow-up da proposta, dúvida sobre documentos">
         </div>
         <div class="field-group">
           <label class="field-lbl">Status</label>
@@ -9592,7 +9596,7 @@ function buildTicketPanel(c) {
         </div>
         <div class="field-group">
           <label class="field-lbl">Próxima ação</label>
-          <input class="field-input" data-ticket-field="proxima_acao" value="${esc(draft.proxima_acao || '')}" oninput="updateTicketDraft(this)" placeholder="Ex: cobrar retorno, enviar lista de documentos">
+          <input type="text" class="field-input" data-ticket-field="proxima_acao" value="${esc(draft.proxima_acao || '')}" oninput="updateTicketDraft(this)" placeholder="Ex: cobrar retorno, enviar lista de documentos">
         </div>
         <div class="field-group fg-full">
           <label class="field-lbl">O que o candidato falou no WhatsApp *</label>
@@ -9898,9 +9902,9 @@ function renderTicketBoard(el) {
     ? `${rows.length} ticket(s) carregados com payload reduzido.`
     : `${filtered.length} de ${rows.length} ticket(s) após os filtros.`;
   const pagination = pages > 1 ? `<div class="pagination">
-    <button class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>‹</button>
-    ${Array.from({length:Math.min(pages,7)},(_,i)=>{ const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i)); return `<button class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`; }).join('')}
-    <button class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>›</button>
+    <button type="button" class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>‹</button>
+    ${Array.from({length:Math.min(pages,7)},(_,i)=>{ const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i)); return `<button type="button" class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`; }).join('')}
+    <button type="button" class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>›</button>
   </div>` : '';
 
   el.innerHTML = `
@@ -9926,7 +9930,7 @@ function renderTicketBoard(el) {
         <div class="ticket-board-filters" style="margin-top:14px">
           <div class="field-group">
             <label class="field-lbl">Buscar ticket ou candidato</label>
-            <input class="field-input" value="${esc(state.q)}" oninput="setTicketBoardSearch(this.value)" placeholder="Nome, assunto, conversa, próxima ação...">
+            <input type="text" class="field-input" value="${esc(state.q)}" oninput="setTicketBoardSearch(this.value)" placeholder="Nome, assunto, conversa, próxima ação...">
           </div>
           <div class="field-group">
             <label class="field-lbl">Status</label>
@@ -11264,13 +11268,9 @@ async function handleRhDocxFile(input) {
     input.value = '';
     return;
   }
-  if (typeof mammoth === 'undefined') {
-    toast('Não foi possível carregar o leitor de DOCX. Verifique a conexão e tente novamente.', 'err', 6000);
-    input.value = '';
-    return;
-  }
   try {
     toast('⏳ Lendo entrevista preliminar...', 'ok', 3000);
+    await loadRuntimeScript('mammoth');
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.convertToHtml({ arrayBuffer });
     const parsed = parseRhDocxHtml(result.value || '', S.currentCand || null);
@@ -11714,7 +11714,7 @@ function openInactivationModal() {
             <div class="emp-field"><label class="emp-label">Motivo *</label><select class="emp-fselect" id="inactive-reason"><option value="">Selecionar...</option>${options}</select></div>
             <div class="emp-field"><label class="emp-label">Reativável?</label><select class="emp-fselect" id="inactive-reactivable"><option value="SIM" ${reativavel==='SIM'?'selected':''}>Sim</option><option value="NÃO" ${reativavel==='NÃO'?'selected':''}>Não</option></select></div>
             <div class="emp-field"><label class="emp-label">Data da inativação</label><input class="emp-input" type="date" id="inactive-date" value="${esc(exitDate)}"></div>
-            <div class="emp-field"><label class="emp-label">Etapa de saída</label><input class="emp-input" id="inactive-stage" value="${esc(stage)}" placeholder="Etapa atual"></div>
+            <div class="emp-field"><label class="emp-label">Etapa de saída</label><input type="text" class="emp-input" id="inactive-stage" value="${esc(stage)}" placeholder="Etapa atual"></div>
             <div class="emp-field full"><label class="emp-label">Observação final</label><textarea class="emp-textarea" id="inactive-note" placeholder="Explique o contexto, combinados finais ou condição para reativação futura...">${esc(exitNote)}</textarea></div>
           </div>
         </div>
@@ -11779,18 +11779,6 @@ async function toggleActive() {
     renderView();
     toast('✅ Candidato reativado.', 'ok');
   } catch(e) { toast('❌ ' + e.message, 'err'); }
-}
-
-function pdfFormatDate(v) {
-  if (!v) return '—';
-  const s = String(v).trim();
-  const iso = rhNormalizePgDate(s);
-  if (iso) {
-    const [y,m,d] = iso.split('-');
-    return `${d}/${m}/${y}`;
-  }
-  const dt = new Date(s);
-  return Number.isNaN(dt.getTime()) ? s : dt.toLocaleDateString('pt-BR');
 }
 
 function pdfBadge(label, tone='blue') {
@@ -12027,15 +12015,12 @@ async function downloadCandidatePdf() {
     toast('Abra um candidato antes de gerar o PDF.', 'warn');
     return;
   }
-  if (typeof html2pdf === 'undefined') {
-    toast('Biblioteca de PDF não carregada. Recarregue a página.', 'err');
-    return;
-  }
   const btn = document.getElementById('cm-pdf-btn');
   const prev = btn ? btn.innerHTML : '';
   let wrapper = null;
   try {
     if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Gerando PDF'; }
+    await loadRuntimeScript('html2pdf');
     try { await loadAllMatches({ force:false }); } catch (_) {}
     let interview = getActiveInterviewRecord();
     if (!interview) {
@@ -12685,7 +12670,7 @@ function _pdfDetectSectionLabel(line) {
 }
 
 async function extractCurriculumTextFromPdf(file) {
-  if (!window.pdfjsLib) throw new Error('Leitor de PDF indisponível no navegador.');
+  await loadRuntimeScript('pdfjs');
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
@@ -13250,7 +13235,7 @@ function _fillNewFormFromCurriculum(fields, fileName) {
         <strong>${esc(_parserTranslate('Currículo processado:'))}</strong> <em>${esc(fileName)}</em>
         ${lowData ? `<span style="color:var(--red);font-size:10.5px"> ⚠ ${esc(_parserTranslate('Poucos campos identificados. Revise o preenchimento.'))}</span>` : ''}
       </span>
-      <button class="btn btn-xs btn-ghost" onclick="clearCurriculumFill()" style="flex-shrink:0">${esc(_parserTranslate('Limpar'))}</button>
+      <button type="button" class="btn btn-xs btn-ghost" onclick="clearCurriculumFill()" style="flex-shrink:0">${esc(_parserTranslate('Limpar'))}</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:11px;width:100%;padding-left:28px">
       <div>
@@ -13431,7 +13416,7 @@ function renderSettings(el) {
         <p>Para liberar gerenciamento de usuários, listas e diagnósticos administrativos, valide esta sessão com o app autenticador. O Supabase diferencia sessões comuns (aal1) de sessões com segundo fator (aal2).<\/p>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <span class="admin-mfa-chip">Sessão atual: ${esc(mfa.currentLevel || 'aal1').toUpperCase()}<\/span>
-          <button class="btn btn-primary btn-sm" onclick="openAdminMfaFlow()">${(mfa.verifiedFactors||[]).length || mfa.nextLevel === 'aal2' ? 'Validar MFA' : 'Configurar MFA'}<\/button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openAdminMfaFlow()">${(mfa.verifiedFactors||[]).length || mfa.nextLevel === 'aal2' ? 'Validar MFA' : 'Configurar MFA'}<\/button>
         <\/div>
       <\/div>`;
     return;
@@ -13462,7 +13447,7 @@ function renderSettings(el) {
         ${canManage
           ? isInactive
             ? `<span style="font-size:11px;color:var(--txt3)">inativo</span>`
-            : `<button class="btn btn-xs btn-ghost" onclick="deactivateUser('${esc(u.user)}')">Inativar</button>`
+            : `<button type="button" class="btn btn-xs btn-ghost" onclick="deactivateUser('${esc(u.user)}')">Inativar</button>`
           : `<span style="font-size:11px;color:var(--txt3)">${isProtectedRoot ? 'protegido' : 'sessão atual'}</span>`}
       </div>
     </div>`;
@@ -13487,8 +13472,8 @@ function renderSettings(el) {
             <p>Usuários com acesso ao sistema. Clique em "Novo" para adicionar.</p>
             <div>${userRows||'<p style="color:var(--txt3);font-size:12px">Nenhum usuário cadastrado</p>'}</div>
             <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn btn-primary btn-sm" onclick="openUserModal()">+ Novo Usuário</button>
-              <button class="btn btn-ghost btn-sm" onclick="openAdminMfaFlow()">🔐 Ver MFA</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="openUserModal()">+ Novo Usuário</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="openAdminMfaFlow()">🔐 Ver MFA</button>
             </div>
           </div>
           <div class="settings-card" style="margin-top:16px">
@@ -13496,7 +13481,7 @@ function renderSettings(el) {
             <p>Sessão atual em <strong style="color:var(--txt)">${esc((mfa.currentLevel || 'aal1').toUpperCase())}</strong>. Fatores verificados nesta conta: <strong style="color:var(--txt)">${(mfa.verifiedFactors||[]).length}</strong>.</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <span class="admin-mfa-chip">${(mfa.currentLevel || 'aal1').toUpperCase()}</span>
-              <button class="btn btn-ghost btn-sm" onclick="openAdminMfaFlow()">Gerenciar MFA</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="openAdminMfaFlow()">Gerenciar MFA</button>
             </div>
           </div>
           <div class="settings-card" style="margin-top:16px">
@@ -13525,8 +13510,8 @@ function renderSettings(el) {
             <h3>Conexão com o Backend</h3>
             <p>Diagnóstico administrativo da conexão. Chaves não são exibidas na interface.</p>
             <div style="margin-top:14px;display:flex;gap:8px">
-              <button class="btn btn-ghost btn-sm" onclick="testConnection()">🔌 Testar conexão</button>
-              <button class="btn btn-ghost btn-sm" onclick="forceSync()">↻ Forçar sync</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="testConnection()">🔌 Testar conexão</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="forceSync()">↻ Forçar sync</button>
             </div>
             <div id="conn-result" style="margin-top:10px;font-size:12px;color:var(--txt3)"></div>
           </div>
@@ -13688,8 +13673,8 @@ function buildEnumEditor(field) {
     <div style="font-size:12px;color:var(--txt3);margin-bottom:6px">${opts.length} opções em "${esc(field)}"</div>
     <div class="enum-list">${tags}</div>
     <div class="enum-add">
-      <input class="field-input" id="enum-new-val" placeholder="Nova opção..." style="flex:1">
-      <button class="btn btn-primary btn-sm" onclick="addEnum('${esc(field)}')">Adicionar</button>
+      <input type="text" class="field-input" id="enum-new-val" placeholder="Nova opção..." style="flex:1">
+      <button type="button" class="btn btn-primary btn-sm" onclick="addEnum('${esc(field)}')">Adicionar</button>
     </div>`;
 }
 
@@ -14010,8 +13995,6 @@ function setPage(p) {
   renderView();
 }
 function onSearch(q) { S.filter.q=q; S.page=1; renderView(); }
-function filterByMetric_REMOVED_SEE_ABOVE() {} // substituído na sprint 3
-
 function applyNlpSearch(phrase) {
   const parsed = nlpParseQuery(phrase);
   S.filter._nlpQuery = String(phrase || '').trim();
@@ -14173,12 +14156,6 @@ function onSearch(q) {
   S.page = 1;
   persistCandidateFilters();
   renderView();
-}
-
-function groupCount(items, fn) {
-  const m = {};
-  items.forEach(i => { const k=fn(i)||'N/A'; m[k]=(m[k]||0)+1; });
-  return Object.entries(m).sort((a,b)=>b[1]-a[1]);
 }
 
 function hex2rgb(hex) {
@@ -14349,87 +14326,12 @@ function buildTableEmptyState(colCount, noun='candidato') {
   </td></tr>`;
 }
 
-// ══════════════════════════════════════════════════════════════
-// V9.0 — IDENTIDADE ALEMÃ + CONFETTI + PERMISSÕES
-// ══════════════════════════════════════════════════════════════
-
-// ── Saudação dinâmica baseada no horário da Alemanha ─────────
-function initGermanGreeting() {
-  const el = document.getElementById('de-greeting');
-  if (el) el.innerHTML = '';
-}
-
-function fireWunderbar() { return; /* celebração desativada */
-  const el = document.getElementById('toast');
-  document.getElementById('t-ico').textContent = '✅';
-  document.getElementById('t-msg').textContent = 'Candidato contratado com sucesso.';
-  el.className = 'toast show tok';
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
-}
-
-function launchConfetti() {
-  const canvas = document.getElementById('confetti-canvas');
-  if (!canvas) return;
-  canvas.style.display = 'block';
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const COLORS = ['#1a1a1a','#c41e3a','#e02040','#f5c000','#ffd700','#ffffff'];
-  const COUNT  = 90;
-  const particles = Array.from({length: COUNT}, () => ({
-    x:   Math.random() * canvas.width,
-    y:   -Math.random() * canvas.height * 0.5,
-    r:   Math.random() * 5 + 2,
-    d:   Math.random() * COUNT,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    tilt: Math.random() * 10 - 10,
-    tiltAngle: 0,
-    tiltAngleIncrement: Math.random() * 0.07 + 0.05,
-  }));
-
-  let angle = 0;
-  let frame = 0;
-  const MAX_FRAMES = 120; // ~2s at 60fps
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    angle += 0.01;
-    frame++;
-    particles.forEach(p => {
-      p.tiltAngle += p.tiltAngleIncrement;
-      p.y += (Math.cos(angle + p.d) + 2) * 1.8;
-      p.x += Math.sin(angle) * 1.2;
-      p.tilt = Math.sin(p.tiltAngle) * 12;
-      // Fade out in last 30 frames
-      const opacity = frame > MAX_FRAMES - 30 ? (MAX_FRAMES - frame) / 30 : 1;
-      ctx.globalAlpha = Math.max(0, opacity);
-      ctx.beginPath();
-      ctx.lineWidth = p.r;
-      ctx.strokeStyle = p.color;
-      ctx.moveTo(p.x + p.tilt + p.r / 3, p.y);
-      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 5);
-      ctx.stroke();
-    });
-    if (frame < MAX_FRAMES) {
-      requestAnimationFrame(draw);
-    } else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      canvas.style.display = 'none';
-    }
-  }
-  requestAnimationFrame(draw);
-}
-
 // ── Permissões por perfil ─────────────────────────────────────
 // Nota: estas permissões são aplicadas no FRONTEND apenas.
 // Para segurança real de dados, RLS no Supabase é mandatório.
 // Risco remanescente: usuário com DevTools pode contornar isso.
 function canEdit()   { const s = getSession(); return s?.role === 'admin' || s?.role === 'recrutador'; }
-function canDelete() { const s = getSession(); return s?.role === 'admin'; }
 function canAdmin()  { const s = getSession(); return s?.role === 'admin'; }
-function canAdminSecure() { return canAdmin() && hasAdminMfaVerified(); }
 
 // Aplica visual de lock em elementos para viewer
 function applyViewerRestrictions() {
@@ -14694,7 +14596,7 @@ function agOpenModal(dateStr, eventId) {
           <div style="font-size:14px;font-weight:700;color:var(--txt)">${ev ? 'Editar Entrevista' : 'Nova Entrevista'}</div>
           <div style="font-size:11px;color:var(--txt3);margin-top:2px">${dateStr}</div>
         </div>
-        <button onclick="agCloseModal()" style="width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);font-size:16px;color:var(--txt2);display:flex;align-items:center;justify-content:center;cursor:pointer">✕</button>
+        <button type="button" onclick="agCloseModal()" style="width:30px;height:30px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);font-size:16px;color:var(--txt2);display:flex;align-items:center;justify-content:center;cursor:pointer">✕</button>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:14px">
@@ -14747,9 +14649,9 @@ function agOpenModal(dateStr, eventId) {
       </div>
 
       <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
-        ${ev && canAdmin() ? `<button id="ag-del-btn" onclick="agDeleteAndClose('${esc(ev.id)}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
-        <button onclick="agCloseModal()" class="btn btn-ghost btn-sm">Cancelar</button>
-        <button id="ag-save-btn" onclick="agSaveModal('${esc(ev?ev.id:'')}')" style="font-size:12px;color:#0b0d12;background:var(--teal);border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer">
+        ${ev && canAdmin() ? `<button type="button" id="ag-del-btn" onclick="agDeleteAndClose('${esc(ev.id)}')" style="margin-right:auto;font-size:12px;color:var(--red);background:none;border:.5px solid var(--red);border-radius:6px;padding:7px 14px;cursor:pointer">Excluir</button>` : ''}
+        <button type="button" onclick="agCloseModal()" class="btn btn-ghost btn-sm">Cancelar</button>
+        <button type="button" id="ag-save-btn" onclick="agSaveModal('${esc(ev?ev.id:'')}')" style="font-size:12px;color:#0b0d12;background:var(--teal);border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer">
           ${ev ? 'Salvar alterações' : '+ Agendar'}
         </button>
       </div>
@@ -14943,15 +14845,15 @@ function renderAgenda(el) {
   <div class="ag-main">
     <div class="ag-toolbar">
       <div style="display:flex;align-items:center;gap:10px">
-        <button class="ag-nav-btn" onclick="agNav(-1)">‹</button>
+        <button type="button" class="ag-nav-btn" onclick="agNav(-1)">‹</button>
         <div class="ag-title">${AG.view==='month'?`${MONTHS[month]} ${year}`:''}</div>
-        <button class="ag-nav-btn" onclick="agNav(1)">›</button>
-        <button class="ag-today-btn" onclick="AG.date=new Date();renderView()">Hoje</button>
+        <button type="button" class="ag-nav-btn" onclick="agNav(1)">›</button>
+        <button type="button" class="ag-today-btn" onclick="AG.date=new Date();renderView()">Hoje</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        <button class="ag-view-btn ${AG.view==='month'?'active':''}" onclick="AG.view='month';renderView()">Mês</button>
-        <button class="ag-view-btn ${AG.view==='week'?'active':''}"  onclick="AG.view='week';renderView()">Semana</button>
-        <button class="btn btn-sm" onclick="agOpenModal('${todayStr}')" style="margin-left:6px;background:var(--teal);color:#0b0d12;border:none;font-weight:700;padding:6px 14px;border-radius:6px;font-size:12px">+ Agendar</button>
+        <button type="button" class="ag-view-btn ${AG.view==='month'?'active':''}" onclick="AG.view='month';renderView()">Mês</button>
+        <button type="button" class="ag-view-btn ${AG.view==='week'?'active':''}"  onclick="AG.view='week';renderView()">Semana</button>
+        <button type="button" class="btn btn-sm" onclick="agOpenModal('${todayStr}')" style="margin-left:6px;background:var(--teal);color:#0b0d12;border:none;font-weight:700;padding:6px 14px;border-radius:6px;font-size:12px">+ Agendar</button>
       </div>
     </div>
     ${bodyHtml}
@@ -15919,9 +15821,9 @@ function renderInativo(el) {
       <td>${esc(fv(c,'Perfil','Perfil do candidato','perfil') || '-')}</td>
     </tr>`).join('');
   const pg = pages > 1 ? `<div class="pagination">
-    <button class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>‹</button>
-    ${Array.from({length:Math.min(pages,7)},(_,i)=>{ const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i)); return `<button class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`; }).join('')}
-    <button class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>›</button>
+    <button type="button" class="pg-btn" onclick="setPage(${S.page-1})" ${S.page===1?'disabled':''}>‹</button>
+    ${Array.from({length:Math.min(pages,7)},(_,i)=>{ const p=pages<=7?i+1:(S.page<=4?i+1:(S.page>=pages-3?pages-6+i:S.page-3+i)); return `<button type="button" class="pg-btn ${p===S.page?'active':''}" onclick="setPage(${p})">${p}</button>`; }).join('')}
+    <button type="button" class="pg-btn" onclick="setPage(${S.page+1})" ${S.page===pages?'disabled':''}>›</button>
     <span class="pg-info">pág ${S.page}/${pages}</span>
   </div>` : '';
   el.innerHTML = `
@@ -16753,9 +16655,9 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       <div class="section-hdr" style="margin-top:14px">${esc(uiTranslate('Multicargo & formação'))}</div>
       <div class="ms-grid">
         <div class="field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formação principal'))}</label><select class="field-select ms-select" onchange="onPrimaryTrainingChange(this)"><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${primaryTrainingOpts}</select><div class="field-taxonomy-hint">${esc(uiTranslate('Usada como formação principal no BI e matching.'))}</div></div>
-        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Profissões adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-rel-input="professions" list="cand-professions-list" placeholder="${esc(uiTranslate('Adicionar profissão adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('professions')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-professions-list">${professionOptions}</datalist><div class="ms-chips">${relationChipsHtml('professions', profIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a principal. Pode ter quantas forem necessárias.'))}</div></div>
-        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formações adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-rel-input="trainings" list="cand-trainings-list" placeholder="${esc(uiTranslate('Adicionar formação adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('trainings')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-trainings-list">${trainingOptions}</datalist><div class="ms-chips">${relationChipsHtml('trainings', trIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a principal. Pode ter quantas forem necessárias.'))}</div></div>
-        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Especialidades adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-rel-input="specialties" list="cand-specialties-list" placeholder="${esc(uiTranslate('Adicionar especialidade adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('specialties')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-specialties-list">${specialtyOptions}</datalist><div class="ms-chips">${relationChipsHtml('specialties', specIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a especialidade principal.'))}</div></div>
+        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Profissões adicionais'))}</label><div class="ms-toolbar"><input type="text" class="field-input ms-input" data-rel-input="professions" list="cand-professions-list" placeholder="${esc(uiTranslate('Adicionar profissão adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('professions')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-professions-list">${professionOptions}</datalist><div class="ms-chips">${relationChipsHtml('professions', profIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a principal. Pode ter quantas forem necessárias.'))}</div></div>
+        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formações adicionais'))}</label><div class="ms-toolbar"><input type="text" class="field-input ms-input" data-rel-input="trainings" list="cand-trainings-list" placeholder="${esc(uiTranslate('Adicionar formação adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('trainings')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-trainings-list">${trainingOptions}</datalist><div class="ms-chips">${relationChipsHtml('trainings', trIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a principal. Pode ter quantas forem necessárias.'))}</div></div>
+        <div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Especialidades adicionais'))}</label><div class="ms-toolbar"><input type="text" class="field-input ms-input" data-rel-input="specialties" list="cand-specialties-list" placeholder="${esc(uiTranslate('Adicionar especialidade adicional oficial'))}"><button type="button" class="ms-add" onclick="addCandidateMultiRelation('specialties')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="cand-specialties-list">${specialtyOptions}</datalist><div class="ms-chips">${relationChipsHtml('specialties', specIds, 'removeCandidateMultiRelation')}</div><div class="field-taxonomy-hint">${esc(uiTranslate('Sem duplicar a especialidade principal.'))}</div></div>
       </div>`;
   }
   function rerenderProfessionalPanel(){ const panel = document.getElementById('t-profissional'); if (!panel || !S.currentCand) return; panel.innerHTML = buildPanel('t-profissional', S.currentCand); try { window.t4ApplyLanguageNow(panel); } catch(_) {} }
@@ -16769,7 +16671,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     return [...getTrainingRows()].sort((a,b)=>relLabel(a).localeCompare(relLabel(b), 'pt-BR'));
   }
   function newRelationResolve(kind, raw){ const q = relNorm(raw); if (!q) return null; const rows = newRelationOptions(kind); const exact = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v) === q)); if (exact.length === 1) return exact[0]; const prefix = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v).startsWith(q))); if (prefix.length === 1) return prefix[0]; const contains = rows.filter(r => [relLabel(r), r?.label_de, r?.code].some(v => relNorm(v).includes(q))); return contains.length === 1 ? contains[0] : null; }
-  function renderNewMultiSkillUi(){ const box = ensureNewMultiSkillMount(); if (!box) return; const trainingOptions = getTrainingRows().map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const professionOptions = newRelationOptions('professions').map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const specialtyOptions = newRelationOptions('specialties').map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const primaryTrainingOpts = getTrainingRows().map(r => `<option value="${esc(String(r.id))}" ${String(window.NEWCAND_MULTI.primaryTrainingId||'')===String(r.id)?'selected':''}>${esc(relLabel(r))}</option>`).join(''); box.innerHTML = `<div class="section-hdr">${esc(uiTranslate('Múltiplas formações e competências'))}</div><div class="ms-grid"><div class="field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formação principal'))}</label><select class="field-select ms-select" onchange="onNewPrimaryTrainingChange(this)"><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${primaryTrainingOpts}</select><div class="field-taxonomy-hint">${esc(uiTranslate('Usada como formação principal no BI e matching.'))}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Profissões adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-new-rel-input="professions" list="new-professions-list" placeholder="${esc(uiTranslate('Adicionar profissão adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('professions')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-professions-list">${professionOptions}</datalist><div class="ms-chips">${relationChipsHtml('professions', window.NEWCAND_MULTI.professions || [], 'removeNewMultiRelation')}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formações adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-new-rel-input="trainings" list="new-trainings-list" placeholder="${esc(uiTranslate('Adicionar formação adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('trainings')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-trainings-list">${trainingOptions}</datalist><div class="ms-chips">${relationChipsHtml('trainings', window.NEWCAND_MULTI.trainings || [], 'removeNewMultiRelation')}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Especialidades adicionais'))}</label><div class="ms-toolbar"><input class="field-input ms-input" data-new-rel-input="specialties" list="new-specialties-list" placeholder="${esc(uiTranslate('Adicionar especialidade adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('specialties')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-specialties-list">${specialtyOptions}</datalist><div class="ms-chips">${relationChipsHtml('specialties', window.NEWCAND_MULTI.specialties || [], 'removeNewMultiRelation')}</div></div></div><div class="field-taxonomy-hint" style="margin-top:8px">${esc(uiTranslate('Escolha a formação principal e cadastre competências complementares sem limite artificial.'))}</div>`; try { window.t4ApplyLanguageNow(box); } catch(_) {} }
+  function renderNewMultiSkillUi(){ const box = ensureNewMultiSkillMount(); if (!box) return; const trainingOptions = getTrainingRows().map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const professionOptions = newRelationOptions('professions').map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const specialtyOptions = newRelationOptions('specialties').map(r => `<option value="${esc(relLabel(r))}"></option>`).join(''); const primaryTrainingOpts = getTrainingRows().map(r => `<option value="${esc(String(r.id))}" ${String(window.NEWCAND_MULTI.primaryTrainingId||'')===String(r.id)?'selected':''}>${esc(relLabel(r))}</option>`).join(''); box.innerHTML = `<div class="section-hdr">${esc(uiTranslate('Múltiplas formações e competências'))}</div><div class="ms-grid"><div class="field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formação principal'))}</label><select class="field-select ms-select" onchange="onNewPrimaryTrainingChange(this)"><option value="">— ${esc(uiTranslate('Selecionar'))} —</option>${primaryTrainingOpts}</select><div class="field-taxonomy-hint">${esc(uiTranslate('Usada como formação principal no BI e matching.'))}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Profissões adicionais'))}</label><div class="ms-toolbar"><input type="text" class="field-input ms-input" data-new-rel-input="professions" list="new-professions-list" placeholder="${esc(uiTranslate('Adicionar profissão adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('professions')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-professions-list">${professionOptions}</datalist><div class="ms-chips">${relationChipsHtml('professions', window.NEWCAND_MULTI.professions || [], 'removeNewMultiRelation')}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Formações adicionais'))}</label><div class="ms-toolbar"><input type="text" class="field-input ms-input" data-new-rel-input="trainings" list="new-trainings-list" placeholder="${esc(uiTranslate('Adicionar formação adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('trainings')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-trainings-list">${trainingOptions}</datalist><div class="ms-chips">${relationChipsHtml('trainings', window.NEWCAND_MULTI.trainings || [], 'removeNewMultiRelation')}</div></div><div class="ms-block field-group fg-full"><label class="field-lbl">${esc(uiTranslate('Especialidades adicionais'))}</label><div class="ms-toolbar"><input type="text" class="field-input ms-input" data-new-rel-input="specialties" list="new-specialties-list" placeholder="${esc(uiTranslate('Adicionar especialidade adicional oficial'))}"><button type="button" class="ms-add" onclick="addNewMultiRelation('specialties')">${esc(uiTranslate('Adicionar'))}</button></div><datalist id="new-specialties-list">${specialtyOptions}</datalist><div class="ms-chips">${relationChipsHtml('specialties', window.NEWCAND_MULTI.specialties || [], 'removeNewMultiRelation')}</div></div></div><div class="field-taxonomy-hint" style="margin-top:8px">${esc(uiTranslate('Escolha a formação principal e cadastre competências complementares sem limite artificial.'))}</div>`; try { window.t4ApplyLanguageNow(box); } catch(_) {} }
   window.addNewMultiRelation = function(kind){ const input = document.querySelector(`[data-new-rel-input="${kind}"]`); if (!input) return; const row = newRelationResolve(kind, input.value); if (!row) { toast(uiTranslate('Selecione uma opção oficial da lista.'), 'warn'); return; } const current = relDedupe(window.NEWCAND_MULTI[kind] || []); current.push(String(row.id)); window.NEWCAND_MULTI[kind] = relDedupe(current); input.value = ''; renderNewMultiSkillUi(); };
   window.removeNewMultiRelation = function(kind, id){ window.NEWCAND_MULTI[kind] = relDedupe((window.NEWCAND_MULTI[kind] || []).filter(v => String(v) !== String(id))); renderNewMultiSkillUi(); };
   window.onNewPrimaryTrainingChange = function(selectEl){ window.NEWCAND_MULTI.primaryTrainingId = String(selectEl?.value || ''); renderNewMultiSkillUi(); };
@@ -16907,7 +16809,6 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   const defaultNewState = () => ({ flows:[blankFlow(true)], trainings:[], primaryTrainingId:'' });
   const getNewState = () => (window.NEWCAND_PROF_STATE = window.NEWCAND_PROF_STATE || defaultNewState());
 
-  function blankSpecialty(primary=false){ return { uid: uid(), specialty_id:'', specialty_label:'', source_type:'pending', is_primary: !!primary }; }
   function blankFlow(primary=false){ return { uid: uid(), area_id:'', area_label:'', source_type:'pending', profession_id:'', profession_label:'', profession_source_type:'pending', specialties:[], is_primary: !!primary, sort_order:0 }; }
   function flowHasData(flow){ return !!(String(flow?.area_id||flow?.area_label||'').trim() || String(flow?.profession_id||flow?.profession_label||'').trim() || (flow?.specialties||[]).some(s => String(s?.specialty_id||s?.specialty_label||'').trim())); }
   function cleanFlow(flow){
@@ -17128,7 +17029,6 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   function professionFieldOptions(flow){ return professionsForArea(flow.area_id); }
   function specialtyFieldOptions(flow){ return specialtiesForProfession(flow.profession_id); }
   function renderDatalist(id, rows){ return `<datalist id="${escHtml(id)}">${rows.map(r => `<option value="${escHtml(labelOf(r))}"></option>`).join('')}</datalist>`; }
-  function renderTrainingDatalist(id){ return renderDatalist(id, trainingRows()); }
   function pfVal(c, field){
     const pendingVal = hasOwn(S.pendingEdits || {}, field) ? S.pendingEdits[field] : undefined;
     const aliases = ((REV_MAP_MULTI && FIELD_MAP && FIELD_MAP[field] && REV_MAP_MULTI[FIELD_MAP[field]]) || []).filter(a => a !== field);
@@ -17163,7 +17063,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
       const row = trainingById(id);
       return `<div class="pf-chip"><span class="pf-chip-label">${escHtml(labelOf(row) || id)}</span><button type="button" class="pf-btn small ghost" onclick="pfRemoveTraining('${scope}','${escHtml(id)}')">Remover</button></div>`;
     }).join('') : `<div class="pf-empty">Sem formações adicionais por enquanto.</div>`;
-    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Formação principal e formações adicionais</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="pfSetPrimaryTraining('${scope}',this.value)"><option value="">— Selecionar —</option>${primaryOpts}</select><div class="pf-hint">Aqui entram só categorias amplas. Cursos específicos ficam nas formações adicionais.</div></div><div class="field-group fg-full"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input class="field-input" id="${scope}-training-input" placeholder="Buscar formação oficial" autocomplete="off" oninput="pfRenderTrainingHints('${scope}')"><button type="button" class="pf-btn" onclick="pfAddTraining('${scope}')">Adicionar</button></div><div class="pf-suggest-wrap" id="${scope}-training-hints">${renderTrainingHintsHtml(scope, '')}</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div></div></div>`;
+    return `<div class="pf-card"><div class="pf-card-head"><div class="pf-card-title">Formação principal e formações adicionais</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="pfSetPrimaryTraining('${scope}',this.value)"><option value="">— Selecionar —</option>${primaryOpts}</select><div class="pf-hint">Aqui entram só categorias amplas. Cursos específicos ficam nas formações adicionais.</div></div><div class="field-group fg-full"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input type="text" class="field-input" id="${scope}-training-input" placeholder="Buscar formação oficial" autocomplete="off" oninput="pfRenderTrainingHints('${scope}')"><button type="button" class="pf-btn" onclick="pfAddTraining('${scope}')">Adicionar</button></div><div class="pf-suggest-wrap" id="${scope}-training-hints">${renderTrainingHintsHtml(scope, '')}</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div></div></div>`;
   }
   function renderFieldHintsHtml(scope, flow, kind, query=''){
     const allPool = kind === 'area' ? areaRows() : (kind === 'profession' ? professionRows() : specialtyRows());
@@ -17184,13 +17084,13 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   }
   function renderSpecialties(scope, flow){
     const chips = (flow.specialties || []).length ? flow.specialties.map((s, idx) => `<div class="pf-chip ${(s.source_type!=='official' && !s.specialty_id)?'pending':''} ${idx===0?'primary':''}"><span class="pf-chip-label">${escHtml(s.specialty_label || (findSpecialty(s.specialty_id) ? labelOf(findSpecialty(s.specialty_id)) : 'Especialidade'))}</span>${idx===0?'<span class="pf-pill primary">Principal</span>':`<button type="button" class="pf-btn small ghost" onclick="pfSetPrimarySpecialty('${scope}','${flow.uid}','${s.uid}')">Tornar principal</button>`}<button type="button" class="pf-btn small ghost" onclick="pfRemoveSpecialty('${scope}','${flow.uid}','${s.uid}')">Remover</button></div>`).join('') : `<div class="pf-empty">Sem especialidades vinculadas neste fluxo.</div>`;
-    return `<div class="field-group fg-full"><label class="field-lbl">Especialidades</label><div class="pf-field-shell"><div class="pf-toolbar"><input class="field-input" id="${scope}-spec-input-${flow.uid}" placeholder="Buscar especialidade oficial ou registrar pendente" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','specialty')" onblur="pfRenderFieldHints('${scope}','${flow.uid}','specialty')" onkeydown="if(event.key==='Enter'){event.preventDefault();pfAddSpecialty('${scope}','${flow.uid}')}"><button type="button" class="pf-btn" onclick="pfAddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div><div class="pf-suggest-wrap" id="${scope}-specialty-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'specialty', '')}</div></div><div class="pf-meta">Várias especialidades são permitidas. Primeiro aparecem as ligadas à profissão. Depois, o restante do catálogo oficial. Sem opção oficial, salva como pendente.</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div>`;
+    return `<div class="field-group fg-full"><label class="field-lbl">Especialidades</label><div class="pf-field-shell"><div class="pf-toolbar"><input type="text" class="field-input" id="${scope}-spec-input-${flow.uid}" placeholder="Buscar especialidade oficial ou registrar pendente" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','specialty')" onblur="pfRenderFieldHints('${scope}','${flow.uid}','specialty')" onkeydown="if(event.key==='Enter'){event.preventDefault();pfAddSpecialty('${scope}','${flow.uid}')}"><button type="button" class="pf-btn" onclick="pfAddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div><div class="pf-suggest-wrap" id="${scope}-specialty-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'specialty', '')}</div></div><div class="pf-meta">Várias especialidades são permitidas. Primeiro aparecem as ligadas à profissão. Depois, o restante do catálogo oficial. Sem opção oficial, salva como pendente.</div><div class="pf-chip-row" style="margin-top:10px">${chips}</div></div>`;
   }
   function renderFlowCard(scope, flow, idx, total){
     const areaStatus = flow.area_id ? `<span class="pf-status-official">Oficial</span>` : (flow.area_label ? `<span class="pf-status-pending">Pendente</span>` : '');
     const profStatus = flow.profession_id ? `<span class="pf-status-official">Oficial</span>` : (flow.profession_label ? `<span class="pf-status-pending">Pendente</span>` : '');
     const pathBits = [flow.area_label || 'Área', flow.profession_label || 'Profissão', (flow.specialties || []).map(s => s.specialty_label).filter(Boolean).join(' + ') || 'Especialidades'];
-    return `<div class="pf-card flow-card"><div class="pf-card-head"><div><div class="pf-card-title">Fluxo profissional ${idx+1}</div><div class="pf-path"><strong>${escHtml(pathBits[0])}</strong><span>→</span><strong>${escHtml(pathBits[1])}</strong><span>→</span><span>${escHtml(pathBits[2])}</span></div></div><div class="pf-actions">${flow.is_primary?'<span class="pf-pill primary">Fluxo principal</span>':`<button type="button" class="pf-btn small" onclick="pfSetPrimaryFlow('${scope}','${flow.uid}')">Tornar principal</button>`}${total>1?`<button type="button" class="pf-btn small danger" onclick="pfRemoveFlow('${scope}','${flow.uid}')">Remover fluxo</button>`:''}</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Área</label><div class="pf-field-shell"><input class="field-input" id="${scope}-area-input-${flow.uid}" value="${escHtml(flow.area_label)}" placeholder="Digite ou selecione uma área" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','area')" onchange="pfHandleField('${scope}','${flow.uid}','area',this.value)" onblur="pfHandleField('${scope}','${flow.uid}','area',this.value)"><div class="pf-suggest-wrap" id="${scope}-area-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'area', flow.area_label || '')}</div></div><div class="pf-meta">${areaStatus || 'Área oficial ou pendente. Nada de lista gigante fixa.'}</div></div><div class="field-group"><label class="field-lbl">Profissão</label><div class="pf-field-shell"><input class="field-input" id="${scope}-profession-input-${flow.uid}" value="${escHtml(flow.profession_label)}" placeholder="Digite ou selecione uma profissão" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','profession')" onchange="pfHandleField('${scope}','${flow.uid}','profession',this.value)" onblur="pfHandleField('${scope}','${flow.uid}','profession',this.value)"><div class="pf-suggest-wrap" id="${scope}-profession-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'profession', flow.profession_label || '')}</div></div><div class="pf-meta">${profStatus || 'Primeiro aparecem profissões ligadas à área. Depois, outras opções oficiais do catálogo para não te prender por falta de mapeamento.'}</div></div><div class="field-group"><label class="field-lbl">Como usar</label><div class="pf-section-note">1. Escolha a área. 2. Escolha a profissão. 3. Adicione uma ou mais especialidades. 4. Crie outro fluxo só quando a trilha for realmente diferente.</div></div>${renderSpecialties(scope, flow)}</div></div>`;
+    return `<div class="pf-card flow-card"><div class="pf-card-head"><div><div class="pf-card-title">Fluxo profissional ${idx+1}</div><div class="pf-path"><strong>${escHtml(pathBits[0])}</strong><span>→</span><strong>${escHtml(pathBits[1])}</strong><span>→</span><span>${escHtml(pathBits[2])}</span></div></div><div class="pf-actions">${flow.is_primary?'<span class="pf-pill primary">Fluxo principal</span>':`<button type="button" class="pf-btn small" onclick="pfSetPrimaryFlow('${scope}','${flow.uid}')">Tornar principal</button>`}${total>1?`<button type="button" class="pf-btn small danger" onclick="pfRemoveFlow('${scope}','${flow.uid}')">Remover fluxo</button>`:''}</div></div><div class="pf-grid"><div class="field-group"><label class="field-lbl">Área</label><div class="pf-field-shell"><input type="text" class="field-input" id="${scope}-area-input-${flow.uid}" value="${escHtml(flow.area_label)}" placeholder="Digite ou selecione uma área" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','area')" onchange="pfHandleField('${scope}','${flow.uid}','area',this.value)" onblur="pfHandleField('${scope}','${flow.uid}','area',this.value)"><div class="pf-suggest-wrap" id="${scope}-area-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'area', flow.area_label || '')}</div></div><div class="pf-meta">${areaStatus || 'Área oficial ou pendente. Nada de lista gigante fixa.'}</div></div><div class="field-group"><label class="field-lbl">Profissão</label><div class="pf-field-shell"><input type="text" class="field-input" id="${scope}-profession-input-${flow.uid}" value="${escHtml(flow.profession_label)}" placeholder="Digite ou selecione uma profissão" autocomplete="off" oninput="pfRenderFieldHints('${scope}','${flow.uid}','profession')" onchange="pfHandleField('${scope}','${flow.uid}','profession',this.value)" onblur="pfHandleField('${scope}','${flow.uid}','profession',this.value)"><div class="pf-suggest-wrap" id="${scope}-profession-hints-${flow.uid}">${renderFieldHintsHtml(scope, flow, 'profession', flow.profession_label || '')}</div></div><div class="pf-meta">${profStatus || 'Primeiro aparecem profissões ligadas à área. Depois, outras opções oficiais do catálogo para não te prender por falta de mapeamento.'}</div></div><div class="field-group"><label class="field-lbl">Como usar</label><div class="pf-section-note">1. Escolha a área. 2. Escolha a profissão. 3. Adicione uma ou mais especialidades. 4. Crie outro fluxo só quando a trilha for realmente diferente.</div></div>${renderSpecialties(scope, flow)}</div></div>`;
   }
   function renderFlowManager(scope){
     const data = scope === 'candidate' ? currentEditorData() : getNewState();
@@ -17880,7 +17780,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const chipsMain = mainRow ? `<div class="pf-v53-chip primary"><span class="pf-v53-chip-label">${htmlEsc(labelOf(mainRow))}</span><span class="pf-v53-badge ok">Principal</span><button type="button" class="pf-v53-btn small danger" onclick="v53SetPrimaryTraining('${scope}','')">Limpar</button></div>` : `<div class="pf-v53-empty">Defina a formação principal em nível macro. Ex.: Bacharelado, Curso Técnico, Tecnólogo.</div>`;
     const chipsExtra = extraRows.length ? extraRows.map(r => `<div class="pf-v53-chip"><span class="pf-v53-chip-label">${htmlEsc(labelOf(r))}</span><button type="button" class="pf-v53-btn small danger" onclick="v53RemoveTraining('${scope}','${htmlEsc(String(r.id))}')">Remover</button></div>`).join('') : `<div class="pf-v53-empty">Sem formações adicionais.</div>`;
     const options = trainingRows().map(r => `<option value="${htmlEsc(String(r.id))}" ${String(st.primaryTrainingId || '') === String(r.id) ? 'selected' : ''}>${htmlEsc(labelOf(r))}</option>`).join('');
-    return `<div class="pf-v53-card soft"><div class="pf-v53-head"><div><div class="pf-v53-title">Formação</div><div class="pf-v53-sub">A formação principal deve ser ampla. Cursos e certificações entram como adicionais.</div></div></div><div class="pf-v53-grid-2"><div class="pf-v53-field"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="v53SetPrimaryTraining('${scope}', this.value)"><option value="">Selecionar</option>${options}</select><div class="pf-v53-help">Evite transformar curso curto ou NR em formação principal.</div><div class="pf-v53-chip-row" style="margin-top:8px">${chipsMain}</div></div><div class="pf-v53-field"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input class="field-input" id="${scope}-v53-training-input" placeholder="Buscar formação adicional" oninput="v53RenderTrainingHints('${scope}')"><button type="button" class="pf-v53-btn" onclick="v53AddTraining('${scope}')">Adicionar</button></div><div class="pf-v53-suggest" id="${scope}-v53-training-hints">${renderTrainingHints(scope, '')}</div><div class="pf-v53-chip-row" style="margin-top:8px">${chipsExtra}</div></div></div></div>`;
+    return `<div class="pf-v53-card soft"><div class="pf-v53-head"><div><div class="pf-v53-title">Formação</div><div class="pf-v53-sub">A formação principal deve ser ampla. Cursos e certificações entram como adicionais.</div></div></div><div class="pf-v53-grid-2"><div class="pf-v53-field"><label class="field-lbl">Formação principal</label><select class="field-select" onchange="v53SetPrimaryTraining('${scope}', this.value)"><option value="">Selecionar</option>${options}</select><div class="pf-v53-help">Evite transformar curso curto ou NR em formação principal.</div><div class="pf-v53-chip-row" style="margin-top:8px">${chipsMain}</div></div><div class="pf-v53-field"><label class="field-lbl">Formações adicionais</label><div class="pf-toolbar"><input type="text" class="field-input" id="${scope}-v53-training-input" placeholder="Buscar formação adicional" oninput="v53RenderTrainingHints('${scope}')"><button type="button" class="pf-v53-btn" onclick="v53AddTraining('${scope}')">Adicionar</button></div><div class="pf-v53-suggest" id="${scope}-v53-training-hints">${renderTrainingHints(scope, '')}</div><div class="pf-v53-chip-row" style="margin-top:8px">${chipsExtra}</div></div></div></div>`;
   }
   function renderCompactSummary(scope){
     const st = scope === 'candidate' ? currentCandidateState() : currentNewState();
@@ -17908,13 +17808,13 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
   }
   function renderSpecialtyManager(scope, flow){
     const chips = (flow.specialties || []).length ? flow.specialties.map((s, idx) => `<div class="pf-v53-chip ${(!s.specialty_id && s.specialty_label)?'pending':''} ${idx===0?'primary':''}"><span class="pf-v53-chip-label">${htmlEsc(s.specialty_label || labelOf(byId(specialtyRows(), s.specialty_id)) || 'Especialidade')}</span>${idx===0?'<span class="pf-v53-badge ok">Principal</span>':`<button type="button" class="pf-v53-btn small" onclick="v53SetPrimarySpecialty('${scope}','${flow.uid}','${s.uid}')">Tornar principal</button>`}<button type="button" class="pf-v53-btn small danger" onclick="v53RemoveSpecialty('${scope}','${flow.uid}','${s.uid}')">Remover</button></div>`).join('') : `<div class="pf-v53-empty">Sem especialidades neste fluxo.</div>`;
-    return `<div class="pf-v53-field" style="grid-column:1/-1"><label class="field-lbl">Especialidades</label><div class="pf-toolbar"><input class="field-input" id="${scope}-v53-specialty-${flow.uid}" placeholder="Buscar especialidade oficial ou registrar pendente" oninput="v53RenderFieldHints('${scope}','${flow.uid}','specialty')" onkeydown="if(event.key==='Enter'){event.preventDefault();v53AddSpecialty('${scope}','${flow.uid}')}"><button type="button" class="pf-v53-btn" onclick="v53AddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div><div class="pf-v53-suggest" id="${scope}-v53-specialty-hints-${flow.uid}">${renderFieldHints(scope, flow, 'specialty', '')}</div><div class="pf-v53-help">Várias especialidades são permitidas dentro do mesmo fluxo.</div><div class="pf-v53-chip-row">${chips}</div></div>`;
+    return `<div class="pf-v53-field" style="grid-column:1/-1"><label class="field-lbl">Especialidades</label><div class="pf-toolbar"><input type="text" class="field-input" id="${scope}-v53-specialty-${flow.uid}" placeholder="Buscar especialidade oficial ou registrar pendente" oninput="v53RenderFieldHints('${scope}','${flow.uid}','specialty')" onkeydown="if(event.key==='Enter'){event.preventDefault();v53AddSpecialty('${scope}','${flow.uid}')}"><button type="button" class="pf-v53-btn" onclick="v53AddSpecialty('${scope}','${flow.uid}')">Adicionar especialidade</button></div><div class="pf-v53-suggest" id="${scope}-v53-specialty-hints-${flow.uid}">${renderFieldHints(scope, flow, 'specialty', '')}</div><div class="pf-v53-help">Várias especialidades são permitidas dentro do mesmo fluxo.</div><div class="pf-v53-chip-row">${chips}</div></div>`;
   }
   function renderFlowCard(scope, flow, idx, total){
     const areaStatus = flow.area_id ? `<span class="pf-v53-badge ok">Área oficial</span>` : flow.area_label ? `<span class="pf-v53-badge warn">Área pendente</span>` : '';
     const professionStatus = flow.profession_id ? `<span class="pf-v53-badge ok">Profissão oficial</span>` : flow.profession_label ? `<span class="pf-v53-badge warn">Profissão pendente</span>` : '';
     const mainSpec = (flow.specialties || []).map(s => s.specialty_label).filter(Boolean).join(' + ') || 'Sem especialidade';
-    return `<div class="pf-v53-card"><div class="pf-v53-head"><div><div class="pf-v53-title">Fluxo profissional ${idx + 1}</div><div class="pf-v53-flowpath"><strong>${htmlEsc(flow.area_label || 'Área')}</strong><span>→</span><strong>${htmlEsc(flow.profession_label || 'Profissão')}</strong><span>→</span><span>${htmlEsc(mainSpec)}</span></div></div><div class="pf-v53-inline-actions">${flow.is_primary ? '<span class="pf-v53-badge ok">Fluxo principal</span>' : `<button type="button" class="pf-v53-btn small" onclick="v53SetPrimaryFlow('${scope}','${flow.uid}')">Tornar principal</button>`}<button type="button" class="pf-v53-btn small" onclick="v53DuplicateFlow('${scope}','${flow.uid}')">Duplicar</button>${total > 1 ? `<button type="button" class="pf-v53-btn small danger" onclick="v53RemoveFlow('${scope}','${flow.uid}')">Remover</button>` : ''}</div></div><div class="pf-v53-badges">${areaStatus}${professionStatus}</div><div class="pf-v53-grid"><div class="pf-v53-field"><label class="field-lbl">Área</label><input class="field-input" id="${scope}-v53-area-${flow.uid}" value="${htmlEsc(flow.area_label)}" placeholder="Digite ou escolha uma área" oninput="v53RenderFieldHints('${scope}','${flow.uid}','area')" onchange="v53HandleField('${scope}','${flow.uid}','area',this.value)" onblur="v53HandleField('${scope}','${flow.uid}','area',this.value)"><div class="pf-v53-suggest" id="${scope}-v53-area-hints-${flow.uid}">${renderFieldHints(scope, flow, 'area', flow.area_label || '')}</div><div class="pf-v53-help">Catálogo oficial + texto pendente quando realmente não existir.</div></div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input class="field-input" id="${scope}-v53-profession-${flow.uid}" value="${htmlEsc(flow.profession_label)}" placeholder="Digite ou escolha uma profissão" oninput="v53RenderFieldHints('${scope}','${flow.uid}','profession')" onchange="v53HandleField('${scope}','${flow.uid}','profession',this.value)" onblur="v53HandleField('${scope}','${flow.uid}','profession',this.value)"><div class="pf-v53-suggest" id="${scope}-v53-profession-hints-${flow.uid}">${renderFieldHints(scope, flow, 'profession', flow.profession_label || '')}</div><div class="pf-v53-help">Primeiro aparecem profissões ligadas à área. Depois, o restante do catálogo.</div></div><div class="pf-v53-field"><label class="field-lbl">Critério</label><div class="pf-v53-note">Crie um novo fluxo apenas quando a trilha profissional for realmente diferente. Não crie fluxo novo só para trocar especialidade.</div></div>${renderSpecialtyManager(scope, flow)}</div></div>`;
+    return `<div class="pf-v53-card"><div class="pf-v53-head"><div><div class="pf-v53-title">Fluxo profissional ${idx + 1}</div><div class="pf-v53-flowpath"><strong>${htmlEsc(flow.area_label || 'Área')}</strong><span>→</span><strong>${htmlEsc(flow.profession_label || 'Profissão')}</strong><span>→</span><span>${htmlEsc(mainSpec)}</span></div></div><div class="pf-v53-inline-actions">${flow.is_primary ? '<span class="pf-v53-badge ok">Fluxo principal</span>' : `<button type="button" class="pf-v53-btn small" onclick="v53SetPrimaryFlow('${scope}','${flow.uid}')">Tornar principal</button>`}<button type="button" class="pf-v53-btn small" onclick="v53DuplicateFlow('${scope}','${flow.uid}')">Duplicar</button>${total > 1 ? `<button type="button" class="pf-v53-btn small danger" onclick="v53RemoveFlow('${scope}','${flow.uid}')">Remover</button>` : ''}</div></div><div class="pf-v53-badges">${areaStatus}${professionStatus}</div><div class="pf-v53-grid"><div class="pf-v53-field"><label class="field-lbl">Área</label><input type="text" class="field-input" id="${scope}-v53-area-${flow.uid}" value="${htmlEsc(flow.area_label)}" placeholder="Digite ou escolha uma área" oninput="v53RenderFieldHints('${scope}','${flow.uid}','area')" onchange="v53HandleField('${scope}','${flow.uid}','area',this.value)" onblur="v53HandleField('${scope}','${flow.uid}','area',this.value)"><div class="pf-v53-suggest" id="${scope}-v53-area-hints-${flow.uid}">${renderFieldHints(scope, flow, 'area', flow.area_label || '')}</div><div class="pf-v53-help">Catálogo oficial + texto pendente quando realmente não existir.</div></div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input type="text" class="field-input" id="${scope}-v53-profession-${flow.uid}" value="${htmlEsc(flow.profession_label)}" placeholder="Digite ou escolha uma profissão" oninput="v53RenderFieldHints('${scope}','${flow.uid}','profession')" onchange="v53HandleField('${scope}','${flow.uid}','profession',this.value)" onblur="v53HandleField('${scope}','${flow.uid}','profession',this.value)"><div class="pf-v53-suggest" id="${scope}-v53-profession-hints-${flow.uid}">${renderFieldHints(scope, flow, 'profession', flow.profession_label || '')}</div><div class="pf-v53-help">Primeiro aparecem profissões ligadas à área. Depois, o restante do catálogo.</div></div><div class="pf-v53-field"><label class="field-lbl">Critério</label><div class="pf-v53-note">Crie um novo fluxo apenas quando a trilha profissional for realmente diferente. Não crie fluxo novo só para trocar especialidade.</div></div>${renderSpecialtyManager(scope, flow)}</div></div>`;
   }
   function renderManager(scope){
     const st = scope === 'candidate' ? currentCandidateState() : currentNewState();
@@ -17928,7 +17828,7 @@ body.crm-busy, body.crm-busy * { cursor: progress !important; }
     const professionsCount = professionRows().length;
     const specialtiesCount = specialtyRows().length;
     const aliasesCount = aliasRows().length;
-    return `<div class="pf-v53-card admin"><div class="pf-v53-head"><div><div class="pf-v53-title">Administração do catálogo</div><div class="pf-v53-sub">Painel operacional para ampliar área, profissão, especialidade, vínculos e aliases sem editar código.</div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn warn" onclick="v53AdminRefresh()">Atualizar catálogo</button></div></div><div class="pf-v53-topline"><span class="pf-v53-stat">${areasCount} áreas</span><span class="pf-v53-stat">${professionsCount} profissões</span><span class="pf-v53-stat">${specialtiesCount} especialidades</span><span class="pf-v53-stat">${aliasesCount} aliases</span></div><div class="pf-v53-grid-2"><div class="pf-v53-card soft"><div class="pf-v53-title">Busca do catálogo</div><div class="pf-v53-field"><input class="field-input" id="v53-admin-search" placeholder="Buscar área, profissão, especialidade ou alias" oninput="v53AdminRenderSearch()"></div><div id="v53-admin-search-results" class="pf-v53-admin-search-results"><div class="pf-v53-empty">Digite para auditar o catálogo atual.</div></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Sugestões pendentes</div><div id="v53-admin-requests" class="pf-v53-requests"><div class="pf-v53-empty">Carregando solicitações...</div></div></div></div><div class="pf-v53-grid-2"><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova área</div><div class="pf-v53-field"><label class="field-lbl">Nome em português</label><input class="field-input" id="v53-admin-area-label" placeholder="Ex.: Atendimento Veterinário"></div><div class="pf-v53-field"><label class="field-lbl">Nome em alemão</label><input class="field-input" id="v53-admin-area-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateArea()">Salvar área</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova profissão</div><div class="pf-v53-field"><label class="field-lbl">Área</label><input class="field-input" id="v53-admin-prof-area" placeholder="Digite a área" oninput="v53AdminSuggestInput('area','v53-admin-prof-area','v53-admin-prof-area-hints',10)"><div id="v53-admin-prof-area-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Profissão em português</label><input class="field-input" id="v53-admin-prof-label" placeholder="Ex.: Caixa Lotérico"></div><div class="pf-v53-field"><label class="field-lbl">Profissão em alemão</label><input class="field-input" id="v53-admin-prof-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateProfession()">Salvar profissão</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova especialidade</div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input class="field-input" id="v53-admin-spec-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-spec-prof','v53-admin-spec-prof-hints',10)"><div id="v53-admin-spec-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Especialidade em português</label><input class="field-input" id="v53-admin-spec-label" placeholder="Ex.: Atendimento lotérico"></div><div class="pf-v53-field"><label class="field-lbl">Especialidade em alemão</label><input class="field-input" id="v53-admin-spec-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateSpecialty()">Salvar especialidade</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Vincular profissão a outra área</div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input class="field-input" id="v53-admin-link-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-link-prof','v53-admin-link-prof-hints',10)"><div id="v53-admin-link-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Área adicional</label><input class="field-input" id="v53-admin-link-area" placeholder="Digite a área" oninput="v53AdminSuggestInput('area','v53-admin-link-area','v53-admin-link-area-hints',10)"><div id="v53-admin-link-area-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminLinkProfessionArea()">Vincular</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Vincular especialidade a outra profissão</div><div class="pf-v53-field"><label class="field-lbl">Especialidade</label><input class="field-input" id="v53-admin-link-spec" placeholder="Digite a especialidade" oninput="v53AdminSuggestInput('specialty','v53-admin-link-spec','v53-admin-link-spec-hints',10)"><div id="v53-admin-link-spec-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Profissão adicional</label><input class="field-input" id="v53-admin-link-spec-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-link-spec-prof','v53-admin-link-spec-prof-hints',10)"><div id="v53-admin-link-spec-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminLinkSpecialtyProfession()">Vincular</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar alias</div><div class="pf-v53-field"><label class="field-lbl">Tipo</label><select class="field-select" id="v53-admin-alias-type" onchange="v53AdminAliasTypeChanged()"><option value="profession">Profissão</option><option value="specialty">Especialidade</option><option value="area">Área</option></select></div><div class="pf-v53-field"><label class="field-lbl">Alvo oficial</label><input class="field-input" id="v53-admin-alias-target" placeholder="Digite o alvo oficial" oninput="v53AdminAliasSuggest()"><div id="v53-admin-alias-target-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Alias</label><input class="field-input" id="v53-admin-alias-label" placeholder="Ex.: Caixa, Enfermeira, Help Desk"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateAlias()">Salvar alias</button></div></div></div></div>`;
+    return `<div class="pf-v53-card admin"><div class="pf-v53-head"><div><div class="pf-v53-title">Administração do catálogo</div><div class="pf-v53-sub">Painel operacional para ampliar área, profissão, especialidade, vínculos e aliases sem editar código.</div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn warn" onclick="v53AdminRefresh()">Atualizar catálogo</button></div></div><div class="pf-v53-topline"><span class="pf-v53-stat">${areasCount} áreas</span><span class="pf-v53-stat">${professionsCount} profissões</span><span class="pf-v53-stat">${specialtiesCount} especialidades</span><span class="pf-v53-stat">${aliasesCount} aliases</span></div><div class="pf-v53-grid-2"><div class="pf-v53-card soft"><div class="pf-v53-title">Busca do catálogo</div><div class="pf-v53-field"><input type="text" class="field-input" id="v53-admin-search" placeholder="Buscar área, profissão, especialidade ou alias" oninput="v53AdminRenderSearch()"></div><div id="v53-admin-search-results" class="pf-v53-admin-search-results"><div class="pf-v53-empty">Digite para auditar o catálogo atual.</div></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Sugestões pendentes</div><div id="v53-admin-requests" class="pf-v53-requests"><div class="pf-v53-empty">Carregando solicitações...</div></div></div></div><div class="pf-v53-grid-2"><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova área</div><div class="pf-v53-field"><label class="field-lbl">Nome em português</label><input type="text" class="field-input" id="v53-admin-area-label" placeholder="Ex.: Atendimento Veterinário"></div><div class="pf-v53-field"><label class="field-lbl">Nome em alemão</label><input type="text" class="field-input" id="v53-admin-area-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateArea()">Salvar área</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova profissão</div><div class="pf-v53-field"><label class="field-lbl">Área</label><input type="text" class="field-input" id="v53-admin-prof-area" placeholder="Digite a área" oninput="v53AdminSuggestInput('area','v53-admin-prof-area','v53-admin-prof-area-hints',10)"><div id="v53-admin-prof-area-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Profissão em português</label><input type="text" class="field-input" id="v53-admin-prof-label" placeholder="Ex.: Caixa Lotérico"></div><div class="pf-v53-field"><label class="field-lbl">Profissão em alemão</label><input type="text" class="field-input" id="v53-admin-prof-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateProfession()">Salvar profissão</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar nova especialidade</div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input type="text" class="field-input" id="v53-admin-spec-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-spec-prof','v53-admin-spec-prof-hints',10)"><div id="v53-admin-spec-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Especialidade em português</label><input type="text" class="field-input" id="v53-admin-spec-label" placeholder="Ex.: Atendimento lotérico"></div><div class="pf-v53-field"><label class="field-lbl">Especialidade em alemão</label><input type="text" class="field-input" id="v53-admin-spec-label-de" placeholder="Opcional"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateSpecialty()">Salvar especialidade</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Vincular profissão a outra área</div><div class="pf-v53-field"><label class="field-lbl">Profissão</label><input type="text" class="field-input" id="v53-admin-link-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-link-prof','v53-admin-link-prof-hints',10)"><div id="v53-admin-link-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Área adicional</label><input type="text" class="field-input" id="v53-admin-link-area" placeholder="Digite a área" oninput="v53AdminSuggestInput('area','v53-admin-link-area','v53-admin-link-area-hints',10)"><div id="v53-admin-link-area-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminLinkProfessionArea()">Vincular</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Vincular especialidade a outra profissão</div><div class="pf-v53-field"><label class="field-lbl">Especialidade</label><input type="text" class="field-input" id="v53-admin-link-spec" placeholder="Digite a especialidade" oninput="v53AdminSuggestInput('specialty','v53-admin-link-spec','v53-admin-link-spec-hints',10)"><div id="v53-admin-link-spec-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Profissão adicional</label><input type="text" class="field-input" id="v53-admin-link-spec-prof" placeholder="Digite a profissão" oninput="v53AdminSuggestInput('profession','v53-admin-link-spec-prof','v53-admin-link-spec-prof-hints',10)"><div id="v53-admin-link-spec-prof-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminLinkSpecialtyProfession()">Vincular</button></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Cadastrar alias</div><div class="pf-v53-field"><label class="field-lbl">Tipo</label><select class="field-select" id="v53-admin-alias-type" onchange="v53AdminAliasTypeChanged()"><option value="profession">Profissão</option><option value="specialty">Especialidade</option><option value="area">Área</option></select></div><div class="pf-v53-field"><label class="field-lbl">Alvo oficial</label><input type="text" class="field-input" id="v53-admin-alias-target" placeholder="Digite o alvo oficial" oninput="v53AdminAliasSuggest()"><div id="v53-admin-alias-target-hints" class="pf-v53-suggest"></div></div><div class="pf-v53-field"><label class="field-lbl">Alias</label><input type="text" class="field-input" id="v53-admin-alias-label" placeholder="Ex.: Caixa, Enfermeira, Help Desk"></div><div class="pf-v53-inline-actions"><button type="button" class="pf-v53-btn" onclick="v53AdminCreateAlias()">Salvar alias</button></div></div></div></div>`;
   }
   function renderProfessionalTab(c){
     return `<div class="pf-root"><div class="section-hdr">Formação & Carreira</div>${renderCompactSummary('candidate')}${renderTrainingManager('candidate')}${renderManager('candidate')}<div class="pf-v53-card soft"><div class="pf-v53-title">Detalhes profissionais</div><div class="pf-v53-grid">${stdInput(c,'Universidade','Universidade / Formação')}${stdInput(c,'Curso de Graduação','Curso de Graduação')}${stdSelect(c,'Anabin','Classificação Anabin')}${stdSelect(c,'Pós-graduação','Pós-graduação?')}${stdInput(c,'Experiência Profissional (tempo)','Exp. profissional (tempo)')}${stdInput(c,'Referência','Referência / Origem')}${stdInput(c,'Data da Candidatura','Data candidatura')}${stdInput(c,'CV/ ARQUIVO DOC','Link CV')}</div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Idiomas</div><div class="pf-v53-grid">${stdSelect(c,'Nível alemão','Nível de alemão')}${stdSelect(c,'Em curso de alemão','Cursando alemão?')}${stdInput(c,'Língua Estrangeira','Língua estrangeira')}${stdInput(c,'Nível Língua Estrangeira','Nível língua estrangeira')}${stdSelect(c,'Resultado da prova','Resultado de prova')}<div></div></div></div><div class="pf-v53-card soft"><div class="pf-v53-title">Resumo</div><div class="pf-v53-grid">${stdTextarea(c,'Resumo profissional','Resumo profissional',true)}</div></div>${renderAdminCard()}</div>`;
@@ -19932,12 +19832,12 @@ body.dense-mode .inst-action-card{padding:10px 12px}
     el.innerHTML = `<div class="inst-kanban-shell">
       <div class="inst-kanban-toolbar">
         <div class="inst-chip-row">
-          <button class="inst-chip ${state.quick==='todos'?'active':''}" onclick="setInstKanbanQuick('todos')">Todos</button>
-          <button class="inst-chip ${state.quick==='prioridade'?'active':''}" onclick="setInstKanbanQuick('prioridade')">Alta prioridade</button>
-          <button class="inst-chip ${state.quick==='ready'?'active':''}" onclick="setInstKanbanQuick('ready')">Ready</button>
-          <button class="inst-chip ${state.quick==='docs'?'active':''}" onclick="setInstKanbanQuick('docs')">Docs pendentes</button>
-          <button class="inst-chip ${state.quick==='employer'?'active':''}" onclick="setInstKanbanQuick('employer')">Employer</button>
-          <button class="inst-chip ${state.quick==='sem_responsavel'?'active':''}" onclick="setInstKanbanQuick('sem_responsavel')">Sem responsável</button>
+          <button type="button" class="inst-chip ${state.quick==='todos'?'active':''}" onclick="setInstKanbanQuick('todos')">Todos</button>
+          <button type="button" class="inst-chip ${state.quick==='prioridade'?'active':''}" onclick="setInstKanbanQuick('prioridade')">Alta prioridade</button>
+          <button type="button" class="inst-chip ${state.quick==='ready'?'active':''}" onclick="setInstKanbanQuick('ready')">Ready</button>
+          <button type="button" class="inst-chip ${state.quick==='docs'?'active':''}" onclick="setInstKanbanQuick('docs')">Docs pendentes</button>
+          <button type="button" class="inst-chip ${state.quick==='employer'?'active':''}" onclick="setInstKanbanQuick('employer')">Employer</button>
+          <button type="button" class="inst-chip ${state.quick==='sem_responsavel'?'active':''}" onclick="setInstKanbanQuick('sem_responsavel')">Sem responsável</button>
         </div>
         <input class="inst-kanban-search" type="search" placeholder="Buscar nome, profissão, employer, responsável..." value="${esc(state.q || '')}" oninput="setInstKanbanSearch(this.value)">
         <label class="inst-toggle"><input type="checkbox" ${state.hideEmpty ? 'checked' : ''} onchange="setInstKanbanHideEmpty(this.checked)"> Ocultar colunas vazias</label>
@@ -20203,12 +20103,12 @@ body.dense-mode .inst-action-card{padding:10px 12px}
       composer.insertAdjacentHTML('beforebegin', ticketStripHtml(rows, filtered));
       composer.insertAdjacentHTML('beforeend', `<div class="inst-ticket-quickbar">
         <div class="inst-chip-row">
-          <button class="inst-quick-chip ${ticketUx.quick==='todos'?'active':''}" onclick="setTicketQuick('todos')">Todos</button>
-          <button class="inst-quick-chip ${ticketUx.quick==='abertos'?'active':''}" onclick="setTicketQuick('abertos')">Somente abertos</button>
-          <button class="inst-quick-chip ${ticketUx.quick==='atrasados'?'active':''}" onclick="setTicketQuick('atrasados')">Atrasados</button>
-          <button class="inst-quick-chip ${ticketUx.quick==='hoje'?'active':''}" onclick="setTicketQuick('hoje')">Hoje</button>
-          <button class="inst-quick-chip ${ticketUx.quick==='sem_data'?'active':''}" onclick="setTicketQuick('sem_data')">Sem data</button>
-          <button class="inst-quick-chip ${ticketUx.quick==='alta'?'active':''}" onclick="setTicketQuick('alta')">Alta prioridade</button>
+          <button type="button" class="inst-quick-chip ${ticketUx.quick==='todos'?'active':''}" onclick="setTicketQuick('todos')">Todos</button>
+          <button type="button" class="inst-quick-chip ${ticketUx.quick==='abertos'?'active':''}" onclick="setTicketQuick('abertos')">Somente abertos</button>
+          <button type="button" class="inst-quick-chip ${ticketUx.quick==='atrasados'?'active':''}" onclick="setTicketQuick('atrasados')">Atrasados</button>
+          <button type="button" class="inst-quick-chip ${ticketUx.quick==='hoje'?'active':''}" onclick="setTicketQuick('hoje')">Hoje</button>
+          <button type="button" class="inst-quick-chip ${ticketUx.quick==='sem_data'?'active':''}" onclick="setTicketQuick('sem_data')">Sem data</button>
+          <button type="button" class="inst-quick-chip ${ticketUx.quick==='alta'?'active':''}" onclick="setTicketQuick('alta')">Alta prioridade</button>
         </div>
         <label class="inst-switch"><input type="checkbox" ${ticketUx.compact ? 'checked' : ''} onchange="setTicketCompactMode(this.checked)"> Modo compacto</label>
       </div>`);
@@ -20254,11 +20154,11 @@ body.dense-mode .inst-action-card{padding:10px 12px}
       if(toolbar && !toolbar.nextElementSibling?.classList?.contains('inst-agenda-quickbar')){
         toolbar.insertAdjacentHTML('afterend', `<div class="inst-agenda-quickbar">
           <div class="inst-chip-row">
-            <button class="inst-agenda-btn ${focus==='todos'?'active':''}" onclick="setAgendaFocus('todos')">Visão atual</button>
-            <button class="inst-agenda-btn ${focus==='hoje'?'active':''}" onclick="setAgendaFocus('hoje')">Hoje</button>
-            <button class="inst-agenda-btn ${focus==='7dias'?'active':''}" onclick="setAgendaFocus('7dias')">Próximos 7 dias</button>
-            <button class="inst-agenda-btn ${focus==='sem_link'?'active':''}" onclick="setAgendaFocus('sem_link')">Sem link</button>
-            <button class="inst-agenda-btn ${focus==='sem_responsavel'?'active':''}" onclick="setAgendaFocus('sem_responsavel')">Sem responsável</button>
+            <button type="button" class="inst-agenda-btn ${focus==='todos'?'active':''}" onclick="setAgendaFocus('todos')">Visão atual</button>
+            <button type="button" class="inst-agenda-btn ${focus==='hoje'?'active':''}" onclick="setAgendaFocus('hoje')">Hoje</button>
+            <button type="button" class="inst-agenda-btn ${focus==='7dias'?'active':''}" onclick="setAgendaFocus('7dias')">Próximos 7 dias</button>
+            <button type="button" class="inst-agenda-btn ${focus==='sem_link'?'active':''}" onclick="setAgendaFocus('sem_link')">Sem link</button>
+            <button type="button" class="inst-agenda-btn ${focus==='sem_responsavel'?'active':''}" onclick="setAgendaFocus('sem_responsavel')">Sem responsável</button>
           </div>
           <div class="inst-agenda-kpis">
             <div class="inst-agenda-mini"><span class="k">View</span><span class="v">${AG.view === 'month' ? 'Mês' : 'Semana'}</span></div>

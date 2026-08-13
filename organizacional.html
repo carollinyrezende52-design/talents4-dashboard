@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-t4-module="organizacional">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talents 4 — CRM v8</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="theme-color" content="#1d4ed8">
+<title>Talents 4 — Organizacional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/t4-ui.css">
+<script src="assets/t4-ui.js" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -485,7 +491,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <p>Controle de atividades de recrutamento por empregador e mês</p>
     </div>
     <div class="ph-right">
-      <button class="btn btn-primary" onclick="openPlanModal()">
+      <button type="button" class="btn btn-primary" onclick="openPlanModal()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nova Atividade
       </button>
@@ -493,9 +499,9 @@ tbody tr:hover .row-actions.hover{opacity:1}
   </div>
   <div class="toolbar">
     <div class="month-nav">
-      <button class="mnav-btn" onclick="changeMonth(-1)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button type="button" class="mnav-btn" aria-label="Mês anterior" onclick="changeMonth(-1)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span id="month-label"></span>
-      <button class="mnav-btn" onclick="changeMonth(1)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <button type="button" class="mnav-btn" aria-label="Próximo mês" onclick="changeMonth(1)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
     <div class="search">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -541,7 +547,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <p>Visualização de atividades por dia e mês</p>
     </div>
     <div class="ph-right">
-      <button class="btn btn-primary" onclick="openPlanModal()">
+      <button type="button" class="btn btn-primary" onclick="openPlanModal()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nova Atividade
       </button>
@@ -549,9 +555,9 @@ tbody tr:hover .row-actions.hover{opacity:1}
   </div>
   <div class="toolbar">
     <div class="month-nav">
-      <button class="mnav-btn" onclick="changeMonth(-1);renderCalendar()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button type="button" class="mnav-btn" aria-label="Mês anterior" onclick="changeMonth(-1);renderCalendar()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span id="cal-month-label"></span>
-      <button class="mnav-btn" onclick="changeMonth(1);renderCalendar()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <button type="button" class="mnav-btn" aria-label="Próximo mês" onclick="changeMonth(1);renderCalendar()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
     <select class="fi" style="width:auto;padding:6px 10px" id="cal-emp-filter" onchange="renderCalendar()">
       <option value="">Todos os empregadores</option>
@@ -572,7 +578,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <p>Alinhamentos e decisões de cada reunião semanal</p>
     </div>
     <div class="ph-right">
-      <button class="btn btn-primary" onclick="openMeetModal()">
+      <button type="button" class="btn btn-primary" onclick="openMeetModal()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nova Reunião
       </button>
@@ -617,7 +623,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
     <div class="ph-left"><h1>Resumo Geral</h1><p>Leitura consolidada da operação, prioridades e histórico completo</p></div>
     <div class="ph-right" style="display:flex;gap:8px;flex-wrap:wrap">
       <select class="fi" style="width:auto;padding:6px 10px" id="resumo-month-filter" onchange="renderResumo()"><option value="">Todos os meses</option></select>
-      <button class="btn btn-primary" onclick="openWeeklyModal()">Adicionar item manual</button>
+      <button type="button" class="btn btn-primary" onclick="openWeeklyModal()">Adicionar item manual</button>
     </div>
   </div>
   <div class="toolbar resumo-toolbar-advanced">
@@ -641,7 +647,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <option value="alpha">Ordem alfabética</option>
       <option value="status">Status</option>
     </select>
-    <button class="btn btn-ghost btn-sm" onclick="clearResumoFilters()">Limpar filtros</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="clearResumoFilters()">Limpar filtros</button>
   </div>
   <div class="pb">
     <div class="stats" id="resumo-stats"></div>
@@ -682,11 +688,11 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="ph">
     <div class="ph-left"><h1>PO Operacional</h1><p>Tarefas operacionais e métricas mensais da equipe</p></div>
     <div class="ph-right" style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-ghost" onclick="openMetricModal()">
+      <button type="button" class="btn btn-ghost" onclick="openMetricModal()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nova métrica
       </button>
-      <button class="btn btn-primary" onclick="openTaskModal()">
+      <button type="button" class="btn btn-primary" onclick="openTaskModal()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nova tarefa
       </button>
@@ -707,7 +713,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input id="op-search" type="text" placeholder="Buscar tarefa..." oninput="renderOperationalPage()">
     </div>
-    <button class="btn btn-ghost btn-sm" onclick="clearOperationalFilters()">Limpar filtros</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="clearOperationalFilters()">Limpar filtros</button>
   </div>
   <div class="pb">
     <div class="stats" id="op-stats"></div>
@@ -742,7 +748,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="ph">
     <div class="ph-left"><h1>Gerenciar Empregadores</h1><p>Cadastro limpo, contexto operacional e acesso rápido ao dossiê real de cada employer</p></div>
     <div class="ph-right">
-      <button class="btn btn-primary" onclick="openEmpModal()">
+      <button type="button" class="btn btn-primary" onclick="openEmpModal()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Novo Empregador
       </button>
@@ -768,7 +774,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <option value="openings">Mais vagas abertas</option>
       <option value="name">Nome A-Z</option>
     </select>
-    <button class="btn btn-ghost btn-sm" onclick="clearEmployerFilters()">Limpar filtros</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="clearEmployerFilters()">Limpar filtros</button>
   </div>
   <div class="pb">
     <div class="stats" id="emp-stats" style="margin-bottom:14px"></div>
@@ -784,10 +790,10 @@ tbody tr:hover .row-actions.hover{opacity:1}
   </div>
   <div class="emp-tabs" id="emp-tabs"></div>
   <div class="sub-tabs" id="dossie-subtabs">
-    <button class="sub-tab active" onclick="switchDossieTab('info')">Visão Geral</button>
-    <button class="sub-tab" onclick="switchDossieTab('pipeline')">Pipeline de Candidatos</button>
-    <button class="sub-tab" onclick="switchDossieTab('removidos')">Removidos / Rejeitados</button>
-    <button class="sub-tab" onclick="switchDossieTab('reposicao')">Reposição</button>
+    <button type="button" class="sub-tab active" onclick="switchDossieTab('info')">Visão Geral</button>
+    <button type="button" class="sub-tab" onclick="switchDossieTab('pipeline')">Pipeline de Candidatos</button>
+    <button type="button" class="sub-tab" onclick="switchDossieTab('removidos')">Removidos / Rejeitados</button>
+    <button type="button" class="sub-tab" onclick="switchDossieTab('reposicao')">Reposição</button>
   </div>
   <div class="pb">
     <!-- INFO -->
@@ -797,7 +803,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
           <div class="card-hd">
             <h3>Informações do Empregador</h3>
             <div style="display:flex;gap:6px">
-              <button class="btn btn-ghost btn-sm" onclick="openEmpModal(S.currentDossieEmp)">✏️ Editar</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="openEmpModal(S.currentDossieEmp)">✏️ Editar</button>
             </div>
           </div>
           <div class="card-bd" id="info-content"></div>
@@ -819,8 +825,8 @@ tbody tr:hover .row-actions.hover{opacity:1}
             <option value="">Todas as etapas</option>
             <option>Aguardando envio</option><option>Aguardando resposta</option><option>Gostou</option><option>Não gostou</option><option>Reunião marcada</option><option>Em processo</option><option>Contratado</option>
           </select>
-          <button class="btn btn-ghost btn-sm" onclick="clearPipelineFilters()">Limpar filtros</button>
-          <button class="btn btn-primary" onclick="openCandModal()">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="clearPipelineFilters()">Limpar filtros</button>
+          <button type="button" class="btn btn-primary" onclick="openCandModal()">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Adicionar Candidato
           </button>
@@ -862,7 +868,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
     <div class="sub-page" id="dossie-reposicao">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <p style="color:var(--text2);font-size:12px">Candidatos que precisam de reposição / novos perfis solicitados</p>
-        <button class="btn btn-primary" onclick="openReplaceModal()">
+        <button type="button" class="btn btn-primary" onclick="openReplaceModal()">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nova Solicitação
         </button>
@@ -886,14 +892,14 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal">
     <div class="modal-hd">
       <h2 id="modal-emp-title">Novo Empregador</h2>
-      <button class="modal-close" onclick="closeModal('modal-emp')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-emp')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="emp-id">
       <div class="frow">
         <div class="fg">
           <label class="fl">Nome do Empregador *</label>
-          <input class="fi" id="emp-name" placeholder="Ex: Müller GmbH">
+          <input type="text" class="fi" id="emp-name" placeholder="Ex: Müller GmbH">
         </div>
         <div class="fg">
           <label class="fl">Cor de identificação</label>
@@ -918,15 +924,15 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <div class="frow3">
         <div class="fg">
           <label class="fl">Contato</label>
-          <input class="fi" id="emp-contato" placeholder="Nome ou email do contato">
+          <input type="text" class="fi" id="emp-contato" placeholder="Nome ou email do contato">
         </div>
         <div class="fg">
           <label class="fl">Pasta / Drive</label>
-          <input class="fi" id="emp-pasta" placeholder="https://drive...">
+          <input type="text" class="fi" id="emp-pasta" placeholder="https://drive...">
         </div>
         <div class="fg">
           <label class="fl">CRM / Link</label>
-          <input class="fi" id="emp-crm" placeholder="https://...">
+          <input type="text" class="fi" id="emp-crm" placeholder="https://...">
         </div>
       </div>
       <div class="fg">
@@ -938,11 +944,11 @@ tbody tr:hover .row-actions.hover{opacity:1}
     </div>
     <div class="modal-footer">
       <div>
-        <button class="btn btn-danger" id="emp-delete-btn" onclick="deleteEmpById()" style="display:none">🗑 Excluir</button>
+        <button type="button" class="btn btn-danger" id="emp-delete-btn" onclick="deleteEmpById()" style="display:none">🗑 Excluir</button>
       </div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-emp')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveEmp()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-emp')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveEmp()">Salvar</button>
       </div>
     </div>
   </div>
@@ -953,7 +959,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal">
     <div class="modal-hd">
       <h2 id="modal-plan-title">Nova Atividade</h2>
-      <button class="modal-close" onclick="closeModal('modal-plan')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-plan')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="plan-id">
@@ -965,13 +971,13 @@ tbody tr:hover .row-actions.hover{opacity:1}
         <div class="fg">
           <label class="fl">Atividade *</label>
           <select class="fs" id="plan-activity" onchange="togglePlanCustomActivityField()"></select>
-          <input class="fi" id="plan-activity-custom" placeholder="Digite o nome da atividade" style="margin-top:8px;display:none">
+          <input type="text" class="fi" id="plan-activity-custom" placeholder="Digite o nome da atividade" style="margin-top:8px;display:none">
         </div>
       </div>
       <div class="frow">
         <div class="fg">
           <label class="fl">Responsável</label>
-          <input class="fi" id="plan-responsavel" placeholder="Ex: Carol, Sara...">
+          <input type="text" class="fi" id="plan-responsavel" placeholder="Ex: Carol, Sara...">
         </div>
         <div class="fg">
           <label class="fl">Status</label>
@@ -1000,10 +1006,10 @@ tbody tr:hover .row-actions.hover{opacity:1}
       </div>
     </div>
     <div class="modal-footer">
-      <div><button class="btn btn-danger btn-sm" id="plan-delete-btn" onclick="deletePlanEntryFromModal()" style="display:none">🗑 Excluir</button></div>
+      <div><button type="button" class="btn btn-danger btn-sm" id="plan-delete-btn" onclick="deletePlanEntryFromModal()" style="display:none">🗑 Excluir</button></div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-plan')">Cancelar</button>
-        <button class="btn btn-primary" onclick="savePlanEntry()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-plan')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="savePlanEntry()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1014,18 +1020,18 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal modal-lg">
     <div class="modal-hd">
       <h2 id="modal-meet-title">Nova Reunião</h2>
-      <button class="modal-close" onclick="closeModal('modal-meet')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-meet')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="meet-id">
       <div class="frow3">
         <div class="fg"><label class="fl">Data da Reunião</label><input type="date" class="fi" id="meet-data"></div>
         <div class="fg"><label class="fl">Mês</label><select class="fs" id="meet-mes"></select></div>
-        <div class="fg"><label class="fl">Semana</label><input class="fi" id="meet-semana" placeholder="Ex: Semana 2"></div>
+        <div class="fg"><label class="fl">Semana</label><input type="text" class="fi" id="meet-semana" placeholder="Ex: Semana 2"></div>
       </div>
       <div class="frow">
         <div class="fg"><label class="fl">Empregador</label><select class="fs" id="meet-employer"></select></div>
-        <div class="fg"><label class="fl">Tema</label><input class="fi" id="meet-tema" placeholder="Resumo do tema discutido"></div>
+        <div class="fg"><label class="fl">Tema</label><input type="text" class="fi" id="meet-tema" placeholder="Resumo do tema discutido"></div>
       </div>
       <div class="fg"><label class="fl">O que foi decidido / resolvido</label><textarea class="ft" id="meet-decidido" placeholder="Descreva as decisões tomadas..."></textarea></div>
       <div class="frow">
@@ -1033,17 +1039,17 @@ tbody tr:hover .row-actions.hover{opacity:1}
         <div class="fg"><label class="fl">Próxima Ação</label><textarea class="ft" id="meet-proxacao" placeholder="O que deve acontecer a seguir..."></textarea></div>
       </div>
       <div class="frow">
-        <div class="fg"><label class="fl">Responsável</label><input class="fi" id="meet-responsavel" placeholder="Quem vai executar"></div>
+        <div class="fg"><label class="fl">Responsável</label><input type="text" class="fi" id="meet-responsavel" placeholder="Quem vai executar"></div>
         <div class="fg"><label class="fl">Status</label>
           <select class="fs" id="meet-status"><option>A fazer</option><option>Em andamento</option><option>Concluído</option><option>Cancelado</option></select>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <div><button class="btn btn-danger btn-sm" id="meet-delete-btn" onclick="deleteMeetFromModal()" style="display:none">🗑 Excluir</button></div>
+      <div><button type="button" class="btn btn-danger btn-sm" id="meet-delete-btn" onclick="deleteMeetFromModal()" style="display:none">🗑 Excluir</button></div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-meet')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveMeeting()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-meet')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveMeeting()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1054,37 +1060,37 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal modal-xl">
     <div class="modal-hd">
       <h2 id="modal-cand-title">Novo Candidato</h2>
-      <button class="modal-close" onclick="closeModal('modal-cand')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-cand')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="cand-id">
       <div class="frow3">
-        <div class="fg"><label class="fl">Nome *</label><input class="fi" id="cand-nome" placeholder="Nome completo"></div>
+        <div class="fg"><label class="fl">Nome *</label><input type="text" class="fi" id="cand-nome" placeholder="Nome completo"></div>
         <div class="fg"><label class="fl">Idade</label><input type="number" class="fi" id="cand-idade" placeholder="Ex: 34"></div>
         <div class="fg"><label class="fl">Sequência / Ranking</label><input type="number" class="fi" id="cand-seq" placeholder="Ex: 1"></div>
       </div>
       <div class="frow">
-        <div class="fg"><label class="fl">Área / Posição</label><input class="fi" id="cand-area" placeholder="Ex: CNC-Produktion / Fertigung"></div>
-        <div class="fg"><label class="fl">Encaixe Principal</label><input class="fi" id="cand-encaixe" placeholder="Ex: CNC-Produktion"></div>
+        <div class="fg"><label class="fl">Área / Posição</label><input type="text" class="fi" id="cand-area" placeholder="Ex: CNC-Produktion / Fertigung"></div>
+        <div class="fg"><label class="fl">Encaixe Principal</label><input type="text" class="fi" id="cand-encaixe" placeholder="Ex: CNC-Produktion"></div>
       </div>
       <div class="frow">
         <div class="fg"><label class="fl">Nível de Alemão</label>
           <select class="fs" id="cand-alemao"><option value="">—</option><option>A1</option><option>A2</option><option>B1</option><option>B1/B2</option><option>B2</option><option>C1</option><option>C2</option><option>Nativo</option><option>Mittelstufe</option><option>fließend</option></select>
         </div>
-        <div class="fg"><label class="fl">Idiomas (completo)</label><input class="fi" id="cand-idiomas" placeholder="Ex: Português, Alemão B1, Inglês C1"></div>
+        <div class="fg"><label class="fl">Idiomas (completo)</label><input type="text" class="fi" id="cand-idiomas" placeholder="Ex: Português, Alemão B1, Inglês C1"></div>
       </div>
       <div class="fg"><label class="fl">Kurz-Profil (resumo em alemão)</label><textarea class="ft" id="cand-kurzprofil" placeholder="Kurzes Berufsprofil..."></textarea></div>
       <div class="fg"><label class="fl">Justificativa do ranking</label><textarea class="ft" id="cand-justif" placeholder="Por que este candidato se encaixa..."></textarea></div>
       <div class="frow3">
         <div class="fg"><label class="fl">Rodada de envio</label><input type="number" class="fi" id="cand-rodada" value="1"></div>
         <div class="fg"><label class="fl">Data de Envio</label><input type="date" class="fi" id="cand-dataenvio"></div>
-        <div class="fg"><label class="fl">Responsável</label><input class="fi" id="cand-responsavel" placeholder="Ex: Carol"></div>
+        <div class="fg"><label class="fl">Responsável</label><input type="text" class="fi" id="cand-responsavel" placeholder="Ex: Carol"></div>
       </div>
       <div class="frow">
         <div class="fg"><label class="fl">Etapa Atual</label>
           <select class="fs" id="cand-etapa"><option>Aguardando envio</option><option>Aguardando resposta</option><option>Gostou</option><option>Não gostou</option><option>Reunião marcada</option><option>Em processo</option><option>Contratado</option><option>Removido</option></select>
         </div>
-        <div class="fg"><label class="fl">Próxima Ação</label><input class="fi" id="cand-proxacao" placeholder="O que deve acontecer a seguir..."></div>
+        <div class="fg"><label class="fl">Próxima Ação</label><input type="text" class="fi" id="cand-proxacao" placeholder="O que deve acontecer a seguir..."></div>
       </div>
       <div class="frow">
         <div class="fg"><label class="fl">Data de Retorno</label><input type="date" class="fi" id="cand-dataretorno"></div>
@@ -1097,14 +1103,14 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <div class="fg"><label class="fl">Observações internas</label><textarea class="ft" id="cand-obs" placeholder="Notas internas, contexto, histórico..."></textarea></div>
       <div class="fg" id="cand-motivo-wrap" style="display:none">
         <label class="fl">Motivo de remoção</label>
-        <input class="fi" id="cand-motivo" placeholder="Por que o candidato foi removido/rejeitado?">
+        <input type="text" class="fi" id="cand-motivo" placeholder="Por que o candidato foi removido/rejeitado?">
       </div>
     </div>
     <div class="modal-footer">
-      <div><button class="btn btn-danger btn-sm" id="cand-delete-btn" onclick="deleteCandFromModal()" style="display:none">🗑 Excluir</button></div>
+      <div><button type="button" class="btn btn-danger btn-sm" id="cand-delete-btn" onclick="deleteCandFromModal()" style="display:none">🗑 Excluir</button></div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-cand')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveCandidate()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-cand')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveCandidate()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1115,18 +1121,18 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal">
     <div class="modal-hd">
       <h2>Solicitação de Reposição</h2>
-      <button class="modal-close" onclick="closeModal('modal-replace')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-replace')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="rep-id">
       <div class="frow3">
         <div class="fg"><label class="fl">Data da solicitação</label><input type="date" class="fi" id="rep-data"></div>
-        <div class="fg"><label class="fl">Qtd.</label><input class="fi" id="rep-qtd" placeholder="Ex: 1"></div>
+        <div class="fg"><label class="fl">Qtd.</label><input type="text" class="fi" id="rep-qtd" placeholder="Ex: 1"></div>
         <div class="fg"><label class="fl">Data do novo envio</label><input type="date" class="fi" id="rep-envio"></div>
       </div>
-      <div class="fg"><label class="fl">Gatilho / motivo</label><input class="fi" id="rep-gatilho" placeholder="Motivo da reposição"></div>
+      <div class="fg"><label class="fl">Gatilho / motivo</label><input type="text" class="fi" id="rep-gatilho" placeholder="Motivo da reposição"></div>
       <div class="fg"><label class="fl">Perfil necessário</label><textarea class="ft" id="rep-perfil" placeholder="Descreva o perfil buscado..."></textarea></div>
-      <div class="fg"><label class="fl">Substitui qual candidato?</label><input class="fi" id="rep-substitui" placeholder="Nome do candidato removido"></div>
+      <div class="fg"><label class="fl">Substitui qual candidato?</label><input type="text" class="fi" id="rep-substitui" placeholder="Nome do candidato removido"></div>
       <div class="frow">
         <div class="fg"><label class="fl">Prioridade</label><select class="fs" id="rep-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
         <div class="fg"><label class="fl">Status da busca</label><select class="fs" id="rep-status"><option>Aguardando</option><option>Em busca</option><option>Perfil encontrado</option><option>Concluído</option></select></div>
@@ -1136,8 +1142,8 @@ tbody tr:hover .row-actions.hover{opacity:1}
     <div class="modal-footer">
       <div></div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-replace')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveReplace()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-replace')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveReplace()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1148,14 +1154,14 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal modal-lg">
     <div class="modal-hd">
       <h2 id="modal-day-title">Itens do dia</h2>
-      <button class="modal-close" onclick="closeModal('modal-day')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-day')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body" id="modal-day-body"></div>
     <div class="modal-footer">
       <div></div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-day')">Fechar</button>
-        <button class="btn btn-primary" onclick="openPlanModal(null,document.getElementById('modal-day').dataset.date||'')">Nova atividade neste dia</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-day')">Fechar</button>
+        <button type="button" class="btn btn-primary" onclick="openPlanModal(null,document.getElementById('modal-day').dataset.date||'')">Nova atividade neste dia</button>
       </div>
     </div>
   </div>
@@ -1166,14 +1172,14 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal modal-lg">
     <div class="modal-hd">
       <h2 id="modal-weekly-title">Nova linha semanal</h2>
-      <button class="modal-close" onclick="closeModal('modal-weekly')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-weekly')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="weekly-id">
       <div class="frow3">
         <div class="fg"><label class="fl">Mês</label><select class="fs" id="weekly-month"></select></div>
-        <div class="fg"><label class="fl">Semana</label><input class="fi" id="weekly-week" placeholder="Ex: Semana 2"></div>
-        <div class="fg"><label class="fl">Período</label><input class="fi" id="weekly-period" placeholder="Ex: 06/04 a 12/04"></div>
+        <div class="fg"><label class="fl">Semana</label><input type="text" class="fi" id="weekly-week" placeholder="Ex: Semana 2"></div>
+        <div class="fg"><label class="fl">Período</label><input type="text" class="fi" id="weekly-period" placeholder="Ex: 06/04 a 12/04"></div>
       </div>
       <div class="fg"><label class="fl">Empregador</label><select class="fs" id="weekly-employer"></select></div>
       <div class="frow">
@@ -1185,15 +1191,15 @@ tbody tr:hover .row-actions.hover{opacity:1}
         <div class="fg"><label class="fl">Observações da reunião</label><textarea class="ft" id="weekly-notes"></textarea></div>
       </div>
       <div class="frow">
-        <div class="fg"><label class="fl">Responsável</label><input class="fi" id="weekly-owner"></div>
+        <div class="fg"><label class="fl">Responsável</label><input type="text" class="fi" id="weekly-owner"></div>
         <div class="fg"><label class="fl">Status</label><select class="fs" id="weekly-status"><option>A fazer</option><option>Em andamento</option><option>Concluído</option><option>Cancelado</option></select></div>
       </div>
     </div>
     <div class="modal-footer">
-      <div><button class="btn btn-danger btn-sm" id="weekly-delete-btn" onclick="deleteWeeklyFromModal()" style="display:none">🗑 Excluir</button></div>
+      <div><button type="button" class="btn btn-danger btn-sm" id="weekly-delete-btn" onclick="deleteWeeklyFromModal()" style="display:none">🗑 Excluir</button></div>
       <div class="modal-footer-right">
-        <button class="btn btn-ghost" onclick="closeModal('modal-weekly')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveWeekly()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-weekly')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveWeekly()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1205,12 +1211,12 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal" style="max-width:760px">
     <div class="modal-hd">
       <h2 id="modal-op-task-title">Nova tarefa operacional</h2>
-      <button class="modal-close" onclick="closeModal('modal-op-task')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-op-task')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-bd">
       <input type="hidden" id="op-task-id">
       <div class="ifield-grid-2">
-        <div class="fg"><label class="fl">Título</label><input class="fi" id="op-task-title" placeholder="Ex.: Follow-up com employer"></div>
+        <div class="fg"><label class="fl">Título</label><input type="text" class="fi" id="op-task-title" placeholder="Ex.: Follow-up com employer"></div>
         <div class="fg"><label class="fl">Empregador</label><select class="fs" id="op-task-employer"><option value="">Nenhum</option></select></div>
       </div>
       <div class="fg"><label class="fl">Descrição</label><textarea class="fi" id="op-task-description" rows="3" placeholder="Detalhes da tarefa"></textarea></div>
@@ -1225,15 +1231,15 @@ tbody tr:hover .row-actions.hover{opacity:1}
         <div class="fg"><label class="fl">Escopo</label><select class="fs" id="op-task-scope"><option value="team">Equipe</option><option value="personal">Pessoal</option></select></div>
       </div>
       <div class="ifield-grid-2">
-        <div class="fg"><label class="fl">Responsável</label><input class="fi" id="op-task-owner" placeholder="Ex.: Carol"></div>
-        <div class="fg"><label class="fl">Observações</label><input class="fi" id="op-task-notes" placeholder="Observação curta"></div>
+        <div class="fg"><label class="fl">Responsável</label><input type="text" class="fi" id="op-task-owner" placeholder="Ex.: Carol"></div>
+        <div class="fg"><label class="fl">Observações</label><input type="text" class="fi" id="op-task-notes" placeholder="Observação curta"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <div id="op-task-delete-wrap" style="display:none"><button class="btn btn-ghost" style="color:var(--red)" onclick="deleteOperationalTaskFromModal()">Excluir</button></div>
+      <div id="op-task-delete-wrap" style="display:none"><button type="button" class="btn btn-ghost" style="color:var(--red)" onclick="deleteOperationalTaskFromModal()">Excluir</button></div>
       <div style="display:flex;gap:8px;margin-left:auto">
-        <button class="btn btn-ghost" onclick="closeModal('modal-op-task')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveOperationalTask()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-op-task')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveOperationalTask()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1243,30 +1249,30 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="modal" style="max-width:720px">
     <div class="modal-hd">
       <h2 id="modal-op-metric-title">Nova métrica</h2>
-      <button class="modal-close" onclick="closeModal('modal-op-metric')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="modal-close" aria-label="Fechar janela" onclick="closeModal('modal-op-metric')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-bd">
       <input type="hidden" id="op-metric-id">
       <div class="ifield-grid-2">
         <div class="fg"><label class="fl">Mês</label><select class="fs" id="op-metric-month"></select></div>
-        <div class="fg"><label class="fl">Chave</label><input class="fi" id="op-metric-key" placeholder="Ex.: followups"></div>
+        <div class="fg"><label class="fl">Chave</label><input type="text" class="fi" id="op-metric-key" placeholder="Ex.: followups"></div>
       </div>
-      <div class="fg"><label class="fl">Nome da métrica</label><input class="fi" id="op-metric-label" placeholder="Ex.: Follow-ups realizados"></div>
+      <div class="fg"><label class="fl">Nome da métrica</label><input type="text" class="fi" id="op-metric-label" placeholder="Ex.: Follow-ups realizados"></div>
       <div class="ifield-grid-3">
         <div class="fg"><label class="fl">Meta</label><input class="fi" id="op-metric-target" type="number" step="0.01" min="0"></div>
         <div class="fg"><label class="fl">Realizado</label><input class="fi" id="op-metric-actual" type="number" step="0.01" min="0"></div>
         <div class="fg"><label class="fl">Escopo</label><select class="fs" id="op-metric-scope"><option value="team">Equipe</option><option value="personal">Pessoal</option></select></div>
       </div>
       <div class="ifield-grid-2">
-        <div class="fg"><label class="fl">Responsável</label><input class="fi" id="op-metric-owner" placeholder="Ex.: Carol"></div>
-        <div class="fg"><label class="fl">Observações</label><input class="fi" id="op-metric-notes" placeholder="Observação curta"></div>
+        <div class="fg"><label class="fl">Responsável</label><input type="text" class="fi" id="op-metric-owner" placeholder="Ex.: Carol"></div>
+        <div class="fg"><label class="fl">Observações</label><input type="text" class="fi" id="op-metric-notes" placeholder="Observação curta"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <div id="op-metric-delete-wrap" style="display:none"><button class="btn btn-ghost" style="color:var(--red)" onclick="deleteOperationalMetricFromModal()">Excluir</button></div>
+      <div id="op-metric-delete-wrap" style="display:none"><button type="button" class="btn btn-ghost" style="color:var(--red)" onclick="deleteOperationalMetricFromModal()">Excluir</button></div>
       <div style="display:flex;gap:8px;margin-left:auto">
-        <button class="btn btn-ghost" onclick="closeModal('modal-op-metric')">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveOperationalMetric()">Salvar</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-op-metric')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="saveOperationalMetric()">Salvar</button>
       </div>
     </div>
   </div>
@@ -1277,8 +1283,8 @@ tbody tr:hover .row-actions.hover{opacity:1}
     <h3>Confirmar exclusão</h3>
     <p id="confirm-msg">Esta ação não pode ser desfeita.</p>
     <div class="cbtns">
-      <button class="btn btn-ghost" onclick="document.getElementById('confirm-ov').classList.remove('open')">Cancelar</button>
-      <button class="btn btn-danger" id="confirm-ok">Excluir</button>
+      <button type="button" class="btn btn-ghost" onclick="document.getElementById('confirm-ov').classList.remove('open')">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="confirm-ok">Excluir</button>
     </div>
   </div>
 </div>
@@ -1302,7 +1308,6 @@ const STATUS_COLORS={
   'Alta':'b-red','Média':'b-amber','Baixa':'b-gray','Estável':'b-green','Prioridade':'b-red','Em risco':'b-red','Pausado':'b-gray','Cancelado':'b-gray'
 };
 const DEFAULT_EMP_COLORS=['#2563EB','#7C3AED','#DC2626','#059669','#D97706','#0891B2','#BE185D','#65A30D','#9333EA','#EA580C','#0F766E','#B45309'];
-function statusClass(v){return STATUS_COLORS[v]||'b-gray';}
 function calendarStatusClass(v){
   const key=String(v||'').trim();
   if(key==='A fazer') return 'cal-plan-afazer';
@@ -1929,15 +1934,6 @@ function openingStateToRel(empId, opening, idx=0){
     deleted_at:null
   };
 }
-function openingRelToState(row){
-  return {
-    id:row.id,
-    title:row.title || '',
-    qty:Number(row.quantity||1)||1,
-    status:row.status || 'Aberta'
-  };
-}
-
 function opTaskStateToRel(item, idx=0){
   const id=relUuid(item?.id);
   const empName=String(item?.employer || '').trim();
@@ -2281,8 +2277,6 @@ function renderInfoOpeningsList(openings){
     </div>`).join('')
   }</div>`;
 }
-function statusPillText(v){ return badge(v||'—'); }
-
 function parseOpeningsText(txt){
   return String(txt||'').split('\\n').map(s=>s.trim()).filter(Boolean).map(t=>({id:relUuid(),title:t,qty:1,status:'Aberta'}));
 }
@@ -2345,7 +2339,7 @@ function renderEmployerOpeningsEditor(rows){
   const arr=normalizeOpeningDrafts(rows);
   if(!arr.length) arr.push({id:relUuid(),title:'',qty:1,status:'Aberta'});
   wrap.innerHTML=arr.map((o,i)=>`<div class="opening-row" data-opening-id="${safeAttrValue(o.id||'')}">
-    <input class="fi emp-opening-title" data-i="${i}" value="${safeAttrValue(o.title||'')}" placeholder="Título da vaga">
+    <input type="text" class="fi emp-opening-title" data-i="${i}" value="${safeAttrValue(o.title||'')}" placeholder="Título da vaga">
     <input class="fi emp-opening-qty" data-i="${i}" type="number" min="1" value="${o.qty||1}" placeholder="Qtd">
     <select class="fs emp-opening-status" data-i="${i}"><option ${o.status==='Aberta'?'selected':''}>Aberta</option><option ${o.status==='Em busca'?'selected':''}>Em busca</option><option ${o.status==='Pausada'?'selected':''}>Pausada</option><option ${o.status==='Fechada'?'selected':''}>Fechada</option></select>
     <button type="button" class="icon-btn danger" onclick="removeOpeningRow(${i})" title="Remover"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
@@ -2370,24 +2364,6 @@ function removeOpeningRow(idx){
   current.splice(idx,1);
   renderEmployerOpeningsEditor(current.length?current:[{title:'',qty:1,status:'Aberta'}]);
 }
-function exportBackup(){
-  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`talents4-crm-backup-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('Backup exportado ✓');
-}
-function importBackup(file){
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{ S=JSON.parse(reader.result); migrateState(); save(); populateAllSelects(); nav('plan-mensal'); toast('Backup importado ✓'); }
-    catch(e){ toast('⚠ Backup inválido'); }
-  };
-  reader.readAsText(file);
-}
-
 // ─── POPULATE SELECTS ───
 function populateAllSelects(){
   const names=getEmpNames();
@@ -2755,13 +2731,13 @@ function renderEmployers(){
             </div>
           </div>
           <div class="emp-card-actions">
-            <button class="icon-btn" onclick="openEmpModal('${nameJs}')" title="Editar">
+            <button type="button" class="icon-btn" onclick="openEmpModal('${nameJs}')" title="Editar">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
-            <button class="icon-btn" onclick="goToDossie('${nameJs}')" title="Abrir dossiê">
+            <button type="button" class="icon-btn" onclick="goToDossie('${nameJs}')" title="Abrir dossiê">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             </button>
-            <button class="icon-btn danger" onclick="deleteEmpDirect('${nameJs}')" title="Excluir">
+            <button type="button" class="icon-btn danger" onclick="deleteEmpDirect('${nameJs}')" title="Excluir">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
             </button>
           </div>
@@ -3004,6 +2980,12 @@ function deletePlanDirect(id){
   });
 }
 
+function openPlanForEmployer(employer){
+  openPlanModal();
+  const select=document.getElementById('plan-employer');
+  if(select) select.value=String(employer||'');
+}
+
 function renderPlanTable(){
   const month=MONTHS[S.currentMonthIdx].k;
   const search=(document.getElementById('plan-search')?.value||'').toLowerCase();
@@ -3017,56 +2999,57 @@ function renderPlanTable(){
   }
   const blocks = emps.map(emp=>{
     const empEntries=S.planEntries.filter(e=>e.month===month&&e.employer===emp);
-    const rows=[];
-    PLAN_FIXED_ACTIVITIES.forEach(act=>{
-      const matches=empEntries.filter(e=>e.activity===act);
-      if(matches.length){
-        matches.forEach(entry=>rows.push({act,entry}));
-      }else{
-        rows.push({act,entry:null});
-      }
-    });
-    empEntries.filter(e=>!PLAN_FIXED_ACTIVITIES.includes(e.activity)).forEach(entry=>{
-      rows.push({act:entry.activity,entry});
-    });
-    const visibleRows=rows.filter(({entry})=>!statusF || (entry && entry.status===statusF));
+    const activityRank=activity=>{
+      const idx=PLAN_FIXED_ACTIVITIES.indexOf(String(activity||'').trim());
+      return idx<0?PLAN_FIXED_ACTIVITIES.length:idx;
+    };
+    const visibleRows=empEntries
+      .filter(entry=>String(entry?.activity||'').trim()&&(!statusF||entry.status===statusF))
+      .map(entry=>({act:String(entry.activity||'').trim(),entry}))
+      .sort((a,b)=>activityRank(a.act)-activityRank(b.act));
     if(!visibleRows.length) return '';
     const color=getEmpColor(emp);
     const openCount=empEntries.filter(e=>['A fazer','Em andamento','Bloqueado'].includes(e.status)).length;
     const empJs=escapeJsString(emp);
     return `
       <tr class="emp-group-head"><td colspan="9">
-        <div class="gtitle"><span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;box-shadow:0 0 0 4px ${alpha(color,.14)}"></span>${escapeHTML(emp)}</div>
-        <div class="gmeta">${visibleRows.length} linha(s) visíveis · ${openCount} pendência(s) aberta(s)</div>
+        <div class="plan-group-summary">
+          <div>
+            <div class="gtitle"><span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;box-shadow:0 0 0 4px ${alpha(color,.14)}"></span>${escapeHTML(emp)}</div>
+            <div class="gmeta">${visibleRows.length} atividade(s) preenchida(s) · ${openCount} pendência(s) aberta(s)</div>
+          </div>
+          <button type="button" class="plan-group-add" onclick="openPlanForEmployer('${empJs}')" title="Adicionar atividade para ${escapeAttr(emp)}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar
+          </button>
+        </div>
       </td></tr>
       ${visibleRows.map(({act,entry},idx)=>{
         const actHtml=escapeHTML(act);
-        const actJs=escapeJsString(act);
-        const entryId=entry?.id||'';
-        const obsText=String(entry?.obs||'').trim();
+        const entryId=entry.id||'';
+        const obsText=String(entry.obs||'').trim();
         const obsTitle=safeAttrValue(obsText);
         const empStrong=idx===0?`<strong>${escapeHTML(emp)}</strong>`:'';
         return `<tr class="plan-activity-row" data-plan-id="${escapeAttr(entryId)}" style="${idx===0?`box-shadow:inset 0 2px 0 ${alpha(color,.22)}`:''}">
           <td style="width:6px;padding:0;background:${alpha(color,.14)}"><div style="width:6px;height:100%;min-height:38px;background:${color}"></div></td>
           <td class="plan-emp-cell" style="font-size:11px;color:var(--text2);background:${alpha(color,.06)}">${empStrong}</td>
           <td style="font-size:12px;font-weight:700">${actHtml}</td>
-          <td style="font-size:11px">${entry?.responsavel?escapeHTML(entry.responsavel):'<span style="color:var(--text3)">—</span>'}</td>
-          <td style="position:relative">${entry?`<button class="badge ${STATUS_COLORS[entry.status]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${escapeJsString(entry.id)}','plan',['A fazer','Em andamento','Concluído','Bloqueado','Cancelado'])">${escapeHTML(entry.status||'—')}</button>`:'<span style="color:var(--text3)">—</span>'}</td>
+          <td style="font-size:11px">${entry.responsavel?escapeHTML(entry.responsavel):''}</td>
+          <td style="position:relative">${entry.status?`<button type="button" class="badge ${STATUS_COLORS[entry.status]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${escapeJsString(entry.id)}','plan',['A fazer','Em andamento','Concluído','Bloqueado','Cancelado'])">${escapeHTML(entry.status)}</button>`:''}</td>
           <td style="font-size:11px;max-width:260px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${obsTitle}">${obsText?escapeHTML(obsText):''}</span></td>
-          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(entry?.inicio||'')}</td>
-          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(entry?.fim||'')}</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(entry.inicio||'')}</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(entry.fim||'')}</td>
           <td>
             <div class="row-actions">
-              ${entry
-                ?`<button class="icon-btn" onclick="openPlanModal('${escapeJsString(entry.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn danger" onclick="deletePlanDirect('${escapeJsString(entry.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>`
-                :`<button class="icon-btn" onclick="openPlanModal(null,'','${actJs}');document.getElementById('plan-employer').value='${empJs}';" title="Adicionar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
+              <button type="button" class="icon-btn" onclick="openPlanModal('${escapeJsString(entry.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button type="button" class="icon-btn danger" onclick="deletePlanDirect('${escapeJsString(entry.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
             </div>
           </td>
         </tr>`;
       }).join('')}`;
   }).join('');
   if(!blocks.trim()){
-    tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>Nenhuma atividade encontrada para ${escapeHTML(MONTHS[S.currentMonthIdx].l)}.</p><small>Clique em "Nova Atividade" para adicionar</small></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="9"><div class="plan-empty-state"><div class="plan-empty-icon">✓</div><div><strong>Nenhuma atividade preenchida para ${escapeHTML(MONTHS[S.currentMonthIdx].l)}.</strong><small>Os campos vazios foram ocultados. Cadastre apenas o que será acompanhado.</small></div><button type="button" class="btn btn-primary btn-sm" onclick="openPlanModal()">+ Nova atividade</button></div></td></tr>`;
     return;
   }
   tbody.innerHTML=blocks;
@@ -3176,7 +3159,7 @@ function renderCalendar(){
         </div>`;
       }).join('')}
       ${extra>0?`<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escapeJsString(dateStr)}')">+${extra} mais</div>`:''}
-      <button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
+      <button type="button" class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
     </div>`;
   }
 
@@ -3198,7 +3181,7 @@ function openDayModal(dateStr){
         <h4>${escapeHTML(it.title)}</h4>
         <div class="meta"><span class="badge ${STATUS_COLORS[it.meta]||'b-gray'}">${escapeHTML(it.type)}</span><span class="badge ${STATUS_COLORS[it.meta]||'b-gray'}">${escapeHTML(it.meta)}</span><span>${escapeHTML(it.owner)}</span></div>
         <div class="body">${nl2brSafe(it.body,'Sem detalhe.')}</div>
-        <div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="${it.target==='plan' ? `goToPlanEntry('${escapeJsString(it.id)}')` : `goToMeeting('${escapeJsString(it.id)}')`};closeModal('modal-day')">Abrir</button></div>
+        <div style="margin-top:8px"><button type="button" class="btn btn-ghost btn-sm" onclick="${it.target==='plan' ? `goToPlanEntry('${escapeJsString(it.id)}')` : `goToMeeting('${escapeJsString(it.id)}')`};closeModal('modal-day')">Abrir</button></div>
       </div>`).join('')}</div>`
     : `<div class="empty"><p>Nenhum item lançado neste dia.</p><small>Use “Nova atividade neste dia” para registrar algo.</small></div>`;
   openModal('modal-day');
@@ -3321,11 +3304,11 @@ function renderMeetings(){
       <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeAttrValue(m.pendencias||'')}">${safeText(m.pendencias,'—')}</span></td>
       <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${safeText(m.proxacao,'—')}</span></td>
       <td style="font-size:11px">${safeText(m.responsavel,'—')}</td>
-      <td style="position:relative" onclick="event.stopPropagation()"><button class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${meetId}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${escapeHTML(m.status||'—')}</button></td>
+      <td style="position:relative" onclick="event.stopPropagation()"><button type="button" class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${meetId}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${escapeHTML(m.status||'—')}</button></td>
       <td>
         <div class="row-actions">
-          <button class="icon-btn" onclick="event.stopPropagation();openMeetModal('${meetId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="icon-btn danger" onclick="event.stopPropagation();deleteMeetDirect('${meetId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          <button type="button" class="icon-btn" onclick="event.stopPropagation();openMeetModal('${meetId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="icon-btn danger" onclick="event.stopPropagation();deleteMeetDirect('${meetId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
         </div>
       </td>
     </tr>
@@ -3346,7 +3329,7 @@ function renderMeetings(){
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMeetModal('${meetId}')">Editar reunião</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMeetModal('${meetId}')">Editar reunião</button>
         </div>
       </div>
     </td></tr>`:''}`;
@@ -3915,8 +3898,8 @@ function renderResumo(){
       <td>${badge(w?.status||'—')}</td>
       <td style="font-size:11px;max-width:180px"><div class="resumo-truncate" title="${escapeAttr(w?.notes||'—')}">${escapeHTML(w?.notes||'—')}</div></td>
       <td><div class="row-actions">${w?.source==='manual'
-        ? `<button class="icon-btn" onclick="openWeeklyModal('${escapeJsString(w?.id||'')}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
-        : `<button class="icon-btn" onclick="openWeeklyModalFromPreset('${escapeJsString(presetEncoded)}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
+        ? `<button type="button" class="icon-btn" onclick="openWeeklyModal('${escapeJsString(w?.id||'')}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`
+        : `<button type="button" class="icon-btn" onclick="openWeeklyModalFromPreset('${escapeJsString(presetEncoded)}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`}
       </div></td>
     </tr>`;
   }).join('') : `<tr><td colspan="11"><div class="empty"><p>Nenhuma linha consolidada disponível.</p><small>Use os filtros acima ou registre novas atividades.</small></div></td></tr>`;
@@ -3931,7 +3914,7 @@ function renderResumo(){
     <td style="font-size:11px">${escapeHTML(r.priority||'—')}</td>
     <td style="font-size:11px;max-width:260px"><div class="resumo-truncate" title="${escapeAttr(r.obs||'—')}">${escapeHTML(r.obs||'—')}</div></td>
     <td style="font-family:'IBM Plex Mono',monospace;font-size:11px">${escapeHTML(r.date||'—')}</td>
-    <td><div class="row-actions"><button class="icon-btn" onclick="${r.edit}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></td>
+    <td><div class="row-actions"><button type="button" class="icon-btn" onclick="${r.edit}"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></td>
   </tr>`).join('') : `<tr><td colspan="10"><div class="empty"><p>Nenhuma atividade encontrada.</p></div></td></tr>`;
 }
 
@@ -3940,13 +3923,13 @@ function renderDossieActions(){
   if(!el) return;
   const e=getEmpObj(S.currentDossieEmp);
   const crmUrl=safeUrl(e.crm);
-  el.innerHTML=`<button class="btn btn-primary" onclick="openCandModal()">Novo candidato</button><button class="btn btn-ghost" onclick="openReplaceModal()">Nova reposição</button><button class="btn btn-ghost" onclick="openEmpModal(S.currentDossieEmp)">Editar employer</button>${crmUrl?`<a class="btn btn-ghost" href="${crmUrl}" target="_blank" rel="noopener noreferrer">Abrir CRM</a>`:''}`;
+  el.innerHTML=`<button type="button" class="btn btn-primary" onclick="openCandModal()">Novo candidato</button><button type="button" class="btn btn-ghost" onclick="openReplaceModal()">Nova reposição</button><button type="button" class="btn btn-ghost" onclick="openEmpModal(S.currentDossieEmp)">Editar employer</button>${crmUrl?`<a class="btn btn-ghost" href="${crmUrl}" target="_blank" rel="noopener noreferrer">Abrir CRM</a>`:''}`;
 }
 function renderEmpTabs(){
   const el=document.getElementById('emp-tabs');
   if(!el)return;
   el.innerHTML=S.employers.map(e=>`
-    <button class="emp-tab${S.currentDossieEmp===e.name?' active':''}" 
+    <button type="button" class="emp-tab${S.currentDossieEmp===e.name?' active':''}"
       style="${S.currentDossieEmp===e.name?`background:${e.color};border-color:${e.color}`:''}"
       onclick="selectEmp('${escapeJsString(e.name)}')">
       <span class="emp-dot" style="background:${e.color}"></span>${escapeHTML(e.name)}
@@ -4248,13 +4231,13 @@ function renderPipeline(){
       </td>
       <td><div class="cell-title">${safeText(c.area,'—')}</div><div class="cell-sub clamp-2">${safeText(c.encaixe,'—')}</div></td>
       <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(c.dataEnvio||'—')}</td>
-      <td style="position:relative"><button class="badge ${STATUS_COLORS[c.etapa]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${candId}','cand',['Aguardando envio','Aguardando resposta','Gostou','Não gostou','Reunião marcada','Em processo','Contratado','Removido'])">${escapeHTML(c.etapa||'—')}</button></td>
+      <td style="position:relative"><button type="button" class="badge ${STATUS_COLORS[c.etapa]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${candId}','cand',['Aguardando envio','Aguardando resposta','Gostou','Não gostou','Reunião marcada','Em processo','Contratado','Removido'])">${escapeHTML(c.etapa||'—')}</button></td>
       <td><div class="clamp-2">${safeText(c.proxacao,'—')}</div></td>
       <td>${safeText(c.responsavel,'—')}</td>
       <td onclick="event.stopPropagation()">
         <div class="row-actions">
-          <button class="icon-btn" onclick="openCandModal('${candId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="icon-btn danger" onclick="event.stopPropagation();deleteCandDirect('${candId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          <button type="button" class="icon-btn" onclick="openCandModal('${candId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="icon-btn danger" onclick="event.stopPropagation();deleteCandDirect('${candId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
         </div>
       </td>
     </tr>`;
@@ -4285,8 +4268,8 @@ function renderRemovidos(){
     <td style="font-size:11px;color:var(--text2)">${safeText(c.obs,'—')}</td>
     <td>
       <div class="row-actions">
-        <button class="btn btn-ghost btn-sm" onclick="restoreCandidate('${escapeJsString(c.id)}')">Restaurar</button>
-        <button class="icon-btn" onclick="openCandModal('${escapeJsString(c.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="restoreCandidate('${escapeJsString(c.id)}')">Restaurar</button>
+        <button type="button" class="icon-btn" onclick="openCandModal('${escapeJsString(c.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
       </div>
     </td>
   </tr>`).join('');
@@ -4382,8 +4365,8 @@ function renderReposicao(){
     <td style="font-size:11px;color:var(--text2)">${safeText(r.obs,'—')}</td>
     <td>
       <div class="row-actions">
-        <button class="icon-btn" onclick="openReplaceModal('${escapeJsString(r.id)}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="icon-btn danger" onclick="deleteReplace('${escapeJsString(r.id)}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+        <button type="button" class="icon-btn" onclick="openReplaceModal('${escapeJsString(r.id)}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button type="button" class="icon-btn danger" onclick="deleteReplace('${escapeJsString(r.id)}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
       </div>
     </td>
   </tr>`).join('');
@@ -4569,8 +4552,8 @@ function renderOperationalPage(){
         </td>
         <td><div>${m.team_scope==='personal'?'Pessoal':'Equipe'}</div><div class="cell-sub">${safeText(m.owner,'—')}</div></td>
         <td><div style="display:flex;gap:6px">
-          <button class="icon-btn" onclick="openMetricModal('${escapeJsString(m.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="icon-btn danger" onclick="deleteOperationalMetricDirect('${escapeJsString(m.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          <button type="button" class="icon-btn" onclick="openMetricModal('${escapeJsString(m.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="icon-btn danger" onclick="deleteOperationalMetricDirect('${escapeJsString(m.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
         </div></td>
       </tr>`}).join('') : `<tr><td colspan="7"><div class="empty"><p>Nenhuma métrica neste filtro.</p></div></td></tr>`;
   }
@@ -4589,13 +4572,13 @@ function renderOperationalPage(){
         </td>
         <td><div>${safeText(t.due_date,'—')}</div><div class="cell-sub">${safeText(t.start_date ? `início ${t.start_date}` : '', '')}</div></td>
         <td><span class="badge ${prClass}">${safeText(t.priority,'—')}</span></td>
-        <td style="position:relative"><button class="badge ${STATUS_COLORS[t.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${escapeJsString(t.id)}','optask',['A fazer','Em andamento','Pronto','Bloqueado','Cancelado'])">${escapeHTML(t.status||'—')}</button></td>
+        <td style="position:relative"><button type="button" class="badge ${STATUS_COLORS[t.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${escapeJsString(t.id)}','optask',['A fazer','Em andamento','Pronto','Bloqueado','Cancelado'])">${escapeHTML(t.status||'—')}</button></td>
         <td>${t.team_scope==='personal'?'Pessoal':'Equipe'}</td>
         <td>${safeText(t.owner,'—')}</td>
         <td><div class="clamp-2">${safeText(contextBits.join(' · ')||'Geral','Geral')}</div></td>
         <td><div style="display:flex;gap:6px">
-          <button class="icon-btn" onclick="openTaskModal('${escapeJsString(t.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="icon-btn danger" onclick="deleteOperationalTaskDirect('${escapeJsString(t.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          <button type="button" class="icon-btn" onclick="openTaskModal('${escapeJsString(t.id)}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="icon-btn danger" onclick="deleteOperationalTaskDirect('${escapeJsString(t.id)}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
         </div></td>
       </tr>`}).join('') : `<tr><td colspan="8"><div class="empty"><p>Nenhuma tarefa operacional neste filtro.</p></div></td></tr>`;
   }
@@ -4999,8 +4982,8 @@ document.querySelectorAll('.modal-ov').forEach(ov=>{
     if(!host) return;
     host.innerHTML = list.length ? list.map((t, idx)=>`
       <div class="opening-row" data-meet-task-row="${idx}" style="grid-template-columns:1.2fr .8fr .75fr .8fr .7fr .7fr 46px;align-items:start">
-        <input class="fi" data-k="title" placeholder="Tarefa alinhada" value="${safeAttrValue(t.title)}">
-        <input class="fi" data-k="owner" placeholder="Responsável" value="${safeAttrValue(t.owner)}">
+        <input type="text" class="fi" data-k="title" placeholder="Tarefa alinhada" value="${safeAttrValue(t.title)}">
+        <input type="text" class="fi" data-k="owner" placeholder="Responsável" value="${safeAttrValue(t.owner)}">
         <select class="fs" data-k="status">
           ${['A fazer','Em andamento','Pronto','Bloqueado','Cancelado'].map(v=>`<option ${t.status===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}
         </select>
@@ -5043,8 +5026,8 @@ document.querySelectorAll('.modal-ov').forEach(ov=>{
     if(!host) return;
     host.innerHTML = list.length ? list.map((p, idx)=>`
       <div class="opening-row" data-emp-project-row="${idx}" style="grid-template-columns:1.2fr .8fr .75fr .8fr .7fr .7fr 46px;align-items:start">
-        <input class="fi" data-k="title" placeholder="Projeto" value="${safeAttrValue(p.title)}">
-        <input class="fi" data-k="owner" placeholder="Responsável" value="${safeAttrValue(p.owner)}">
+        <input type="text" class="fi" data-k="title" placeholder="Projeto" value="${safeAttrValue(p.title)}">
+        <input type="text" class="fi" data-k="owner" placeholder="Responsável" value="${safeAttrValue(p.owner)}">
         <select class="fs" data-k="status">
           ${['A fazer','Em andamento','Concluído','Bloqueado','Cancelado'].map(v=>`<option ${p.status===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}
         </select>
@@ -5504,11 +5487,11 @@ async function softDeleteMeetingOperationalItems(meetingId){
         <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeAttrValue(m.pendencias||'')}">${safeText(m.pendencias,'—')}</span></td>
         <td style="font-size:11px;max-width:140px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${safeText(m.proxacao,'—')}</span></td>
         <td style="font-size:11px">${safeText(m.responsavel,'—')}</td>
-        <td style="position:relative" onclick="event.stopPropagation()"><button class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${meetId}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${escapeHTML(m.status||'—')}</button></td>
+        <td style="position:relative" onclick="event.stopPropagation()"><button type="button" class="badge ${STATUS_COLORS[m.status]||'b-gray'}" onclick="showStatusPicker(this.parentElement,'${meetId}','meet',['A fazer','Em andamento','Concluído','Cancelado'])">${escapeHTML(m.status||'—')}</button></td>
         <td>
           <div class="row-actions">
-            <button class="icon-btn" onclick="event.stopPropagation();openMeetModal('${meetId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-            <button class="icon-btn danger" onclick="event.stopPropagation();deleteMeetDirect('${meetId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+            <button type="button" class="icon-btn" onclick="event.stopPropagation();openMeetModal('${meetId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button type="button" class="icon-btn danger" onclick="event.stopPropagation();deleteMeetDirect('${meetId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
           </div>
         </td>
       </tr>
@@ -5533,7 +5516,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
             <div class="ifield-value">${tasks.length?`<div class="compact-list">${tasks.map(t=>`<div class="compact-item"><div class="compact-item-title">${escapeHTML(t.title)}</div><div class="compact-item-sub">${escapeHTML(t.status||'A fazer')}${t.owner?` · ${escapeHTML(t.owner)}`:''}${t.due?` · ${escapeHTML(t.due)}`:''}${num(t.target)||num(t.actual)?` · meta ${escapeHTML(String(t.target||0))} / atual ${escapeHTML(String(t.actual||0))}`:''}</div><div class="compact-item-sub">${t.comments?escapeHTML(t.comments):'Sem comentário'}</div></div>`).join('')}</div>`:'<em style="color:var(--text3)">Nenhuma tarefa vinculada.</em>'}</div>
           </div>
           <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMeetModal('${meetId}')">Editar reunião</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMeetModal('${meetId}')">Editar reunião</button>
           </div>
         </div>
       </td></tr>`:''}`;
@@ -5791,8 +5774,6 @@ async function softDeleteMeetingOperationalItems(meetingId){
   let remoteBackupPayload = null;
 
   function clone(v){ try{return JSON.parse(JSON.stringify(v));}catch(_){ return v; } }
-  function normalizeText(v){ return String(v||'').trim().toLowerCase(); }
-  function readBackupObj(raw){ try{return raw?JSON.parse(raw):null;}catch(_){return null;} }
   function writeBackupToDownload(data, filename){
     const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json;charset=utf-8'});
     const a = document.createElement('a');
@@ -6660,7 +6641,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
           </div>`;
         }).join('')}
         ${extra>0?`<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escapeJsString(dateStr)}')">+${extra} mais</div>`:''}
-        <button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
+        <button type="button" class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
       </div>`;
     }
 
@@ -6784,14 +6765,14 @@ async function softDeleteMeetingOperationalItems(meetingId){
         </td>
         <td><div class="cell-title">${safeText(c.area,'—')}</div><div class="cell-sub clamp-2">${safeText(c.encaixe,'—')}</div></td>
         <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2)">${escapeHTML(c.dataEnvio||'—')}</td>
-        <td style="position:relative"><button class="badge ${STATUS_COLORS[c.etapa]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${candId}','cand',['Aguardando envio','Aguardando resposta','Gostou','Não gostou','Reunião marcada','Em processo','Contratado','Removido'])">${escapeHTML(c.etapa||'—')}</button></td>
+        <td style="position:relative"><button type="button" class="badge ${STATUS_COLORS[c.etapa]||'b-gray'}" onclick="event.stopPropagation();showStatusPicker(this.parentElement,'${candId}','cand',['Aguardando envio','Aguardando resposta','Gostou','Não gostou','Reunião marcada','Em processo','Contratado','Removido'])">${escapeHTML(c.etapa||'—')}</button></td>
         <td><div class="clamp-2">${safeText(c.proxacao,'—')}</div></td>
         <td>${safeText(c.responsavel,'—')}</td>
         <td onclick="event.stopPropagation()">
           <div class="row-actions">
             ${cvBtn}
-            <button class="icon-btn" onclick="openCandModal('${candId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-            <button class="icon-btn danger" onclick="event.stopPropagation();deleteCandDirect('${candId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+            <button type="button" class="icon-btn" onclick="openCandModal('${candId}')" title="Editar"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button type="button" class="icon-btn danger" onclick="event.stopPropagation();deleteCandDirect('${candId}')" title="Excluir"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
           </div>
         </td>
       </tr>`;
@@ -7742,9 +7723,6 @@ async function softDeleteMeetingOperationalItems(meetingId){
   function isUuidFinal(v){
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v || '').trim());
   }
-  function cloneFinal(v){
-    try{return JSON.parse(JSON.stringify(v));}catch(_){return Array.isArray(v)?v.slice():Object.assign({},v||{});}
-  }
   async function requireClientFinal(label){
     const client = typeof getSupa === 'function' ? getSupa() : null;
     if(!client) throw new Error(`${label || 'Operação'} sem cliente Supabase.`);
@@ -8081,7 +8059,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
         <div class="cal-date">${dayNum}</div>
         ${shown.map(ev => ev.type === 'meet' ? renderMeetFinal(ev) : (ev.progress?.isMiddle ? renderCompactPlanFinal(ev) : renderLargePlanFinal(ev))).join('')}
         ${extra > 0 ? `<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escapeJsString(dateStr)}')">+${extra} mais</div>` : ''}
-        <button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
+        <button type="button" class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escapeJsString(dateStr)}')" title="Adicionar atividade">+</button>
       </div>`;
     }
     gridEl.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;background:var(--surface)';
@@ -8128,7 +8106,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
           <h4>${escapeHTML(it.title)}</h4>
           <div class="meta"><span class="badge ${STATUS_COLORS[it.meta] || 'b-gray'}">${escapeHTML(it.type)}</span><span class="badge ${STATUS_COLORS[it.meta] || 'b-gray'}">${escapeHTML(it.meta)}</span><span>${escapeHTML(it.owner)}</span></div>
           <div class="body">${nl2brSafe(it.body, 'Sem detalhe.')}</div>
-          <div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="${it.target === 'plan' ? `goToPlanEntry('${escapeJsString(it.id)}')` : `goToMeeting('${escapeJsString(it.id)}')`};closeModal('modal-day')">Abrir</button></div>
+          <div style="margin-top:8px"><button type="button" class="btn btn-ghost btn-sm" onclick="${it.target === 'plan' ? `goToPlanEntry('${escapeJsString(it.id)}')` : `goToMeeting('${escapeJsString(it.id)}')`};closeModal('modal-day')">Abrir</button></div>
         </div>`).join('')}</div>`
       : `<div class="empty"><p>Nenhum item lançado neste dia.</p><small>Use “Nova atividade neste dia” para registrar algo.</small></div>`;
     openModal('modal-day');
@@ -8273,7 +8251,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
     const meetings = Array.isArray(state.meetings) ? state.meetings : [];
     meetings.filter(m => !empF || m.employer === empF).forEach(m=>{ const d = dateOnlyV3(m?.data || m?.scheduled_at || m?.date || ''); if(d && d >= monthStart && d <= monthEnd) push(d, {type:'meet', data:m, dateStr:d}); });
     const startDow = dowMondayFirstV3(monthStart); const gridStart = addDaysYmdV3(monthStart, -startDow); const totalCells = 42; let cells = '';
-    for(let i = 0; i < totalCells; i++){ const dateStr = addDaysYmdV3(gridStart, i); const dayNum = Number(dateStr.slice(8,10)); const isOther = dateStr.slice(0,7) !== monthKey; const isToday = dateStr === todayStr; const evts = (byDate[dateStr] || []).sort((a,b)=>{ const pa = a.type === 'meet' ? 0 : (a.progress?.isMiddle ? 2 : 1); const pb = b.type === 'meet' ? 0 : (b.progress?.isMiddle ? 2 : 1); return pa - pb; }); const large = evts.filter(ev => ev.type === 'meet' || !ev.progress?.isMiddle).slice(0,2); const compactSlots = Math.max(0, 3 - large.length); const compact = evts.filter(ev => ev.type === 'plan' && ev.progress?.isMiddle).slice(0, compactSlots); const shown = [...large, ...compact]; const extra = Math.max(0, evts.length - shown.length); cells += `<div class="cal-cell${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}" data-date="${esc(dateStr)}" onclick="calDayClick('${escJs(dateStr)}')"><div class="cal-date">${dayNum}</div>${shown.map(ev => ev.type === 'meet' ? renderMeetV3(ev) : (ev.progress?.isMiddle ? renderCompactPlanV3(ev) : renderLargePlanV3(ev))).join('')}${extra > 0 ? `<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escJs(dateStr)}')">+${extra} mais</div>` : ''}<button class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escJs(dateStr)}')" title="Adicionar atividade">+</button></div>`; }
+    for(let i = 0; i < totalCells; i++){ const dateStr = addDaysYmdV3(gridStart, i); const dayNum = Number(dateStr.slice(8,10)); const isOther = dateStr.slice(0,7) !== monthKey; const isToday = dateStr === todayStr; const evts = (byDate[dateStr] || []).sort((a,b)=>{ const pa = a.type === 'meet' ? 0 : (a.progress?.isMiddle ? 2 : 1); const pb = b.type === 'meet' ? 0 : (b.progress?.isMiddle ? 2 : 1); return pa - pb; }); const large = evts.filter(ev => ev.type === 'meet' || !ev.progress?.isMiddle).slice(0,2); const compactSlots = Math.max(0, 3 - large.length); const compact = evts.filter(ev => ev.type === 'plan' && ev.progress?.isMiddle).slice(0, compactSlots); const shown = [...large, ...compact]; const extra = Math.max(0, evts.length - shown.length); cells += `<div class="cal-cell${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}" data-date="${esc(dateStr)}" onclick="calDayClick('${escJs(dateStr)}')"><div class="cal-date">${dayNum}</div>${shown.map(ev => ev.type === 'meet' ? renderMeetV3(ev) : (ev.progress?.isMiddle ? renderCompactPlanV3(ev) : renderLargePlanV3(ev))).join('')}${extra > 0 ? `<div class="cal-more" onclick="event.stopPropagation();openDayModal('${escJs(dateStr)}')">+${extra} mais</div>` : ''}<button type="button" class="cal-add-btn" onclick="event.stopPropagation();openPlanModal(null,'${escJs(dateStr)}')" title="Adicionar atividade">+</button></div>`; }
     gridEl.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;background:var(--surface)';
     gridEl.innerHTML = cells;
   }
