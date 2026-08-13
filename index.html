@@ -2347,20 +2347,23 @@ details.bi-secondary {
     <div class="nav-item active" onclick="nav('dashboard')" data-v="dashboard"><span class="ico">📊</span>Dashboard BI<span class="nav-badge" id="nb-total">—</span></div>
     <div class="nav-item" onclick="nav('kanban')" data-v="kanban"><span class="ico">🗂</span>Kanban Pipeline<span class="nav-badge" id="nb-ativos">—</span></div>
     <div class="nav-item" onclick="nav('prioritarios')" data-v="prioritarios"><span class="ico">⭐</span>Talentos Prioritários<span class="nav-badge" id="nb-prioritarios">—</span></div>
-    <div class="nav-item" onclick="nav('tickets')" data-v="tickets"><span class="ico">🎫</span>Tickets<span class="nav-badge" id="nb-tickets">—</span></div>
     <div class="nav-sec">Pipeline</div>
     <div class="nav-item" onclick="nav('triagem')" data-v="triagem"><span class="ico">🔍</span>Triagem</div>
     <div class="nav-item" onclick="nav('entrevistas')" data-v="entrevistas"><span class="ico">🎙</span>Entrevistas</div>
     <div class="nav-item" onclick="nav('analise')" data-v="analise"><span class="ico">🧠</span>Análise RH</div>
-    <div class="nav-item" onclick="nav('alemao')" data-v="alemao"><span class="ico">🇩🇪</span>Curso de Alemão</div>
     <div class="nav-item" onclick="nav('documentacao')" data-v="documentacao"><span class="ico">📋</span>Documentação</div>
-    <div class="nav-item" onclick="nav('employer')" data-v="employer"><span class="ico">🏥</span>Employer / Matching</div>
     <div class="nav-item" onclick="nav('agenda')" data-v="agenda"><span class="ico">📅</span>Agenda / Entrevistas</div>
     <div class="nav-sec">Base de talentos</div>
     <div class="nav-item" onclick="nav('candidates')" data-v="candidates"><span class="ico">👥</span>Candidatos<span class="nav-badge" id="nb-cands">—</span></div>
     <div class="nav-item" onclick="nav('inativos')" data-v="inativos"><span class="ico">📦</span>Inativos</div>
     <div class="nav-sec">Sistema</div>
     <div class="nav-item" onclick="nav('settings')" data-v="settings"><span class="ico">⚙️</span>Configurações</div>
+    <div class="nav-item" onclick="window.location.href='alemao.html'" data-v="alemao_switch">
+      <span class="ico">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" style="display:block"><path fill="currentColor" d="M16 3h5v5h-2V6.41l-4.29 4.3-1.42-1.42 4.3-4.29H16V3Zm-8 18H3v-5h2v1.59l4.29-4.3 1.42 1.42-4.3 4.29H8V21Zm11-8h2v8h-8v-2h6v-6ZM3 3h8v2H5v6H3V3Z"/></svg>
+      </span>
+      Switch para Curso de Alemão
+    </div>
     <div class="nav-item" onclick="window.location.href='organizacional.html'" data-v="organizacional_switch">
       <span class="ico">
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" style="display:block"><path fill="currentColor" d="M16 3h5v5h-2V6.41l-4.29 4.3-1.42-1.42 4.3-4.29H16V3Zm-8 18H3v-5h2v1.59l4.29-4.3 1.42 1.42-4.3 4.29H8V21Zm11-8h2v8h-8v-2h6v-6ZM3 3h8v2H5v6H3V3Z"/></svg>
@@ -4443,7 +4446,7 @@ async function initApp() {
     await refreshAdminMfaState();
     agLoad().catch(e => console.warn('[Agenda] Load falhou na init:', e.message));
     startRealtime().catch(e => console.warn('[Realtime]', e));
-    _navSetupUI(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
+    _navSetupUI(institutionalInitialView());
     clearSort();
     syncTopbarSearchInputs();
     renderView();
@@ -4457,7 +4460,7 @@ async function initApp() {
   } catch(e) {
     setSyncStatus('err');
     toast('⚠ Erro ao carregar dados: ' + e.message, 'err');
-    _navSetupUI(readUiState(VIEW_KEY, 'dashboard') || 'dashboard');
+    _navSetupUI(institutionalInitialView());
     clearSort();
     syncTopbarSearchInputs();
     renderView();
@@ -4685,10 +4688,23 @@ function _navSetupUI(view) {
   syncTopbarSearchInputs();
 }
 
+function openGermanCourseModule(filter='') {
+  const url = new URL('alemao.html', window.location.href);
+  url.searchParams.set('view', filter ? 'students' : 'overview');
+  if (filter) url.searchParams.set('filter', filter);
+  window.location.href = url.toString();
+}
+
+function institutionalInitialView() {
+  const stored = readUiState(VIEW_KEY, 'dashboard') || 'dashboard';
+  return ['tickets','employer','alemao'].includes(stored) ? 'dashboard' : stored;
+}
+
 function clearSort() {
   S.sort = { view:'', key:'', dir:'' };
 }
 function nav(view) {
+  if (view === 'alemao') { openGermanCourseModule(); return; }
   _navSetupUI(view);
   clearFilters();   // comportamento padrão: limpa filtros ao navegar normalmente
   clearSort();
@@ -4722,6 +4738,10 @@ function renderView() {
 // Navega para a tabela de candidatos com o filtro correto PRESERVADO.
 // Nunca chama clearFilters() — usa _navSetupUI + aplica filtros + renderView.
 function filterByMetric(label) {
+  if (label === 'Curso de alemão' || label === 'Curso de Alemão') {
+    openGermanCourseModule();
+    return;
+  }
   // 1. Reseta filtros sem chamar nav() (que limparia tudo)
   clearFilters();
 
@@ -4901,6 +4921,17 @@ function dashboardSourceBucket(raw) {
 function dashboardDrill(key, extra='') {
   clearFilters();
   clearSort();
+  const courseRoutes = {
+    course:'',
+    course_next_b1:'next_b1',
+    course_next_b2:'next_b2',
+    course_no_forecast:'no_forecast',
+    stage_course:''
+  };
+  if (Object.prototype.hasOwnProperty.call(courseRoutes, key)) {
+    openGermanCourseModule(courseRoutes[key]);
+    return;
+  }
   const employerPipe = c => ['Employer / Matching','Matching Instituição'].includes(fv(c,'STATUS PIPELINE','status_pipeline'));
   switch (key) {
     case 'talents_b1':
