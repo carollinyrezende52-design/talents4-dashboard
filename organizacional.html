@@ -458,6 +458,10 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="sb-divider"></div>
   <div class="sb-section">
     <div class="sb-label">Sistema</div>
+    <div class="sb-item" onclick="window.location.href='alemao.html'">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
+      Curso de Alemão
+    </div>
     <div class="sb-item" onclick="window.location.href='index.html'">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
       Voltar para Institucional
@@ -756,6 +760,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <option>Em andamento</option>
       <option>Estável</option>
       <option>Pausado</option>
+      <option>Cancelado</option>
     </select>
     <select class="fs" id="emp-sort" style="width:auto;min-width:170px" onchange="renderEmployers()">
       <option value="risk">Ordenar por ação</option>
@@ -927,7 +932,7 @@ tbody tr:hover .row-actions.hover{opacity:1}
       <div class="fg">
         <label class="fl">Status de saúde do processo</label>
         <select class="fs" id="emp-saude">
-          <option>Estável</option><option>Em andamento</option><option>Prioridade</option><option>Em risco</option><option>Pausado</option>
+          <option>Estável</option><option>Em andamento</option><option>Prioridade</option><option>Em risco</option><option>Pausado</option><option>Cancelado</option>
         </select>
       </div>
     </div>
@@ -1294,7 +1299,7 @@ const STATUS_COLORS={
   'Bloqueado':'b-red','Cancelado':'b-gray','Aguardando resposta':'b-amber',
   'Gostou':'b-green','Não gostou':'b-red','Reunião marcada':'b-blue',
   'Em processo':'b-blue','Contratado':'b-green','Removido':'b-red','Aguardando envio':'b-gray',
-  'Alta':'b-red','Média':'b-amber','Baixa':'b-gray','Estável':'b-green','Prioridade':'b-red','Em risco':'b-red','Pausado':'b-gray'
+  'Alta':'b-red','Média':'b-amber','Baixa':'b-gray','Estável':'b-green','Prioridade':'b-red','Em risco':'b-red','Pausado':'b-gray','Cancelado':'b-gray'
 };
 const DEFAULT_EMP_COLORS=['#2563EB','#7C3AED','#DC2626','#059669','#D97706','#0891B2','#BE185D','#65A30D','#9333EA','#EA580C','#0F766E','#B45309'];
 function statusClass(v){return STATUS_COLORS[v]||'b-gray';}
@@ -2292,6 +2297,15 @@ function normalizeOpenings(arr){
   }
   return [];
 }
+function normalizeOpeningDrafts(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.map(o=>({
+    id:relUuid(o?.id),
+    title:String(o?.title||''),
+    qty:Math.max(1, Number(o?.qty||1)||1),
+    status:String(o?.status||'Aberta').trim()||'Aberta'
+  }));
+}
 function openingsToText(arr){return normalizeOpenings(arr).map(o=>o.title).join('\\n');}
 function ensureWeeklySummaries(){ if(!Array.isArray(S.weeklySummaries)) S.weeklySummaries=[]; }
 function ensureOpeningsIds(){
@@ -2325,7 +2339,10 @@ function migrateState(){
 function renderEmployerOpeningsEditor(rows){
   const wrap=document.getElementById('emp-openings-editor');
   if(!wrap)return;
-  const arr=normalizeOpenings(rows);
+  // No editor, linhas vazias são intencionais: representam a nova vaga
+  // que o usuário acabou de adicionar. A normalização de persistência
+  // continua removendo títulos vazios somente no momento de salvar.
+  const arr=normalizeOpeningDrafts(rows);
   if(!arr.length) arr.push({id:relUuid(),title:'',qty:1,status:'Aberta'});
   wrap.innerHTML=arr.map((o,i)=>`<div class="opening-row" data-opening-id="${safeAttrValue(o.id||'')}">
     <input class="fi emp-opening-title" data-i="${i}" value="${safeAttrValue(o.title||'')}" placeholder="Título da vaga">
@@ -2334,21 +2351,22 @@ function renderEmployerOpeningsEditor(rows){
     <button type="button" class="icon-btn danger" onclick="removeOpeningRow(${i})" title="Remover"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
   </div>`).join('');
 }
-function collectOpeningRows(){
-  return [...document.querySelectorAll('#emp-openings-editor .opening-row')].map(r=>({
+function collectOpeningRows(options={}){
+  const rows=[...document.querySelectorAll('#emp-openings-editor .opening-row')].map(r=>({
     id: relUuid(r.getAttribute('data-opening-id') || undefined),
     title:r.querySelector('.emp-opening-title')?.value?.trim()||'',
     qty:Number(r.querySelector('.emp-opening-qty')?.value||1)||1,
     status:r.querySelector('.emp-opening-status')?.value||'Aberta'
-  })).filter(o=>o.title);
+  }));
+  return options.includeBlank ? rows : rows.filter(o=>o.title);
 }
 function addOpeningRow(){
-  const current=collectOpeningRows();
+  const current=collectOpeningRows({includeBlank:true});
   current.push({id:relUuid(),title:'',qty:1,status:'Aberta'});
   renderEmployerOpeningsEditor(current);
 }
 function removeOpeningRow(idx){
-  const current=collectOpeningRows();
+  const current=collectOpeningRows({includeBlank:true});
   current.splice(idx,1);
   renderEmployerOpeningsEditor(current.length?current:[{title:'',qty:1,status:'Aberta'}]);
 }
@@ -8330,4 +8348,3 @@ async function softDeleteMeetingOperationalItems(meetingId){
 </script>
 </body>
 </html>
-
