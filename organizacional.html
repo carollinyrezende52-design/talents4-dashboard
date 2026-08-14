@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-t4-module="organizacional">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talents 4 — CRM v8</title>
+<meta name="theme-color" content="#1d4ed8">
+<title>Talents 4 — Organizacional</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/t4-ui.css">
+<script src="assets/t4-ui.js" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -458,6 +461,10 @@ tbody tr:hover .row-actions.hover{opacity:1}
   <div class="sb-divider"></div>
   <div class="sb-section">
     <div class="sb-label">Sistema</div>
+    <div class="sb-item" onclick="window.location.href='alemao.html'">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
+      Curso de Alemão
+    </div>
     <div class="sb-item" onclick="window.location.href='index.html'">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
       Voltar para Institucional
@@ -8330,4 +8337,3 @@ async function softDeleteMeetingOperationalItems(meetingId){
 </script>
 </body>
 </html>
-
