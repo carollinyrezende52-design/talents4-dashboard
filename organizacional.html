@@ -1669,13 +1669,17 @@ function scheduleRemoteSave(){
   clearTimeout(_remoteSaveTimer);
   _remoteSaveTimer=setTimeout(()=>{saveRemoteNow();},450);
 }
+function persistLocalStateOnly(){
+  const serialized=JSON.stringify(S);
+  localStorage.setItem('t4crm_v5',serialized);
+}
 async function flushRemoteSave(){
   clearTimeout(_remoteSaveTimer);
   try{ await saveRemoteNow(); }catch(err){ console.warn('Falha no flush remoto:', err); }
 }
 function save(){
-  localStorage.setItem('t4crm_v5',JSON.stringify(S));
-  localStorage.setItem('t4crm_v2',JSON.stringify(S));
+  if(window.__t4OrgHydrating) return;
+  persistLocalStateOnly();
   scheduleRemoteSave();
 }
 function refreshVisibleViews(opts={}){
@@ -2247,8 +2251,17 @@ async function orgHybridSoftDeleteEmployerSlices(empName){
   ]);
 }
 
-load();
-migrateState();
+try{
+  load();
+  migrateState();
+}catch(err){
+  // Dados locais antigos nunca podem impedir o carregamento do módulo. O
+  // valor persistido é preservado para recuperação e o banco relacional
+  // repopula a interface após o primeiro render leve.
+  console.error('[T4 Organizacional] Estado local incompatível; usando base segura:', err);
+  S=defaultState();
+  ensureUiState();
+}
 
 // ─── EMPLOYER HELPERS ───
 function getEmpNames(){return S.employers.map(e=>e.name);}
@@ -2469,6 +2482,13 @@ function nav(page){
   });
   safeInvoke('Atualização de filtros', ()=>populateAllSelects());
   scheduleCurrentPageRender(target);
+  if(target==='dossie'){
+    setTimeout(()=>{
+      Promise.resolve(window.t4OrgLoadCanonicalDossiersOnDemand?.()).catch(err=>{
+        console.warn('[T4 Organizacional] Dossiês sob demanda:', err?.message || err);
+      });
+    },0);
+  }
 }
 
 function changeMonth(d){
@@ -4834,14 +4854,26 @@ async function syncOrganizationalOnce(storedSession){
     return;
   }
   safeInvoke('Watchdog de autenticação', ()=>initAuthWatchdog());
-  const remoteLoaded = await safeInvoke('Sincronização remota', ()=>loadRemoteState(), false);
-  const hybridLoaded = await safeInvoke('Leitura híbrida relacional', ()=>orgHybridLoadRelationalSlices(), {loaded:false});
-  if(remoteLoaded || hybridLoaded?.loaded){
+  let hybridLoaded={loaded:false};
+  let employersLoaded=false;
+  window.__t4OrgHydrating=true;
+  try{
+    // Uma única fonte principal na abertura. O snapshot completo e os
+    // catálogos pesados permanecem disponíveis, mas não concorrem no startup.
+    hybridLoaded = await orgHybridLoadRelationalSlices();
+    if(typeof window.t4OrgStrictLoadCanonicalEmployers==='function'){
+      employersLoaded = await window.t4OrgStrictLoadCanonicalEmployers();
+    }
+  }catch(err){
+    console.warn('[T4 Organizacional] Carga principal:', err?.message || err);
+  }finally{
+    window.__t4OrgHydrating=false;
+    safeInvoke('Cache local organizacional', ()=>persistLocalStateOnly());
+  }
+  if(hybridLoaded?.loaded || employersLoaded){
     renderBootstrap();
     try{
-      if(remoteLoaded && hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados híbridos sincronizados do Supabase.');
-      else if(remoteLoaded) console.info('[T4 Organizacional] Dados sincronizados do Supabase.');
-      else if(hybridLoaded?.loaded) console.info('[T4 Organizacional] Dados relacionais carregados.');
+      console.info('[T4 Organizacional] Carga principal concluída sem módulos pesados.');
     }catch(_){ }
   }
 }
@@ -5917,8 +5949,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
       _remoteSnapshotUpdatedAt = data?.updated_at || null;
       const touched = mergeNonPrimaryBackup(remoteBackupPayload);
       if(touched){
-        localStorage.setItem('t4crm_v5', JSON.stringify(S));
-        localStorage.setItem('t4crm_v2', JSON.stringify(S));
+        persistLocalStateOnly();
       }
       return !!data?.payload;
     }catch(err){
@@ -5932,8 +5963,8 @@ async function softDeleteMeetingOperationalItems(meetingId){
   window.scheduleRemoteSave = function(){};
   window.flushRemoteSave = async function(){ return false; };
   window.save = function(){
-    localStorage.setItem('t4crm_v5', JSON.stringify(S));
-    localStorage.setItem('t4crm_v2', JSON.stringify(S));
+    if(window.__t4OrgHydrating) return;
+    persistLocalStateOnly();
   };
 
   window.orgHybridLoadRelationalSlices = async function(){
@@ -6350,18 +6381,6 @@ async function softDeleteMeetingOperationalItems(meetingId){
 
   function initHardening(){
     injectHardeningButtons();
-    setTimeout(async ()=>{
-      try{
-        await window.loadRemoteState();
-        const res = await window.orgHybridLoadRelationalSlices();
-        renderBootstrap?.();
-        renderOperationalPage?.();
-        refreshVisibleViews?.({calendar:true});
-        if(res?.loaded) console.info('[T4 Hardening] Modo seguro ativo: leitura principal relacional, sem auto-gravação em snapshot.');
-      }catch(err){
-        console.warn('[T4 Hardening] init:', err?.message || err);
-      }
-    }, 0);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initHardening);
   else initHardening();
@@ -6492,7 +6511,8 @@ async function softDeleteMeetingOperationalItems(meetingId){
         client
           .from('candidatos')
           .select('id,nome_completo,idade,nivel_alemao,nivel_alemao_declarado,profissao_principal,area_profissional,resumo_profissional,resumo_rh_curto,ai_summary,cv_drive_web_link,cv_drive_file_name')
-          .order('nome_completo', { ascending: true }),
+          .order('nome_completo', { ascending: true })
+          .limit(500),
         7000,
         'Leitura candidatos CRM'
       );
@@ -6728,6 +6748,12 @@ async function softDeleteMeetingOperationalItems(meetingId){
   window.openCandModal = function(id){
     _origOpenCandModal(id);
     hydrateCandidateLookupUi();
+    setTimeout(()=>{
+      loadCrmCandidateCatalog(false).then(()=>{
+        hydrateCandidateLookupUi();
+        refreshCandidateLookupStatus();
+      }).catch(err=>console.warn('[T4 Organizacional] Catálogo sob demanda:', err?.message || err));
+    },0);
     const sourceIdEl = document.getElementById('cand-source-id');
     if(sourceIdEl) sourceIdEl.value = '';
     const emp = S.currentDossieEmp;
@@ -6865,7 +6891,6 @@ async function softDeleteMeetingOperationalItems(meetingId){
   // startup
   document.addEventListener('DOMContentLoaded', () => {
     hydrateCandidateLookupUi();
-    setTimeout(() => { loadCrmCandidateCatalog(false); }, 0);
   });
 
   console.log('[T4 Organizacional v8] Fuso Alemanha fixado no calendário, candidato busca CRM institucional e link rápido do currículo ativados.');
@@ -7698,13 +7723,12 @@ async function softDeleteMeetingOperationalItems(meetingId){
         renderDossie();
       }
     }catch(err){
+      _orgCanonicalBootDone = false;
       console.warn('[T4 Organizacional] bootstrap canonical layer:', err?.message || err);
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => { orgBootstrapCanonicalLayer(); }, 0);
-  });
+  window.t4OrgLoadCanonicalDossiersOnDemand = ()=>orgBootstrapCanonicalLayer();
   try { window.orgLoadCanonicalDossiers = orgLoadCanonicalDossiers; } catch(_) {}
 
   console.log('[T4 Organizacional v9] export de planilha restaurado e sincronização canônica employer/candidato ativada.');
@@ -7750,6 +7774,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
     OPTASK: 'operational_tasks',
     OPMET: 'operational_metrics'
   });
+  let _strictEmployerLoadDone=false;
 
   function dateOnlyFinal(v){
     const s = String(v || '').trim();
@@ -7901,6 +7926,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
   }
 
   window.t4OrgStrictLoadCanonicalEmployers = async function(){
+    if(_strictEmployerLoadDone) return true;
     const client = await requireClientFinal('Carregar empregadores');
     const [empResp, openResp] = await Promise.all([
       withTimeout(client.from(CANON.EMP).select('id,nome,descricao_resumida,area_atuacao,contato_principal,site,status,vagas_abertas,ativo,deleted_at').eq('ativo', true).is('deleted_at', null).order('nome',{ascending:true}), 7000, 'Leitura estrita de employers'),
@@ -7939,6 +7965,7 @@ async function softDeleteMeetingOperationalItems(meetingId){
     if(typeof ensureUiState === 'function') ensureUiState();
     if(typeof save === 'function') save();
     if(typeof populateAllSelects === 'function') populateAllSelects();
+    _strictEmployerLoadDone=true;
     return true;
   };
 
@@ -8187,17 +8214,6 @@ async function softDeleteMeetingOperationalItems(meetingId){
     openModal('modal-day');
   };
 
-  document.addEventListener('DOMContentLoaded', ()=>{
-    setTimeout(async ()=>{
-      try{
-        await window.t4OrgStrictLoadCanonicalEmployers();
-        if(document.getElementById('page-employers')?.classList.contains('active')) renderEmployers();
-        if(document.getElementById('page-calendario')?.classList.contains('active')) renderCalendar();
-      }catch(err){
-        console.warn('[T4 Final Patch] carga canônica estrita não aplicada:', err?.message || err);
-      }
-    }, 250);
-  });
   console.log('[T4 Organizacional Final Patch]', T4_FINAL_PATCH_VERSION, 'ativado.');
 })();
 </script>
