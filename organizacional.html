@@ -3010,14 +3010,12 @@ function renderPlanTable(){
       const matches=empEntries.filter(e=>e.activity===act);
       if(matches.length){
         matches.forEach(entry=>rows.push({act,entry}));
-      }else{
-        rows.push({act,entry:null});
       }
     });
-    empEntries.filter(e=>!PLAN_FIXED_ACTIVITIES.includes(e.activity)).forEach(entry=>{
-      rows.push({act:entry.activity,entry});
+    empEntries.filter(e=>String(e?.activity||'').trim()&&!PLAN_FIXED_ACTIVITIES.includes(e.activity)).forEach(entry=>{
+      rows.push({act:String(entry.activity).trim(),entry});
     });
-    const visibleRows=rows.filter(({entry})=>!statusF || (entry && entry.status===statusF));
+    const visibleRows=rows.filter(({entry})=>entry&&(!statusF || entry.status===statusF));
     if(!visibleRows.length) return '';
     const color=getEmpColor(emp);
     const openCount=empEntries.filter(e=>['A fazer','Em andamento','Bloqueado'].includes(e.status)).length;
@@ -3025,7 +3023,7 @@ function renderPlanTable(){
     return `
       <tr class="emp-group-head"><td colspan="9">
         <div class="gtitle"><span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;box-shadow:0 0 0 4px ${alpha(color,.14)}"></span>${escapeHTML(emp)}</div>
-        <div class="gmeta">${visibleRows.length} linha(s) visíveis · ${openCount} pendência(s) aberta(s)</div>
+        <div class="gmeta">${visibleRows.length} atividade(s) preenchida(s) · ${openCount} pendência(s) aberta(s)</div>
       </td></tr>
       ${visibleRows.map(({act,entry},idx)=>{
         const actHtml=escapeHTML(act);
@@ -3054,7 +3052,7 @@ function renderPlanTable(){
       }).join('')}`;
   }).join('');
   if(!blocks.trim()){
-    tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>Nenhuma atividade encontrada para ${escapeHTML(MONTHS[S.currentMonthIdx].l)}.</p><small>Clique em "Nova Atividade" para adicionar</small></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>Nenhuma atividade preenchida para ${escapeHTML(MONTHS[S.currentMonthIdx].l)}.</p><small>Clique em "Nova Atividade" para adicionar</small></div></td></tr>`;
     return;
   }
   tbody.innerHTML=blocks;
