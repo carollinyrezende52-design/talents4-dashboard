@@ -9,6 +9,7 @@ Aplicação estática publicada pelo GitHub Pages e conectada ao Supabase.
 | `index.html` | CRM Institucional | `/talents4/` |
 | `organizacional.html` | Planejamento e operação por empregador | `/talents4/organizacional.html` |
 | `alemao.html` | Turmas e acompanhamento do curso de alemão | `/talents4/alemao.html` |
+| `contatos.html` | Agenda profissional de pessoas e organizações | `/talents4/contatos.html` |
 | `talents.html` | Compatibilidade com favoritos antigos; redireciona ao CRM | `/talents4/talents.html` |
 
 Os estilos e comportamentos compartilhados ficam em `assets/`. O sistema visual mantém a navegação e os caminhos existentes, mas unifica tipografia, cores, barras laterais, cabeçalhos, botões, cartões, formulários, tabelas, modais, foco por teclado, transições e estado de conexão.
@@ -29,16 +30,18 @@ npx supabase@latest db push --linked --dry-run
 
 Não use `migration repair` sem verificar primeiro a diferença entre o histórico local e remoto.
 
+O módulo Contatos possui um roteiro próprio e verificações somente de leitura em [`CONTATOS_DEPLOY.md`](CONTATOS_DEPLOY.md). Ele não altera as tabelas atuais de candidatos, empregadores ou agenda.
+
 ## Publicação
 
-1. Validar as três páginas localmente.
+1. Validar as quatro páginas localmente.
 2. Aplicar migrations pendentes antes de publicar uma tela que dependa delas.
 3. Enviar os arquivos para a branch `main`.
 4. Aguardar o GitHub Pages e testar as URLs acima com uma conta de cada perfil: administrador, recrutador e visualizador.
 
 ## Regras de manutenção
 
-- Não renomear os três arquivos principais: os links entre módulos dependem desses caminhos.
+- Não renomear os quatro arquivos principais: os links entre módulos dependem desses caminhos.
 - Não criar outro cliente Supabase na mesma página; reutilizar o inicializador existente.
 - Bibliotecas pesadas de DOCX, XLSX e PDF são carregadas somente quando a função é usada.
 - Não publicar planilhas com dados de candidatos nem chaves `service_role` no repositório.
