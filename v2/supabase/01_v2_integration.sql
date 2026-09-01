@@ -143,16 +143,26 @@ as $$
 declare
   opening_employer uuid;
 begin
-  select employer_id into opening_employer
-  from public.employer_openings
-  where id = new.opening_id and deleted_at is null;
+  select e.id
+    into opening_employer
+  from public.employer_openings o
+  join public.employers e
+    on e.id::text = o.employer_id
+  where o.id = new.opening_id
+    and o.deleted_at is null;
+
   if opening_employer is null then
-    raise exception 'Oportunidade inexistente ou arquivada: %', new.opening_id;
+    raise exception
+      'A oportunidade % não possui um empregador válido vinculado.',
+      new.opening_id;
   end if;
+
   new.employer_id = opening_employer;
+
   return new;
 end;
 $$;
+
 
 create or replace function public.t4_v2_sync_contact_followup()
 returns trigger
