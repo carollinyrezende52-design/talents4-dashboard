@@ -1,0 +1,265 @@
+/* Talents 4 · Componentes novos do redesign (tooltip, breadcrumb, barra de
+   filtros ativos). Consomem só os tokens de assets/t4-tokens.css — nenhum
+   valor isolado. Carregado depois dos tokens, antes das camadas legadas,
+   para que um componente legado possa sobrescrever se precisar (cascata
+   previsível, sem !important). */
+
+/* ---------- Tooltip (lacuna real: não existia nenhum componente de tooltip
+   antes desta entrega). CSS puro — sem JavaScript, funciona com foco de
+   teclado (:focus-visible) e mouse (:hover), sem depender de JS para
+   posicionar. Curto e sem decoração, só orienta. */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  background: var(--t4-ink);
+  color: #fff;
+  font-size: var(--t4-text-caption);
+  font-weight: 600;
+  padding: 5px 9px;
+  border-radius: var(--t4-radius-sm);
+  white-space: nowrap;
+  max-width: 240px;
+  white-space: normal;
+  width: max-content;
+  box-shadow: var(--t4-shadow-2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t4-duration-fast) var(--t4-ease), transform var(--t4-duration-fast) var(--t4-ease);
+  z-index: var(--t4-z-toast);
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tooltip]::after { transition: none; }
+}
+/* Tooltips não devem existir só no hover em telas de toque (sem :hover
+   confiável) — em telas pequenas, o conteúdo do atributo deve estar
+   disponível por outro meio (aria-label já é lido por leitor de tela
+   independente deste efeito visual; ver CRITERIOS_ACEITACAO.md). */
+
+/* ---------- Breadcrumb: "onde estou" sempre visível no topo da tela.
+   Complementa (não substitui) a sidebar — a sidebar diz a ÁREA, o
+   breadcrumb diz a TELA + o filtro rápido ativo, se houver. */
+.t4-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t4-text-small);
+  color: var(--t4-ink-soft);
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+}
+.t4-breadcrumb a,
+.t4-breadcrumb span.t4-crumb-current {
+  color: var(--t4-ink-soft);
+  text-decoration: none;
+}
+.t4-breadcrumb a:hover { color: var(--t4-ink); text-decoration: underline; }
+.t4-breadcrumb span.t4-crumb-current { color: var(--t4-ink); font-weight: 600; }
+.t4-breadcrumb .t4-crumb-sep { color: var(--t4-ink-faint); }
+.t4-breadcrumb .t4-crumb-filter {
+  background: var(--t4-accent-soft);
+  color: var(--t4-accent);
+  padding: 1px 8px;
+  border-radius: var(--t4-radius-pill);
+  font-weight: 600;
+  font-size: var(--t4-text-caption);
+}
+
+/* ---------- Barra de filtros ativos: agrega em um só lugar todos os
+   filtros aplicados no momento, cada um removível individualmente (padrão
+   Airtable — ver docs/design/REFERENCIAS_UIUX.md). Só aparece quando há
+   pelo menos 1 filtro ativo; nunca ocupa espaço vazio. */
+.t4-active-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  font-size: var(--t4-text-small);
+  color: var(--t4-ink-soft);
+}
+.t4-active-filters .t4-af-label { font-weight: 600; color: var(--t4-ink); }
+.t4-active-filters .t4-af-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--t4-surface);
+  border: 1px solid var(--t4-line-strong);
+  border-radius: var(--t4-radius-pill);
+  padding: 4px 6px 4px 11px;
+  font-size: var(--t4-text-caption);
+  color: var(--t4-ink);
+}
+.t4-active-filters .t4-af-chip button {
+  border: 0;
+  background: var(--t4-line);
+  color: var(--t4-ink-soft);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+}
+.t4-active-filters .t4-af-chip button:hover { background: var(--t4-critical-soft); color: var(--t4-critical); }
+.t4-active-filters .t4-af-clear {
+  border: 0;
+  background: none;
+  color: var(--t4-accent);
+  font-weight: 600;
+  font-size: var(--t4-text-caption);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+/* ---------- Badges de classificação de empresa (ver t4-v2-records.js,
+   employerClassificationBadges) — reaproveita .t4-badge já existente,
+   só ajusta o espaçamento quando aparecem em grupo. */
+.t4-classification-badges { margin: 6px 0; }
+
+/* ---------- Gráfico de distribuição (W.distributionChart, t4-v2-ui.js).
+   Achado real ao revisar a tela com o usuário: os dashboards só tinham
+   números soltos em cartões — nenhuma visualização de dado em lugar
+   nenhum do app, o motivo concreto por trás da sensação de "planilha",
+   não só a falta de cor. Barras crescem da esquerda ao carregar (uma vez,
+   não repete — nunca decorativo/contínuo, ver CRITERIOS_ACEITACAO.md) e
+   cada categoria pode ter um tom semântico próprio em vez de uma cor só. */
+.t4-dist {
+  background: var(--t4-surface);
+  border: 1px solid var(--t4-line);
+  border-radius: var(--t4-radius-lg);
+  box-shadow: var(--t4-shadow-1);
+  padding: var(--t4-space-6) var(--t4-space-7);
+  margin-bottom: var(--t4-space-6);
+}
+.t4-dist header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--t4-space-4);
+  margin-bottom: var(--t4-space-5);
+}
+.t4-dist-eyebrow {
+  display: block;
+  font-size: var(--t4-text-eyebrow);
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--t4-ink-faint);
+  margin-bottom: 3px;
+}
+.t4-dist h3 { margin: 0; font-size: var(--t4-text-subtitle); font-weight: 750; color: var(--t4-ink); letter-spacing: -.02em; }
+.t4-dist-meta { font-size: var(--t4-text-small); color: var(--t4-ink-soft); white-space: nowrap; }
+
+/* Funil: uma barra única, dividida por etapa em proporção real ao total —
+   troca a antiga lista de N barras repetidas (mesma leitura, mas cada
+   linha competia por atenção com as outras, inclusive as com 0 registros).
+   Cor por tom semântico (não a mesma cor pintada N vezes) e a etapa com
+   mais gente ganha um leve destaque (is-top), para responder "onde a
+   maioria está" no primeiro relance, sem precisar comparar 10 números. */
+/* A barra ganhou uma "pista" (trilho) visível: antes os segmentos coloridos
+   iam direto do branco do card para a cor, sem nenhuma moldura — pedido
+   explícito para dar mais presença/vida ao componente. O trilho também cria
+   a margem que faltava entre o bloco colorido e a borda do card. */
+.t4-funnel-bar {
+  display: flex; height: 40px; gap: 4px; padding: 4px;
+  background: color-mix(in srgb, var(--t4-ink-faint) 10%, var(--t4-surface-sunken));
+  border-radius: 999px;
+  box-shadow: inset 0 1px 3px rgba(10, 20, 35, .09), inset 0 0 0 1px rgba(10, 20, 35, .04);
+}
+.t4-funnel-seg {
+  /* flex-shrink 0 (era o padrão) somado a min-width:6px podia empurrar a
+     barra para fora do container quando muitas etapas têm dados: a soma
+     dos mínimos passa a largura disponível e nada cede. Com shrink:1 os
+     segmentos maiores cedem espaço primeiro, min-width continua sendo
+     o piso de legibilidade dos menores — sem estourar o container
+     (reproduzido e confirmado com 10 etapas em largura estreita). */
+  display: block; height: 100%; min-width: 6px; flex: 1 1 var(--seg-width, 0%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--t4-ink-faint) 60%, #fff), color-mix(in srgb, var(--t4-ink-faint) 88%, #000));
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), inset 0 -5px 8px -4px rgba(10, 20, 35, .22), 0 2px 5px rgba(10, 20, 35, .14);
+  animation: t4-funnel-grow var(--t4-duration-base) var(--t4-ease) backwards;
+  animation-delay: calc(60ms + var(--i, 0) * 55ms);
+  transition: flex-basis .35s var(--t4-ease), min-width .35s var(--t4-ease), opacity .25s var(--t4-ease), filter .15s var(--t4-ease), transform .15s var(--t4-ease), box-shadow .15s var(--t4-ease);
+  transform-origin: center;
+}
+/* Tons semânticos: gradiente de claro (topo) para a cor cheia (base) no
+   lugar da antiga diluição em branco/transparente dos dois lados — bem
+   mais saturado, com a mesma luz/sombra internas do segmento neutro acima. */
+.t4-funnel-seg.info { background: linear-gradient(180deg, color-mix(in srgb, var(--t4-info) 88%, #fff), var(--t4-info)); }
+.t4-funnel-seg.warning { background: linear-gradient(180deg, color-mix(in srgb, var(--t4-warning) 88%, #fff), var(--t4-warning)); }
+.t4-funnel-seg.success { background: linear-gradient(180deg, color-mix(in srgb, var(--t4-success) 88%, #fff), var(--t4-success)); }
+.t4-funnel-seg.critical { background: linear-gradient(180deg, color-mix(in srgb, var(--t4-critical) 88%, #fff), var(--t4-critical)); }
+.t4-funnel-seg.is-top { outline: 2px solid var(--t4-ink); outline-offset: -2px; }
+.t4-funnel-seg.is-hovered { filter: brightness(1.14) saturate(1.2); transform: scaleY(1.1); box-shadow: 0 3px 10px rgba(10, 20, 35, .22); position: relative; z-index: 1; cursor: default; }
+.t4-funnel-bar.is-active .t4-funnel-seg:not(.is-hovered) { opacity: .32; }
+.t4-funnel-seg.is-excluded { flex-basis: 0% !important; min-width: 0 !important; opacity: 0; }
+@keyframes t4-funnel-grow {
+  from { flex-basis: 0%; }
+  to { flex-basis: var(--seg-width, 0%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t4-funnel-seg { animation: none; transition: opacity .15s linear; }
+  .t4-funnel-legend li { animation: none; }
+}
+.t4-funnel-legend { list-style: none; margin: var(--t4-space-4) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--t4-space-1) var(--t4-space-3); }
+.t4-funnel-legend li { animation: t4-legend-in .3s var(--t4-ease) backwards; animation-delay: calc(80ms + var(--i, 0) * 45ms); }
+@keyframes t4-legend-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.t4-funnel-legend-toggle {
+  display: flex; align-items: center; gap: 8px; font: inherit; font-size: var(--t4-text-small); color: var(--t4-ink-soft);
+  background: transparent; border: 0; margin: 0; padding: 5px 10px 5px 5px; border-radius: 999px; cursor: pointer;
+  transition: background-color .15s var(--t4-ease), opacity .2s var(--t4-ease), color .15s var(--t4-ease);
+}
+.t4-funnel-legend-toggle:hover, .t4-funnel-legend-toggle:focus-visible, .t4-funnel-legend-toggle.is-hovered { background: var(--t4-surface-sunken); color: var(--t4-ink); }
+.t4-funnel-legend-toggle:focus-visible { outline: 2px solid var(--t4-info); outline-offset: 1px; }
+.t4-funnel-legend.is-active .t4-funnel-legend-toggle:not(.is-hovered) { opacity: .45; }
+.t4-funnel-legend-toggle[aria-pressed="false"] { opacity: .4; }
+.t4-funnel-legend-toggle[aria-pressed="false"] i { background: var(--t4-ink-faint) !important; }
+.t4-funnel-legend-toggle[aria-pressed="false"] span { text-decoration: line-through; }
+.t4-funnel-legend-toggle i { width: 13px; height: 13px; border-radius: 4px; background: color-mix(in srgb, var(--t4-ink-faint) 55%, var(--t4-surface-sunken)); flex-shrink: 0; }
+.t4-funnel-legend-toggle.info i { background: var(--t4-info); }
+.t4-funnel-legend-toggle.warning i { background: var(--t4-warning); }
+.t4-funnel-legend-toggle.success i { background: var(--t4-success); }
+.t4-funnel-legend-toggle.critical i { background: var(--t4-critical); }
+.t4-funnel-legend-toggle.is-top { color: var(--t4-ink); font-weight: 650; }
+.t4-funnel-legend-toggle strong { font-variant-numeric: tabular-nums; font-weight: 750; color: var(--t4-ink); }
+.t4-funnel-legend-toggle[aria-pressed="false"] strong { color: var(--t4-ink-faint); }
+.t4-funnel-empty { margin: var(--t4-space-4) 0 0; font-size: var(--t4-text-small); color: var(--t4-ink-faint); }
+@media (max-width: 680px) {
+  .t4-dist { padding: var(--t4-space-5); }
+  .t4-funnel-legend { gap: var(--t4-space-2) var(--t4-space-4); }
+}
+
+/* ---------- Transição de página: até aqui, trocar de view (ou atualizar o
+   conteúdo da view atual após salvar algo) substituía o HTML na hora, sem
+   nenhuma transição — pedido explícito para corrigir. A troca de conteúdo
+   em si continua sendo feita por cada módulo (organization-v2.js,
+   talents-v2.js etc.) escrevendo em pageRoot.innerHTML normalmente; só a
+   ENTRADA do resultado já trocado ganha uma leve subida com fade
+   (t4-v2-core.js reinicia a classe a cada navegação real). Não é uma
+   coreografia entre conteúdo antigo e novo — mais simples, sem atraso
+   perceptível na navegação, e já cobre 100% das telas porque todas usam o
+   mesmo pageRoot. */
+#t4-page-root.t4-page-enter { animation: t4-page-in .32s var(--t4-ease, cubic-bezier(.2, .8, .2, 1)) both; }
+@keyframes t4-page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #t4-page-root.t4-page-enter { animation: none; }
+}

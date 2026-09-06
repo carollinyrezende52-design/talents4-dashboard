@@ -1,0 +1,110 @@
+/* Colaboração transversal: discreta no shell e legível em telas menores.
+   Textos secundários usam var(--v25-muted) — o tom ad-hoc original tinha
+   ~10 variações de azul-acinzentado, várias abaixo de 4.5:1 (WCAG AA);
+   este arquivo carrega depois de t4-v25.css, então o token já existe. */
+.t4-collab-actions { display: flex; align-items: center; gap: .45rem; margin-left: .35rem; }
+.t4-collab-notification-button { position: relative; }
+.t4-collab-notification-button .t4-icon { width: 1.05rem; height: 1.05rem; }
+.t4-collab-count { position: absolute; top: -.28rem; right: -.28rem; min-width: 1.1rem; height: 1.1rem; padding: 0 .18rem; border-radius: 999px; background: #d50c2f; color: #fff; font-size: .64rem; font-weight: 800; line-height: 1.1rem; text-align: center; box-shadow: 0 0 0 2px var(--t4-surface, #fff); }
+.t4-collab-empty, .t4-chat-empty { display: grid; gap: .3rem; place-items: center; min-height: 9rem; padding: 2rem; color: var(--v25-muted); text-align: center; }
+.t4-collab-empty strong, .t4-chat-empty strong { color: #123b5d; }
+.t4-notification-summary { display: flex; align-items: baseline; gap: .55rem; padding: .7rem .9rem; border: 1px solid #d6e3ed; border-radius: .75rem; background: #f5f9fc; color: var(--v25-muted); }
+.t4-notification-summary strong { color: #002a4a; font-size: 1.25rem; }
+.t4-notification-list { display: grid; gap: .6rem; margin-top: .85rem; }
+.t4-notification-item { display: flex; justify-content: space-between; gap: 1rem; padding: .85rem; border: 1px solid #dbe6ee; border-radius: .75rem; background: #fff; }
+.t4-notification-item.is-unread { border-left: 3px solid #1e8e76; background: #fbfffd; }
+.t4-notification-item h3 { margin: .2rem 0; color: #123b5d; font-size: .95rem; }
+.t4-notification-item p { margin: 0; color: var(--v25-muted); white-space: pre-wrap; }
+.t4-notification-item small { display: block; margin-top: .4rem; color: var(--v25-muted); }
+/* #1e8e76 original ficava em 4.05:1 sobre branco (abaixo de 4.5:1, WCAG
+   AA) mesmo em negrito — o texto é pequeno demais (.65rem) para contar
+   como "grande" na exceção de 3:1. Escurecido preservando o verde-azulado. */
+.t4-notification-type { color: #137a64; font-size: .65rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.t4-collab-reminder { position: fixed; z-index: 120; right: 1.25rem; bottom: 1.25rem; width: min(25rem, calc(100vw - 2rem)); padding: 1rem; border: 1px solid #b8cfe0; border-radius: 1rem; background: rgba(255, 255, 255, .98); box-shadow: 0 18px 55px rgba(0, 42, 74, .2); }
+.t4-collab-reminder-head { display: flex; justify-content: space-between; gap: .75rem; }
+.t4-collab-reminder h2 { margin: .2rem 0 0; color: #002a4a; font-size: 1.05rem; }
+.t4-collab-reminder ul { display: grid; gap: .45rem; margin: .9rem 0 .4rem; padding: 0; list-style: none; }
+.t4-collab-reminder li { display: grid; gap: .1rem; padding: .5rem .6rem; border-radius: .55rem; background: #f4f8fb; }
+.t4-collab-reminder li strong { color: #123b5d; font-size: .85rem; }
+.t4-collab-reminder li span, .t4-collab-reminder > small { color: var(--v25-muted); font-size: .75rem; }
+.t4-collab-reminder footer { display: flex; justify-content: flex-end; gap: .45rem; margin-top: .8rem; }
+/* Painel de chat retrátil, fixado no canto — antes era um modal bloqueante
+   centralizado; pedido explícito do usuário para um campo retrátil, como em
+   produtos B2B com chat flutuante (Intercom/Front). O elemento fica sempre
+   no DOM (ver ensureChatDock em t4-collaboration.js) e só alterna [hidden],
+   preservando a conversa aberta e a rolagem entre um fechar/abrir e outro. */
+.t4-chat-dock {
+  position: fixed; z-index: 118; right: 1.25rem; bottom: 1.25rem;
+  width: min(56rem, calc(100vw - 2rem)); height: min(38rem, calc(100vh - 7rem));
+  display: flex; flex-direction: column;
+  background: #fff; border: 1px solid #d8e4ec; border-radius: 1rem;
+  box-shadow: 0 24px 64px rgba(0, 42, 74, .24);
+  overflow: hidden;
+}
+.t4-chat-dock[hidden] { display: none; }
+.t4-chat-dock-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem 1rem; border-bottom: 1px solid #dbe6ee; background: #f7fafc; flex: 0 0 auto; }
+.t4-chat-dock-head h2 { margin: 0; font-size: .95rem; color: #002a4a; }
+.t4-chat-dock-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.t4-chat-layout { display: grid; grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr); flex: 1; min-height: 0; border: 0; border-radius: 0; overflow: hidden; background: #f7fafc; }
+.t4-chat-list { padding: .8rem; border-right: 1px solid #d8e4ec; background: #fff; overflow-y: auto; }
+.t4-chat-list-head, .t4-chat-thread > header { display: flex; align-items: flex-start; justify-content: space-between; gap: .7rem; }
+.t4-chat-list-head { padding-bottom: .75rem; border-bottom: 1px solid #e1eaf0; }
+.t4-chat-list h3, .t4-chat-thread h3 { margin: .15rem 0 0; color: #123b5d; }
+.t4-chat-list-group-label { margin-top: .9rem; padding: 0 .1rem .3rem; font-size: .66rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--v25-muted); }
+.t4-chat-conversation { display: grid; gap: .2rem; width: 100%; margin-top: .5rem; padding: .65rem; border: 0; border-radius: .6rem; background: transparent; color: var(--v25-muted); text-align: left; cursor: pointer; }
+.t4-chat-conversation:hover, .t4-chat-conversation.is-active { background: #eaf3f9; }
+.t4-chat-conversation.is-closed { background: #f5f7f9; }
+.t4-chat-conversation.is-closed.is-active { background: #e9edf1; }
+.t4-chat-conversation-flag { display: inline-flex; width: .85rem; height: .85rem; margin-right: .3rem; vertical-align: -.1rem; color: var(--v25-muted); }
+.t4-chat-conversation-flag svg { width: 100%; height: 100%; }
+.t4-chat-conversation strong { color: #173e5e; font-size: .84rem; }
+.t4-chat-conversation span { overflow: hidden; color: var(--v25-muted); font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+.t4-chat-thread { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; min-width: 0; padding: 1rem; }
+.t4-chat-thread > header { padding-bottom: .8rem; border-bottom: 1px solid #dbe6ee; }
+.t4-chat-thread > header p { margin: .25rem 0 0; color: var(--v25-muted); font-size: .8rem; }
+.t4-chat-thread-actions { display: flex; align-items: center; gap: .3rem; flex: 0 0 auto; }
+.t4-chat-closed-banner { display: flex; align-items: center; gap: .5rem; margin: .8rem 0 0; padding: .6rem .8rem; border: 1px solid #e3d9b8; border-radius: .6rem; background: #fdf8ec; color: #7a5b12; font-size: .78rem; }
+.t4-chat-closed-banner .t4-icon { width: 1rem; height: 1rem; flex: 0 0 auto; }
+.t4-chat-messages { display: flex; flex-direction: column; gap: .6rem; min-height: 0; padding: 1rem .2rem; overflow-y: auto; }
+.t4-chat-message { align-self: flex-start; max-width: min(80%, 38rem); padding: .65rem .8rem; border: 1px solid #dbe6ee; border-radius: .8rem .8rem .8rem .2rem; background: #fff; }
+.t4-chat-message.is-mine { align-self: flex-end; border-color: #c5e3d8; border-radius: .8rem .8rem .2rem .8rem; background: #effaf5; }
+.t4-chat-message strong { color: #123b5d; font-size: .75rem; }
+.t4-chat-message p { margin: .25rem 0; color: #334f65; white-space: pre-wrap; }
+.t4-chat-message small { color: var(--v25-muted); font-size: .68rem; }
+.t4-chat-compose { display: flex; align-items: flex-end; gap: .55rem; padding-top: .7rem; border-top: 1px solid #dbe6ee; }
+.t4-chat-compose textarea { flex: 1; min-height: 2.8rem; resize: vertical; }
+.t4-chat-new { display: grid; gap: 1rem; max-width: 42rem; margin: 0 auto; }
+.t4-chat-new label, .t4-chat-new fieldset { display: grid; gap: .4rem; }
+.t4-chat-new label > span, .t4-chat-new legend { color: #355771; font-size: .8rem; font-weight: 700; }
+.t4-chat-new fieldset { padding: .8rem; border: 1px solid #d8e4ec; border-radius: .75rem; }
+.t4-chat-user-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .45rem; }
+/* .t4-chat-user-option é um <label> dentro de .t4-chat-new, então
+   ".t4-chat-new label { display:grid }" (classe+tag, mais específico que
+   a classe sozinha) vence sem !important — por isso o flex aqui precisa
+   dele. O bug real era o <span> do rótulo (checkbox + nome + usuário):
+   sem direção de coluna própria, <strong> e <small> ficavam grudados na
+   mesma linha ("Administradordemo"); as propriedades de grid antigas
+   (grid-template-columns/rows, grid-row) nunca chegavam a valer, porque
+   o elemento sempre foi flex. */
+.t4-chat-user-option { display: flex !important; align-items: start; gap: .5rem !important; padding: .55rem; border: 1px solid #dbe6ee; border-radius: .6rem; background: #fff; }
+.t4-chat-user-option input { margin-top: .2rem; }
+.t4-chat-user-option > span { display: flex; flex-direction: column; gap: .1rem; }
+.t4-chat-user-option strong { color: #123b5d; font-size: .8rem; }
+.t4-chat-user-option small { color: var(--v25-muted); }
+.t4-chat-new-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+.org-po-scope { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; padding: 1rem 1.1rem; border: 1px solid #bdd3e3; border-radius: .9rem; background: linear-gradient(125deg, #f8fbfd, #edf5fa); }
+.org-po-scope h2 { margin: .2rem 0; color: #123b5d; font-size: 1.1rem; }
+.org-po-scope p { max-width: 45rem; margin: 0; color: var(--v25-muted); font-size: .82rem; }
+.org-po-scope-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
+.org-po-scope-actions .t4-quickfilters { margin: 0; }
+
+@media (max-width: 760px) {
+  .t4-collab-actions { margin-left: .1rem; }
+  .t4-collab-chat-button span { display: none; }
+  .t4-chat-dock { right: .5rem; bottom: .5rem; left: .5rem; width: auto; height: min(85vh, calc(100vh - 4rem)); }
+  .t4-chat-layout { grid-template-columns: 1fr; }
+  .t4-chat-list { max-height: 12rem; border-right: 0; border-bottom: 1px solid #d8e4ec; }
+  .org-po-scope { display: grid; }
+  .org-po-scope-actions { justify-content: flex-start; }
+  .t4-notification-item { display: grid; }
+}

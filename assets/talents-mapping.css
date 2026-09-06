@@ -1,0 +1,282 @@
+/* Refinamento exclusivo de Talentos · mesma identidade dos quatro switches. */
+body[data-t4-module="talents"] { --tw-ink:#002a4a; --tw-border:#dbe4ec; --tw-soft:#f5f8fb; }
+body[data-t4-module="talents"] .t4-page { padding-top:1.25rem; }
+.tw-sheet-tabs { display:flex; flex-wrap:wrap; gap:.25rem; padding:0 0 .8rem; margin-bottom:1rem; border-bottom:1px solid var(--tw-border); }
+.tw-sheet-tabs button { border:0; background:transparent; color:#53677b; padding:.7rem 1rem; font:inherit; font-weight:600; font-size:.875rem; line-height:1.3; border-radius:.55rem; cursor:pointer; }
+.tw-sheet-tabs button.current { background:var(--tw-ink); color:white; box-shadow:0 3px 8px #002a4a16; }
+.tw-sheet-tabs button:hover:not(.current) { background:#eaf0f5; color:var(--tw-ink); }
+.tw-quickfilters { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem; }
+.tw-quick { display:inline-flex; gap:.5rem; align-items:center; min-height:2.6rem; border:1px solid var(--tw-border); border-radius:2rem; background:white; color:#42576b; padding:.55rem .85rem; cursor:pointer; font:inherit; font-size:.875rem; }
+.tw-quick svg { width:1rem; height:1rem; }
+.tw-quick > span:not(.tw-checkmark) { padding:.08rem .4rem; background:#eaf0f5; border-radius:.4rem; font-size:.8rem; }
+.tw-quick.selected { color:var(--tw-ink); background:#e9f2f9; border-color:#8baabe; box-shadow:inset 0 0 0 1px #8baabe25; font-weight:600; }
+.tw-checkmark { border:1px solid #a9bac7; border-radius:.25rem; width:1rem; height:1rem; display:grid; place-items:center; font-size:.75rem; line-height:1; }
+.tw-quick.selected .tw-checkmark { color:white; border-color:var(--tw-ink); background:var(--tw-ink); }
+.tw-filter-surface { padding:1rem; border:1px solid var(--tw-border); border-radius:.85rem; background:#fff; margin-bottom:1.2rem; }
+.tw-filter-row { display:flex; align-items:flex-start; flex-wrap:wrap; gap:.65rem; }
+.tw-filter-tools { display:flex; gap:.3rem; margin-left:auto; align-self:center; }
+.tw-filter-summary { font-size:.8rem; color:#65798a; margin-top:.75rem; line-height:1.5; }
+.tw-active-filters { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.65rem; }
+.tw-active-filters button { display:flex; gap:.6rem; align-items:center; border:1px solid #c9d8e2; background:#eff5f9; color:var(--tw-ink); border-radius:.4rem; font:inherit; padding:.35rem .6rem; cursor:pointer; max-width:100%; text-align:left; }
+.tw-active-filters button span { font-size:1rem; }
+.tw-multiselect { position:relative; min-width:10.5rem; flex:1 1 10.5rem; max-width:17rem; }
+.tw-multiselect summary { position:relative; display:flex; flex-direction:column; list-style:none; cursor:pointer; border:1px solid #cddae5; background:#fff; border-radius:.6rem; color:var(--tw-ink); padding:.6rem 2.1rem .6rem .85rem; font-size:.875rem; font-weight:600; min-height:3.55rem; }
+.tw-multiselect summary::-webkit-details-marker { display:none; }
+.tw-multiselect summary > span { color:#60768a; font-size:.8rem; font-weight:400; padding-top:.15rem; }
+.tw-multiselect summary > svg { width:1rem; height:1rem; position:absolute; right:.7rem; top:1.3rem; }
+.tw-multiselect[open] { z-index:35; }
+.tw-multiselect[open] summary { border-color:#527f9b; box-shadow:0 0 0 3px #002a4a10; }
+.tw-options { position:absolute; z-index:40; top:calc(100% + .4rem); left:0; width:max(100%,18rem); max-width:min(27rem,calc(100vw - 3rem)); padding:.7rem; border:1px solid #cbd9e4; box-shadow:0 16px 36px #002a4a20; background:#fff; border-radius:.75rem; }
+.tw-options input[type="search"] { width:100%; font:inherit; font-size:.875rem; padding:.65rem; border:1px solid var(--tw-border); border-radius:.4rem; }
+.tw-options > p { color:#6b7f90; font-size:.75rem; margin:.65rem .25rem 0; }
+.tw-option-actions { display:flex; justify-content:space-between; margin:.35rem 0; }
+.tw-option-list { max-height:17rem; overflow:auto; overscroll-behavior:contain; }
+.tw-option-list label { display:flex; align-items:center; gap:.6rem; min-height:2.5rem; padding:.45rem; border-radius:.4rem; cursor:pointer; font-size:.875rem; line-height:1.4; }
+.tw-option-list label:hover { background:#edf4fa; }
+.tw-option-list label[hidden] { display:none; }
+.tw-option-list input { accent-color:var(--tw-ink); flex-shrink:0; width:1.1rem; height:1.1rem; }
+.tw-option-list small { margin-left:auto; background:#eff3f7; padding:.1rem .4rem; border-radius:.3rem; color:#607184; }
+.tw-sheet-heading { display:flex; align-items:flex-end; flex-wrap:wrap; gap:1rem; justify-content:space-between; margin:1.4rem 0 1rem; }
+.tw-kicker { display:block; font-size:.75rem; font-weight:700; letter-spacing:.1em; color:#64798b; margin-bottom:.45rem; }
+.tw-sheet-heading h2 { font-size:1.3rem; color:var(--tw-ink); line-height:1.35; margin:0; }
+.tw-sheet-heading p { color:#62778b; font-size:.875rem; margin:.45rem 0 0; }
+.tw-mode-tabs { display:flex; flex-wrap:wrap; gap:.25rem; border:1px solid var(--tw-border); background:#fff; border-radius:.55rem; padding:.25rem; }
+.tw-mode-tabs button { border:0; padding:.55rem .75rem; border-radius:.35rem; font:inherit; font-size:.875rem; color:#5a7084; background:transparent; cursor:pointer; }
+.tw-mode-tabs button[aria-pressed="true"] { background:#edf2f7; color:var(--tw-ink); font-weight:600; }
+.tw-sheet-grid { background:white; border:1px solid var(--tw-border); border-radius:.85rem; overflow:hidden; box-shadow:0 3px 12px #002a4a05; }
+.tw-sheet-grid .t4-data-grid { border:0; border-radius:0; }
+.tw-sheet-grid .t4-grid-tools { padding:.7rem 1rem; background:white; }
+.tw-sheet-grid .t4-table-wrap { max-height:65vh; overflow:auto; scrollbar-color:#a1b3c2 #eff4f8; scrollbar-width:auto; }
+/* table-layout:fixed (não auto) é o que faz a largura das colunas (abaixo)
+   valer de verdade: em "auto", o navegador ignora max-width de uma célula
+   sempre que o conteúdo em uma só linha (nowrap) precisar de mais espaço —
+   é por isso que a truncagem de `.tw-cell-text` só passou a reduzir a
+   largura real da tabela depois desta troca, não só a declarar em CSS. */
+.tw-sheet-grid .t4-table { table-layout:fixed; width:auto; min-width:100%; }
+.tw-sheet-grid .t4-table th { position:sticky; top:0; width:11rem; background:#edf3f8; color:#274860; z-index:3; font-size:.875rem; line-height:1.45; white-space:normal; padding:.9rem; border-bottom:1px solid #cddde8; }
+.tw-sheet-grid .t4-table th button { font-size:inherit; white-space:normal; line-height:1.4; text-align:left; }
+/* Reforço: além de truncar cada tipo de conteúdo individualmente (abaixo),
+   uma altura máxima no próprio <td> é a garantia final de que nenhuma
+   célula — inclusive um tipo de conteúdo não previsto aqui — deixa a
+   linha mais alta que as vizinhas e reabre o vazamento atrás do cabeçalho. */
+.tw-sheet-grid .t4-table td { font-size:.875rem; line-height:1.55; padding:.65rem .85rem; vertical-align:middle; border-bottom:1px solid #edf1f5; overflow:hidden; max-height:2.85rem; }
+/* A coluna "Nome" usa o componente genérico W.person() (nome + subtítulo),
+   que em outras telas tem espaço de sobra para o subtítulo quebrar em duas
+   linhas — mas nesta grade densa a coluna é estreita e o mesmo motivo do
+   comentário acima (altura de linha inconsistente colidindo com o
+   cabeçalho fixo) se aplica igual. Trunca só aqui, não no componente geral. */
+.tw-sheet-grid .t4-table .t4-inline-person { min-width:0; }
+.tw-sheet-grid .t4-table .t4-inline-person-copy small { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tw-sheet-grid .t4-table .tw-link-cell { flex-wrap:nowrap; overflow:hidden; }
+/* .t4-badge (t4-v2.css) é `white-space:normal` de propósito em outras telas
+   (cartões, onde quebrar é aceitável) — mas numa coluna estreita da grade
+   densa isso quebrava "Não informado" sílaba por sílaba, empilhado na
+   vertical, e essa é a real causa da linha ficar muito mais alta que as
+   vizinhas (achado de auditoria visual, não hipótese). */
+.tw-sheet-grid .t4-table .t4-badge { white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+.tw-sheet-grid .t4-table th:first-child,.tw-sheet-grid .t4-table td:first-child { position:sticky; left:0; width:13rem; z-index:2; box-shadow:1px 0 #dbe5ed; background:#fff; }
+.tw-sheet-grid .t4-table th:first-child { background:#edf3f8; z-index:5; }
+.tw-sheet-grid .t4-table tbody tr:hover td { background:#f7fafc; }
+.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table th:first-child,.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table td:first-child { width:7rem; }
+.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table th:nth-child(2),.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table td:nth-child(2) { position:sticky; left:7rem; width:15rem; background:#fff; z-index:2; box-shadow:1px 0 #dbe5ed; }
+.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table th:nth-child(2) { background:#edf3f8; z-index:5; }
+.tw-sheet-grid .t4-table .tw-col-fit_reasons,.tw-sheet-grid .t4-table .tw-col-barriers,.tw-sheet-grid .t4-table .tw-col-perfil_profissional_para_apresentacao,.tw-sheet-grid .t4-table .tw-col-observacao_apresentacao { width:16rem; }
+.tw-sheet-grid .t4-table .tw-col-professional_score,.tw-sheet-grid .t4-table .tw-col-current_viability_score,.tw-sheet-grid .t4-table .tw-col-projected_b1_score { width:9rem; }
+/* Célula de uma linha só, com reticências no que não couber (clique/toque
+   sempre abre a edição com o valor completo — nunca perde informação, só
+   não a repete quebrada em várias linhas). Isso existe porque uma coluna
+   com texto longo, ao quebrar linha, deixava a altura da linha da tabela
+   diferente das vizinhas — e o cabeçalho fixo (position: sticky) não cobre
+   direito uma linha mais alta que as outras ao rolar, deixando um pedaço
+   dela visível colado no cabeçalho (achado de auditoria visual). Colunas
+   que precisam mesmo de texto livre completo usam `.tw-multiline` (abaixo),
+   um opt-in explícito, não o padrão. */
+.tw-cell-edit,.tw-cell-value { display:flex; gap:.7rem; align-items:center; text-align:left; width:100%; max-width:23rem; color:inherit; font:inherit; }
+.tw-cell-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; flex:1 1 auto; }
+.tw-cell-edit { background:transparent; border:1px solid transparent; border-radius:.35rem; cursor:pointer; padding:.15rem; }
+.tw-cell-edit:hover { background:white; border-color:#c4d6e4; }
+.tw-cell-edit > svg { width:.85rem; height:.85rem; opacity:.3; margin-left:auto; flex-shrink:0; }
+.tw-cell-edit:hover > svg,.tw-cell-edit:focus-visible > svg { opacity:1; }
+.tw-cell-value small,.tw-cell-edit small { color:#6c7e8e; }
+.tw-cell-value small::before,.tw-cell-edit small::before { content:" · "; }
+.tw-multiline { white-space:pre-wrap; min-width:13rem; max-width:24rem; overflow-wrap:anywhere; }
+.tw-link-cell { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+.tw-score { display:grid; grid-template-columns:auto 1fr; gap:.2rem; width:6rem; color:var(--tw-ink); }
+.tw-score strong { font-size:1.15rem; font-variant-numeric:tabular-nums; }
+.tw-score > span { align-self:end; font-size:.75rem; color:#688095; padding-bottom:.2rem; }
+.tw-score i { grid-column:1/-1; width:100%; height:4px; border-radius:3px; background:linear-gradient(to right,#315f82 var(--score),#e6edf2 var(--score)); }
+.tw-col-current_viability_score .tw-score i { background:linear-gradient(to right,#665c8b var(--score),#e6edf2 var(--score)); }
+.tw-col-projected_b1_score .tw-score i { background:linear-gradient(to right,#bf710c var(--score),#eee9e0 var(--score)); }
+.tw-unrated { color:#758594; font-size:.8rem; }
+.tw-muted,.tw-table-note { color:#687d8e; font-size:.8rem; }
+.tw-table-note { margin:.75rem 0 1.2rem; line-height:1.6; }
+.tw-dossier { border:1px solid var(--tw-border); border-radius:.9rem; background:white; overflow:hidden; margin-bottom:1rem; }
+.tw-dossier-head { display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; align-items:center; padding:1.25rem; border-top:4px solid var(--tw-ink); background:linear-gradient(110deg,#f0f5f9,#fff 65%); }
+.tw-dossier-head > div:last-child { display:flex; flex-wrap:wrap; gap:.5rem; }
+.tw-dossier-head p { font-size:.875rem; color:#596e81; margin:.4rem 0 0; }
+.tw-person-picker select { font:inherit; font-size:1.3rem; font-weight:650; background:transparent; color:var(--tw-ink); border:0; max-width:min(36rem,calc(100vw - 5rem)); padding:.25rem 2rem .25rem 0; }
+.tw-context-grid { display:grid; grid-template-columns:1.2fr .8fr 1fr; gap:1.4rem; padding:1.25rem; border-top:1px solid #edf1f5; }
+.tw-context-grid h3 { font-size:.875rem; color:#345069; margin:0 0 .5rem; }
+.tw-context-grid p { font-size:1rem; line-height:1.65; white-space:pre-wrap; margin:0; color:#43586a; }
+.tw-projection-note { display:flex; gap:.7rem; padding:.9rem 1.25rem; background:#faf7f2; border-top:1px solid #eee5d8; }
+.tw-projection-note > svg { width:1.1rem; height:1.1rem; flex-shrink:0; color:#a66512; margin-top:.15rem; }
+.tw-projection-note p { margin:0; font-size:.875rem; line-height:1.6; color:#685c4d; }
+.tw-mapping-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:1rem; margin:.9rem 0; }
+.tw-mapping-toolbar > span { font-size:.875rem; color:#61788c; }
+.tw-sr-only { position:absolute; height:1px; width:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.tw-quick:focus-visible,.tw-cell-edit:focus-visible,.tw-sheet-tabs button:focus-visible,.tw-mode-tabs button:focus-visible,.tw-multiselect summary:focus-visible { outline:3px solid #fbb900; outline-offset:2px; }
+@media(max-width:1000px) { .tw-context-grid {grid-template-columns:1fr;} .tw-filter-tools {margin-left:0;} .tw-multiselect {max-width:none;} }
+@media(max-width:680px) {
+  .tw-filter-surface {padding:.7rem;} .tw-multiselect {min-width:calc(50% - .4rem);flex-basis:calc(50% - .4rem);}
+  .tw-filter-row > .tw-multiselect:nth-child(even) .tw-options {left:auto;right:0;}
+  .tw-sheet-tabs {gap:.15rem;} .tw-sheet-tabs button {padding:.55rem .7rem;}
+  .tw-sheet-grid .t4-table th:first-child,.tw-sheet-grid .t4-table td:first-child,.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table th:nth-child(2),.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table td:nth-child(2) {position:static;box-shadow:none;}
+  .tw-sheet-grid .t4-table th:first-child,.tw-sheet-grid[data-tw-sheet="presentation"] .t4-table th:nth-child(2) {position:sticky;top:0;}
+  .tw-dossier-head {padding:1rem;} .tw-context-grid {padding:1rem;gap:1rem;} .tw-person-picker select {font-size:1.1rem;}
+}
+@media(prefers-reduced-motion:reduce) { .tw-quick,.tw-cell-edit {transition:none;} }
+/* Apresentações · folha comparativa A4: Talentos em colunas e campos em linhas. */
+.tw-presentation-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin:1.35rem 0 1rem; }
+.tw-presentation-heading h2 { margin:0; color:var(--tw-ink); font-size:1.35rem; line-height:1.3; }
+.tw-presentation-heading p { max-width:64rem; margin:.45rem 0 0; color:#60768a; font-size:.875rem; line-height:1.55; }
+.tw-presentation-heading-meta { display:flex; flex-direction:column; align-items:flex-end; gap:.2rem; color:#60768a; font-size:.8rem; text-align:right; }
+.tw-presentation-heading-meta strong { color:var(--tw-ink); font-size:1rem; }
+.tw-presentation-menu { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin:0 0 1.15rem; }
+.tw-presentation-menu button { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.3rem .7rem; min-width:0; padding:.8rem .9rem; border:1px solid #cbd9e4; border-radius:.7rem; background:#fff; color:#536a7c; text-align:left; cursor:pointer; font:inherit; }
+.tw-presentation-menu button strong { min-width:0; color:var(--tw-ink); font-size:.88rem; line-height:1.35; overflow-wrap:anywhere; }
+.tw-presentation-menu button small { grid-column:1/-1; min-height:2.25em; color:#72879a; font-size:.76rem; line-height:1.4; }
+.tw-presentation-menu button > span { align-self:start; min-width:2rem; padding:.2rem .45rem; border-radius:.45rem; background:#edf3f7; color:#456074; font-size:.8rem; font-weight:700; text-align:center; }
+.tw-presentation-menu button:hover { border-color:#7da1b9; background:#f7fbfd; }
+.tw-presentation-menu button.is-selected { border-color:#1b7295; background:#edf8fb; box-shadow:0 0 0 2px #1b72951c; }
+.tw-presentation-menu button.is-selected > span { background:#1b7295; color:#fff; }
+.tw-presentation-picker { margin:0 0 1.15rem; padding:1rem; border:1px solid #cbd9e4; border-radius:.85rem; background:#fff; box-shadow:0 3px 12px #002a4a08; }
+.tw-presentation-picker-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+.tw-presentation-picker-head h3 { margin:0; color:var(--tw-ink); font-size:1rem; }
+.tw-presentation-picker-head p { max-width:55rem; margin:.35rem 0 0; color:#6a7e90; font-size:.8rem; line-height:1.5; }
+.tw-presentation-picker-head > strong { flex:0 0 auto; color:#1b7295; font-size:.9rem; white-space:nowrap; }
+.tw-presentation-selected { display:flex; flex-wrap:wrap; gap:.35rem; max-height:7rem; overflow:auto; margin:.85rem 0; padding:.15rem 0; }
+.tw-presentation-chip { display:inline-flex; align-items:center; gap:.35rem; max-width:100%; padding:.3rem .55rem .3rem .35rem; border:1px solid #b8d8e2; border-radius:2rem; background:#f0fafc; color:#164e68; font-size:.78rem; line-height:1.2; }
+.tw-presentation-chip > :last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tw-presentation-search { display:flex; align-items:center; gap:.75rem; margin:.35rem 0 .65rem; color:#456074; font-size:.8rem; font-weight:700; }
+.tw-presentation-search span { flex:0 0 auto; }
+.tw-presentation-search input { flex:1 1 20rem; min-width:0; max-width:32rem; padding:.6rem .7rem; border:1px solid #cbd9e4; border-radius:.5rem; color:var(--tw-ink); font:inherit; font-weight:400; }
+.tw-presentation-options { display:grid; grid-template-columns:repeat(auto-fill,minmax(15rem,1fr)); gap:.35rem; max-height:13rem; overflow:auto; padding:.25rem; border-top:1px solid #edf1f5; }
+.tw-presentation-option { display:flex; align-items:flex-start; gap:.55rem; min-width:0; padding:.5rem; border-radius:.45rem; cursor:pointer; }
+.tw-presentation-option:hover { background:#f1f7fa; }
+.tw-presentation-option[hidden] { display:none; }
+.tw-presentation-option input { flex:0 0 auto; width:1.05rem; height:1.05rem; margin:.15rem 0 0; accent-color:#1b7295; }
+.tw-presentation-option > span { display:flex; flex-direction:column; min-width:0; gap:.15rem; }
+.tw-presentation-option strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#204660; font-size:.8rem; }
+.tw-presentation-option small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#718596; font-size:.72rem; }
+.tw-presentation-picker-note { display:block; margin:.5rem .25rem 0; color:#718596; font-size:.75rem; }
+.tw-presentation-legend { display:flex; flex-wrap:wrap; gap:.8rem 1.1rem; margin:.2rem 0 .65rem; color:#64798b; font-size:.78rem; }
+.tw-presentation-legend span { display:inline-flex; align-items:center; gap:.35rem; }
+.tw-presentation-legend i { width:.7rem; height:.7rem; border-radius:.2rem; border:1px solid #b9cbd5; }
+.tw-presentation-legend i.is-filled { border-color:#56a985; background:#dff5e9; }
+.tw-presentation-legend i.is-missing { border-color:#d9ae58; background:#fff3d4; }
+.tw-presentation-legend i.is-manual { border-color:#6c9dc0; background:#e4f1fb; }
+.tw-presentation-sheet-scroll { max-width:100%; overflow:auto; padding:.15rem .15rem 1rem; overscroll-behavior:contain; scrollbar-color:#9eb2c1 #eef3f6; }
+.tw-presentation-sheet { min-width:100%; border:1px solid #b9cbd6; border-radius:.25rem; background:#fff; box-shadow:0 5px 18px #002a4a12; }
+.tw-presentation-sheet.is-empty { min-height:12rem; display:grid; place-items:center; }
+.tw-presentation-grid { display:grid; grid-template-columns:minmax(13rem,1.15fr) repeat(var(--tw-presentation-count),minmax(12rem,16rem)); width:max-content; min-width:100%; }
+.tw-presentation-grid > * { min-width:0; border-right:1px solid #dbe5eb; border-bottom:1px solid #e7eef2; }
+.tw-presentation-corner,.tw-presentation-person { position:sticky; top:0; z-index:12; background:#edf4f8; box-shadow:0 2px 0 #b9cbd6; }
+.tw-presentation-corner { left:0; z-index:14; display:flex; flex-direction:column; justify-content:center; min-height:6.5rem; padding:.8rem; color:#22465f; }
+.tw-presentation-corner span { font-size:.8rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.tw-presentation-corner small { margin-top:.35rem; color:#4a5e73; font-size:.7rem; line-height:1.35; }
+.tw-presentation-person { display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; min-height:6.5rem; padding:.7rem; border-top:0; border-left:0; color:var(--tw-ink); text-align:left; cursor:pointer; font:inherit; }
+.tw-presentation-person:hover,.tw-presentation-person:focus-visible { background:#e4f1f7; }
+.tw-presentation-person strong { display:-webkit-box; max-width:100%; overflow:hidden; color:#075a87; font-size:.82rem; line-height:1.25; overflow-wrap:anywhere; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.tw-presentation-person small { display:-webkit-box; max-width:100%; overflow:hidden; color:#6d8292; font-size:.7rem; line-height:1.3; overflow-wrap:anywhere; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.tw-presentation-field-label { position:sticky; left:0; z-index:4; display:flex; flex-direction:column; justify-content:center; min-height:4.15rem; padding:.65rem .8rem; background:#f5f8fa; color:#24485f; }
+.tw-presentation-field-label strong { font-size:.78rem; line-height:1.35; overflow-wrap:anywhere; }
+.tw-presentation-field-label small { margin-top:.2rem; color:#7a8e9d; font-size:.66rem; }
+.tw-presentation-value { display:flex; align-items:center; min-height:4.15rem; padding:.45rem .6rem; border-left:3px solid transparent; background:#fff; }
+.tw-presentation-value.is-filled { border-left-color:#58a984; background:#eefaf4; }
+.tw-presentation-value.is-missing { border-left-color:#ddb056; background:#fff9e9; }
+.tw-presentation-value .tw-cell-edit,.tw-presentation-value .tw-cell-value { max-width:none; min-height:2.2rem; }
+.tw-presentation-value .tw-cell-text { white-space:normal; overflow-wrap:anywhere; line-height:1.35; }
+.tw-presentation-value .tw-presentation-blank { display:block; min-height:1.2rem; width:100%; }
+.tw-presentation-value .t4-badge { max-width:100%; white-space:normal; }
+.tw-presentation-value .tw-cell-edit > svg { opacity:.55; }
+.tw-presentation-value .tw-cell-edit:hover > svg,.tw-presentation-value .tw-cell-edit:focus-visible > svg { opacity:1; }
+.tw-presentation-text { overflow-wrap:anywhere; }
+.tw-presentation-empty { display:flex; flex-direction:column; align-items:center; gap:.45rem; padding:2rem; color:#617688; text-align:center; }
+.tw-presentation-empty strong { color:var(--tw-ink); font-size:1rem; }
+.tw-presentation-empty span { font-size:.8rem; }
+@media(max-width:800px) {
+  .tw-presentation-menu { grid-template-columns:1fr; }
+  .tw-presentation-heading-meta { align-items:flex-start; text-align:left; }
+  .tw-presentation-picker-head { flex-direction:column; gap:.45rem; }
+  .tw-presentation-search { align-items:flex-start; flex-direction:column; gap:.3rem; }
+  .tw-presentation-search input { width:100%; max-width:none; }
+  .tw-presentation-options { grid-template-columns:1fr; }
+  .tw-presentation-grid { grid-template-columns:minmax(11rem,1.1fr) repeat(var(--tw-presentation-count),minmax(10rem,14rem)); }
+}
+@media print {
+  @page { size:A4 landscape; margin:10mm; }
+  body[data-t4-module="talents"] .tw-filter-surface,
+  body[data-t4-module="talents"] .tw-presentation-menu,
+  body[data-t4-module="talents"] .tw-presentation-picker,
+  body[data-t4-module="talents"] .tw-presentation-legend,
+  body[data-t4-module="talents"] .tw-table-note { display:none !important; }
+  body[data-t4-module="talents"] .tw-presentation-sheet-scroll { overflow:visible; padding:0; }
+  body[data-t4-module="talents"] .tw-presentation-sheet { border:1px solid #8fa5b4; box-shadow:none; border-radius:0; }
+  body[data-t4-module="talents"] .tw-presentation-grid { width:100%; grid-template-columns:minmax(3.2cm,1.15fr) repeat(var(--tw-presentation-count),minmax(2.4cm,1fr)); }
+  body[data-t4-module="talents"] .tw-presentation-corner, body[data-t4-module="talents"] .tw-presentation-person { position:static; }
+  body[data-t4-module="talents"] .tw-presentation-person strong { font-size:7pt; }
+  body[data-t4-module="talents"] .tw-presentation-person small,.tw-presentation-field-label small { font-size:6.5pt; }
+  body[data-t4-module="talents"] .tw-presentation-value,.tw-presentation-field-label { min-height:2.4rem; padding:.25rem; }
+}
+/* A folha comparativa precisa rolar nos dois eixos ao mesmo tempo (arrastar
+   para os lados, descer pelos campos) sem perder os nomes de vista. O CSS não
+   permite overflow-x:auto com overflow-y:visible no MESMO elemento — o
+   navegador converte o eixo "visible" para auto silenciosamente — e um
+   overflow-y auto/hidden aqui vira a referência de position:sticky para o
+   cabeçalho; como este elemento nunca rolava sozinho (crescia junto com o
+   conteúdo, quem rolava era a página), o cabeçalho nunca ficava parado.
+   A solução: a folha vira um painel com altura limitada, fixo logo abaixo da
+   barra superior (position:sticky aqui, no próprio painel) e com rolagem
+   interna nos dois eixos — agora é ela mesma quem rola, então o cabeçalho
+   "top:0" realmente gruda no topo enquanto o conteúdo passa por baixo. */
+.tw-presentation-sheet-scroll {
+  position: sticky;
+  top: var(--tw-presentation-sticky-top, 0px);
+  max-width: 100%;
+  max-height: calc(100vh - var(--tw-presentation-sticky-top, 0px) - 1.5rem);
+  overflow: auto;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #9db1c5 transparent;
+}
+.tw-presentation-sheet-scroll.is-pointer-down,
+.tw-presentation-sheet-scroll.is-dragging,
+.tw-presentation-sheet-scroll.is-pointer-down *,
+.tw-presentation-sheet-scroll.is-dragging * {
+  cursor: grabbing;
+}
+.tw-presentation-sheet-scroll:focus-visible {
+  outline: 2px solid #2b78d0;
+  outline-offset: 3px;
+}
+.tw-presentation-sheet-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+.tw-presentation-sheet-scroll::-webkit-scrollbar-thumb {
+  background: #9db1c5;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.tw-presentation-sheet-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tw-presentation-scroll-hint {
+  display: block;
+  margin: -.25rem 0 .65rem;
+  color: #718596;
+  font-size: .75rem;
+}

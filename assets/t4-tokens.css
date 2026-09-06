@@ -1,0 +1,158 @@
+/* Talents 4 · Design tokens — camada de referência.
+   Carregado ANTES de todas as outras folhas de estilo. Formaliza os valores
+   que já estavam em uso nas camadas t4-v2/t4-modern/t4-v24/t4-v25 (não
+   inventa uma paleta nova) e resolve a causa raiz de bugs como o do logo
+   (3 declarações conflitantes de tamanho em cascata, encontrado e corrigido
+   nesta mesma conversa): a partir de agora, um valor tem UMA fonte.
+
+   Estrutura em 3 camadas (mesmo padrão do Material Design 3 — ver
+   docs/design/REFERENCIAS_UIUX.md):
+   1. Referência  (--t4-color-*): a paleta bruta da marca, sem significado.
+   2. Semântica   (--t4-ink, --t4-surface, --t4-critical, ...): o papel que
+      a cor exerce na interface. Componentes usam ESTES, nunca a referência.
+   3. Componente  (definidos localmente onde só um componente precisa, ex.
+      --employer-color em organization-v2.js): não vivem aqui.
+
+   Os componentes existentes (t4-v2.css, t4-v24.css, t4-v25.css) continuam
+   funcionando sem alteração — eles não foram removidos nem reescritos
+   nesta entrega (risco desnecessário); a migração de cada seletor para
+   consumir só os tokens novos é trabalho incremental futuro, documentado
+   em docs/design/DESIGN_SYSTEM.md. */
+
+:root {
+  /* ---------- 1. Referência: paleta da marca (já em uso, ver t4-v2.css) ---------- */
+  --t4-color-navy-900: #001d34;
+  --t4-color-navy-800: #164769;
+  --t4-color-navy: #002a4a;
+  --t4-color-warm: #dcd0c3;
+  --t4-color-red: #d50c2f;
+  --t4-color-coral: #e63121;
+  --t4-color-orange: #f07f00;
+  --t4-color-yellow: #fbb900;
+  --t4-color-purple: #1e1349;
+  --t4-color-blue: #1677ff;
+  --t4-color-green: #097858;
+  --t4-color-white: #ffffff;
+
+  /* ---------- 2. Semântica: papel na interface (tema claro) ---------- */
+  --t4-bg: #f4f7fb;
+  --t4-surface: #ffffff;
+  --t4-surface-sunken: #f8fafc;
+  --t4-surface-elevated: #ffffff;
+  --t4-surface-interactive: color-mix(in srgb, var(--t4-ink) 4%, var(--t4-surface));
+  --t4-ink: #1b2a3e;
+  /* ink-soft/ink-faint escurecidos (auditoria axe-core, WCAG AA 4.5:1):
+     os valores anteriores (#64748b / #94a3b8) ficavam entre 2.5:1 e 4.2:1
+     sobre os fundos claros reais da aplicação (branco a #edf2f6). Mantém a
+     hierarquia relativa (faint mais claro que soft), ambos agora ≥4.6:1. */
+  --t4-ink-soft: #4a5e73;
+  --t4-ink-faint: #546b80;
+  --t4-line: #e2e8f0;
+  --t4-line-strong: #cbd5e1;
+  --t4-accent: var(--t4-color-navy);
+  --t4-accent-soft: #e6f0f7;
+  --t4-focus-ring: #1677ff;
+
+  --t4-success: #097858;
+  --t4-success-soft: #e3f5ee;
+  --t4-warning: #a3610a;
+  --t4-warning-soft: #fdf1de;
+  --t4-critical: #b4233d;
+  --t4-critical-soft: #fbe7ea;
+  --t4-info: #1677ff;
+  --t4-info-soft: #e8f1ff;
+
+  /* ---------- Tipografia ---------- */
+  --t4-font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif;
+  --t4-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Escala (baseada nos tamanhos já em uso no código — 9 a 24px):
+     eyebrow 9 · caption 10.5 · small 11.5 · body 13 (padrão) · emphasis 14.5
+     · subtitle/título de seção ou card 16 · title 18 · display (banners de
+     abertura de página) 21 · page-title (título fixo da topbar) 24 — o
+     único nível acima de display, por ser o identificador de página
+     sempre visível (Etapa 2B.2, corrigido na revisão que restaurou a
+     hierarquia). */
+  --t4-text-eyebrow: 9px;
+  --t4-text-caption: 10.5px;
+  --t4-text-small: 11.5px;
+  --t4-text-body: 13px;
+  --t4-text-emphasis: 14.5px;
+  --t4-text-subtitle: 16px;
+  --t4-text-title: 18px;
+  --t4-text-display: 21px;
+  --t4-text-page-title: 24px;
+  --t4-line-height: 1.5;
+
+  /* ---------- Espaçamento (escala de 4px, já é o incremento dominante no código) ---------- */
+  --t4-space-1: 4px;
+  --t4-space-2: 8px;
+  --t4-space-3: 12px;
+  --t4-space-4: 16px;
+  --t4-space-5: 20px;
+  --t4-space-6: 24px;
+  --t4-space-8: 32px;
+  --t4-space-10: 40px;
+
+  /* ---------- Raio ---------- */
+  --t4-radius-sm: 7px;
+  --t4-radius-md: 11px;
+  --t4-radius-lg: 16px;
+  --t4-radius-pill: 999px;
+
+  /* ---------- Elevação (sombra em camadas — profundidade sutil, não decorativa) ---------- */
+  --t4-shadow-1: 0 1px 2px rgba(0, 42, 74, 0.05);
+  --t4-shadow-2: 0 2px 8px rgba(0, 42, 74, 0.06), 0 8px 28px rgba(0, 42, 74, 0.04);
+  --t4-shadow-3: 0 12px 32px rgba(0, 42, 74, 0.14);
+
+  /* ---------- Motion (curto, funcional — nunca decorativo, ver CRITERIOS_ACEITACAO.md) ---------- */
+  --t4-ease: cubic-bezier(.2, .8, .2, 1);
+  --t4-duration-fast: 120ms;
+  --t4-duration-base: 180ms;
+  --t4-duration-panel: 240ms;
+
+  /* ---------- Z-index (nomeado por camada, não por número mágico) ---------- */
+  --t4-z-dropdown: 60;
+  --t4-z-sidebar: 70;
+  --t4-z-overlay: 80;
+  --t4-z-modal: 90;
+  --t4-z-toast: 100;
+
+  /* ---------- Layout ---------- */
+  /* Valores comprovados por getComputedStyle (Etapa 2B.1) como os que
+     realmente renderizam em todos os módulos hoje — não os 248px/64px
+     "de catálogo" que nunca chegaram a ser consumidos por .t4-sidebar. */
+  --t4-sidebar-width: 252px;
+  --t4-sidebar-width-collapsed: 76px;
+
+  color-scheme: light;
+}
+
+/* ---------- Tema escuro: tokens prontos, NÃO ativado nesta entrega.
+   Os componentes existentes (t4-v2/t4-modern/t4-v24/t4-v25) não foram
+   auditados um a um para contraste em fundo escuro — ativar
+   "color-scheme: light dark" sem essa auditoria arriscaria texto
+   ilegível em produção. Ver docs/design/DESIGN_SYSTEM.md, seção Temas. */
+:root[data-theme="dark"] {
+  --t4-bg: #0b1622;
+  --t4-surface: #12202f;
+  --t4-surface-sunken: #0e1a26;
+  --t4-surface-elevated: #17293b;
+  --t4-ink: #eaf1f8;
+  --t4-ink-soft: #9fb4c6;
+  --t4-ink-faint: #67809669;
+  --t4-line: rgba(255, 255, 255, 0.09);
+  --t4-line-strong: rgba(255, 255, 255, 0.16);
+  --t4-accent-soft: rgba(22, 119, 255, 0.16);
+  --t4-success-soft: rgba(9, 120, 88, 0.22);
+  --t4-warning-soft: rgba(163, 97, 10, 0.24);
+  --t4-critical-soft: rgba(180, 35, 61, 0.22);
+  --t4-info-soft: rgba(22, 119, 255, 0.18);
+  color-scheme: dark;
+}
+
+/* Foco visível consistente — um único anel de foco em todo o sistema,
+   nunca suprimido (auditoria anterior já confirmou :focus-visible em uso;
+   isto só nomeia o valor para reuso). */
+:root {
+  --t4-focus: 0 0 0 3px color-mix(in srgb, var(--t4-focus-ring) 35%, transparent);
+}

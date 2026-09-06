@@ -1,0 +1,25 @@
+/* Configurações: idioma do sistema e administração de usuários. As telas
+   usam apenas componentes já existentes (.t4-panel, .t4-form-grid,
+   .t4-table, .t4-alert, .t4-badge) — este arquivo cobre só o que é
+   específico desta área. */
+
+.t4-users-table td {
+  vertical-align: middle;
+}
+
+.t4-users-table tr.is-inactive td {
+  opacity: .55;
+}
+
+.t4-users-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 230px;
+}
+
+@media (max-width: 720px) {
+  .t4-users-actions {
+    min-width: 0;
+  }
+}
