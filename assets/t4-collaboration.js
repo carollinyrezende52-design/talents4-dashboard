@@ -53,7 +53,7 @@
 
   async function openNotifications() {
     await loadNotifications(true);
-    const drawer = U.openDrawer({ title: 'Notificações', subtitle: 'Agenda, P.O. compartilhado, reuniões e resumos do CRM.', body: notificationBody() });
+    const drawer = U.openDrawer({ title: 'Notificações', subtitle: 'Agenda, tarefas compartilhadas, reuniões e resumos do CRM.', body: notificationBody() });
     drawer.querySelector('.t4-drawer-body')?.setAttribute('data-collab-notification-body', 'true');
   }
 
@@ -95,7 +95,7 @@
     const node = document.createElement('aside');
     node.className = 't4-collab-reminder';
     node.setAttribute('role', 'status');
-    node.innerHTML = `<div class="t4-collab-reminder-head"><div><span class="t4-notification-type">P.O. OPERACIONAL</span><h2>${rows.length} pendência${rows.length === 1 ? '' : 's'} em aberto</h2></div><button type="button" class="t4-icon-btn" data-collab-action="close-reminder" aria-label="Dispensar">${U.icon('close')}</button></div><ul>${items}</ul>${rows.length > 5 ? `<small>+ ${rows.length - 5} pendência${rows.length - 5 === 1 ? '' : 's'} no P.O.</small>` : ''}<footer><button type="button" class="t4-btn primary sm" data-collab-action="open-po">Abrir P.O.</button><button type="button" class="t4-btn ghost sm" data-collab-action="close-reminder">Depois</button></footer>`;
+    node.innerHTML = `<div class="t4-collab-reminder-head"><div><span class="t4-notification-type">TAREFAS</span><h2>${rows.length} pendência${rows.length === 1 ? '' : 's'} em aberto</h2></div><button type="button" class="t4-icon-btn" data-collab-action="close-reminder" aria-label="Dispensar">${U.icon('close')}</button></div><ul>${items}</ul>${rows.length > 5 ? `<small>+ ${rows.length - 5} pendência${rows.length - 5 === 1 ? '' : 's'} em Tarefas.</small>` : ''}<footer><button type="button" class="t4-btn primary sm" data-collab-action="open-po">Abrir tarefas</button><button type="button" class="t4-btn ghost sm" data-collab-action="close-reminder">Depois</button></footer>`;
     document.body.append(node); state.reminder = node;
     state.lastReminderAt = Date.now();
   }

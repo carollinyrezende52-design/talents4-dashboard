@@ -3,7 +3,7 @@
 
   const SUPABASE_URL = 'https://xcxqtjzlqmncwnhbolnl.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
-  const ROOT_LOGIN = '/talents4/index.html';
+  const ROOT_LOGIN = './index.html';
   const DEFAULT_TIMEOUT = 9_000;
 
   const TABLES = Object.freeze({

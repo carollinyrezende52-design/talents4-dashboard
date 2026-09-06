@@ -194,7 +194,7 @@
 
   async function read(file) {
     const JSZip = global.JSZip || globalThis.JSZip;
-    if (!JSZip) throw new Error('Leitor de planilhas indisponível. Atualize a página da homologação.');
+    if (!JSZip) throw new Error('Leitor de planilhas indisponível. Atualize a página.');
     const input = typeof file?.arrayBuffer === 'function' ? await file.arrayBuffer() : file;
     const zip = await JSZip.loadAsync(input);
     const workbookXml = await zipText(zip, 'xl/workbook.xml');
@@ -294,7 +294,7 @@
 
   async function write(workbook) {
     const JSZip = global.JSZip || globalThis.JSZip;
-    if (!JSZip) throw new Error('Gerador de planilhas indisponível. Atualize a página da homologação.');
+    if (!JSZip) throw new Error('Gerador de planilhas indisponível. Atualize a página.');
     const zip = new JSZip(), specs = Array.isArray(workbook?.sheets) ? workbook.sheets : [];
     if (!specs.length) throw new Error('Não há abas para exportar.');
     const used = new Set(), sheetNames = specs.map((spec) => safeSheetName(spec.name, used));
@@ -303,7 +303,7 @@
     zip.file('xl/_rels/workbook.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${RELPKG}">${specs.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${specs.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
     zip.file('xl/styles.xml', styleXml());
     zip.file('xl/workbook.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="${XMLNS}" xmlns:r="${RELNS}"><fileVersion appName="Talents 4"/><workbookPr defaultThemeVersion="164011"/><bookViews><workbookView xWindow="0" yWindow="0" windowWidth="18000" windowHeight="12000"/></bookViews><sheets>${sheetNames.map((name, i) => `<sheet name="${xmlEscape(name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets><calcPr calcId="191029" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>`);
-    zip.file('docProps/core.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:creator>Talents 4</dc:creator><cp:lastModifiedBy>Talents 4</cp:lastModifiedBy><dc:title>Exportação Talents 4</dc:title><dc:description>Arquivo gerado pela homologação Talents 4, sem macros.</dc:description></cp:coreProperties>`);
+    zip.file('docProps/core.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:creator>Talents 4</dc:creator><cp:lastModifiedBy>Talents 4</cp:lastModifiedBy><dc:title>Exportação Talents 4</dc:title><dc:description>Arquivo gerado pelo Talents 4, sem macros.</dc:description></cp:coreProperties>`);
     zip.file('docProps/app.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Talents 4</Application><AppVersion>4.0</AppVersion><HeadingPairs><vt:vector xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes" size="2" baseType="variant"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>${specs.length}</vt:i4></vt:variant></vt:vector></HeadingPairs></Properties>`);
     specs.forEach((spec, index) => zip.file(`xl/worksheets/sheet${index + 1}.xml`, writeSheet({ ...spec, name: sheetNames[index] }, index)));
     return zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });

@@ -382,6 +382,11 @@
 
     const primaryViews = views.filter((view) => view.primary !== false);
     const secondaryViews = views.filter((view) => view.primary === false);
+    const envInfo = window.T4_DEMO
+      ? { title: t('Dados fictícios; alterações não são persistidas.'), label: t('Demonstração') }
+      : /homologacao/i.test(location.href)
+        ? { title: t('Ambiente de homologação'), label: t('Homologação') }
+        : null;
     root.innerHTML = `
       <a class="t4-skip" href="#t4-page-root" data-i18n-text>${t('Ir para o conteúdo')}</a><div class="t4-app">
         <aside class="t4-sidebar" aria-label="Navegação principal">
@@ -425,7 +430,7 @@
             <span class="t4-sync loading" data-sync><span class="t4-sync-dot"></span><span data-sync-label data-i18n-text>${t('Conectando')}</span></span>
             <button type="button" class="t4-btn primary" data-primary hidden>${icon('plus')}<span class="t4-btn-label" data-primary-label data-i18n-text>${t('Novo')}</span></button>
           </header>
-          ${window.T4_DEMO ? `<div class="t4-environment" data-i18n-attrs="title" title="${attr(t('Dados fictícios; alterações não são persistidas.'))}">${icon('eye')}<span data-i18n-text>${t('Demonstração')}</span></div>` : ''}
+          ${envInfo ? `<div class="t4-environment" data-i18n-attrs="title" title="${attr(envInfo.title)}">${icon('eye')}<span data-i18n-text>${envInfo.label}</span></div>` : ''}
           <div class="t4-content" id="t4-page-root" tabindex="-1"><div class="t4-loading-page"><div class="t4-skeleton"></div><div class="t4-skeleton"></div><div class="t4-skeleton"></div><div class="t4-skeleton"></div></div></div>
         </main>
       </div>`;
