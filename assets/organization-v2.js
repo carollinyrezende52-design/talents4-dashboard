@@ -4,13 +4,13 @@
   const e = U.esc, a = U.attr;
   const VIEWS = [
     { id: 'overview', label: 'Meu dia', subtitle: 'Empregadores, compromissos e decisões em um só lugar.', icon: 'dashboard' },
-    { id: 'employers', label: 'Empregadores', subtitle: 'Relacionamento, vagas, talentos e histórico de cada empresa.', icon: 'building' },
+    { id: 'employers', label: 'Empregadores', subtitle: '', icon: 'building' },
     { id: 'pipeline', label: 'Seleções', subtitle: 'Cada linha representa Talento + empregador + vaga + etapa.', icon: 'columns' },
     { id: 'opportunities', label: 'Oportunidades', subtitle: 'Demanda real e requisitos de cada oportunidade.', icon: 'briefcase' },
     { id: 'calendar', label: 'Agenda', subtitle: 'Planejamento, reuniões e tarefas com data definida.', icon: 'calendar' },
     { id: 'planning', label: 'Planejamento mensal', subtitle: 'Um mês por vez, o que precisa de atenção primeiro.', icon: 'list', primary: false },
-    { id: 'meetings', label: 'Reuniões e decisões', subtitle: 'Pauta, decisões, pendências e próximos passos.', icon: 'people', primary: false },
-    { id: 'operations', label: 'PO operacional', subtitle: 'Atividades abertas e histórico completo.', icon: 'activity', primary: false },
+    { id: 'meetings', label: 'Reuniões', subtitle: '', icon: 'people', primary: false },
+    { id: 'operations', label: 'Tarefas', subtitle: 'Atividades abertas e histórico completo.', icon: 'activity', primary: false },
     { id: 'summary', label: 'Resumo geral', subtitle: 'Leitura consolidada das atividades e do histórico.', icon: 'history', primary: false },
     { id: 'history', label: 'Acervo anterior', subtitle: 'Consulta protegida das informações anteriores à V2.', icon: 'archive', primary: false }
   ];
@@ -109,7 +109,7 @@
     return [
       ...state.plans.map((r) => ({ ...r, title: r.activity_label, due: r.end_date || r.start_date, start: r.start_date, owner: r.responsavel, type: 'Planejamento', action: 'edit-plan', detail: r.obs })),
       ...state.meetings.map((r) => ({ ...r, title: r.topic || r.title, due: r.scheduled_at, owner: r.owner_name, type: 'Reunião', action: 'meeting-detail', detail: r.decision_summary, next: r.next_action })),
-      ...state.tasks.filter(taskVisible).map((r) => ({ ...r, due: r.due_date, owner: responsibleLabels(r), type: 'PO operacional', action: 'edit-task', detail: r.description, next: r.notes })),
+      ...state.tasks.filter(taskVisible).map((r) => ({ ...r, due: r.due_date, owner: responsibleLabels(r), type: 'Tarefas', action: 'edit-task', detail: r.description, next: r.notes })),
       ...state.activities.map((r) => ({ ...r, due: r.due_at, owner: r.owner_username, type: r.contact_followup_id ? 'Contatos' : 'Agenda integrada', action: 'edit-activity', detail: r.notes, next: r.outcome }))
     ].sort((x, y) => String(x.due || '9999').localeCompare(String(y.due || '9999')));
   }
@@ -337,13 +337,13 @@
       { key: 'notes', label: 'Resultado / observação', render: (r) => `<span class="t4-clamp-3">${e(r.notes || r.description || '—')}</span>` },
       { key: 'edit', label: '', ariaLabel: 'Ações', sort: false, render: (r) => actions(r, 'task') }
     ] });
-    const readyPanel = `<section class="t4-panel org-ready-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">ATIVIDADES DO MÊS</span><h2>Atividades do mês</h2><p>Pendências abertas de ${e(monthLabel(selectedMonth))}, ordenadas por prioridade e prazo.</p></div><strong class="org-panel-count">${readyTasks.length} abertas</strong></div><div class="t4-panel-body"><div class="org-ready-list">${readyBody}</div></div></section>`;
-    const openPanel = `<section class="t4-panel org-open-tasks-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">PENDÊNCIAS ABERTAS</span><h2>Todas as atividades em aberto</h2><p>Inclui todos os meses para você não perder nenhuma pendência.</p></div><strong class="org-panel-count">${allOpenTasks.length} abertas</strong></div><div class="t4-panel-body"><div class="org-ready-list">${openCards || U.emptyState('Nenhuma atividade em aberto', 'As tarefas concluídas ficam no histórico completo abaixo.')}</div></div></section>`;
+    const readyPanel = `<section class="t4-panel org-ready-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">TAREFAS DO MÊS</span><h2>Tarefas do mês</h2><p>Pendências abertas de ${e(monthLabel(selectedMonth))}, ordenadas por prioridade e prazo.</p></div><strong class="org-panel-count">${readyTasks.length} abertas</strong></div><div class="t4-panel-body"><div class="org-ready-list">${readyBody}</div></div></section>`;
+    const openPanel = `<section class="t4-panel org-open-tasks-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">PENDÊNCIAS ABERTAS</span><h2>Pendências</h2><p>Inclui todos os meses para você não perder nenhuma pendência.</p></div><strong class="org-panel-count">${allOpenTasks.length} abertas</strong></div><div class="t4-panel-body"><div class="org-ready-list">${openCards || U.emptyState('Nenhuma atividade em aberto', 'As tarefas concluídas ficam no histórico completo abaixo.')}</div></div></section>`;
     const listTitle = focus === 'all' ? 'Lista completa' : 'Lista filtrada';
     const listSubtitle = focus === 'all' ? 'Todos os registros de ${monthLabel(selectedMonth)}; tarefas abertas primeiro e, depois, por prioridade.' : 'Registros do filtro atual, ordenados por status aberto e prioridade.';
     const listPanel = `<section class="t4-panel org-all-tasks-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">CONSULTAR HISTÓRICO</span><h2>${listTitle}</h2><p>${e(listSubtitle)}</p></div><strong class="org-panel-count">${tasks.length} registros</strong></div><div class="t4-panel-body">${taskTable}</div></section>`;
     const surface = display === 'activities' ? `${readyPanel}${openPanel}` : listPanel;
-    const historyPanel = `<section class="t4-panel org-history-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">HISTÓRICO COMPLETO</span><h2>Histórico completo</h2><p>Todas as atividades deste recorte, sem limitar ao período acima: abertas primeiro; depois, da mais recente para a mais antiga.</p></div><strong class="org-panel-count">${historyRows.length} registro${historyRows.length === 1 ? '' : 's'}</strong></div><div class="t4-panel-body">${historyTable}</div></section>`;
+    const historyPanel = `<section class="t4-panel org-history-panel"><div class="t4-panel-head"><div><span class="org-panel-kicker">HISTÓRICO</span><h2>Histórico</h2></div><strong class="org-panel-count">${historyRows.length} registro${historyRows.length === 1 ? '' : 's'}</strong></div><div class="t4-panel-body">${historyTable}</div></section>`;
     return `<div class="org-workspace org-operations-view">${operationsMonthStepper()}${focusBar}${toolbar(allTasks, { noMonth: true })}${surface}${historyPanel}</div>`;
   }
   function summaryView() {

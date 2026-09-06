@@ -22,7 +22,7 @@
 
   function notificationBody() {
     const unread = state.notifications.filter((row) => !row.read_at);
-    if (!state.notificationsAvailable) return '<div class="t4-collab-empty"><strong>Notificações ainda não configuradas</strong><span>Aplique a migração de colaboração da homologação para ativar este centro.</span></div>';
+    if (!state.notificationsAvailable) return '<div class="t4-collab-empty"><strong>Notificações ainda não configuradas</strong><span>Peça ao administrador do sistema para ativar este recurso.</span></div>';
     if (!state.notifications.length) return '<div class="t4-collab-empty"><strong>Nenhuma notificação</strong><span>Novas agendas, reuniões, resumos e compartilhamentos aparecerão aqui.</span></div>';
     return `<div class="t4-notification-summary"><strong>${unread.length}</strong><span>não lida${unread.length === 1 ? '' : 's'} · últimas 30 notificações preservadas</span></div><div class="t4-notification-list">${state.notifications.map((row) => `<article class="t4-notification-item ${row.read_at ? '' : 'is-unread'}"><div><span class="t4-notification-type">${e(row.type || 'CRM')}</span><h3>${e(row.title || 'Atualização no CRM')}</h3><p>${e(row.body || '')}</p><small>${e(U.formatDate(row.created_at, true))}</small></div>${row.read_at ? '' : `<button type="button" class="t4-btn ghost sm" data-collab-action="notification-read" data-collab-id="${a(row.id)}">Marcar como lida</button>`}</article>`).join('')}</div>`;
   }
@@ -208,7 +208,7 @@
     const data = await loadChatData();
     state.chatData = data;
     const body = dock.querySelector('.t4-chat-dock-body');
-    if (!state.chatAvailable) { body.innerHTML = '<div class="t4-collab-empty"><strong>Chat ainda não configurado</strong><span>Aplique a migração de colaboração da homologação para criar conversas persistentes e protegidas por participante.</span></div>'; return; }
+    if (!state.chatAvailable) { body.innerHTML = '<div class="t4-collab-empty"><strong>Chat ainda não configurado</strong><span>Peça ao administrador do sistema para ativar este recurso.</span></div>'; return; }
     const fallback = data.conversations.find((row) => !row.closed_at)?.id || data.conversations[0]?.id || '';
     await renderConversation(dock, data, state.activeConversation || fallback);
   }

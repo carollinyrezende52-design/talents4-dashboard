@@ -425,7 +425,7 @@
             <span class="t4-sync loading" data-sync><span class="t4-sync-dot"></span><span data-sync-label data-i18n-text>${t('Conectando')}</span></span>
             <button type="button" class="t4-btn primary" data-primary hidden>${icon('plus')}<span class="t4-btn-label" data-primary-label data-i18n-text>${t('Novo')}</span></button>
           </header>
-          <div class="t4-environment" data-i18n-attrs="title" title="${attr(window.T4_DEMO ? t('Dados fictícios; alterações não são persistidas.') : t('Ambiente de homologação'))}">${icon('eye')}<span data-i18n-text>${window.T4_DEMO ? t('Demonstração') : t('Homologação')}</span></div>
+          ${window.T4_DEMO ? `<div class="t4-environment" data-i18n-attrs="title" title="${attr(t('Dados fictícios; alterações não são persistidas.'))}">${icon('eye')}<span data-i18n-text>${t('Demonstração')}</span></div>` : ''}
           <div class="t4-content" id="t4-page-root" tabindex="-1"><div class="t4-loading-page"><div class="t4-skeleton"></div><div class="t4-skeleton"></div><div class="t4-skeleton"></div><div class="t4-skeleton"></div></div></div>
         </main>
       </div>`;
