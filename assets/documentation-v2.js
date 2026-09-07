@@ -243,6 +243,21 @@
     return String(value == null ? '' : value).trim();
   }
 
+  const DEFAULT_FOLDER_COLOR = '#FFF5D9';
+
+  function folderColor(node) {
+    const candidate = String(node && node.folder_color || '').trim();
+    return /^#[0-9a-f]{6}$/i.test(candidate) ? candidate.toUpperCase() : DEFAULT_FOLDER_COLOR;
+  }
+
+  function folderColorRgba(hex, alpha) {
+    const color = folderColor({ folder_color: hex });
+    const red = parseInt(color.slice(1, 3), 16);
+    const green = parseInt(color.slice(3, 5), 16);
+    const blue = parseInt(color.slice(5, 7), 16);
+    return 'rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')';
+  }
+
   function same(left, right) {
     return M.same ? M.same(left, right) : String(left || '') === String(right || '');
   }
@@ -499,6 +514,14 @@
           placeholder: 'Ex.: Contratos 2026'
         },
         {
+          name: 'folder_color',
+          label: 'Cor da pasta',
+          type: 'color',
+          required: true,
+          default: DEFAULT_FOLDER_COLOR,
+          help: 'Escolha qualquer cor. Ela será usada no ícone e no destaque desta pasta.'
+        },
+        {
           name: 'parent_id',
           label: 'Dentro de',
           type: 'select',
@@ -518,6 +541,7 @@
           values.opening_id = null;
           values.deleted_at = null;
           values.position = nextPosition(values.parent_id);
+        values.folder_color = folderColor({ folder_color: values.folder_color });
         }
         values.parent_id = values.parent_id || null;
         values.talent_id = values.talent_id || null;
@@ -767,8 +791,10 @@
   }
 
   function renderFolderCard(node) {
-    return '<article class="t4-doc-card t4-doc-folder-card"><button type="button" class="t4-doc-card-main" data-action="documentation-open-folder" data-id="' + a(node.id) + '">'
-      + '<span class="t4-doc-card-icon folder">' + U.icon('folder') + '</span><span class="t4-doc-card-copy"><strong>' + e(node.name)
+    const color = folderColor(node);
+    const tint = folderColorRgba(color, .14);
+    return '<article class="t4-doc-card t4-doc-folder-card" style="--t4-folder-color:' + a(color) + ';--t4-folder-tint:' + a(tint) + '"><button type="button" class="t4-doc-card-main" data-action="documentation-open-folder" data-id="' + a(node.id) + '">'
+      + '<span class="t4-doc-card-icon folder" style="background-color:' + a(tint) + ';color:' + a(color) + '" aria-hidden="true">' + U.icon('folder') + '</span><span class="t4-doc-card-copy"><strong>' + e(node.name)
       + '</strong><small>Pasta · ' + countChildren(node.id) + ' item' + (countChildren(node.id) === 1 ? '' : 's') + '</small>'
       + (contextFor(node) ? '<em>' + e(contextFor(node)) + '</em>' : '') + '</span></button>' + cardActions(node) + '</article>';
   }

@@ -309,6 +309,15 @@
   transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
 }
 
+.t4-doc-card.t4-doc-folder-card {
+  border-top: 3px solid var(--t4-folder-color, #d6e4ef);
+}
+
+.t4-doc-card.t4-doc-folder-card:hover {
+  border-color: var(--t4-folder-color, #91bfeb);
+  box-shadow: 0 10px 20px var(--t4-folder-tint, rgba(14, 83, 137, .1));
+}
+
 .t4-doc-card:hover {
   border-color: #91bfeb;
   box-shadow: 0 10px 20px rgba(14, 83, 137, .1);
