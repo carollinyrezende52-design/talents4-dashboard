@@ -5,7 +5,7 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
   const ROOT_LOGIN = './index.html';
   const LOGIN_EMAIL_DOMAIN = 't4ops.crm';
-  const DEFAULT_TIMEOUT = 9_000;
+  const DEFAULT_TIMEOUT = 15_000;
 
   const TABLES = Object.freeze({
     candidates: 'candidatos',
@@ -195,7 +195,7 @@
     if (!username) throw new Error('A sessão não identifica um perfil interno. Entre novamente pelo CRM.');
     const response = await withTimeout(
       client.from(TABLES.users).select('username,nome,role,color,ativo').eq('username', username).maybeSingle(),
-      6_000,
+      12_000,
       'Leitura do perfil'
     );
     if (response.error) throw response.error;
@@ -220,7 +220,7 @@
       global: { headers: { 'x-application-name': 'talents4-crm-v2' } }
     });
 
-    const auth = await withTimeout(client.auth.getSession(), 7_000, 'Validação da sessão');
+    const auth = await withTimeout(client.auth.getSession(), 12_000, 'Validação da sessão');
     if (auth.error) throw auth.error;
     session = auth.data?.session || null;
     if (!session) {
@@ -290,7 +290,7 @@
       }, options);
       rows.push(...page);
       if (rows.length > max) throw new Error(`Há mais de ${max} registros em ${table}. A carga foi interrompida para não apresentar totais incompletos.`);
-      if (!page.length) return rows;
+      if (!page.length || page.length < size) return rows;
       offset += page.length;
     }
     throw new Error(`Não foi possível concluir a paginação de ${table}.`);
