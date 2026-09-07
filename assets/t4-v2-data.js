@@ -178,7 +178,7 @@
         const email = typed.includes('@') ? typed : `${typed}@${LOGIN_EMAIL_DOMAIN}`;
         const { error } = await client.auth.signInWithPassword({ email, password: form.password.value });
         if (error) throw error;
-        location.href = ROOT_LOGIN;
+        location.href = `${ROOT_LOGIN}?view=overview`;
       } catch (error) {
         errorBox.textContent = /invalid login credentials/i.test(error?.message || '')
           ? 'Usuário ou senha incorretos.'
@@ -227,6 +227,12 @@
       if (isLoginPage()) { renderLoginForm(app); return new Promise(() => {}); }
       if (options.redirect !== false) redirectToLogin('Faça login para abrir a V2.');
       throw new Error('Sessão não encontrada.');
+    }
+
+    if (!window.T4_DEMO) {
+      const isReload = performance.getEntriesByType('navigation')[0]?.type === 'reload';
+      const onMeuDia = isLoginPage() && new URLSearchParams(location.search).get('view') === 'overview';
+      if (isReload && !onMeuDia) { location.replace(new URL(`${ROOT_LOGIN}?view=overview`, location.href).href); return new Promise(() => {}); }
     }
 
     profile = await loadProfile(session);

@@ -938,6 +938,8 @@ body {
   body.t4-sidebar-collapsed { --v25-sidebar: var(--t4-sidebar-width-collapsed); }
   body.t4-sidebar-collapsed .t4-sidebar-scroll { padding-inline: 8px; }
   .t4-sidebar-collapsed .t4-sidebar-collapse-toggle { justify-content: center; margin: 0 8px 10px; width: calc(100% - 16px); }
+  .t4-sidebar-collapsed .t4-meudia-pin { margin: 10px 8px 4px; width: calc(100% - 16px); }
+  .t4-sidebar-collapsed .t4-nav-divider { margin: 0 8px 12px; }
   .t4-sidebar-collapsed .t4-nav-text,
   .t4-sidebar-collapsed .t4-nav-label,
   .t4-sidebar-collapsed .t4-nav-count,

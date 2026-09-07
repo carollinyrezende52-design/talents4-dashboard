@@ -72,6 +72,9 @@ svg { display: block; width: 100%; height: 100%; }
 .t4-switch-item.active { color: #fff; background: var(--t4-navy); box-shadow: 0 4px 10px #002a4a14; }
 .t4-switch-item.active .t4-switch-icon { background: #ffffff1f; color: #fff; }
 .t4-switch-item.active::before { content: ''; width: 3px; height: 17px; background: var(--module-accent); border-radius: 2px; }
+.t4-meudia-pin { flex-shrink: 0; margin: 12px 12px 4px; width: calc(100% - 24px); background: var(--t4-accent-soft, #e6f0f7); font-weight: 700; }
+.t4-meudia-pin .t4-nav-icon { color: var(--t4-accent, var(--t4-navy)); }
+.t4-nav-divider { flex-shrink: 0; height: 1px; margin: 0 12px 12px; background: var(--t4-line, #e2e8f0); }
 .t4-sidebar-footer { padding: 12px; border-top: 1px solid var(--t4-line); }
 .t4-user { display: grid; grid-template-columns: 34px minmax(0, 1fr) 30px; align-items: center; gap: 9px; padding: 7px; }
 .t4-avatar, .t4-avatar-sm { display: inline-grid; place-items: center; width: 36px; height: 36px; flex: 0 0 36px; font-size: 12px; font-weight: 750; color: #234f70; background: #e8f0f7; border-radius: 10px; }
@@ -82,7 +85,6 @@ svg { display: block; width: 100%; height: 100%; }
 .t4-main { min-height: 100vh; min-width: 0; }
 .t4-topbar { position: sticky; top: 0; z-index: 45; min-height: 94px; padding: 17px 28px; display: flex; align-items: center; gap: 16px; background: #fffffffa; border-bottom: 1px solid var(--t4-line); }
 .t4-topbar-heading { min-width: 180px; }
-.t4-meudia-link { flex-shrink: 0; }
 .t4-eyebrow { font-size: 10px; color: var(--t4-muted); margin-bottom: 3px; font-weight: 550; }
 .t4-page-title { font-size: 22px; font-weight: 750; letter-spacing: -.045em; margin: 0; line-height: 1.3; }
 .t4-page-subtitle { display: none; }
@@ -421,7 +423,6 @@ svg { display: block; width: 100%; height: 100%; }
   .t4-topbar { flex-wrap: wrap; padding: 14px 16px; gap: 10px; }
   .t4-eyebrow { font-size: 9px; }
   .t4-topbar [data-primary] { margin-left: auto; font-size: 10px; min-height: 33px; padding: 8px 10px; }
-  .t4-meudia-link span { display: none; }
   .t4-global-search { order: 5; width: 100%; flex: 1 0 100%; }
   .t4-content { padding: 18px 14px 40px; }
   .t4-environment { padding: 5px 16px; font-size: 9px; }

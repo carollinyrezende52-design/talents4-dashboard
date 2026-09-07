@@ -399,6 +399,8 @@
               <span class="t4-brand-sub" data-i18n-text>${t('Recrutamento internacional')}</span>
             </span>
           </a>
+          <a class="t4-nav-item t4-meudia-pin ${moduleId === 'talents' && currentView === 'overview' ? 'active' : ''}" href="./index.html?view=overview" ${moduleId === 'talents' && currentView === 'overview' ? 'aria-current="page"' : ''} aria-label="${t('Meu dia')}" data-tooltip="${t('Meu dia')}"><span class="t4-nav-icon">${icon('dashboard', '')}</span><span class="t4-nav-text" data-i18n-text>${t('Meu dia')}</span></a>
+          <div class="t4-nav-divider" role="separator"></div>
           <div class="t4-sidebar-scroll">
             <nav class="t4-nav-section" aria-label="${attr(config.moduleLabel)}">
               <div class="t4-nav-label" data-i18n-module-label="${attr(moduleId)}">${esc(config.moduleLabel)}</div>
@@ -423,7 +425,6 @@
         <main class="t4-main">
           <header class="t4-topbar">
             <button type="button" class="t4-icon-btn t4-mobile-menu" data-menu aria-label="${t('Abrir menu')}" data-i18n-attrs="aria-label">${icon('menu')}</button>
-            <a class="t4-btn ghost sm t4-meudia-link" href="./index.html?view=overview" data-i18n-attrs="aria-label" aria-label="${t('Meu dia')}">${icon('dashboard')}<span data-i18n-text>${t('Meu dia')}</span></a>
             <div class="t4-topbar-heading"><div class="t4-eyebrow">${esc(config.moduleLabel)}</div><h1 class="t4-page-title" data-page-title></h1><p class="t4-page-subtitle" data-page-subtitle></p></div>
             <div class="t4-topbar-spacer"></div>
             <label class="t4-global-search" aria-label="${t('Busca nesta área')}" data-i18n-attrs="aria-label">${icon('search')}<input type="search" data-global-search placeholder="${attr(config.searchPlaceholder || t('Buscar…'))}" data-i18n-attrs="placeholder"><button type="button" class="t4-search-clear" data-search-clear hidden aria-label="${t('Limpar busca')}" data-i18n-attrs="aria-label">${icon('close')}</button><span class="t4-keycap">/</span></label>
