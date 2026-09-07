@@ -1251,6 +1251,13 @@ body {
    ou foco. A preferência permanece recolhida entre módulos. */
 @media (min-width: 1001px) {
   body.t4-sidebar-collapsed .t4-sidebar { transition: width .16s var(--v25-ease), box-shadow .16s var(--v25-ease); }
+  /* Logo após clicar em "Recolher menu", o mouse ainda está fisicamente
+     sobre o botão (que fica dentro da lateral): sem isto, a regra de
+     :hover abaixo reabriria a lateral na mesma hora do clique, dando a
+     impressão de que ela ficou deslizando de volta para o lado sozinha.
+     Desligar os eventos de ponteiro impede o navegador de considerar a
+     lateral "em hover" enquanto o mouse não se move de verdade. */
+  body.t4-sidebar-collapsed .t4-sidebar.t4-sidebar-no-hover-preview { pointer-events: none; }
   body.t4-sidebar-collapsed .t4-sidebar:hover,
   body.t4-sidebar-collapsed .t4-sidebar:focus-within {
     width: var(--t4-sidebar-width);

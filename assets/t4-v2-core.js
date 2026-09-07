@@ -444,6 +444,8 @@
     const primary = root.querySelector('[data-primary]');
     const command = root.querySelector('[data-command]');
     const collapseToggle = root.querySelector('[data-sidebar-collapse]');
+    const sidebarEl = root.querySelector('.t4-sidebar');
+    const pointInRect = (x, y, rect) => rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
     const syncSidebarToggle = () => {
       const label = sidebarCollapsed ? t('Expandir menu') : t('Recolher menu');
       collapseToggle?.setAttribute('aria-pressed', sidebarCollapsed ? 'true' : 'false');
@@ -550,6 +552,28 @@
         // se expande de novo sozinha (:focus-within), como se o hover nunca
         // tivesse terminado — o recolher pareceria não ter efeito nenhum.
         collapseToggle.blur();
+        // O mouse continua fisicamente sobre o botão logo após o clique, e
+        // o botão fica dentro da própria lateral — isso aciona a
+        // pré-visualização por :hover que a expande de novo na mesma hora,
+        // dando a impressão de que "recolher" não fez nada ou de que a
+        // lateral ficou deslizando/voltando para o lado sozinha.
+        // Desativar temporariamente os eventos de ponteiro na lateral
+        // impede o navegador de considerar `:hover` enquanto o mouse não
+        // se move de verdade; volta ao normal assim que o mouse sai da
+        // lateral (ou, no limite, depois de meio segundo).
+        sidebarEl.classList.add('t4-sidebar-no-hover-preview');
+        let hoverPreviewRestored = false;
+        const restoreHoverPreview = () => {
+          if (hoverPreviewRestored) return;
+          hoverPreviewRestored = true;
+          sidebarEl.classList.remove('t4-sidebar-no-hover-preview');
+          document.removeEventListener('mousemove', checkMouseLeftSidebar);
+        };
+        const checkMouseLeftSidebar = (event) => {
+          if (!pointInRect(event.clientX, event.clientY, sidebarEl.getBoundingClientRect())) restoreHoverPreview();
+        };
+        document.addEventListener('mousemove', checkMouseLeftSidebar);
+        setTimeout(restoreHoverPreview, 600);
       }
     });
     // "Mais espaços" não fecha sozinho ao trocar de página dentro da
@@ -566,9 +590,7 @@
     // disso, cada mousemove real verifica a posição atual contra a
     // lateral e o flyout diretamente; uma mutação de DOM sem o mouse se
     // mover não gera mousemove, então não derruba o menu por engano.
-    const sidebarEl = root.querySelector('.t4-sidebar');
     let moreCloseTimer = null;
-    const pointInRect = (x, y, rect) => rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
     document.addEventListener('mousemove', (event) => {
       const more = root.querySelector('.t4-nav-more');
       if (!more || !more.open) return;
