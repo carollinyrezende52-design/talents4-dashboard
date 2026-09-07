@@ -145,6 +145,51 @@
     location.replace(target.href);
   }
 
+  function isLoginPage() {
+    return new URL(ROOT_LOGIN, location.href).pathname === location.pathname;
+  }
+
+  function renderLoginForm(app) {
+    const esc = window.T4V2?.esc || ((v) => String(v ?? ''));
+    const notice = new URLSearchParams(location.search).get('notice') || '';
+    app.setSync('error', 'Login necessário');
+    app.pageRoot.innerHTML = `
+      <div class="t4-login-screen">
+        <form class="t4-login-card" data-login-form novalidate>
+          <h1 class="t4-login-title">Talents 4</h1>
+          ${notice ? `<p class="t4-login-notice">${esc(notice)}</p>` : ''}
+          <label class="t4-field"><span class="t4-field-label">E-mail</span><span class="t4-field-control"><input type="email" name="email" autocomplete="username" required autofocus></span></label>
+          <label class="t4-field"><span class="t4-field-label">Senha</span><span class="t4-field-control"><input type="password" name="password" autocomplete="current-password" required></span></label>
+          <p class="t4-login-error" data-login-error hidden></p>
+          <button type="submit" class="t4-btn primary t4-login-submit">Entrar</button>
+        </form>
+      </div>`;
+    const form = app.pageRoot.querySelector('[data-login-form]');
+    const errorBox = form.querySelector('[data-login-error]');
+    const submitButton = form.querySelector('.t4-login-submit');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorBox.hidden = true;
+      submitButton.disabled = true;
+      submitButton.textContent = 'Entrando…';
+      try {
+        const { error } = await client.auth.signInWithPassword({
+          email: form.email.value.trim(),
+          password: form.password.value
+        });
+        if (error) throw error;
+        location.href = ROOT_LOGIN;
+      } catch (error) {
+        errorBox.textContent = /invalid login credentials/i.test(error?.message || '')
+          ? 'E-mail ou senha incorretos.'
+          : (error?.message || 'Não foi possível entrar. Tente novamente.');
+        errorBox.hidden = false;
+        submitButton.disabled = false;
+        submitButton.textContent = 'Entrar';
+      }
+    });
+  }
+
   async function loadProfile(currentSession) {
     const username = userNameFromSession(currentSession);
     if (!username) throw new Error('A sessão não identifica um perfil interno. Entre novamente pelo CRM.');
@@ -179,6 +224,7 @@
     if (auth.error) throw auth.error;
     session = auth.data?.session || null;
     if (!session) {
+      if (isLoginPage()) { renderLoginForm(app); return new Promise(() => {}); }
       if (options.redirect !== false) redirectToLogin('Faça login para abrir a V2.');
       throw new Error('Sessão não encontrada.');
     }

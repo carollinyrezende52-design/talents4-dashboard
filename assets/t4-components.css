@@ -263,3 +263,13 @@
 @media (prefers-reduced-motion: reduce) {
   #t4-page-root.t4-page-enter { animation: none; }
 }
+
+/* ---------- Tela de login: mostrada dentro do próprio pageRoot quando não
+   há sessão do Supabase e a página atual é a de login (ROOT_LOGIN), em vez
+   do cartão genérico de erro usado nas demais telas. */
+.t4-login-screen { display: flex; align-items: center; justify-content: center; min-height: 60vh; padding: 24px; }
+.t4-login-card { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 340px; padding: 28px 26px; border: 1px solid var(--t4-line, #e2e8f0); border-radius: var(--t4-radius-lg, 16px); background: var(--t4-surface, #fff); box-shadow: var(--t4-shadow-2, 0 2px 8px rgba(0,42,74,.06)); }
+.t4-login-title { margin: 0 0 4px; color: var(--t4-navy, #002a4a); font-size: 20px; font-weight: 750; }
+.t4-login-notice { margin: 0; padding: 8px 10px; border-radius: var(--t4-radius-sm, 7px); background: var(--t4-info-soft, #e8f1ff); color: var(--t4-ink, #1b2a3e); font-size: 12.5px; }
+.t4-login-error { margin: 0; padding: 8px 10px; border-radius: var(--t4-radius-sm, 7px); background: var(--t4-critical-soft, #fbe7ea); color: var(--t4-critical, #b4233d); font-size: 12.5px; }
+.t4-login-submit { width: 100%; justify-content: center; }
