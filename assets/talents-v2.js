@@ -15,7 +15,7 @@
     { id: 'manual', label: 'Manual de uso', title: 'Manual de uso', subtitle: 'Como decidir, acompanhar e apresentar sem duplicar informações.', icon: 'note', primary: false },
     { id: 'archived', label: 'Arquivo de Talentos', title: 'Arquivo de Talentos', subtitle: 'Histórico de inativos, excluídos e arquivados, sem mistura com a fila ativa.', icon: 'archive', primary: false }
   ] });
-  const state = { talents: [], employers: [], openings: [], selections: { rows: [], modern: false }, activities: [], enrollments: [], classes: [], plans: [], meetings: [], tasks: [], biDayFilter: null, biStageFilter: null, mappingProfiles: [], mappingItems: [], mappingPartners: [], replacements: [], presentationDetails: [], filters: {}, query: '', stage: '', german: '', employer: '', owner: '', status: '', month: '', quick: [], talentScope: 'talento', selectedTalents: new Set(), board: 'list', selectionDisplay: 'list', selectionScope: 'active', selectionShowClosed: false, opportunityScope: 'open', display: 'list', loaded: false, detail: null, detailTab: 'profile', detailVersion: 0 };
+  const state = { talents: [], employers: [], openings: [], selections: { rows: [], modern: false }, activities: [], enrollments: [], classes: [], plans: [], meetings: [], tasks: [], biDayFilter: null, biStageFilter: null, biPeriod: 'week7', mappingProfiles: [], mappingItems: [], mappingPartners: [], replacements: [], presentationDetails: [], filters: {}, query: '', stage: '', german: '', employer: '', owner: '', status: '', month: '', quick: [], talentScope: 'talento', selectedTalents: new Set(), board: 'list', selectionDisplay: 'list', selectionScope: 'active', selectionShowClosed: false, opportunityScope: 'open', display: 'list', loaded: false, detail: null, detailTab: 'profile', detailVersion: 0 };
   const sources = {
     talents: { label: 'Talentos', load: () => D.loadCandidates({ activeOnly: false }) },
     employers: { label: 'Empregadores', load: () => D.loadEmployers({ activeOnly: false }) },
@@ -105,30 +105,31 @@
     if (outros > 0) buckets.push({ label: 'Outra etapa / sem etapa', count: outros });
     return W.funnelChart('Onde cada Talento está agora', 'LEITURA RÁPIDA', `${list.length} ativo${list.length === 1 ? '' : 's'}`, buckets);
   }
-  function biCard(rank, icon, label, value, note, href, tone = '') {
-    return `<a class="t4-bi-card ${tone ? `tone-${tone}` : ''}" href="${a(href)}"><div class="t4-bi-card-head"><span class="t4-bi-icon">${U.icon(icon)}</span><span class="t4-bi-rank">${rank}</span></div><div class="t4-bi-value">${e(value)}</div><div class="t4-bi-label">${e(label)}</div><div class="t4-bi-note">${e(note)}</div></a>`;
+  function biCard(rank, icon, label, value, note, href, attn = 0) {
+    return `<a class="t4-bi-card" href="${a(href)}"><div class="t4-bi-card-head"><span class="t4-bi-icon">${U.icon(icon)}</span><span class="t4-bi-card-head-end">${attn ? `<span class="t4-bi-attn" title="${a(`${attn} atrasado${attn === 1 ? '' : 's'}`)}">${attn}</span>` : ''}<span class="t4-bi-rank">${rank}</span></span></div><div class="t4-bi-value">${e(value)}</div><div class="t4-bi-label">${e(label)}</div><div class="t4-bi-note">${e(note)}</div></a>`;
   }
   function biDashboard() {
-    const day = M.today();
-    const agendaCount = state.activities.filter((r) => M.isOpen(r.status) && (!r.due_at || M.dateOnly(r.due_at) <= day)).length;
+    const workload = workloadData();
+    const overdueOf = (id) => workload.series.find((s) => s.id === id)?.overdue || 0;
+    const agendaCount = workload.series.find((s) => s.id === 'agenda').data.reduce((a2, b) => a2 + b, 0);
     const planningCount = state.plans.filter((r) => M.isOpen(r.status)).length;
-    const meetingsCount = state.meetings.filter((r) => M.isOpen(r.status)).length;
-    const tasksCount = state.tasks.filter((r) => M.isOpen(r.status)).length;
+    const meetingsCount = workload.series.find((s) => s.id === 'meetings').data.reduce((a2, b) => a2 + b, 0);
+    const tasksCount = workload.series.find((s) => s.id === 'tasks').data.reduce((a2, b) => a2 + b, 0);
     const opportunitiesCount = state.openings.filter((r) => M.isOpen(r.status)).reduce((n, r) => n + (Number(r.quantity) || 1), 0);
     const germanCount = new Set(state.enrollments.filter((r) => ['Matriculado', 'Ativo', 'Pausado'].includes(r.status)).map((r) => r.candidate_id)).size;
     const employersCount = state.employers.filter((r) => M.activeRecord(r)).length;
     const talentsCount = state.talents.filter((row) => active(row) && M.isTalent(row)).length;
     const presentationCount = state.talents.filter((r) => yes(r.pronto_para_employer)).length;
     return `<section class="t4-bi-grid">
-      ${biCard(1, 'calendar', 'Agenda', agendaCount, 'Pendentes para hoje ou vencidas', './index.html?view=agenda')}
+      ${biCard(1, 'calendar', 'Agenda', agendaCount, `${overdueOf('agenda') ? overdueOf('agenda') + ' atrasada(s) · ' : ''}no período`, './index.html?view=agenda', overdueOf('agenda'))}
       ${biCard(2, 'list', 'Planejamento mensal', planningCount, 'Atividades em aberto no mês', './organizacional.html?view=planning')}
-      ${biCard(3, 'people', 'Reuniões', meetingsCount, 'Reuniões em aberto', './organizacional.html?view=meetings')}
-      ${biCard(4, 'activity', 'Tarefas', tasksCount, 'Tarefas operacionais em aberto', './organizacional.html?view=operations')}
+      ${biCard(3, 'people', 'Reuniões', meetingsCount, `${overdueOf('meetings') ? overdueOf('meetings') + ' atrasada(s) · ' : ''}no período`, './organizacional.html?view=meetings', overdueOf('meetings'))}
+      ${biCard(4, 'activity', 'Tarefas', tasksCount, `${overdueOf('tasks') ? overdueOf('tasks') + ' atrasada(s) · ' : ''}no período`, './organizacional.html?view=operations', overdueOf('tasks'))}
       ${biCard(5, 'briefcase', 'Oportunidades', opportunitiesCount, 'Posições em vagas abertas', './index.html?view=opportunities')}
       ${biCard(6, 'graduation', 'Alemão', germanCount, 'Matrículas em acompanhamento', './alemao.html')}
       ${biCard(7, 'building', 'Empregadores', employersCount, 'Empregadores ativos', './organizacional.html?view=employers')}
       ${biCard(8, 'users', 'Talentos', talentsCount, 'Uma ficha por pessoa', './index.html?view=talents')}
-      ${biCard(9, 'check', 'Apresentação', presentationCount, 'Liberados por decisão humana', './index.html?view=presentation')}
+      ${biCard(9, 'check', 'Apresentações', presentationCount, 'Liberadas por decisão humana', './index.html?view=presentation')}
     </section>`;
   }
   function cssVar(name, fallback) {
@@ -146,9 +147,19 @@
     const [y, m, d] = dateStr.split('-').map(Number);
     return new Date(y, m - 1, d).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
   }
+  const PERIODS = [
+    { id: 'today', label: 'Hoje', days: 1 },
+    { id: 'week', label: 'Esta semana', days: (now = new Date()) => Math.max(1, 7 - now.getDay()) },
+    { id: 'week7', label: 'Próximos 7 dias', days: 7 },
+    { id: 'month', label: 'Este mês', days: (now = new Date()) => new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate() + 1 }
+  ];
+  function periodDays() {
+    const period = PERIODS.find((p) => p.id === state.biPeriod) || PERIODS[2];
+    return typeof period.days === 'function' ? period.days() : period.days;
+  }
   function workloadData() {
     const today = M.today();
-    const dayKeys = [...Array(7)].map((_, i) => addDays(today, i));
+    const dayKeys = [...Array(periodDays())].map((_, i) => addDays(today, i));
     const series = [
       { id: 'agenda', name: 'Agenda', color: cssVar('--t4-info', '#1677ff'), rows: state.activities, dateOf: (r) => M.dateOnly(r.due_at) },
       { id: 'meetings', name: 'Reuniões', color: cssVar('--t4-color-purple', '#1e1349'), rows: state.meetings, dateOf: (r) => M.dateOnly(r.scheduled_at) },
@@ -193,7 +204,29 @@
       const items = combined.slice(0, 12).map((r) => `<li><a class="t4-bi-priority-item" href="${a(r.href)}"><strong>${e(r.label)}</strong><span>${e(r.source)}</span></a></li>`).join('');
       return `<div class="t4-bi-priority-head"><h3>${e(workload.labels[dayIndex])} · ${combined.length} pendência${combined.length === 1 ? '' : 's'}</h3>${W.button('Limpar filtro', 'bi-clear-day', '', { className: 'ghost sm' })}</div><ul class="t4-bi-priority-list">${items || '<li class="t4-bi-priority-empty">Nada pendente neste dia.</li>'}</ul>`;
     }
-    return `<div class="t4-bi-priority-head"><h3>Prioridades da semana</h3><p class="t4-bi-priority-hint">Clique numa barra do gráfico para ver os itens do dia; clique numa etapa do funil para ver os vínculos.</p></div>`;
+    return todayPriorityHtml();
+  }
+  function responsibleOf(r) {
+    return r.owner_name || r.owner_username || r.responsavel || r.responsible_name || 'Equipe';
+  }
+  function todayPriorityHtml() {
+    const today = M.today();
+    const domains = [
+      { type: 'Agenda', href: './index.html?view=agenda', rows: state.activities, dateOf: (r) => M.dateOnly(r.due_at), titleOf: (r) => r.title || 'Atividade' },
+      { type: 'Reunião', href: './organizacional.html?view=meetings', rows: state.meetings, dateOf: (r) => M.dateOnly(r.scheduled_at), titleOf: (r) => r.topic || r.title || 'Reunião' },
+      { type: 'Tarefa', href: './organizacional.html?view=operations', rows: state.tasks, dateOf: (r) => M.dateOnly(r.due_date), titleOf: (r) => r.title || r.description || 'Tarefa' },
+      { type: 'Planejamento', href: './organizacional.html?view=planning', rows: state.plans, dateOf: (r) => M.dateOnly(r.end_date || r.start_date), titleOf: (r) => r.activity_label || 'Atividade mensal' }
+    ];
+    const items = domains.flatMap((d) => d.rows.filter((r) => M.isOpen(r.status)).map((r) => {
+      const due = d.dateOf(r);
+      if (!due || due > addDays(today, 6)) return null;
+      return { type: d.type, href: d.href, title: d.titleOf(r), responsible: responsibleOf(r), due, overdue: due < today, priority: due < today ? 'Alta' : due === today ? 'Média' : 'Normal' };
+    }).filter(Boolean));
+    const talentItems = state.talents.filter((row) => active(row) && M.isTalent(row) && attention(row)).slice(0, 6).map((r) => ({ type: 'Talento', href: './index.html?view=talents', title: r.nome_completo || 'Talento', responsible: r.responsavel_interno || 'Equipe', due: '', overdue: false, priority: 'Alta' }));
+    const presentationItems = state.talents.filter((r) => M.norm(r.status_pipeline) === M.norm('Enviado ao employer') && !yes(r.pronto_para_employer)).slice(0, 4).map((r) => ({ type: 'Apresentação', href: './index.html?view=presentation', title: r.nome_completo || 'Talento', responsible: r.responsavel_interno || 'Equipe', due: '', overdue: false, priority: 'Média' }));
+    const all = [...items, ...talentItems, ...presentationItems].sort((x, y) => (y.overdue - x.overdue) || String(x.due || '9999').localeCompare(String(y.due || '9999')));
+    const rows = all.slice(0, 10).map((it) => `<li><a class="t4-bi-priority-item ${it.overdue ? 'is-overdue' : ''}" href="${a(it.href)}"><span class="t4-bi-priority-type">${e(it.type)}</span><strong>${e(it.title)}</strong><span class="t4-bi-priority-meta">${e(it.responsible)}${it.due ? ` · ${e(U.formatDate(it.due))}` : ''} · <em class="t4-bi-priority-${it.priority === 'Alta' ? 'high' : it.priority === 'Média' ? 'mid' : 'low'}">${e(it.priority)}</em></span></a></li>`).join('');
+    return `<div class="t4-bi-priority-head"><h3>Prioridades de hoje · ${all.length}</h3><p class="t4-bi-priority-hint">Atrasados, itens de hoje e talentos com pendência. Clique numa barra ou etapa dos gráficos para outros recortes.</p></div><ul class="t4-bi-priority-list">${rows || '<li class="t4-bi-priority-empty">Nada pendente no período.</li>'}</ul>`;
   }
   const biCharts = {};
   function disposeBiCharts() {
@@ -230,7 +263,7 @@
       grid: { left: 8, right: 8, top: 36, bottom: 8, containLabel: true },
       legend: { top: 0, textStyle: { fontSize: 11 } },
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (params) => `<strong>${e(params[0]?.name || '')}</strong><br>${params.filter((p) => p.value).map((p) => `${p.marker} ${e(p.seriesName)}: ${p.value}`).join('<br>') || 'Nada pendente'}` },
-      xAxis: { type: 'category', data: workload.labels, axisTick: { show: false } },
+      xAxis: { type: 'category', data: workload.labels, axisTick: { show: false }, axisLabel: workload.labels.length > 10 ? { interval: Math.ceil(workload.labels.length / 10) - 1, rotate: 45, fontSize: 10 } : { fontSize: 11 } },
       yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#eef2f6' } } },
       series: workload.series.map((s) => ({ name: s.name, type: 'bar', stack: 'total', barMaxWidth: 34, data: s.data }))
     });
@@ -289,27 +322,30 @@
     return `<table><caption class="t4-sr-only">Distribuição do funil operacional</caption><thead><tr><th scope="col">Etapa</th><th scope="col">Vínculos</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
   function overview() {
-    const list = state.talents.filter((row) => active(row) && M.isTalent(row)), day = M.today();
-    const actions = state.activities.filter((r) => M.isOpen(r.status) && (!r.due_at || M.dateOnly(r.due_at) <= day) && match([r.title, R.talentName(state, r.talent_id), r.notes]));
-    const selected = list.filter(attention);
     const workload = workloadData();
-    return `<div class="t4-work-intro"><div><span class="t4-overline">SEU ESPAÇO DE TRABALHO</span><h2>Informação clara. Próximo passo definido.</h2><p>Bom trabalho, ${e(D.profile?.nome || 'equipe')}. Aqui está o que precisa avançar.</p></div><span class="t4-date-chip">${U.icon('calendar')}${e(new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }))}</span></div>
+    const hasFilter = state.biPeriod !== 'week7' || state.biDayFilter || state.biStageFilter;
+    return `<header class="t4-bi-header">
+        <div class="t4-bi-header-title"><h2>Meu dia</h2><span class="t4-bi-header-date">${e(new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()))}</span></div>
+        <div class="t4-bi-header-actions">${W.button('Atualizar', 'reload', '', { className: 'ghost sm', icon: 'refresh' })}</div>
+      </header>
+      <div class="t4-bi-slicers" role="group" aria-label="Período">
+        ${PERIODS.map((p) => `<button type="button" class="t4-bi-chip ${state.biPeriod === p.id ? 'active' : ''}" data-action="bi-period" data-id="${a(p.id)}">${e(p.label)}</button>`).join('')}
+        ${hasFilter ? W.button('Limpar filtros', 'bi-clear-filters', '', { className: 'ghost sm' }) : ''}
+      </div>
       ${biDashboard()}
       <section class="t4-bi-charts">
         <article class="t4-bi-chart-card">
-          <header><h3>Carga operacional dos próximos 7 dias</h3><p>Agenda, reuniões, tarefas e planejamento mensal com data definida.${workload.overdueTotal ? ` <strong class="t4-bi-chart-flag">${workload.overdueTotal} atrasado${workload.overdueTotal === 1 ? '' : 's'}</strong>` : ''}</p></header>
-          <div class="t4-bi-chart-canvas" data-chart="workload" role="img" aria-label="Gráfico de barras empilhadas da carga operacional dos próximos 7 dias"></div>
+          <header><h3>Carga operacional</h3><p>Agenda, reuniões, tarefas e planejamento mensal com data definida.${workload.overdueTotal ? ` <strong class="t4-bi-chart-flag">${workload.overdueTotal} atrasado${workload.overdueTotal === 1 ? '' : 's'}</strong>` : ''}</p></header>
+          <div class="t4-bi-chart-canvas" data-chart="workload" role="img" aria-label="Gráfico de barras empilhadas da carga operacional no período"></div>
           <details class="t4-bi-chart-table"><summary>Ver como tabela</summary>${workloadTableHtml()}</details>
         </article>
         <article class="t4-bi-chart-card">
-          <header><h3>Distribuição do funil operacional</h3><p>Vínculos ativos de Talento com empregador, por etapa real do sistema.</p></header>
-          <div class="t4-bi-chart-canvas" data-chart="funnel" role="img" aria-label="Gráfico de barras horizontais do funil operacional"></div>
+          <header><h3>Pipeline operacional</h3><p>Vínculos ativos de Talento com empregador, por etapa real do sistema.</p></header>
+          <div class="t4-bi-chart-canvas" data-chart="funnel" role="img" aria-label="Gráfico de barras horizontais do pipeline operacional"></div>
           <details class="t4-bi-chart-table"><summary>Ver como tabela</summary>${funnelTableHtml()}</details>
         </article>
       </section>
       <section class="t4-bi-priority" data-bi-priority>${priorityListHtml()}</section>
-      ${W.section('Sua fila de ação', R.activityTable(state, actions, 'today-actions'), W.button('Abrir agenda', 'go', 'agenda', { className: 'sm', icon: 'arrow' }), 'Atividades para hoje, vencidas ou ainda sem prazo definido.')}
-      ${W.section('Talentos para acompanhar', talentListTable(selected.filter((r) => match([r.nome_completo, r.profissao_principal])), 'attention-talents'), W.button('Ver toda a base', 'go', 'talents', { className: 'sm' }), 'Atenção é uma fila calculada de trabalho, não uma etapa do Talento.')}
       <div class="t4-shortcuts">${W.button('Consultar oportunidades', 'go', 'opportunities', { icon: 'briefcase' })}${W.link('Planejamento dos empregadores', './organizacional.html?view=planning', 'building')}${W.link('Acompanhamento de alemão', './alemao.html?view=attention', 'graduation')}${W.link('Agenda de contatos', './contatos.html', 'contact')}</div>`;
   }
   function archivedSearchNotice() {
@@ -679,6 +715,8 @@
     if (action === 'archive-talent') return archiveTalent({ id });
     if (action === 'selection-detail') return R.selectionDrawer(state, state.selections.rows.find((r) => r.key === id));
     if (action === 'bi-clear-day' || action === 'bi-clear-stage') { state.biDayFilter = null; state.biStageFilter = null; updatePriorityList(); return; }
+    if (action === 'bi-period') { state.biPeriod = id; state.biDayFilter = null; state.biStageFilter = null; render(); return; }
+    if (action === 'bi-clear-filters') { state.biPeriod = 'week7'; state.biDayFilter = null; state.biStageFilter = null; render(); return; }
     if (action === 'edit-selection') return R.editSelection(state, state.selections.rows.find((r) => r.key === id), {}, load);
     if (action === 'selection-for-talent') return R.editSelection(state, null, { talent_id: id }, load);
     if (action === 'select-opening') return R.editSelection(state, null, { opening_id: id }, load);
