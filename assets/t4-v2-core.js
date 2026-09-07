@@ -563,29 +563,10 @@
       clearTimeout(moreCloseTimer);
       if (!inside) moreCloseTimer = setTimeout(() => { more.open = false; }, 220);
     });
-    // Abre "Mais espaços" ao passar o mouse no próprio rótulo, sem
-    // precisar clicar (pedido explícito). mouseenter não sofre o mesmo
-    // problema do fechamento acima porque só dispara com movimento real
-    // do ponteiro entrando no elemento — nunca como efeito colateral de
-    // uma troca de rota.
-    const moreSummaryEl = root.querySelector('.t4-nav-more > summary');
-    moreSummaryEl?.addEventListener('mouseenter', () => {
-      const more = root.querySelector('.t4-nav-more');
-      if (more) more.open = true;
-    });
-    // O <summary> nativo alterna aberto/fechado a cada clique — depois que
-    // o hover já abriu, um clique do mouse (que normalmente segue o
-    // próprio hover) fecharia de novo na hora, brigando com o hover. Para
-    // clique de mouse, ignora o toggle nativo e força aberto (fechar é só
-    // por onde o mouse sai, no listener acima). Ativação por teclado
-    // (Enter/Espaço) tem event.detail === 0 e continua alternando como
-    // qualquer <details>, preservando a navegação sem mouse.
-    moreSummaryEl?.addEventListener('click', (event) => {
-      if (event.detail === 0) return;
-      event.preventDefault();
-      const more = root.querySelector('.t4-nav-more');
-      if (more) more.open = true;
-    });
+    // O <details>/<summary> nativo controla abertura por clique e teclado.
+    // Não interceptar o clique nem forçar `open`: misturar hover,
+    // preventDefault e o toggle nativo fazia o submenu abrir e fechar
+    // no mesmo gesto, deixando "Mais espaços" aparentemente travado.
     root.querySelector('.t4-mobile-overlay').addEventListener('click', () => document.body.classList.remove('t4-sidebar-open'));
     root.querySelector('[data-logout]').addEventListener('click', () => document.dispatchEvent(new CustomEvent('t4:logout')));
     primary.addEventListener('click', async () => {
