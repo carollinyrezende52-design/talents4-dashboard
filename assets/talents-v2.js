@@ -3,7 +3,7 @@
   const U = window.T4V2, W = window.T4Work, M = window.T4Models, D = window.T4Data, R = window.T4Records, T = window.T4TalentMapping;
   const e = U.esc, a = U.attr;
   const app = U.mount({ module: 'talents', moduleLabel: 'Talentos', defaultView: 'talents', views: [
-    { id: 'overview', label: 'Meu dia', title: 'Meu dia', subtitle: 'Prioridades e próximos passos para uma operação mais próxima dos talentos.', icon: 'dashboard' },
+    { id: 'overview', label: 'Meu dia', title: 'Meu dia', subtitle: 'Prioridades e próximos passos para uma operação mais próxima dos talentos.', icon: 'dashboard', hidden: true },
     { id: 'talents', label: 'Talentos', title: 'Base de talentos', subtitle: 'Uma ficha por pessoa, com filtros de trabalho e próximo passo visível.', icon: 'users' },
     { id: 'processes', label: 'Seleções', title: 'Seleções', subtitle: 'Cada linha representa Talento + empregador + vaga + etapa.', icon: 'columns' },
     { id: 'presentation', label: 'Apresentações', title: 'Apresentações', subtitle: 'Fila de perfis liberados por decisão humana, antes do envio a uma empresa.', icon: 'check' },
@@ -15,7 +15,7 @@
     { id: 'manual', label: 'Manual de uso', title: 'Manual de uso', subtitle: 'Como decidir, acompanhar e apresentar sem duplicar informações.', icon: 'note', primary: false },
     { id: 'archived', label: 'Arquivo de Talentos', title: 'Arquivo de Talentos', subtitle: 'Histórico de inativos, excluídos e arquivados, sem mistura com a fila ativa.', icon: 'archive', primary: false }
   ] });
-  const state = { talents: [], employers: [], openings: [], selections: { rows: [], modern: false }, activities: [], enrollments: [], classes: [], mappingProfiles: [], mappingItems: [], mappingPartners: [], replacements: [], presentationDetails: [], filters: {}, query: '', stage: '', german: '', employer: '', owner: '', status: '', month: '', quick: [], talentScope: 'talento', selectedTalents: new Set(), board: 'list', selectionDisplay: 'list', selectionScope: 'active', selectionShowClosed: false, opportunityScope: 'open', display: 'list', loaded: false, detail: null, detailTab: 'profile', detailVersion: 0 };
+  const state = { talents: [], employers: [], openings: [], selections: { rows: [], modern: false }, activities: [], enrollments: [], classes: [], plans: [], meetings: [], tasks: [], mappingProfiles: [], mappingItems: [], mappingPartners: [], replacements: [], presentationDetails: [], filters: {}, query: '', stage: '', german: '', employer: '', owner: '', status: '', month: '', quick: [], talentScope: 'talento', selectedTalents: new Set(), board: 'list', selectionDisplay: 'list', selectionScope: 'active', selectionShowClosed: false, opportunityScope: 'open', display: 'list', loaded: false, detail: null, detailTab: 'profile', detailVersion: 0 };
   const sources = {
     talents: { label: 'Talentos', load: () => D.loadCandidates({ activeOnly: false }) },
     employers: { label: 'Empregadores', load: () => D.loadEmployers({ activeOnly: false }) },
@@ -24,6 +24,9 @@
     activities: { label: 'Agenda integrada', load: () => D.loadActivities() },
     enrollments: { label: 'Matrículas de alemão', load: () => D.optionalAll(D.TABLES.enrollments) },
     classes: { label: 'Turmas de alemão', load: () => D.optionalAll(D.TABLES.classes) },
+    plans: { label: 'Planejamento mensal', load: () => D.optionalAll(D.TABLES.plans, '*', (q) => q.is('deleted_at', null)) },
+    meetings: { label: 'Reuniões', load: () => D.optionalAll(D.TABLES.meetings, '*', (q) => q.is('deleted_at', null)) },
+    tasks: { label: 'Tarefas', load: () => D.optionalAll(D.TABLES.tasks, '*', (q) => q.is('deleted_at', null)) },
     mappingProfiles: { label: 'Contexto e apresentação do mapeamento', load: () => D.optionalAll(T.TABLES.profiles) },
     mappingItems: { label: 'Linhas do acompanhamento', load: () => D.optionalAll(T.TABLES.items) },
     mappingPartners: { label: 'Complementos Nectanet Partner', load: () => D.optionalAll(T.TABLES.partners) },
@@ -101,13 +104,38 @@
     if (outros > 0) buckets.push({ label: 'Outra etapa / sem etapa', count: outros });
     return W.funnelChart('Onde cada Talento está agora', 'LEITURA RÁPIDA', `${list.length} ativo${list.length === 1 ? '' : 's'}`, buckets);
   }
+  function biCard(rank, icon, label, value, note, href, tone = '') {
+    return `<a class="t4-bi-card ${tone ? `tone-${tone}` : ''}" href="${a(href)}"><div class="t4-bi-card-head"><span class="t4-bi-icon">${U.icon(icon)}</span><span class="t4-bi-rank">${rank}</span></div><div class="t4-bi-value">${e(value)}</div><div class="t4-bi-label">${e(label)}</div><div class="t4-bi-note">${e(note)}</div></a>`;
+  }
+  function biDashboard() {
+    const day = M.today();
+    const agendaCount = state.activities.filter((r) => M.isOpen(r.status) && (!r.due_at || M.dateOnly(r.due_at) <= day)).length;
+    const planningCount = state.plans.filter((r) => M.isOpen(r.status)).length;
+    const meetingsCount = state.meetings.filter((r) => M.isOpen(r.status)).length;
+    const tasksCount = state.tasks.filter((r) => M.isOpen(r.status)).length;
+    const opportunitiesCount = state.openings.filter((r) => M.isOpen(r.status)).reduce((n, r) => n + (Number(r.quantity) || 1), 0);
+    const germanCount = new Set(state.enrollments.filter((r) => ['Matriculado', 'Ativo', 'Pausado'].includes(r.status)).map((r) => r.candidate_id)).size;
+    const employersCount = state.employers.filter((r) => M.activeRecord(r)).length;
+    const talentsCount = state.talents.filter((row) => active(row) && M.isTalent(row)).length;
+    const presentationCount = state.talents.filter((r) => yes(r.pronto_para_employer)).length;
+    return `<section class="t4-bi-grid">
+      ${biCard(1, 'calendar', 'Agenda', agendaCount, 'Pendentes para hoje ou vencidas', './index.html?view=agenda')}
+      ${biCard(2, 'list', 'Planejamento mensal', planningCount, 'Atividades em aberto no mês', './organizacional.html?view=planning')}
+      ${biCard(3, 'people', 'Reuniões', meetingsCount, 'Reuniões em aberto', './organizacional.html?view=meetings')}
+      ${biCard(4, 'activity', 'Tarefas', tasksCount, 'Tarefas operacionais em aberto', './organizacional.html?view=operations')}
+      ${biCard(5, 'briefcase', 'Oportunidades', opportunitiesCount, 'Posições em vagas abertas', './index.html?view=opportunities')}
+      ${biCard(6, 'graduation', 'Alemão', germanCount, 'Matrículas em acompanhamento', './alemao.html')}
+      ${biCard(7, 'building', 'Empregadores', employersCount, 'Empregadores ativos', './organizacional.html?view=employers')}
+      ${biCard(8, 'users', 'Talentos', talentsCount, 'Uma ficha por pessoa', './index.html?view=talents')}
+      ${biCard(9, 'check', 'Apresentação', presentationCount, 'Liberados por decisão humana', './index.html?view=presentation')}
+    </section>`;
+  }
   function overview() {
     const list = state.talents.filter((row) => active(row) && M.isTalent(row)), day = M.today();
     const actions = state.activities.filter((r) => M.isOpen(r.status) && (!r.due_at || M.dateOnly(r.due_at) <= day) && match([r.title, R.talentName(state, r.talent_id), r.notes]));
     const selected = list.filter(attention);
     return `<div class="t4-work-intro"><div><span class="t4-overline">SEU ESPAÇO DE TRABALHO</span><h2>Informação clara. Próximo passo definido.</h2><p>Bom trabalho, ${e(D.profile?.nome || 'equipe')}. Aqui está o que precisa avançar.</p></div><span class="t4-date-chip">${U.icon('calendar')}${e(new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }))}</span></div>
-      <section class="t4-kpi-grid">${U.kpi('Talentos ativos', list.length, 'Uma ficha por pessoa')}${U.kpi('Em seleções', new Set(state.selections.rows.filter((r) => !['closed', 'hired'].includes(M.selectionBucket(r))).map((r) => r.talent_id)).size, 'Vínculos com empregadores')}${U.kpi('Em aulas de alemão', new Set(state.enrollments.filter((r) => ['Matriculado', 'Ativo', 'Pausado'].includes(r.status)).map((r) => r.candidate_id)).size, 'Matrículas em acompanhamento')}${U.kpi('Precisam de atenção', selected.length, 'Prioridade, prazo ou pendência', selected.length ? 'warn' : 'good')}</section>
-      ${list.length ? pipelineDistribution(list) : ''}
+      ${biDashboard()}
       ${W.section('Sua fila de ação', R.activityTable(state, actions, 'today-actions'), W.button('Abrir agenda', 'go', 'agenda', { className: 'sm', icon: 'arrow' }), 'Atividades para hoje, vencidas ou ainda sem prazo definido.')}
       ${W.section('Talentos para acompanhar', talentListTable(selected.filter((r) => match([r.nome_completo, r.profissao_principal])), 'attention-talents'), W.button('Ver toda a base', 'go', 'talents', { className: 'sm' }), 'Atenção é uma fila calculada de trabalho, não uma etapa do Talento.')}
       <div class="t4-shortcuts">${W.button('Consultar oportunidades', 'go', 'opportunities', { icon: 'briefcase' })}${W.link('Planejamento dos empregadores', './organizacional.html?view=planning', 'building')}${W.link('Acompanhamento de alemão', './alemao.html?view=attention', 'graduation')}${W.link('Agenda de contatos', './contatos.html', 'contact')}</div>`;

@@ -273,3 +273,21 @@
 .t4-login-notice { margin: 0; padding: 8px 10px; border-radius: var(--t4-radius-sm, 7px); background: var(--t4-info-soft, #e8f1ff); color: var(--t4-ink, #1b2a3e); font-size: 12.5px; }
 .t4-login-error { margin: 0; padding: 8px 10px; border-radius: var(--t4-radius-sm, 7px); background: var(--t4-critical-soft, #fbe7ea); color: var(--t4-critical, #b4233d); font-size: 12.5px; }
 .t4-login-submit { width: 100%; justify-content: center; }
+
+/* ---------- Painel BI de "Meu dia": grade de 9 indicadores, em ordem de
+   prioridade fixa (Agenda, Planejamento mensal, Reuniões, Tarefas,
+   Oportunidades, Alemão, Empregadores, Talentos, Apresentação). Cada
+   cartão é um link direto para a tela correspondente. */
+.t4-bi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 20px; }
+@media (max-width: 900px) { .t4-bi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .t4-bi-grid { grid-template-columns: 1fr; } }
+.t4-bi-card { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border: 1px solid var(--t4-line, #e2e8f0); border-radius: var(--t4-radius-lg, 16px); background: var(--t4-surface, #fff); box-shadow: var(--t4-shadow-1, 0 1px 2px rgba(0,42,74,.05)); text-decoration: none; color: inherit; transition: box-shadow .16s var(--t4-ease, ease), transform .16s var(--t4-ease, ease); }
+.t4-bi-card:hover, .t4-bi-card:focus-visible { box-shadow: var(--t4-shadow-2, 0 2px 8px rgba(0,42,74,.08)); transform: translateY(-1px); outline: none; }
+.t4-bi-card-head { display: flex; align-items: center; justify-content: space-between; }
+.t4-bi-rank { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--t4-accent-soft, #e6f0f7); color: var(--t4-accent, var(--t4-navy)); font-size: 10px; font-weight: 800; }
+.t4-bi-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: var(--t4-radius-md, 11px); background: var(--t4-surface-sunken, #f8fafc); color: var(--t4-accent, var(--t4-navy)); }
+.t4-bi-value { color: var(--t4-navy, #002a4a); font-size: 26px; font-weight: 800; line-height: 1.1; }
+.t4-bi-label { color: var(--t4-ink, #1b2a3e); font-size: 12.5px; font-weight: 700; }
+.t4-bi-note { color: var(--t4-ink-soft, #4a5e73); font-size: 11px; line-height: 1.3; }
+.t4-bi-card.tone-warn .t4-bi-value { color: var(--t4-warning, #a3610a); }
+.t4-bi-card.tone-risk .t4-bi-value { color: var(--t4-critical, #b4233d); }

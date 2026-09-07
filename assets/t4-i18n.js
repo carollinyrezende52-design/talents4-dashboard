@@ -88,6 +88,7 @@
     'Abrir ações rápidas': 'Schnellaktionen öffnen',
     'Conectando': 'Verbindung wird hergestellt',
     'Novo': 'Neu',
+    'Meu dia': 'Mein Tag',
     'Demonstração': 'Demo',
     'Homologação': 'Staging',
     'Ambiente de homologação': 'Staging-Umgebung',

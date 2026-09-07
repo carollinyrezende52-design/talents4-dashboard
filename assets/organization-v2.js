@@ -3,7 +3,7 @@
   const U = window.T4V2, W = window.T4Work, M = window.T4Models, D = window.T4Data, R = window.T4Records;
   const e = U.esc, a = U.attr;
   const VIEWS = [
-    { id: 'overview', label: 'Meu dia', subtitle: 'Empregadores, compromissos e decisões em um só lugar.', icon: 'dashboard' },
+    { id: 'overview', label: 'Meu dia', subtitle: 'Empregadores, compromissos e decisões em um só lugar.', icon: 'dashboard', hidden: true },
     { id: 'employers', label: 'Empregadores', subtitle: '', icon: 'building' },
     { id: 'pipeline', label: 'Seleções', subtitle: 'Cada linha representa Talento + empregador + vaga + etapa.', icon: 'columns' },
     { id: 'opportunities', label: 'Oportunidades', subtitle: 'Demanda real e requisitos de cada oportunidade.', icon: 'briefcase' },

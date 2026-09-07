@@ -380,8 +380,8 @@
     };
     let sidebarCollapsed = readSidebarCollapsed();
 
-    const primaryViews = views.filter((view) => view.primary !== false);
-    const secondaryViews = views.filter((view) => view.primary === false);
+    const primaryViews = views.filter((view) => view.primary !== false && !view.hidden);
+    const secondaryViews = views.filter((view) => view.primary === false && !view.hidden);
     const envInfo = window.T4_DEMO
       ? { title: t('Dados fictícios; alterações não são persistidas.'), label: t('Demonstração') }
       : /homologacao/i.test(location.href)
@@ -423,6 +423,7 @@
         <main class="t4-main">
           <header class="t4-topbar">
             <button type="button" class="t4-icon-btn t4-mobile-menu" data-menu aria-label="${t('Abrir menu')}" data-i18n-attrs="aria-label">${icon('menu')}</button>
+            <a class="t4-btn ghost sm t4-meudia-link" href="./index.html?view=overview" data-i18n-attrs="aria-label" aria-label="${t('Meu dia')}">${icon('dashboard')}<span data-i18n-text>${t('Meu dia')}</span></a>
             <div class="t4-topbar-heading"><div class="t4-eyebrow">${esc(config.moduleLabel)}</div><h1 class="t4-page-title" data-page-title></h1><p class="t4-page-subtitle" data-page-subtitle></p></div>
             <div class="t4-topbar-spacer"></div>
             <label class="t4-global-search" aria-label="${t('Busca nesta área')}" data-i18n-attrs="aria-label">${icon('search')}<input type="search" data-global-search placeholder="${attr(config.searchPlaceholder || t('Buscar…'))}" data-i18n-attrs="placeholder"><button type="button" class="t4-search-clear" data-search-clear hidden aria-label="${t('Limpar busca')}" data-i18n-attrs="aria-label">${icon('close')}</button><span class="t4-keycap">/</span></label>

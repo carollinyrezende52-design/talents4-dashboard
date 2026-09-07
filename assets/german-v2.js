@@ -3,13 +3,13 @@
   const U = window.T4V2, W = window.T4Work, M = window.T4Models, D = window.T4Data, R = window.T4Records;
   const e = U.esc, a = U.attr;
   const VIEWS = [
-    { id: 'overview', label: 'Meu dia', subtitle: 'Aprendizagem, presença e próximos passos dos talentos.', icon: 'dashboard' },
+    { id: 'overview', label: 'Meu dia', subtitle: 'Aprendizagem, presença e próximos passos dos talentos.', icon: 'dashboard', hidden: true },
     { id: 'classes', label: 'Turmas', subtitle: 'Instituição, professor, horários e recursos de cada turma.', icon: 'book' },
     { id: 'students', label: 'Matrículas', subtitle: 'Uma matrícula ligada ao cadastro original do Talento.', icon: 'graduation' },
     { id: 'attention', label: 'A acompanhar', subtitle: 'Alertas explicados, sem confundir informação ausente com desempenho ruim.', icon: 'warning' },
     { id: 'history', label: 'Histórico de evolução', subtitle: 'Presenças, avaliações, evolução, contatos e alertas.', icon: 'history', primary: false }
   ];
-  const app = U.mount({ module: 'german', moduleLabel: 'Alemão', views: VIEWS, defaultView: 'overview' });
+  const app = U.mount({ module: 'german', moduleLabel: 'Alemão', views: VIEWS, defaultView: 'classes' });
   const state = { talents: [], contacts: [], classes: [], enrollments: [], updates: [], teacherLink: false, classId: '', status: '', level: '', risk: '', query: '', display: 'cards', classScope: 'active', studentScope: 'current', loaded: false };
   const sources = {
     talents: { label: 'Talentos', load: () => D.loadCandidates({ activeOnly: false }) },
