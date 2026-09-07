@@ -4,6 +4,7 @@
   const SUPABASE_URL = 'https://xcxqtjzlqmncwnhbolnl.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjeHF0anpscW1uY3duaGJvbG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTU4NjQsImV4cCI6MjA4OTE3MTg2NH0.TJ1KB6mwSE-wu3EBO8UfP7br6byIloDsr0ejJ4_3luc';
   const ROOT_LOGIN = './index.html';
+  const LOGIN_EMAIL_DOMAIN = 't4ops.crm';
   const DEFAULT_TIMEOUT = 9_000;
 
   const TABLES = Object.freeze({
@@ -158,7 +159,7 @@
         <form class="t4-login-card" data-login-form novalidate>
           <h1 class="t4-login-title">Talents 4</h1>
           ${notice ? `<p class="t4-login-notice">${esc(notice)}</p>` : ''}
-          <label class="t4-field"><span class="t4-field-label">E-mail</span><span class="t4-field-control"><input type="email" name="email" autocomplete="username" required autofocus></span></label>
+          <label class="t4-field"><span class="t4-field-label">Usuário</span><span class="t4-field-control"><input type="text" name="username" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required autofocus></span></label>
           <label class="t4-field"><span class="t4-field-label">Senha</span><span class="t4-field-control"><input type="password" name="password" autocomplete="current-password" required></span></label>
           <p class="t4-login-error" data-login-error hidden></p>
           <button type="submit" class="t4-btn primary t4-login-submit">Entrar</button>
@@ -173,15 +174,14 @@
       submitButton.disabled = true;
       submitButton.textContent = 'Entrando…';
       try {
-        const { error } = await client.auth.signInWithPassword({
-          email: form.email.value.trim(),
-          password: form.password.value
-        });
+        const typed = form.username.value.trim();
+        const email = typed.includes('@') ? typed : `${typed}@${LOGIN_EMAIL_DOMAIN}`;
+        const { error } = await client.auth.signInWithPassword({ email, password: form.password.value });
         if (error) throw error;
         location.href = ROOT_LOGIN;
       } catch (error) {
         errorBox.textContent = /invalid login credentials/i.test(error?.message || '')
-          ? 'E-mail ou senha incorretos.'
+          ? 'Usuário ou senha incorretos.'
           : (error?.message || 'Não foi possível entrar. Tente novamente.');
         errorBox.hidden = false;
         submitButton.disabled = false;
