@@ -1422,3 +1422,32 @@ body {
   .t4-period-options { min-width: 0; }
   .org-ready-card-deadline { margin-left: 0; }
 }
+
+
+/* V2.6.7 · rótulos do menu preservados no hover */
+/* O item da área atual mantém a superfície azul durante o hover. A regra
+   genérica de hover definia a cor do texto como azul-escuro, enquanto o
+   estado ativo mantinha o fundo azul-escuro; o resultado era o rótulo
+   visualmente apagado. */
+.t4-switch-item.active:hover,
+.t4-switch-item.active:focus-visible {
+  color: #fff;
+  background: #002a4a;
+}
+.t4-switch-item.active:hover .t4-nav-text,
+.t4-switch-item.active:focus-visible .t4-nav-text { color: inherit; }
+
+/* Quando a lateral recolhida abre por hover/foco, os rótulos de navegação
+   ficam explicitamente visíveis. O !important aqui protege o estado
+   expandido contra a regra-base de recolhimento, sem alterar a lateral
+   enquanto ela está fechada. */
+@media (min-width: 1001px) {
+  body.t4-sidebar-collapsed .t4-sidebar:hover .t4-nav-section .t4-nav-text,
+  body.t4-sidebar-collapsed .t4-sidebar:focus-within .t4-nav-section .t4-nav-text,
+  body.t4-sidebar-collapsed .t4-sidebar:hover .t4-meudia-pin .t4-nav-text,
+  body.t4-sidebar-collapsed .t4-sidebar:focus-within .t4-meudia-pin .t4-nav-text {
+    display: inline !important;
+    visibility: visible;
+    opacity: 1;
+  }
+}
