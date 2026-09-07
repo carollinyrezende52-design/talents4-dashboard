@@ -491,9 +491,14 @@
       // Abre "Mais espaços" ao navegar para um item seu, mas a troca de
       // rota nunca o fecha sozinha — só o mouse saindo da lateral fecha
       // (ver listener de mouseleave mais abaixo), para não interromper
-      // quem está navegando entre os itens do próprio grupo.
+      // quem está navegando entre os itens do próprio grupo. Só faz isso
+      // com a lateral expandida: recolhida, "Mais espaços" vira um flyout
+      // posicionado de forma absoluta, e abri-lo sozinho (sem o usuário
+      // ter clicado) deixa esse flyout preso num estado quebrado assim
+      // que o mouse passa por cima da lateral recolhida (ver o fechamento
+      // forçado no botão "Recolher/Expandir menu" abaixo).
       const more = root.querySelector('.t4-nav-more');
-      if (more && secondaryViews.some((item) => item.id === currentView)) more.open = true;
+      if (more && !sidebarCollapsed && secondaryViews.some((item) => item.id === currentView)) more.open = true;
       if (options.notify !== false) {
         routeListeners.forEach((listener) => listener(currentView, view));
         animatePageEnter();
@@ -532,10 +537,20 @@
       document.body.classList.toggle('t4-sidebar-collapsed', sidebarCollapsed);
       writeSidebarCollapsed(sidebarCollapsed);
       syncSidebarToggle();
-      // Sem isto, o botão fica focado após o clique e a lateral recolhida
-      // se expande de novo sozinha (:focus-within), como se o hover nunca
-      // tivesse terminado — o recolher pareceria não ter efeito nenhum.
-      if (sidebarCollapsed) collapseToggle.blur();
+      if (sidebarCollapsed) {
+        // Recolher a lateral com "Mais espaços" aberto deixava um flyout
+        // preso e cortado bem no instante do clique: o mouse ainda está
+        // sobre o botão (dentro da própria lateral), o que aciona a
+        // pré-visualização por hover da lateral recolhida, e essa
+        // pré-visualização corta com overflow o flyout posicionado de
+        // forma absoluta. Fechar aqui evita esse estado quebrado.
+        const more = root.querySelector('.t4-nav-more');
+        if (more) more.open = false;
+        // Sem isto, o botão fica focado após o clique e a lateral recolhida
+        // se expande de novo sozinha (:focus-within), como se o hover nunca
+        // tivesse terminado — o recolher pareceria não ter efeito nenhum.
+        collapseToggle.blur();
+      }
     });
     // "Mais espaços" não fecha sozinho ao trocar de página dentro da
     // lateral (pedido explícito), mas também não pode ficar aberto para
