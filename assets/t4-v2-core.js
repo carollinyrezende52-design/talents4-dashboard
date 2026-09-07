@@ -405,7 +405,7 @@
             <nav class="t4-nav-section" aria-label="${attr(config.moduleLabel)}">
               <div class="t4-nav-label" data-i18n-module-label="${attr(moduleId)}">${esc(config.moduleLabel)}</div>
               ${primaryViews.map((view) => `<button type="button" class="t4-nav-item" data-route="${attr(view.id)}" aria-label="${attr(view.label)}" data-tooltip="${attr(view.label)}"><span class="t4-nav-icon">${icon(view.icon || 'note', '')}</span><span class="t4-nav-text" data-i18n-view="${attr(moduleId)}:${attr(view.id)}">${esc(view.label)}</span><span class="t4-nav-count" data-count="${attr(view.id)}" hidden></span></button>`).join('')}
-              ${secondaryViews.length ? `<details class="t4-nav-more" ${secondaryViews.some((view) => view.id === currentView) ? 'open' : ''}><summary aria-label="Mais espaços" data-tooltip="Mais espaços"><span class="t4-nav-icon">${icon('more', '')}</span><span class="t4-nav-text" data-i18n-static="moreSpaces">Mais espaços</span><span class="t4-nav-chevron">${icon('chevron', '')}</span></summary><div>${secondaryViews.map((view) => `<button type="button" class="t4-nav-item" data-route="${attr(view.id)}" aria-label="${attr(view.label)}" data-tooltip="${attr(view.label)}"><span class="t4-nav-icon">${icon(view.icon || 'note', '')}</span><span class="t4-nav-text" data-i18n-view="${attr(moduleId)}:${attr(view.id)}">${esc(view.label)}</span><span class="t4-nav-count" data-count="${attr(view.id)}" hidden></span></button>`).join('')}</div></details>` : ''}
+              ${secondaryViews.map((view) => `<button type="button" class="t4-nav-item" data-route="${attr(view.id)}" aria-label="${attr(view.label)}" data-tooltip="${attr(view.label)}"><span class="t4-nav-icon">${icon(view.icon || 'note', '')}</span><span class="t4-nav-text" data-i18n-view="${attr(moduleId)}:${attr(view.id)}">${esc(view.label)}</span><span class="t4-nav-count" data-count="${attr(view.id)}" hidden></span></button>`).join('')}
             </nav>
             <nav class="t4-nav-section" aria-label="Alternar módulo">
               <div class="t4-nav-label" data-i18n-static="systemAreas">Áreas do sistema</div>
@@ -488,12 +488,6 @@
       });
       root.querySelector('[data-page-title]').textContent = view?.title || view?.label || '';
       root.querySelector('[data-page-subtitle]').textContent = view?.subtitle || config.subtitle || '';
-      // Abre "Mais espaços" ao navegar para um item seu, mas a troca de
-      // rota nunca o fecha sozinha — só o mouse saindo da lateral fecha
-      // (ver listener de mouseleave mais abaixo), para não interromper
-      // quem está navegando entre os itens do próprio grupo.
-      const more = root.querySelector('.t4-nav-more');
-      if (more && secondaryViews.some((item) => item.id === currentView)) more.open = true;
       if (options.notify !== false) {
         routeListeners.forEach((listener) => listener(currentView, view));
         animatePageEnter();
@@ -537,36 +531,6 @@
       // tivesse terminado — o recolher pareceria não ter efeito nenhum.
       if (sidebarCollapsed) collapseToggle.blur();
     });
-    // "Mais espaços" não fecha sozinho ao trocar de página dentro da
-    // lateral (pedido explícito), mas também não pode ficar aberto para
-    // sempre: quando o ponteiro sai de perto da lateral/flyout de verdade
-    // — sinal de que o usuário já terminou de usá-la —, ele recolhe.
-    // Isto NÃO usa mouseenter/mouseleave/focusout da lateral: clicar em um
-    // item do próprio flyout troca a rota, o que move o foco para o
-    // conteúdo principal por acessibilidade (focusMainOnRoute, em
-    // t4-v25.js) e re-renderiza esse conteúdo — navegadores reavaliam o
-    // que está sob o ponteiro PARADO e o foco após essa mudança de DOM,
-    // disparando mouseleave/focusout reais mesmo sem o usuário ter saído
-    // de verdade, o que fecharia o menu bem na hora de clicar nele. Em vez
-    // disso, cada mousemove real verifica a posição atual contra a
-    // lateral e o flyout diretamente; uma mutação de DOM sem o mouse se
-    // mover não gera mousemove, então não derruba o menu por engano.
-    const sidebarEl = root.querySelector('.t4-sidebar');
-    let moreCloseTimer = null;
-    const pointInRect = (x, y, rect) => rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-    document.addEventListener('mousemove', (event) => {
-      const more = root.querySelector('.t4-nav-more');
-      if (!more || !more.open) return;
-      const flyout = more.querySelector(':scope > div');
-      const inside = pointInRect(event.clientX, event.clientY, sidebarEl.getBoundingClientRect())
-        || pointInRect(event.clientX, event.clientY, flyout?.getBoundingClientRect());
-      clearTimeout(moreCloseTimer);
-      if (!inside) moreCloseTimer = setTimeout(() => { more.open = false; }, 220);
-    });
-    // O <details>/<summary> nativo controla abertura por clique e teclado.
-    // Não interceptar o clique nem forçar `open`: misturar hover,
-    // preventDefault e o toggle nativo fazia o submenu abrir e fechar
-    // no mesmo gesto, deixando "Mais espaços" aparentemente travado.
     root.querySelector('.t4-mobile-overlay').addEventListener('click', () => document.body.classList.remove('t4-sidebar-open'));
     root.querySelector('[data-logout]').addEventListener('click', () => document.dispatchEvent(new CustomEvent('t4:logout')));
     primary.addEventListener('click', async () => {
